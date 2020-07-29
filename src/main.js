@@ -42,6 +42,12 @@ import './iconfont/iconfont.css'
 import './styles/index.less'
 import './libs/iview-pro/iview-pro.css'
 
+import BaiduMap from 'vue-baidu-map'
+
+Vue.use(BaiduMap, {
+    ak: '5bskxOMT41wqVZxZzXme3jV57lfyHUz9'
+})
+
 if (window) window.$t = (key, value) => i18n.t(key, value)
 
 Vue.use(plugins)

@@ -279,6 +279,7 @@ export default {
             color: #495060;
             h3 {
                 display: inline;
+                font-size: 14px;
             }
             span {
                 display: inline;
@@ -366,19 +367,6 @@ export default {
             width: 24%;
             margin-right: 1%;
         }
-    }
-    .tissueTitle {
-        border-bottom: 1px solid #f0f0f0;
-        height: 40px;
-        line-height: 40px;
-        text-indent: 10px;
-        font-size: 15px;
-        font-weight: bold;
-        color: #495060;
-    }
-    .tissueTitle1 {
-        height: 50px;
-        line-height: 50px;
     }
 }
 </style>
