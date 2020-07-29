@@ -1,0 +1,3 @@
+<template>
+    <div>报表配置</div>
+</template>
