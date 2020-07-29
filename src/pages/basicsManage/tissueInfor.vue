@@ -7,10 +7,6 @@
                 </div>
                 <div class="tissue-list">
                     <Tree :data="baseData" :render="renderContent" class="demo-tree-render"></Tree>
-                    <!-- <div class="tissue-li">
-                        <span>联泰潮英智慧水务</span>
-                        <span>新建</span>
-                    </div> -->
                 </div>
             </div>
             <div class="tissue-right">
@@ -104,13 +100,11 @@ export default {
                             width: '100%'
                         },
                         on: {
-                            //鼠标进入
                             'mouseenter': () => {
-                                data.is_show = true;
+                                data.is_show = true
                             },
-                            //鼠标离开
                             'mouseleave': () => {
-                                data.is_show = false;
+                                data.is_show = false
                             }
                         }
                     }, [
@@ -189,7 +183,6 @@ export default {
         }
     },
     mounted() {
-        console.log(document.body.clientHeight)
         this.height = document.body.clientHeight-70
     },
     methods: {
@@ -273,7 +266,7 @@ export default {
 </script>
 <style lang="less" scoped>
 .tissue-box {
-    margin: -18px -24px -24px -24px;
+    margin-top: 5px;
     .tissue-tree {
         display: flex;
         min-height: 100%;
