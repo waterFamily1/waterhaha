@@ -33,7 +33,7 @@ export default {
                 closable: false
             },
             component: () => import('@/pages/basicsManage/userInfor')
-        }, {
+        },  {
             path: 'areaSiteInfor',
             name: `${pre}areaSiteInfor`,
             meta: {
