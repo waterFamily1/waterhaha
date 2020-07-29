@@ -27,8 +27,8 @@
                         <strong>{{ row.name }}</strong>
                     </template>
                     <template slot-scope="{ row, index }" slot="action">
-                        <Button type="primary" size="small" style="margin-right: 5px" @click="show(index)">查看</Button>
-                        <Button type="error" size="small" @click="remove(index)">删除</Button>
+                        <Button class="action" size="small" style="margin-right: 5px;" @click="show(index)">查看</Button>
+                        <Button class="action" size="small" @click="remove(index)">删除</Button>
                     </template>
                 </Table>
                  <Page :total="100" show-elevator class="page" />
@@ -164,6 +164,7 @@
     margin: 5px;
     .search-header{
         background: #fff;
+        padding: 5px;
         .c-form-item{
             display: inline-block;
             min-height: 33px;
@@ -210,6 +211,12 @@
             }
         }
         .table-wrapper{
+            .action{
+                color:rgb(75, 126, 254);
+                border:0;
+                font-size:12px;
+                background:transparent
+            }
             .page{
                 text-align: right;
                 margin-top: 10px;
