@@ -27,7 +27,7 @@
                         <strong>{{ row.name }}</strong>
                     </template>
                     <template slot-scope="{ row, index }" slot="action">
-                        <Button class="action" size="small" style="margin-right: 5px;" @click="show(index)">查看</Button>
+                        <Button class="action" size="small" style="margin-right: 5px;" @click="checkUser(index)">查看</Button>
                         <Button class="action" size="small" @click="remove(index)">删除</Button>
                     </template>
                 </Table>
@@ -155,6 +155,9 @@
                 setTimeout(() => {
                     this.modal = false;
                 }, 2000);
+            },
+            checkUser(index) {
+                this.$router.push({path:'/basicsManage/user/checkUserInfor'})
             }
         }
     }

@@ -33,7 +33,25 @@ export default {
                 closable: false
             },
             component: () => import('@/pages/basicsManage/userInfor')
-        },  {
+        }, {
+            path: 'checkUserInfor',
+            name: `${pre}checkUserInfor`,
+            meta: {
+                ...meta,
+                title: '用户详情',
+                closable: false
+            },
+            component: () => import('@/pages/basicsManage/checkUserInfor'),
+        }, {
+            path: 'editUserInfor',
+            name: `${pre}editUserInfor`,
+            meta: {
+                ...meta,
+                title: '用户编辑',
+                closable: false
+            },
+            component: () => import('@/pages/basicsManage/editUserInfor'),
+        }, {
             path: 'areaSiteInfor',
             name: `${pre}areaSiteInfor`,
             meta: {
