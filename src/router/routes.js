@@ -15,6 +15,8 @@ import storeManage from './modules/storeManage'          //库存管理
 import knowledgeManage from './modules/knowledgeManage'  //知识管理
 import basicsManage from './modules/basicsManage'        //基础管理 
 import systemManage from './modules/systemManage'        //系统管理
+
+import other from './modules/other' //基础管理 => 导入
 /**
  * 在主框架内显示
  */
@@ -111,7 +113,8 @@ const frameIn = [
     storeManage,
     knowledgeManage,
     basicsManage,
-    systemManage
+    systemManage,
+    other
 ];
 
 /**

@@ -6,7 +6,7 @@
                     <h3>区域位置结构</h3>
                     <span class="area-title-btn-box">
                         <Button>导出二维码</Button>
-                        <Button>导入区域位置</Button>
+                        <Button @click="uploadArea()">导入区域位置</Button>
                     </span>
                 </div>
                 <div class="area-list">
@@ -50,6 +50,31 @@
                             <span>无</span>
                         </FormItem>
                     </Form>
+                    <div class="upload-img">
+                        <div class="img-box">
+                            <img :src="uploadUrl">
+                        </div>
+                        <div class="img-btn">
+                            <Upload action="//jsonplaceholder.typicode.com/posts/"
+                                :format="['jpg','jpeg','png']"
+                                ref="upload">
+                                <Button>添加图片</Button>
+                            </Upload>
+                        </div>
+                    </div>
+                </div>
+                <div class="area-map">
+                    <baidu-map center="天津" :zoom="13" 
+                        :scroll-wheel-zoom="true" :style="{height: mapHei+'px'}">
+                        <bm-map-type :map-types="['BMAP_NORMAL_MAP', 'BMAP_HYBRID_MAP']" anchor="BMAP_ANCHOR_TOP_LEFT"></bm-map-type>
+                        <bm-view class="map"></bm-view>
+                        <bm-control :offset="{width: '10px', height: '10px'}">
+                            <bm-auto-complete v-model="keyword" :sugStyle="{zIndex: 1}">
+                                <Input suffix="ios-search" placeholder="请输入地名关键字" style="width: auto" />
+                            </bm-auto-complete>
+                        </bm-control>
+                        <bm-local-search :keyword="keyword" :auto-viewport="true" ></bm-local-search>
+                    </baidu-map>
                 </div>
             </div>
         </div>
@@ -61,6 +86,8 @@ export default {
     data () {
         return {
             height: '',
+            mapHei: '',
+            uploadUrl: '',
             baseData: [],
             areaList: {
                 areaName: '',
@@ -76,14 +103,33 @@ export default {
                 areaKind: [
                     { required: true, message: '位置类别', trigger: 'blur' }
                 ]
-            }
+            },
+            postionMap:{  //地图坐标
+                lng: 120.211486,
+                lat: 30.256576
+            },
+            keyword: ''
         }
     },
     mounted() {
         this.height = document.body.clientHeight-70
+        this.mapHei = document.body.clientHeight-390
     },
     methods: {
-
+        getPoint() {
+            // console.log(e.point.lng)
+            // console.log(e.point.lat)
+            // this.center.lng = e.point.lng
+            // this.center.lat = e.point.lat
+        },
+        uploadArea() {
+            this.$router.push({
+                path:'/other/areaUpload',
+                query: {
+                    uploadName: '区域位置导入'
+                }
+            })
+        }
     }
 }
 </script>
@@ -179,11 +225,45 @@ export default {
                     }
                     .area-form-upload {
                         background: #576374;
+                        padding: 3px 10px;
+                        color: #fff;
+                        font-size: 12px;
+                        height: auto;
+                        margin-left: 10px;
+                    }
+                }
+                .upload-img {
+                    width: 200px;
+                    position: absolute;
+                    top: 50px;
+                    right: 10px;
+                    .img-box {
+                        width: 200px;
+                        height: 100px;
+                        background: rgb(245, 245, 245);
+                    }
+                    .img-btn {
+                        text-align: center;
+                        padding-top: 5px;
+                        /deep/.ivu-btn{
+                            background: #576374;
                             padding: 3px 10px;
                             color: #fff;
                             font-size: 12px;
                             height: auto;
                             margin-left: 10px;
+                        }
+                    }
+                }
+            }
+            .area-map {
+                width: 100%;
+                padding: 10px 10px 0 10px;
+                .map {
+                    width: 100%;
+                    height: 300px;
+                    /deep/.BMap_noprint {
+                        right: 0!important;
                     }
                 }
             }

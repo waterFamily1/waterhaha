@@ -16,6 +16,8 @@ import knowledgeManage from './modules/knowledgeManage'  //知识管理
 import basicsManage from './modules/basicsManage'        //基础管理 
 import systemManage from './modules/systemManage'        //系统管理
 
+import other from './modules/other' //基础管理 => 导入
+
 // 系统
 import log from './modules/log'
 
@@ -36,5 +38,6 @@ export default [
     knowledgeManage,
     basicsManage,
     systemManage,
-    log
+    log,
+    other
 ];
