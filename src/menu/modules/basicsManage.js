@@ -18,6 +18,10 @@ export default {
         }, {
             path: `${pre}deviceKindInfor`,
             title: '设备类型信息'
+        }, {
+            path: `${pre}user/checkUserInfor`,
+            title: '用户详情',
+            auth: ['hidden']
         }
     ]
 }

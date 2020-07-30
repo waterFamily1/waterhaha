@@ -34,23 +34,23 @@ export default {
             },
             component: () => import('@/pages/basicsManage/userInfor')
         }, {
-            path: 'checkUserInfor',
-            name: `${pre}checkUserInfor`,
+            path: 'user/checkUserInfor',
+            name: `${pre}user-checkUserInfor`,
             meta: {
                 ...meta,
                 title: '用户详情',
                 closable: false
             },
-            component: () => import('@/pages/basicsManage/checkUserInfor'),
+            component: () => import('@/pages/basicsManage/user/checkUserInfor'),
         }, {
-            path: 'editUserInfor',
-            name: `${pre}editUserInfor`,
+            path: 'user/editUserInfor',
+            name: `${pre}user-editUserInfor`,
             meta: {
                 ...meta,
                 title: '用户编辑',
                 closable: false
             },
-            component: () => import('@/pages/basicsManage/editUserInfor'),
+            component: () => import('@/pages/basicsManage/user/editUserInfor'),
         }, {
             path: 'areaSiteInfor',
             name: `${pre}areaSiteInfor`,
