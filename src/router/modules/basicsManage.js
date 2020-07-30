@@ -51,6 +51,15 @@ export default {
                 closable: false
             },
             component: () => import('@/pages/basicsManage/user/editUserInfor'),
+        },{
+            path: 'user/addUserInfor',
+            name: `${pre}user-addUserInfor`,
+            meta: {
+                ...meta,
+                title: '新增用户',
+                closable: false
+            },
+            component: () => import('@/pages/basicsManage/user/addUserInfor'),
         }, {
             path: 'areaSiteInfor',
             name: `${pre}areaSiteInfor`,

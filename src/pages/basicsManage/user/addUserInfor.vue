@@ -28,7 +28,7 @@
                         </div>
                     </Tooltip>
                 </FormItem>
-                <FormItem label="邮箱：" prop="phone" :required="false">
+                <FormItem label="邮箱：" prop="email" :required="false">
                     <Input v-model="formInline.email" placeholder="请输入邮箱" value="123" style="width:350px"></Input>
                 </FormItem>
             </Form>

@@ -18,7 +18,7 @@
         </div>  
         <div class="c-top-border-gray">
             <div class="c-table-top-btns">
-                <button type="button">新增用户</button>
+                <button type="button" @click="addUser()">新增用户</button>
                 <button type="button" style="margin-left:10px">批量导入</button>
             </div>
             <div class="table-wrapper" :style="{height: (height-45)+'px'}">
@@ -158,6 +158,9 @@
             },
             checkUser(index) {
                 this.$router.push({path:'/basicsManage/user/checkUserInfor'})
+            },
+            addUser(){
+                this.$router.push({path:'/basicsManage/user/addUserInfor'})
             }
         }
     }
