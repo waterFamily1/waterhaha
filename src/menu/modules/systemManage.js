@@ -13,11 +13,27 @@ export default {
             path: `${pre}terminalDeploy`,
             title: '终端配置'
         }, {
+            path: `${pre}teminal/addUser`,
+            title: '新建',
+            auth: ['hidden']
+        }, {
+            path: `${pre}teminal/terminalDetail`,
+            title: '配置',
+            auth: ['hidden']
+        }, {
+            path: `${pre}teminal/terminalTest`,
+            title: '测试',
+            auth: ['hidden']
+        }, {
             path: `${pre}SIMManage`,
             title: 'SIM卡管理'
         }, {
             path: `${pre}indexManage`,
             title: '指标管理'
+        }, {
+            path: `${pre}index/indexAdd`,
+            title: '新增指标',
+            auth: ['hidden']
         }, {
             path: `${pre}flowAlarm`,
             title: '流量报警设置'

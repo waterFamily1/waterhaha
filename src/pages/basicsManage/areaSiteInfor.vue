@@ -117,10 +117,7 @@ export default {
     },
     methods: {
         getPoint() {
-            // console.log(e.point.lng)
-            // console.log(e.point.lat)
-            // this.center.lng = e.point.lng
-            // this.center.lat = e.point.lat
+           
         },
         uploadArea() {
             this.$router.push({

@@ -34,6 +34,33 @@ export default {
             },
             component: () => import('@/pages/systemManage/terminalDeploy')
         }, {
+            path: 'teminal/addUser',
+            name: `${pre}teminal-addUser`,
+            meta: {
+                ...meta,
+                title: '新建',
+                closable: false
+            },
+            component: () => import('@/pages/systemManage/teminal/terminalDetail'),
+        }, {
+            path: 'teminal/terminalDetail',
+            name: `${pre}teminal-terminalDetail`,
+            meta: {
+                ...meta,
+                title: '配置',
+                closable: false
+            },
+            component: () => import('@/pages/systemManage/teminal/terminalDetail'),
+        }, {
+            path: 'teminal/terminalTest',
+            name: `${pre}teminal-terminalTest`,
+            meta: {
+                ...meta,
+                title: '测试',
+                closable: false
+            },
+            component: () => import('@/pages/systemManage/teminal/terminalTest'),
+        }, {
             path: 'SIMManage',
             name: `${pre}SIMManage`,
             meta: {
@@ -51,6 +78,15 @@ export default {
                 closable: false
             },
             component: () => import('@/pages/systemManage/indexManage')
+        }, {
+            path: 'index/indexAdd',
+            name: `${pre}index-indexAdd`,
+            meta: {
+                ...meta,
+                title: '新增指标',
+                closable: false
+            },
+            component: () => import('@/pages/systemManage/index/indexAdd')
         }, {
             path: 'flowAlarm',
             name: `${pre}flowAlarm`,
