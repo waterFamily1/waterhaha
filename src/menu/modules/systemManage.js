@@ -38,6 +38,10 @@ export default {
             path: `${pre}flowAlarm`,
             title: '流量报警设置'
         }, {
+            path: `${pre}alarm/addAlarm`,
+            title: '新增报警',
+            auth: ['hidden']
+        }, {
             path: `${pre}handleLog`,
             title: '操作日志'
         }

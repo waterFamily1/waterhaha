@@ -97,6 +97,15 @@ export default {
             },
             component: () => import('@/pages/systemManage/flowAlarm')
         }, {
+            path: 'alarm/addAlarm',
+            name: `${pre}alarm-addAlarm`,
+            meta: {
+                ...meta,
+                title: '新增报警',
+                closable: false
+            },
+            component: () => import('@/pages/systemManage/alarm/addAlarm')
+        }, {
             path: 'handleLog',
             name: `${pre}handleLog`,
             meta: {
