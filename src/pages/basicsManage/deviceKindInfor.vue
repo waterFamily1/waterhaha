@@ -45,6 +45,10 @@
                                 <Input v-model="tissueList.remark" v-if="appear"></Input>
                             </FormItem>
                         </div>
+                        <div class="form-li">
+                            <h4>默认图片</h4>
+                            <div v-if="appear" style="min-height:40px">联泰潮英智慧水务</div>
+                        </div>
                     </Form>
                 </div>
             </div>
