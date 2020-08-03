@@ -45,10 +45,13 @@
                                 <Input v-model="tissueList.remark" v-if="appear"></Input>
                             </FormItem>
                         </div>
-                        <div class="form-li">
+                        <div class="form-li" style="border:0">
                             <h4>默认图片</h4>
-                            <div v-if="appear" style="min-height:40px">联泰潮英智慧水务</div>
+                            <div v-if="appear" >
+                                <img src="../../assets/images/default.png" alt="" style="max-width:400px">
                         </div>
+                         <button style="background:#576374;border:0;padding:4px 12px;color:#fff;outline:0;border-radius:3px">上传图片</button>
+                            </div>
                     </Form>
                 </div>
             </div>
