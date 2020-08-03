@@ -4,7 +4,7 @@
             <h3>新增报警</h3>
             <div>
                 <Button type="info" size="small" style="background:#4b7efe" @click="save()">保存</Button>
-                <Button type="info" size="small" style="background:#c8c8c8" @click="cancel()">取消</Button>
+                <Button type="info" size="small" style="background:#c8c8c8" @click="goBack()">取消</Button>
             </div>
         </div>
         <div class="add-content">
@@ -15,7 +15,9 @@
                     </Select>
                 </FormItem>
                 <FormItem label="报警对象:" prop="object">
-                    <Input v-model="formValidate.object" placeholder="请选择报警对象" readonly></Input>
+                    <div @click="objmodel()">
+                        <Input v-model="formValidate.object" placeholder="请选择报警对象" readonly></Input>
+                    </div>
                 </FormItem>
                 <FormItem label="订阅方式:">
                     <Select v-model="formValidate.way" multiple>
@@ -41,10 +43,57 @@
                 </FormItem>
                 <FormItem label="订阅人:" prop="people">
                     <Input v-model="formValidate.people" placeholder="请选择订阅人" readonly></Input>
-                    <Button type="primary" class="form-btn">选择</Button>
+                    <Button type="primary" class="form-btn" @click="peopleModel = true">选择</Button>
                 </FormItem>
             </Form>
         </div>
+        <!-- 报警对象 -->
+        <Modal
+            v-model="objModal"
+            title="选择报警对象"
+            width="650"
+            @on-ok="ok"
+            @on-cancel="cancel">
+            <div class="model-search">
+                <div class="model-search-box">
+                    <label>关键字：</label>
+                    <Input v-model="keyword" placeholder="ICCID" style="width: 200px" />
+                </div>
+                <Button type="primary">搜索</Button>
+            </div>
+            <div class="model-table">
+                <Table ref="selection" :columns="columns" :data="data"></Table>
+                <div class="model-page">
+                    <Page :total="40" size="small" show-total show-elevator style="text-align: right"/>
+                </div>
+            </div>
+        </Modal>
+        <!-- 选择订阅人 -->
+        <Modal
+            v-model="peopleModel"
+            title="报警订阅新增对象"
+            width="500"
+            @on-ok="ok"
+            @on-cancel="cancel">
+            <div class="people-model">
+                <Form ref="peopleForm" :model="peopleForm" :rules="peopleRule" :label-width="80">
+                    <FormItem label="所属组织" prop="organization">
+                        <Select v-model="peopleForm.organization" placeholder="请选择">
+                            <Option value="beijing">New York</Option>
+                            <Option value="shanghai">London</Option>
+                            <Option value="shenzhen">Sydney</Option>
+                        </Select>
+                    </FormItem>
+                    <FormItem label="用户" prop="user">
+                        <Select v-model="peopleForm.user" placeholder="请选择">
+                            <Option value="beijing">New York</Option>
+                            <Option value="shanghai">London</Option>
+                            <Option value="shenzhen">Sydney</Option>
+                        </Select>
+                    </FormItem>
+                </Form>
+            </div>
+        </Modal>
     </div>
 </template>
 <script>
@@ -77,7 +126,43 @@ export default {
                     value: '1',
                     label: '短信'
                 }
-            ]
+            ],
+            objModal: false,
+            keyword: '',
+            columns: [
+                {
+                    type: 'selection',
+                    width: 60,
+                    align: 'center'
+                },
+                {
+                    title: '报警对象',
+                    key: 'alarmObject'
+                },
+                {
+                    title: '备注',
+                    key: 'remark'
+                }
+            ],
+            data: [
+                {
+                    alarmObject: '1',
+                    remark: '哈哈哈哈哈哈'
+                }
+            ],
+            peopleModel: false,
+            peopleForm: {
+                organization: '',
+                user: ''
+            },
+            peopleRule: {
+                organization: [
+                    { required: true, message: '请选择所属组织', trigger: 'blur' }
+                ],
+                user: [
+                    { required: true, message: '请选择用户', trigger: 'blur' }
+                ]
+            }
         }
     },
     mounted() {
@@ -87,8 +172,18 @@ export default {
         save() {
 
         },
-        cancel() {
+        goBack() {
             this.$router.go(-1)
+        },
+        objmodel() {
+            console.log(1111)
+            this.objModal = true
+        },
+        ok () {
+            this.$Message.info('Clicked ok');
+        },
+        cancel () {
+            this.$Message.info('Clicked cancel');
         }
     }
 }
@@ -141,5 +236,26 @@ export default {
             }
         }
     }
+}
+.model-search {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    vertical-align: top;
+    zoom: 1;
+    /deep/.ivu-input {
+        height: 28px;
+    }
+    /deep/.ivu-btn {
+        height: 28px;
+        line-height: 25px;
+        font-size: 13px;
+    }
+}
+.model-page {
+    margin-top: 20px;
+}
+/deep/.ivu-btn-text {
+    border: 1px solid #e3e5e8;
 }
 </style>
