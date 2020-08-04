@@ -128,7 +128,7 @@ export default {
             }
         },
         addNew() {
-            this.$router.push({path:'/systemManage/index/indexAdd'})
+            // this.$router.push({path:'/systemManage/index/indexAdd'})
         }
     }
 }
