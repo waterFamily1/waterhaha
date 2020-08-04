@@ -30,30 +30,37 @@
                             <div class="form-item">
                                 <FormItem label="运营商:">
                                     <div class="cmp-tab">
-                                        <a href="javascript:;" @click="operatorCheckAll()" :class="{checked:operCheckedAll}">全部</a>
-                                        <a href="javascript:;" v-for="(item, index) in operatorList" 
-                                        :key="index" @click="operatorCheck(item.id)" 
-                                        :class="{checked:operCheckBox.includes(item.id)}">{{ item.label }}</a>
+                                        <TagSelect v-model="operatorValue">
+                                            <TagSelectOption name="tag1">电信</TagSelectOption>
+                                            <TagSelectOption name="tag2">移动</TagSelectOption>
+                                            <TagSelectOption name="tag3">联通</TagSelectOption>
+                                        </TagSelect>
                                     </div>
                                 </FormItem>
                             </div>
                             <div class="form-item">
                                 <FormItem label="SIM卡状态:">
                                     <div class="cmp-tab">
-                                        <a href="javascript:;" @click="simCheckAll()" :class="{checked:simCheckedAll}">全部</a>
-                                        <a href="javascript:;" v-for="(item, index) in simList" 
-                                        :key="index" @click="simCheck(item.id)" 
-                                        :class="{checked:simBox.includes(item.id)}">{{ item.label }}</a>
+                                        <TagSelect v-model="simValue">
+                                            <TagSelectOption name="tag1">在用</TagSelectOption>
+                                            <TagSelectOption name="tag2">停机</TagSelectOption>
+                                            <TagSelectOption name="tag3">待激活</TagSelectOption>
+                                            <TagSelectOption name="tag4">销户</TagSelectOption>
+                                            <TagSelectOption name="tag5">未知</TagSelectOption>
+                                        </TagSelect>
                                     </div>
                                 </FormItem>
                             </div>
                             <div class="form-item">
                                 <FormItem label="剩余百分比:">
                                     <div class="cmp-tab">
-                                        <a href="javascript:;" @click="residueCheckAll()" :class="{checked:residueCheckedAll}">全部</a>
-                                        <a href="javascript:;" v-for="(item, index) in residueList" 
-                                        :key="index" @click="residueCheck(item.id)" 
-                                        :class="{checked:residueBox.includes(item.id)}">{{ item.label }}</a>
+                                        <TagSelect v-model="residueValue">
+                                            <TagSelectOption name="tag1">≤100%</TagSelectOption>
+                                            <TagSelectOption name="tag2">≤80%</TagSelectOption>
+                                            <TagSelectOption name="tag3">≤60%</TagSelectOption>
+                                            <TagSelectOption name="tag4">≤40%</TagSelectOption>
+                                            <TagSelectOption name="tag5">≤20%</TagSelectOption>
+                                        </TagSelect>
                                     </div>
                                 </FormItem>
                             </div>
@@ -69,7 +76,7 @@
                 <button type="button" style="margin-left:10px">删除</button>
             </div>
             <div class="table-wrapper" :style="{height: (height-45)+'px'}">
-                <Table stripe :columns="simTableList" :data="simTableData">
+                <Table stripe size="small" :columns="simTableList" :data="simTableData">
                     <template slot-scope="{ row }" slot="name">
                         <strong>{{ row.name }}</strong>
                     </template>
@@ -130,31 +137,9 @@ export default {
             searchShow: false,
             addModal: false,
             loading: true,
-            operatorList: [
-                {label: '电信',id: 1},
-                {label: '移动',id: 2},
-                {label: '联通',id: 3}
-            ],
-            operCheckBox: [],
-            operCheckedAll: false,
-            simList: [
-                {label: '在用',id: 1},
-                {label: '停机',id: 2},
-                {label: '待激活',id: 3},
-                {label: '销户',id: 4},
-                {label: '未知',id: 5}
-            ],
-            simBox: [],
-            simCheckedAll: false,
-            residueList: [
-                {label: '≤100%',id: 1},
-                {label: '≤80%',id: 2},
-                {label: '≤60%',id: 3},
-                {label: '≤40%',id: 4},
-                {label: '≤20%',id: 5}
-            ],
-            residueBox: [],
-            residueCheckedAll: false,
+            operatorValue: [],
+            simValue: [],
+            residueValue: [],
             simTableList: [
                 {
                     type: 'selection',
@@ -223,48 +208,6 @@ export default {
     methods: {
         higherSearch() {
             this.searchShow = !this.searchShow
-        },
-        operatorCheckAll() {
-            this.operCheckBox = []
-            this.operCheckedAll = true
-        },
-        operatorCheck(i) {
-            this.operCheckedAll = false
-            if(this.operCheckBox.includes(i)) {
-                this.operCheckBox = this.operCheckBox.filter((ele) => {
-                    return ele != i
-                });
-            } else {
-                this.operCheckBox.push(i);
-            }
-        },
-        simCheckAll() {
-            this.simBox = []
-            this.simCheckedAll = true
-        },
-        simCheck(i) {
-            this.simCheckedAll = false
-            if(this.simBox.includes(i)) {
-                this.simBox = this.simBox.filter((ele) => {
-                    return ele != i
-                });
-            } else {
-                this.simBox.push(i);
-            }
-        },
-        residueCheckAll() {
-            this.residueBox = []
-            this.residueCheckedAll = true
-        },
-        residueCheck(i) {
-            this.residueCheckedAll = false
-            if(this.residueBox.includes(i)) {
-                this.residueBox = this.residueBox.filter((ele) => {
-                    return ele != i
-                });
-            } else {
-                this.residueBox.push(i);
-            }
         },
         uploadArea() {
             this.$router.push({
@@ -337,17 +280,17 @@ export default {
                     }
                     .cmp-tab {
                         display: inline-block;
-                        a {
-                            margin-right: 20px;
-                            color: #576374;
-                        }
-                        .checked {
-                            color: #4B7EFE;
+                        margin-left: 100px;
+                        /deep/.ivu-tag-text {
+                            font-size: 14px;
                         }
                     }
                     /deep/.ivu-form-item {
                         margin-bottom: 5px;
                     }
+                }
+                /deep/.ivu-form-item-content {
+                    line-height: 6px;
                 }
             }
         }

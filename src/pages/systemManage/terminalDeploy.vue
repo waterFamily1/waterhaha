@@ -22,7 +22,7 @@
                 <button type="button" style="margin-left:10px">删除</button>
             </div>
             <div class="table-wrapper" :style="{height: (height-45)+'px'}">
-                <Table stripe :columns="terminalList" :data="terminalData">
+                <Table stripe size="small" :columns="terminalList" :data="terminalData">
                     <template slot-scope="{ row }" slot="name">
                         <strong>{{ row.name }}</strong>
                     </template>

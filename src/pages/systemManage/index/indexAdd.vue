@@ -53,7 +53,7 @@
                     </div>
                 </div>
                 <div class="mg-single-table" style="margin-top: 10px">
-                    <Table :columns="columns" :data="data">
+                    <Table size="small" :columns="columns" :data="data">
                         <template slot-scope="{ row }" slot="name">
                             <strong>{{ row.name }}</strong>
                         </template>

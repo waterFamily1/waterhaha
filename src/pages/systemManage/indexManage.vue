@@ -27,10 +27,11 @@
                     <div class="form-item">
                         <label>指标类型：</label>
                         <div class="cmp-tab">
-                            <a href="javascript:;" @click="typeCheckAll()" :class="{checked:typeCheckedAll}">全部</a>
-                            <a href="javascript:;" v-for="(item, index) in typeList" 
-                            :key="index" @click="typeCheck(item.id)" 
-                            :class="{checked:typeBox.includes(item.id)}">{{ item.label }}</a>
+                            <TagSelect v-model="typeValue">
+                                <TagSelectOption name="tag1">数据KPI</TagSelectOption>
+                                <TagSelectOption name="tag2">设备KPI</TagSelectOption>
+                                <TagSelectOption name="tag3">关键指标</TagSelectOption>
+                            </TagSelect>
                         </div>
                     </div>
                 </div>
@@ -41,7 +42,7 @@
                 <button type="button" @click="addNew()">新增</button>
             </div>
             <div class="table-wrapper" :style="{height: (height-45)+'px'}">
-                <Table stripe :columns="tableList" :data="tableData">
+                <Table stripe size="small" :columns="tableList" :data="tableData">
                     <template slot-scope="{ row }" slot="name">
                         <strong>{{ row.name }}</strong>
                     </template>
@@ -70,13 +71,7 @@ export default {
             ],
             model1: '',
             searchShow: false,
-            typeCheckedAll: false,
-            typeList: [
-                {label: '数据KPI',id: 1},
-                {label: '设备KPI',id: 2},
-                {label: '关键指标',id: 3}
-            ],
-            typeBox: [],
+            typeValue: [],
             tableList: [
                 {
                     title: '指标名称',
@@ -187,17 +182,17 @@ export default {
                         line-height: 35px;
                         text-align: right;
                         color: #576374;
+                        float: left;
                     }
                 }
                 .cmp-tab {
                     display: inline-block;
-                    a {
-                        margin-right: 20px;
-                        color: #576374;
+                    /deep/.ivu-tag-text {
+                        font-size: 14px;
                     }
-                    .checked {
-                        color: #4B7EFE;
-                    }
+                }
+                /deep/.ivu-form-item {
+                    margin-bottom: 5px;
                 }
             }
         }

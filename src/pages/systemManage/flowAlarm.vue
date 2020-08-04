@@ -21,10 +21,10 @@
                     <div class="form-item">
                         <label>报警类型：</label>
                         <div class="cmp-tab">
-                            <a href="javascript:;" @click="typeCheckAll()" :class="{checked:typeCheckedAll}">全部</a>
-                            <a href="javascript:;" v-for="(item, index) in typeList" 
-                            :key="index" @click="typeCheck(item.id)" 
-                            :class="{checked:typeBox.includes(item.id)}">{{ item.label }}</a>
+                            <TagSelect v-model="typeValue">
+                                <TagSelectOption name="tag1">单卡报警</TagSelectOption>
+                                <TagSelectOption name="tag2">流量池报警</TagSelectOption>
+                            </TagSelect>
                         </div>
                     </div>
                 </div>
@@ -32,10 +32,10 @@
                     <div class="form-item">
                         <label>订阅方式：</label>
                         <div class="cmp-tab">
-                            <a href="javascript:;" @click="takeCheckAll()" :class="{checked:takeCheckedAll}">全部</a>
-                            <a href="javascript:;" v-for="(item, index) in takeList" 
-                            :key="index" @click="takeCheck(item.id)" 
-                            :class="{checked:takeBox.includes(item.id)}">{{ item.label }}</a>
+                            <TagSelect v-model="takeValue">
+                                <TagSelectOption name="tag1">系统消息</TagSelectOption>
+                                <TagSelectOption name="tag2">短信</TagSelectOption>
+                            </TagSelect>
                         </div>
                     </div>
                 </div>
@@ -47,7 +47,7 @@
                 <button type="button" style="margin-left:10px">删除</button>
             </div>
             <div class="table-wrapper" :style="{height: (height-45)+'px'}">
-                <Table stripe :columns="tableList" :data="tableData">
+                <Table stripe size="small" :columns="tableList" :data="tableData">
                     <template slot-scope="{ row }" slot="name">
                         <strong>{{ row.name }}</strong>
                     </template>
@@ -69,18 +69,8 @@ export default {
             height: '',
             keyword: '',
             searchShow: false,
-            typeCheckedAll: false,
-            typeList: [
-                {label: '单卡报警',id: 1},
-                {label: '流量池报警',id: 2}
-            ],
-            typeBox: [],
-            takeCheckedAll: false,
-            takeList: [
-                {label: '系统消息',id: 1},
-                {label: '短信',id: 2}
-            ],
-            takeBox: [],
+            typeValue: [],
+            takeValue: [],
             tableList: [
                 {
                     type: 'selection',
@@ -222,17 +212,17 @@ export default {
                         line-height: 35px;
                         text-align: right;
                         color: #576374;
+                        float: left;
                     }
                 }
                 .cmp-tab {
                     display: inline-block;
-                    a {
-                        margin-right: 20px;
-                        color: #576374;
+                    /deep/.ivu-tag-text {
+                        font-size: 14px;
                     }
-                    .checked {
-                        color: #4B7EFE;
-                    }
+                }
+                /deep/.ivu-form-item {
+                    margin-bottom: 5px;
                 }
             }
         }
