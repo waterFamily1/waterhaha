@@ -69,7 +69,7 @@
 </template>
 <script>
 export default {
-    name: 'indexManage',
+    name: 'bulletinData',
     data() {
         return {
             height: '',
@@ -148,7 +148,7 @@ export default {
             }
         },
         addNew() {
-            this.$router.push({path:'/systemManage/index/indexAdd'})
+             this.$router.push({path:'/dataManage/analyze/bulletinAdd'})
         }
     }
 }

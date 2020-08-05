@@ -21,7 +21,7 @@ export default {
         }, {
             path: `${pre}user/checkUserInfor`,
             title: '用户详情',
-            auth: ['hidden']
+            auth: ['hidden'] 
         }, {
             path: `${pre}user/editUserInfor`,
             title: '用户编辑',

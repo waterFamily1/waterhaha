@@ -56,7 +56,7 @@
 </template>
 <script>
 export default {
-    name: 'indexManage',
+    name: 'labourData',
     data() {
         return {
             height: '',
@@ -128,7 +128,7 @@ export default {
             }
         },
         addNew() {
-            // this.$router.push({path:'/systemManage/index/indexAdd'})
+             this.$router.push({path:'/dataManage/analyze/labourAdd'})
         }
     }
 }

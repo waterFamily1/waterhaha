@@ -24,6 +24,10 @@ export default {
         }, {
             path: `${pre}calculationMisson`,
             title: '计算任务'
+        },{
+            path: `${pre}analyze/labourAdd`,
+            title: '新增人工数据采集',
+            auth: ['hidden']
         }
     ]
 }

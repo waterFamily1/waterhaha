@@ -4,34 +4,95 @@
             <div class="tissue-left">
                 <div class="search-input">
                     <input type="text" placeholder="输入组合/测点名称以检索">
-                    <Dropdown style="margin-left: 10px;display:inline-block" trigger="click" :on-click="changeItem(el)">
+                    <Dropdown style="margin-left: 10px;display:inline-block" trigger="click"  @on-click="changeItem">
                         <a href="javascript:void(0)">
                             曲线模版
                             <Icon type="ios-arrow-down"></Icon>
                         </a>
                         <DropdownMenu slot="list">
-                            <DropdownItem>选择模板</DropdownItem>
-                            <DropdownItem>保存模板</DropdownItem>
+                            <DropdownItem name="choose">选择模板</DropdownItem>
+                            <DropdownItem name="save">保存模板</DropdownItem>
                         </DropdownMenu>
                     </Dropdown>
                 </div>
-                
+                <group></group>
+                <singledata></singledata>
             </div>
             <div class="tissue-right">
-                右边
+                <chartShow></chartShow>
                 
             </div>
         </div>
+        <Modal v-model="modal2" width="300">
+            <p slot="header" style="color:#1c2438;font-size:14px;border-left:7px solid #4b7efe;background:#f8f9fb;height:39px;line-height:39px">
+                <!-- <Icon type="ios-information-circle"></Icon> -->
+                <span class="rectangle"></span>
+                <span style="margin-left:8px">添加曲线模版</span>
+            </p>
+            <div style="text-align:center">
+                <input type="text" style="width:100%">
+            </div>
+            <div slot="footer" >
+                <Button type="primary"  long  @click="save" style="font-size:12px">保存为新模版</Button>
+            </div>
+        </Modal>
+         <Modal v-model="modal1" width="500" footer-hide>
+            <p slot="header" style="color:#1c2438;font-size:14px;border-left:7px solid #4b7efe;background:#f8f9fb;height:39px;line-height:39px">
+                <!-- <Icon type="ios-information-circle"></Icon> -->
+                <span class="rectangle"></span>
+                <span style="margin-left:8px">选择曲线模版</span>
+            </p>
+            <div class="choose-modal">
+                <input type="text" style="width:200px;color:#495060;font-size:13px;padding:4px 7px;border:1px solid #eaeaea" placeholder="模版名称">
+                <div  style="display:inline-block;height: 28px;border: 0;padding: 4px 7px;background:#eee;border-top-right-radius:3px;border-bottom-right-radius:3px;">
+                    <Icon type="ios-search-outline" />
+                </div>
+                <Table stripe :columns="tableList" :data="tableData">
+                    <template slot-scope="{ row }" slot="name">
+                        <strong>{{ row.name }}</strong>
+                    </template>
+                    <template slot-scope="{ row, index }" slot="action">
+                        <Button class="action" size="small" style="margin-right: 5px;">选择</Button>
+                        <Button class="action" size="small">删除</Button>
+                    </template>
+                </Table>
+                 <Page :total="100" show-elevator size="small" class="page" style="text-align:right;margin-top:20px"  />
+            </div>
+          
+        </Modal>
     </div>
+    
 </template>
 <script>
+import group from './analyze/datagroup'
+import singledata from './analyze/singleData'
+import chartShow from './analyze/chartShow'
+
 export default {
-    name: 'tissueInfor',
+    name: 'curveAnalysis',
     data () {
         return {
-           
-            
+            height:0,
+           modal2:false,
+           modal1:false,
+            tableList: [
+                {
+                    title: '模版名称',
+                    key: 'location'
+                },
+                {
+                    title: '操作',
+                    slot: 'action',
+                    width: 150,
+                    align: 'center'
+                }
+            ]
         }
+    },
+    components: {
+        group,
+        singledata,
+        chartShow
     },
     mounted() {
         this.height = document.body.clientHeight-70
@@ -181,15 +242,34 @@ export default {
             self.appearOther = true
             
         },
-        changeItem(e){
-            console.log(e)
-        }
+        changeItem(name){
+            console.log(name)
+            if(name=='save'){
+              this.modal2 = true
+            }else{
+                this.modal1 =true
+            }
+        },
+        
+        
     }
 }
 </script>
 <style lang="less" scoped>
+ /deep/.ivu-modal-header{
+        padding: 0;
+        border-bottom: 0;
+    }
+    
 .tissue-box {
     margin-top: 5px;
+   
+    .choose-modal{
+        height: 28px;
+    }
+    input::-webkit-input-placeholder{
+        color:#999;
+    }
     .tissue-tree {
         display: flex;
         min-height: 100%;
@@ -292,6 +372,7 @@ export default {
         /deep/.ivu-col-span-xl-6 {
             width: 24%;
             margin-right: 1%;
+        
         }
     }
 }
