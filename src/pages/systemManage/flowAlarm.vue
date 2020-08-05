@@ -115,7 +115,7 @@ export default {
         }
     },
     mounted() {
-        this.height = document.body.clientHeight-130
+        this.height = document.body.clientHeight-80
     },
     methods: {
         higherSearch() {
