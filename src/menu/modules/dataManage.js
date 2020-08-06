@@ -28,6 +28,11 @@ export default {
             path: `${pre}analyze/labourAdd`,
             title: '新增人工数据采集',
             auth: ['hidden']
+        },
+        {
+            path: `${pre}analyze/bulletinAdd`,
+            title: '新增简报',
+            auth: ['hidden']
         }
     ]
 }
