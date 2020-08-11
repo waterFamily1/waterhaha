@@ -9,7 +9,7 @@ const Setting = {
      * 基础配置
      * */
     // 网页标题的后缀
-    titleSuffix: 'iView Admin Pro',
+    titleSuffix: '潮南智慧水务',
     // 路由模式，可选值为 history 或 hash
     routerMode: 'history',
     // 应用的基路径
@@ -17,7 +17,7 @@ const Setting = {
     // 页面切换时，是否显示模拟的进度条
     showProgressBar: true,
     // 接口请求地址
-    apiBaseURL: 'http://192.168.0.178:8080/',
+    apiBaseURL: 'http://60.30.44.14:8805/',
     // 接口请求返回错误时，弹窗的持续时间，单位：秒
     modalDuration: 3,
     // 接口请求返回错误时，弹窗的类型，可选值为 Message 或 Notice

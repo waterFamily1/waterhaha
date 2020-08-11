@@ -4,7 +4,7 @@
             <div class="search-main">
                 <div class="form-item">
                     <label>关键字：</label>
-                    <Input v-model="keyword" placeholder="指标名称" style="width: 300px" />
+                    <Input v-model="keyword" placeholder="指标名称" style="width: 220px" />
                 </div>
                 <div class="form-item">
                     <label>区域位置：</label> 

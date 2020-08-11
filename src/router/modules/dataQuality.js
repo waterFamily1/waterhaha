@@ -25,6 +25,15 @@ export default {
             },
             component: () => import('@/pages/dataQuality/qualityStat')
         }, {
+            path: 'stat/recountLog',
+            name: `${pre}stat-recountLog`,
+            meta: {
+                ...meta,
+                title: '重算日志',
+                closable: false
+            },
+            component: () => import('@/pages/dataQuality/stat/recountLog')
+        }, {
             path: 'sampleDeploy',
             name: `${pre}sampleDeploy`,
             meta: {

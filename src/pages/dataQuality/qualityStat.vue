@@ -80,9 +80,14 @@
         <div class="quality-border">
             <div class="c-table-top-btns">
                 <Button>重新计算</Button>
-                <Button>重算日志</Button>
+                <Button @click="goRecount">重算日志</Button>
             </div>
-            <Table ref="selection" :columns="columns" :data="data"></Table>
+            <Table ref="selection" :columns="columns" :data="data">
+                <!-- <template slot-scope="{ row }" slot="name">
+                    <i class="icon iconfont icon-shuju"></i>
+                    <span class="ivu-ml-8">{{ row.name }}</span>
+                </template> -->
+            </Table>
         </div>
     </div>
 </template>
@@ -147,7 +152,28 @@ export default {
                 },
                 {
                     title: '测点名称',
-                    key: 'stationName'
+                    key: 'name',
+                    render: (h, params) => {
+                        return h('div', [
+                            h('Icon', {
+                                props: {
+                                    type: 'icon iconfont icon-shuju'
+                                },
+                                style:{
+                                    color:'blue',
+                                    cursor: 'pointer',
+                                    marginRight: '5px',
+                                    fontSize:'18px'
+                                },
+                                on: {
+                                    click: () => {
+                                        this.stars(params.index, params)
+                                    }
+                                }
+                            }),
+                            h('span', params.row.name)
+                        ]);
+                    }
                 },
                 {
                     title: '区域位置',
@@ -182,12 +208,31 @@ export default {
                     key: 'statisticsTime'
                 }
             ],
-            data: []
+            data: [
+                {
+                    number: '1',
+                    name: '汉字测试',
+                    location: '调度中心',
+                    dataSize: '',
+                    accuracy: '',
+                    integrity: '',
+                    timeliness: '',
+                    consistency: '',
+                    facility: '',
+                    statisticsTime: ''
+                }
+            ]
         }
     },
     mounted() {
         this.height = document.body.clientHeight-80
     },
+    methods: {
+        goRecount() {
+            console.log(1111)
+            this.$router.push({path: 'stat/recountLog'})
+        }
+    }
 }
 </script>
 <style lang="less" scoped>

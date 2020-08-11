@@ -10,6 +10,10 @@ export default {
             path: `${pre}qualityStat`,
             title: '质量统计'
         }, {
+            path: `${pre}stat/recountLog`,
+            title: '重算日志',
+            auth: ['hidden']
+        }, {
             path: `${pre}sampleDeploy`,
             title: '样本配置'
         }, {

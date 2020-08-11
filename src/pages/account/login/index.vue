@@ -77,20 +77,19 @@
                 }
             },
             handleSubmit (valid, values) {
-                this.$router.replace(this.$route.query.redirect || '/');
-                // if (valid) {
-                //     const { username, password, rememberMe } = values;
-                //     this.login({
-                //         username,
-                //         password,
-                //         rememberMe: this.rememberMe
-                //     })
-                //     .then((res) => {
-                //         console.log(res)
-                //         // 重定向对象不存在则返回顶层路径
-                //         // this.$router.replace(this.$route.query.redirect || '/');
-                //     });
-                // }
+                if (valid) {
+                    const { username, password, rememberMe } = values;
+                    this.login({
+                        username,
+                        password,
+                        rememberMe: this.rememberMe
+                    })
+                    .then((res) => {
+                        console.log(res)
+                        // 重定向对象不存在则返回顶层路径
+                        // this.$router.replace(this.$route.query.redirect || '/');
+                    });
+                }
             },
             forgetPwd() {
                 this.$router.push({ path:'/forgetPwd'})
