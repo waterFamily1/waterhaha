@@ -27,28 +27,31 @@ const router = new VueRouter({
 
 router.beforeEach((to, from, next) => {
     if (Setting.showProgressBar) iView.LoadingBar.start();
-    // next();
+    next();
     // 判断是否需要登录才可以进入
-    if (to.matched.some(_ => _.meta.auth)) {
-        // 这里依据 token 判断是否登录，可视情况修改
-        const token = util.cookies.get('token');
-
-        if (token && token !== 'undefined') {
-            next();
-        } else {
-            // 没有登录的时候跳转到登录界面
-            // 携带上登陆成功之后需要跳转的页面完整路径
-            next({
-                name: 'login',
-                query: {
-                    redirect: to.fullPath
-                }
-            });
-        }
-    } else {
-        // 不需要身份校验 直接通过
-        next();
-    }
+    // if (to.matched.some(_ => _.meta.auth)) {
+    //     console.log(1111)
+    //     // 这里依据 token 判断是否登录，可视情况修改
+    //     const token = util.cookies.get('token');
+        
+    //     if (token && token !== 'undefined') {
+    //         console.log(1)
+    //         next();
+    //     } else {
+    //         console.log(to.fullPath)
+    //         // 没有登录的时候跳转到登录界面
+    //         // 携带上登陆成功之后需要跳转的页面完整路径
+    //         next({
+    //             name: 'login',
+    //             query: {
+    //                 redirect: to.fullPath
+    //             }
+    //         });
+    //     }
+    // } else {
+    //     // 不需要身份校验 直接通过
+    //     next();
+    // }
 });
 
 router.afterEach(to => {

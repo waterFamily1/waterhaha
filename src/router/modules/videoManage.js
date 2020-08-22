@@ -42,6 +42,33 @@ export default {
                 closable: false
             },
             component: () => import('@/pages/videoManage/videoDeploy')
+        }, {
+            path: 'videoD/addVideo',
+            name: `${pre}videoD-addVideo`,
+            meta: {
+                ...meta,
+                title: '视频添加',
+                closable: false
+            },
+            component: () => import('@/pages/videoManage/videoD/addVideo')
+        }, {
+            path: 'videoD/editVideo',
+            name: `${pre}videoD-editVideo`,
+            meta: {
+                ...meta,
+                title: '视频编辑',
+                closable: false
+            },
+            component: () => import('@/pages/videoManage/videoD/addVideo')
+        }, {
+            path: 'videoD/checkVideo',
+            name: `${pre}videoD-checkVideo`,
+            meta: {
+                ...meta,
+                title: '视频详情',
+                closable: false
+            },
+            component: () => import('@/pages/videoManage/videoD/checkVideo')
         }
     ]
 }

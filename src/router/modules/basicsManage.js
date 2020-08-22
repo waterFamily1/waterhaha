@@ -51,7 +51,7 @@ export default {
                 closable: false
             },
             component: () => import('@/pages/basicsManage/user/editUserInfor'),
-        },{
+        }, {
             path: 'user/addUserInfor',
             name: `${pre}user-addUserInfor`,
             meta: {

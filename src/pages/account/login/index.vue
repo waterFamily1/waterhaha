@@ -38,13 +38,14 @@
 <script>
     import { mapActions } from 'vuex';
     import mixins from '../mixins';
+    import { getUserAccount } from '@/api/account'
 
     export default {
         mixins: [ mixins ],
         data () {
             return {
                 loginTitle: '账户登录',
-                rememberMe: true,
+                rememberMe: false,
                 tipTitle: '扫码登录',
                 active: true,
                 loginData: {
@@ -86,8 +87,13 @@
                     })
                     .then((res) => {
                         console.log(res)
+                        getUserAccount().then(res => {
+                            console.log(res)
+                        }).catch(err => {
+                            // 异常情况
+                        })
                         // 重定向对象不存在则返回顶层路径
-                        // this.$router.replace(this.$route.query.redirect || '/');
+                        this.$router.replace(this.$route.query.redirect || '/');
                     });
                 }
             },
