@@ -112,7 +112,7 @@ export default {
         }
     },
     mounted() {
-        this.height = document.body.clientHeight-70
+        this.height = document.body.clientHeight-80
         this.mapHei = document.body.clientHeight-390
     },
     methods: {
