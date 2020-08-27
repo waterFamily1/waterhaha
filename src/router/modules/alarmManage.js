@@ -34,6 +34,33 @@ export default {
             },
             component: () => import('@/pages/alarmManage/alarmDefinition')
         }, {
+            path: 'alarm/definAdd',
+            name: `${pre}alarm-definAdd`,
+            meta: {
+                ...meta,
+                title: '新增报警定义',
+                closable: false
+            },
+            component: () => import('@/pages/alarmManage/alarm/definAdd')
+        }, {
+            path: 'alarm/definCheck',
+            name: `${pre}alarm-definCheck`,
+            meta: {
+                ...meta,
+                title: '查看报警定义',
+                closable: false
+            },
+            component: () => import('@/pages/alarmManage/alarm/definCheck')
+        }, {
+            path: 'alarm/definEdit',
+            name: `${pre}alarm-definEdit`,
+            meta: {
+                ...meta,
+                title: '编辑报警定义',
+                closable: false
+            },
+            component: () => import('@/pages/alarmManage/alarm/definAdd')
+        }, {
             path: 'alarmTake',
             name: `${pre}alarmTake`,
             meta: {
@@ -42,6 +69,15 @@ export default {
                 closable: false
             },
             component: () => import('@/pages/alarmManage/alarmTake')
+        }, {
+            path: 'alarm/takeAdd',
+            name: `${pre}alarm-takeAdd`,
+            meta: {
+                ...meta,
+                title: '新增报警订阅',
+                closable: false
+            },
+            component: () => import('@/pages/alarmManage/alarm/takeAdd')
         }
     ]
 }

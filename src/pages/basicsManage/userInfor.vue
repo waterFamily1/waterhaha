@@ -163,12 +163,12 @@
                 this.$router.push({path:'/basicsManage/user/addUserInfor'})
             },
             upload(){
-                 this.$router.push({
+                this.$router.push({
                     path:'/other/areaUpload',
                     query: {
                         uploadName: '用户导入'
                     }
-            })
+                })
             }
         }
     }
