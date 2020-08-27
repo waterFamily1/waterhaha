@@ -31,6 +31,14 @@ export default {
             path: `${pre}alarm/takeAdd`,
             title: '新增报警订阅',
             auth: ['hidden']
+        }, {
+            path: `${pre}alarm/takeEdit`,
+            title: '编辑报警订阅',
+            auth: ['hidden']
+        }, {
+            path: `${pre}alarm/takeCheck`,
+            title: '报警订阅详细',
+            auth: ['hidden']
         }
     ]
 }

@@ -114,7 +114,7 @@ export default {
     data() {
         return {
             height: '',
-            nameModal: true,
+            nameModal: false,
             formValidate: {
                 name: '',
                 frequency: '',
@@ -210,7 +210,23 @@ export default {
             modalArea: [],
             modalAreaData: [],
             modelColumns: [
-
+                {
+                    type: 'selection',
+                    width: 60,
+                    align: 'center'
+                }, {
+                    title: '报警名称',
+                    key: 'name'
+                }, {
+                    title: '报警等级',
+                    key: 'department'
+                }, {
+                    title: '使用状态',
+                    key: 'tissue'
+                }, {
+                    title: '区域位置',
+                    key: 'area'
+                }
             ],
             modelData: []
         }

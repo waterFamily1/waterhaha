@@ -29,7 +29,7 @@
                             <div class="form-item">
                                 <FormItem label="接收方式:">
                                     <div class="cmp-tab">
-                                        <TagSelect v-model="confirmState">
+                                        <TagSelect v-model="acceptWay">
                                             <TagSelectOption name="tag1">在线消息</TagSelectOption>
                                             <TagSelectOption name="tag2">短信</TagSelectOption>
                                         </TagSelect>
@@ -39,7 +39,7 @@
                             <div class="form-item">
                                 <FormItem label="推送频率:">
                                     <div class="cmp-tab">
-                                        <TagSelect v-model="confirmWay">
+                                        <TagSelect v-model="pushFre">
                                             <TagSelectOption name="tag1">5分钟</TagSelectOption>
                                             <TagSelectOption name="tag2">10分钟</TagSelectOption>
                                             <TagSelectOption name="tag3">15分钟</TagSelectOption>
@@ -56,7 +56,7 @@
                             <div class="form-item">
                                 <FormItem label="推迟推送时间:">
                                     <div class="cmp-tab">
-                                        <TagSelect v-model="alarmLevel">
+                                        <TagSelect v-model="pushTime">
                                             <TagSelectOption name="tag1">5分钟</TagSelectOption>
                                             <TagSelectOption name="tag2">10分钟</TagSelectOption>
                                             <TagSelectOption name="tag3">15分钟</TagSelectOption>
@@ -79,7 +79,7 @@
                                             <TagSelectOption name="tag2">一周</TagSelectOption>
                                             <TagSelectOption name="tag3">一月</TagSelectOption>
                                         </TagSelect>
-                                        <DatePicker class="item-picker" type="daterange" :options="options2" placement="bottom-end" placeholder="Select date" style="width: 200px"></DatePicker>
+                                        <!-- <DatePicker class="item-picker" type="daterange" :options="options2" placement="bottom-end" placeholder="Select date" style="width: 200px"></DatePicker> -->
                                     </div>
                                 </FormItem>
                             </div>
@@ -90,8 +90,8 @@
         </div>
         <div class="c-top-border-gray">
             <div class="c-table-top-btns">
-                <Button type="button" @click="addHandle()">新增</Button>
-                <Button type="button" @click="selectHandle()">删除</Button>
+                <Button @click="addHandle()">新增</Button>
+                <Button @click="selectHandle()">删除</Button>
             </div>
             <Table ref="selection" :columns="columns" :data="data"></Table>
             <Page :total="100" show-total show-elevator class="page" />
@@ -135,6 +135,10 @@ export default {
                     ]
                 }
             ],
+            acceptWay: [],
+            pushFre: [],
+            pushTime: [],
+            happenTime: [],
             columns: [
                 {
                     type: 'selection',
@@ -166,7 +170,7 @@ export default {
                     key: 'name'
                 }, {
                     title: '操作',
-                    key: 'name',
+                    key: 'handle',
                     width: 150,
                     render: (h, params) => {
                         return h('div', [
@@ -174,19 +178,40 @@ export default {
                                 props: {
                                     type: 'text',
                                     size: 'small'
+                                },
+                                on: {
+                                    click: () => { 
+                                        this.checkHandle()
+                                    }
                                 }
                             }, '查看'),
                             h('Button', {
                                 props: {
                                     type: 'text',
                                     size: 'small'
+                                },
+                                on: {
+                                    click: () => { 
+                                        this.editHandle()
+                                    }
                                 }
                             }, '编辑')
                         ]);
                     }
                 },
             ],
-            data: []
+            data: [
+                {
+                    name: '1',
+                    name: '1',
+                    name: '1',
+                    name: '1',
+                    name: '1',
+                    name: '1',
+                    name: '1',
+                    name: '1'
+                }
+            ]
         }
     },
     mounted() {
@@ -203,6 +228,18 @@ export default {
         },
         selectHandle() {
 
+        },
+        checkHandle() {
+            //查看
+            this.$router.push({
+                path:'/alarmManage/alarm/takeCheck'
+            })
+        },
+        editHandle() {
+            //编辑
+            this.$router.push({
+                path:'/alarmManage/alarm/takeEdit'
+            })
         }
     }
 }

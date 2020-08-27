@@ -78,6 +78,24 @@ export default {
                 closable: false
             },
             component: () => import('@/pages/alarmManage/alarm/takeAdd')
+        }, {
+            path: 'alarm/takeEdit',
+            name: `${pre}alarm-takeEdit`,
+            meta: {
+                ...meta,
+                title: '编辑报警订阅',
+                closable: false
+            },
+            component: () => import('@/pages/alarmManage/alarm/takeAdd')
+        }, {
+            path: 'alarm/takeCheck',
+            name: `${pre}alarm-takeCheck`,
+            meta: {
+                ...meta,
+                title: '报警订阅详细',
+                closable: false
+            },
+            component: () => import('@/pages/alarmManage/alarm/takeCheck')
         }
     ]
 }
