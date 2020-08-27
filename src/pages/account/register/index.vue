@@ -5,42 +5,15 @@
         </div>
         <div class="page-account-container">
             <div class="page-login">
-                <!-- <div class="page-account-top">
-                    <h3>修改密码</h3>
-                </div>
-                <Login ref="form" @on-submit="handleSubmit">
-                    <Poptip trigger="focus" placement="right" width="240">
-                        <Password name="password" :rules="passwordRule" placeholder="至少6位密码，区分大小写" @on-change="handleChangePassword" />
-                        <div slot="content" class="page-account-register-tip">
-                            <div class="page-account-register-tip-title" :class="passwordTip.class">
-                                强度：{{ passwordTip.strong }}
-                            </div>
-                            <Progress :percent="passwordTip.percent" hide-info :stroke-width="6" :stroke-color="passwordTip.color" />
-                            <div class="page-account-register-tip-desc">
-                                请至少输入 6 个字符。请不要使用容易被猜到的密码。
-                            </div>
-                        </div>
-                    </Poptip>
-                    <Password name="passwordConfirm" :rules="passwordConfirmRule" placeholder="确认密码" />
-                    <Submit>{{ $t('page.register.submit') }}</Submit>
-                </Login> -->
                 <Form ref="loginForm" :model="password" :rules="userRules">
                     <div class="login-form">
-                        <h3>手机验证登录</h3>
+                        <h3>验证手机号</h3>
                         <FormItem lable="tel" prop="tel">
                             <Input v-model="password.tel" @on-enter="sumit('loginForm')" size="large" placeholder="请输入手机号" clearable></Input>
                             <Icon type="android-phone-portrait" class="login-input-left"></Icon>
                         </FormItem>
-                        <FormItem prop="verifycationCode" class="form-verifycationCode">
-                            <Input v-model="password.verifycationCode" @on-enter="sumit('loginForm')" size="large" placeholder="请确认验证码"></Input>
-                            <Button :type="time?'default':'primary'" style="width:100px;float:right;height:36px;line-height:27px;" shape="circle" @click="sendCode" :disabled="time>0">{{time||'获取验证码'}}</Button>
-                        </FormItem>
-                        <!-- <FormItem lable="newPassword" prop="newPassword">
-                            <Input v-model="password.newPassword" @on-enter="sumit('loginForm')" size="large" placeholder="请输入新密码" type="password" clearable></Input>
-                            <Icon type="locked" class="login-input-left"></Icon>
-                        </FormItem> -->
                         <FormItem style="margin:20px 0;">
-                            <Button class="login-button" size="large" long type="primary" @click="sumit('loginForm')">确  认</Button>
+                            <Button class="login-button" size="large" long type="primary" @click="sumit()">下一步</Button>
                         </FormItem>
                         <FormItem style="text-align:right;">
                             <a href="javascript:;" style="color:#0bb2df" @click="returnLogin()">返回登录页</a>
@@ -48,15 +21,14 @@
                     </div>        
                 </Form>
             </div>
-            <!-- <div class="page-account-to-login">
-                <router-link :to="{ name: 'login' }">{{ $t('page.register.other') }}</router-link>
-            </div> -->
         </div>
         <div class="login-foot">
 
         </div>
 
-        <Modal class="modal-first-login" v-model="firstPwdModal" :mask-closable="false" width="380" height="295" :closable="false" class-name="vertical-center-modal">
+        <Modal class="modal-first-login" v-model="firstPwdModal" 
+            :mask-closable="false" width="380" height="295" :closable="false"
+            class-name="vertical-center-modal">
             <Form class="pwd-form" ref="pwdForm" :model="pwdForms" :rules="pwdRuleValidate">
                 <Row><h3>修改密码</h3></Row>
                 <Row>
@@ -86,6 +58,7 @@
     import { mapActions } from 'vuex'
     import mixins from '../mixins'
     import api from './api'
+    import { verifyPhone } from '@/api/account'
 
     export default {
         mixins: [ mixins ],
@@ -107,8 +80,7 @@
                 timer:null,//验证码定时器
                 time:0,//验证码计时
                 password: {
-                    tel: '',
-                    verifycationCode: ''
+                    tel: ''
                 },
                 userRules: {
                     tel: [{required: true,message: "请输入手机号",trigger: "blur"},
@@ -237,16 +209,17 @@
                 });
             },
             sumit(name) {
-                this.$refs[name].validate((valid) => {
-                    if (valid ) {
-                        if(!this.password.verifycationCodeId) {
-                            this.$Message.error('验证码不正确');
-                            return ;
-                        } else {
-                            this.firstPwdModal = true;
-                        }
-                    }
-                })
+                // this.$refs[name].validate((valid) => {
+                //     if (valid) {
+                        verifyPhone({
+                            tel: this.password.tel
+                        }).then(res => {
+                            console.log(res)
+                        }).catch(err => {
+                            // 异常情况
+                        })
+                //     }
+                // })
             },
             returnLogin() {
                 this.$router.push({path: '/login'})
@@ -386,7 +359,7 @@
 .login-form h3 {
     text-align: center;
     font-size: 18px;
-    height: 42px;
+    height: 90px;
 }
 .login-foot {
     position: absolute;

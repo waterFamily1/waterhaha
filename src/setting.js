@@ -17,7 +17,7 @@ const Setting = {
     // 页面切换时，是否显示模拟的进度条
     showProgressBar: true,
     // 接口请求地址
-    apiBaseURL: 'http://60.30.44.14:8805/',
+    apiBaseURL: env === 'development' ? 'http://60.30.44.14:8805/' : 'http://60.30.44.14:8805',
     // 接口请求返回错误时，弹窗的持续时间，单位：秒
     modalDuration: 3,
     // 接口请求返回错误时，弹窗的类型，可选值为 Message 或 Notice

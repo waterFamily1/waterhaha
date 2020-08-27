@@ -15,6 +15,18 @@ export default {
         }, {
             path: `${pre}videoDeploy`,
             title: '视频配置'
+        }, {
+            path: `${pre}videoD/addVideo`,
+            title: '视频添加',
+            auth: ['hidden']
+        }, {
+            path: `${pre}videoD/editVideo`,
+            title: '视频编辑',
+            auth: ['hidden']
+        }, {
+            path: `${pre}videoD/checkVideo`,
+            title: '视频详情',
+            auth: ['hidden']
         }
     ]
 }

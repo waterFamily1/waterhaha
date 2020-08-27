@@ -144,7 +144,7 @@
             }
         },
         mounted() {
-            this.height = document.body.clientHeight-70
+            this.height = document.body.clientHeight-80
         },
         methods: {
             remove(index) {

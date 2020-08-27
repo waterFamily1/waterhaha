@@ -3,7 +3,7 @@
 const API = {
     verifycationCode: "message/api/captcha",
     //验证手机
-    verifyTelphone: "message/api/captcha/validity",
+    verifyTelphone: '/uaa/api/users/validate-tel',
     // 修改密码
     updatePassword: "uaa/api/user/password/forget",
 	login: "auth/login",
@@ -12,3 +12,11 @@ const API = {
     getUserAccount: "uaa/api/account"
 }
 export default API;
+
+//验证手机号
+// export function verifyPhone () {
+//     return request({
+//         url: '/uaa/api/users/validate-tel',
+//         method: 'get'
+//     });
+// }

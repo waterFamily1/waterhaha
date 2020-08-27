@@ -37,7 +37,7 @@ export default {
         this.uploadName = this.$route.query.uploadName
     },
     mounted() {
-        this.height = document.body.clientHeight-110
+        this.height = document.body.clientHeight-80
     },
     methods: {
         goBack() {
