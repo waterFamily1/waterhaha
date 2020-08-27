@@ -33,6 +33,11 @@ export default {
             path: `${pre}analyze/bulletinAdd`,
             title: '新增简报',
             auth: ['hidden']
+        },
+        {
+            path: `${pre}analyze/addAutomatic`,
+            title: '新增自动采集测点',
+            auth: ['hidden']
         }
     ]
 }

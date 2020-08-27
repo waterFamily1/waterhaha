@@ -79,18 +79,62 @@
         </div>
         <div class="sim-content">
             <div class="c-table-top-btns">
-                <button type="button" @click="add()">新增
-                    <Icon type="md-arrow-dropdown" />
-                </button>
-                <button type="button" style="margin-left:10px" @click="batchsetting()">
-                    批量配置<Icon type="md-arrow-dropdown" />
-                </button>
-                <button type="button" style="margin-left:10px" @click="batchdelete()">
-                    批量删除<Icon type="md-arrow-dropdown" />
-                </button>
-                <button type="button" style="margin-left:10px">导出测点
-                    <Icon type="md-arrow-dropdown" />
-                </button>
+                <div class="btn-block">
+                    <Dropdown trigger="click"  @on-click="addItem">
+                        <button type="button" style="margin-left:10px" @click="add()">
+                            新增<Icon type="md-arrow-dropdown" />
+                        </button>
+                        <DropdownMenu slot="list" >
+                            <DropdownItem name="auto">自动采集型测点</DropdownItem>
+                            <DropdownItem name="manual">人工录入型测点</DropdownItem>
+                            <Dropdown placement="right-start" >
+                                <DropdownItem name="calculation" @on-click="calculationAction">
+                                    数据计算
+                                    <Icon type="ios-arrow-forward"></Icon>
+                                </DropdownItem>
+                                <DropdownMenu slot="list">
+                                    <DropdownItem name="single">单测点计算任务</DropdownItem>
+                                    <DropdownItem name="more">多测点计算任务</DropdownItem>
+                                    <DropdownItem name="custom">自定义型计算任务</DropdownItem>
+                                </DropdownMenu>
+                            </Dropdown>
+                        </DropdownMenu>
+                    </Dropdown>
+                </div>
+                <div class="btn-block">
+                    <Dropdown>
+                        <button type="button" style="margin-left:10px" @click="batchsetting()">
+                            批量配置<Icon type="md-arrow-dropdown" />
+                        </button>
+                        <DropdownMenu slot="list">
+                            <DropdownItem>选中测点</DropdownItem>
+                            <DropdownItem>全部测点</DropdownItem>
+                        </DropdownMenu>
+                    </Dropdown>
+                </div>
+                <div class="btn-block">
+                    <Dropdown>
+                       <button type="button" style="margin-left:10px" @click="batchdelete()">
+                            批量删除<Icon type="md-arrow-dropdown" />
+                        </button>
+                        <DropdownMenu slot="list">
+                            <DropdownItem>选中测点</DropdownItem>
+                            <DropdownItem>全部测点</DropdownItem>
+                        </DropdownMenu>
+                    </Dropdown>
+                </div>
+                <div class="btn-block">
+                    <Dropdown>
+                       <button type="button" style="margin-left:10px">导出测点
+                            <Icon type="md-arrow-dropdown" />
+                        </button>
+                        <DropdownMenu slot="list">
+                            <DropdownItem>选中测点</DropdownItem>
+                            <DropdownItem>全部测点</DropdownItem>
+                        </DropdownMenu>
+                    </Dropdown>
+                </div>
+                
             </div>
             <div class="table-wrapper" :style="{height: (height-45)+'px'}">
                 <Table stripe size="small" :columns="siteTableList" :data="siteTableData">
@@ -244,6 +288,15 @@ export default {
             setTimeout(() => {
                 this.addModal = false;
             }, 2000);
+        },
+        addItem(name){
+            console.log(name)
+            if(name=="auto"){
+                this.$router.push({path:'/dataManage/analyze/addAutomatic'})
+            }
+        },
+        calculationAction(name){
+            console.log(name)
         }
     }
 }
@@ -339,7 +392,9 @@ export default {
         .c-table-top-btns {
             height: 36px;
             border-bottom: 1px solid #EEE;
-            button{
+            .btn-block{
+                display: inline-block;
+                button{
                 min-width: 50px;
                 background: #576374;
                 font-size: 12px;
@@ -348,6 +403,8 @@ export default {
                 border: 0;
                 border-radius: 3px;
             }
+            }
+            
         }
         .table-wrapper{
             .action{

@@ -33,6 +33,15 @@ export default {
                 closable: false
             },
             component: () => import('@/pages/deviceManage/deviceState')
-        }
+        },{
+            path: 'addBook',
+            name: `${pre}addBook`,
+            meta: {
+                ...meta,
+                title: '添加设备',
+                closable: false
+            },
+            component: () => import('@/pages/deviceManage/addBook')
+        },
     ]
 }

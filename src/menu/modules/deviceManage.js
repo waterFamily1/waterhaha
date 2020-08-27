@@ -12,6 +12,11 @@ export default {
         }, {
             path: `${pre}deviceState`,
             title: '设备状态'
+        },
+        {
+            path: `${pre}addBook`,
+            title: '添加设备',
+            auth: ['hidden']
         }
     ]
 }

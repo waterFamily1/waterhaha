@@ -70,6 +70,24 @@ export default {
             },
             component: () => import('@/pages/dataManage/SiteManage')
         }, {
+            path: 'analyze/addAutomatic',
+            name: `${pre}analyze-addAutomatic`,
+            meta: {
+                ...meta,
+                title: '新增自动采集测点',
+                closable: false
+            },
+            component: () => import('@/pages/dataManage/analyze/addAutomatic')
+        },{
+            path: 'analyze/addManual',
+            name: `${pre}analyze-addManual`,
+            meta: {
+                ...meta,
+                title: '新增人工采集测点',
+                closable: false
+            },
+            component: () => import('@/pages/dataManage/analyze/addAutomatic')
+        },{
             path: 'siteDataImport',
             name: `${pre}siteDataImport`,
             meta: {
