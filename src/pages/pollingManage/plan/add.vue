@@ -25,7 +25,7 @@
                 <Row>
                     <Col span="12">
                         <FormItem label="所属组织:" prop="tissue">
-                            <Select v-model="formValidate.tissue" placeholder="请选择" style="width:300px" size="samll">
+                            <Select v-model="formValidate.tissue" placeholder="请选择" style="width:300px">
                                 <Option value="beijing">New York</Option>
                                 <Option value="shanghai">London</Option>
                                 <Option value="shenzhen">Sydney</Option>
@@ -35,8 +35,10 @@
                     <Col span="12">
                         <FormItem label="开始时间:" prop="startTime">
                              <DatePicker type="date" :options="options3" 
-                             placeholder="Select date" style="width: 150px" format="yyyy/MM/dd (周D)"
-                             @on-change="getDate"></DatePicker>
+                                placeholder="Select date" style="width: 200px" 
+                                @on-change="getDate" :format="format"
+                            >
+                             </DatePicker>
                         </FormItem>
                     </Col>  
                 </Row>
@@ -73,7 +75,7 @@ export default {
                     return date && date.valueOf() < Date.now() - 86400000;
                 }
             },
-            week: ['日','一','二','三','四','五','六']
+            format: ''
         }
     },
     created() {
@@ -82,9 +84,42 @@ export default {
     mounted() {
         this.height = document.body.clientHeight-80
     },
+    watch: {
+        data(format) {
+            console.log(format)
+        }
+    },
     methods: {
         getDate(date) {
             console.log(date)
+            let week = this.$Date(date).day()
+            console.log(week)
+            let matter
+            switch(week) {
+                case 0 : 
+                    matter = '星期日';
+                    break;
+                case 1 : 
+                    matter = '星期一';
+                    break;
+                case 2 : 
+                    matter = '星期二';
+                    break;
+                case 3 : 
+                    matter = '星期三';
+                    break;
+                case 4 : 
+                    matter = '星期四';
+                    break;
+                case 5 : 
+                    matter = '星期五';
+                    break;
+                case 6 : 
+                    matter = '星期六';
+                    break;
+            }
+            console.log(this.$Date(date).format('YYYY-MM-DD'+ matter))
+            this.format = this.$Date(date).format('YYYY-MM-DD'+  matter)
         }
     }
 }
