@@ -31,7 +31,7 @@
                         <Button class="action" size="small" @click="remove(index)">删除</Button>
                     </template>
                 </Table>
-                 <Page :total="100" show-elevator class="page" />
+                 <Page :total="100" show-elevator show-total class="page" />
             </div>
         </div>
         <Modal  v-model="modal" title="提示" @on-ok="asyncOK">

@@ -56,7 +56,7 @@
                         <Button class="action" size="small">删除</Button>
                     </template>
                 </Table>
-                 <Page :total="100" show-elevator size="small" class="page" style="text-align:right;margin-top:20px"  />
+                 <Page :total="100" show-elevator show-total size="small" class="page" style="text-align:right;margin-top:20px"  />
             </div>
           
         </Modal>

@@ -13,7 +13,7 @@
                         <span v-else>{{ row.name }}</span>
                     </template> -->
                 </Table>
-                 <Page :total="100" show-elevator class="page" />
+                 <Page :total="100" show-elevator show-total class="page" />
             </div>
         </div>
     </div>
