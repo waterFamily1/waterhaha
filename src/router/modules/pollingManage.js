@@ -25,6 +25,15 @@ export default {
             },
             component: () => import('@/pages/pollingManage/pollingPlan')
         }, {
+            path: 'plan/add',
+            name: `${pre}plan-add`,
+            meta: {
+                ...meta,
+                title: '巡检计划新增',
+                closable: false
+            },
+            component: () => import('@/pages/pollingManage/plan/add')
+        }, {
             path: 'pollingTask',
             name: `${pre}pollingTask`,
             meta: {

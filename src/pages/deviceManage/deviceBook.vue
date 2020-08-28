@@ -87,7 +87,7 @@ export default {
                 }
             ],
             model1: '',
-            searchShow: false,
+            searchShow: false, 
             typeCheckedAll: false,
             typeBox: [],
             genreList: [
