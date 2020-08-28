@@ -28,7 +28,7 @@ const router = new VueRouter({
 router.beforeEach((to, from, next) => {
     if (Setting.showProgressBar) iView.LoadingBar.start();
     next();
-    // // 判断是否需要登录才可以进入
+    // 判断是否需要登录才可以进入
     // if (to.matched.some(_ => _.meta.auth)) {
     //     // 这里依据 token 判断是否登录，可视情况修改
     //     const token = util.cookies.get('token');

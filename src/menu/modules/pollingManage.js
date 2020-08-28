@@ -21,6 +21,11 @@ export default {
         }, {
             path: `${pre}pollingManage`,
             title: '巡检点管理'
+        },
+        {
+            path: `${pre}plan/add`,
+            title: '巡检计划新增',
+            auth: ['hidden']
         }
     ]
 }
