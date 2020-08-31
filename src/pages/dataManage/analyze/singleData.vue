@@ -58,7 +58,7 @@
             <div slot="footer" >
                 <!-- <Button type="primary"  long  @click="save" style="font-size:12px">保存为新模版</Button> -->
             </div>
-        </Modal>
+        </Modal> 
   </div>
 </template>    
 <script>
@@ -175,6 +175,7 @@ export default {
                 type: 'default',
                 size: 'small'
             },
+            tissue:''
         }
     },
     methods:{
@@ -224,6 +225,38 @@ export default {
                 ])
             ]);
         },
+         // 清空所有已选项
+        handleClearSelect (status) {
+            this.selectedData = [];
+            this.$refs.selection.selectAll(status);
+        },
+        // 选中一项，将数据添加至已选项中
+        handleSelect (selection, row) {
+            this.selectedData.push(row);
+        },
+        // 取消选中一项，将取消的数据从已选项中删除
+        handleSelectCancel (selection, row) {
+            const index = this.selectedData.findIndex(item => item.name === row.name);
+            this.selectedData.splice(index, 1);
+        },
+        // 当前页全选时，判断已选数据是否存在，不存在则添加
+        handleSelectAll (selection) {
+            selection.forEach(item => {
+                if (this.selectedData.findIndex(i => i.name === item.name) < 0) {
+                    this.selectedData.push(item);
+                }
+            });
+        },
+        // 取消当前页全选时，将当前页的数据（即 modelData）从已选项中删除
+        handleSelectAllCancel () {
+            const selection = this.modelData;
+            selection.forEach(item => {
+                const index = this.selectedData.findIndex(i => i.name === item.name);
+                if (index >= 0) {
+                    this.selectedData.splice(index, 1);
+                }
+            });
+        }
     }
 }
 </script>

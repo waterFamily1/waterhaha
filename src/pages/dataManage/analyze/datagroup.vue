@@ -117,7 +117,8 @@ export default {
                     tissue: '易烊千玺老婆团'
                 }
             ],
-            selectedData: []
+            selectedData: [],
+            keyword:''
         }
     },
     methods:{

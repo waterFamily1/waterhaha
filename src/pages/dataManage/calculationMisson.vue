@@ -67,38 +67,6 @@
                  <Page :total="100" show-elevator show-total class="page" />
             </div>
         </div>
-        <!-- 添加SIM卡 -->
-        <Modal
-            v-model="addModal"
-            title="添加SIM卡"
-            :loading="loading"
-            width="400"
-            @on-ok="asyncOK">
-            <Form ref="modalValidate" :model="modalValidate" :rules="modalRule" :label-width="80">
-                <div class="c-top-border-gray-sim">
-                    <FormItem label="租户名称" prop="name">
-                        <Select v-model="modalValidate.name" placeholder="请选择">
-                            <Option value="beijing">deht</Option>
-                            <Option value="shanghai">dww</Option>
-                            <Option value="shenzhen">deht</Option>
-                        </Select>
-                    </FormItem>
-                    <FormItem label="ICCID" prop="ICCID">
-                        <Input type="type" v-model="modalValidate.ICCID"></Input>
-                        <Tooltip content="Top Center text" placement="top">
-                            <Icon type="ios-help-circle" style="font-size:18px;color: rgb(0, 151, 207);vertical-align:middle;margin-left:6px" @click="disabled = true" />
-                            <div slot="content">
-                                <p>多个ICCID请用分号(;)隔开</p>
-                            </div>
-                        </Tooltip>
-                    </FormItem>
-                    <FormItem label="备注" prop="remark">
-                        <Input v-model="modalValidate.remark" type="textarea" :autosize="{minRows: 2,maxRows: 5}" 
-                        placeholder="请填写备注"></Input>
-                    </FormItem>
-                </div>
-            </Form>
-        </Modal>
     </div>
 </template>
 <script>

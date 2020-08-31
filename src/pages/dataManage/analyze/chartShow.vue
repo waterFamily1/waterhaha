@@ -16,7 +16,7 @@
           </div>
           <div>
               <span>起始时间：</span>
-               <DatePicker type="date" :options="startTime" placeholder="选择时间" style="width: 200px"></DatePicker>
+               <DatePicker type="date"  placeholder="选择时间" style="width: 200px"></DatePicker>
                <div class="cmp-date-step-icon">
                    <a href="javascript:;"> <Icon type="md-arrow-dropleft" /></a>
                    <a href="javascript:;"> <Icon type="md-arrow-dropright" /></a>

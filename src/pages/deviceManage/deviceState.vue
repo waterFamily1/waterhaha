@@ -8,14 +8,14 @@
                 </div>
                 <div class="form-item">
                     <label>区域位置：</label> 
-                    <Select v-model="model1" style="width:200px">
+                    <Select style="width:200px" v-model="location">
                         <Option v-for="item in cityList" :value="item.value" :key="item.value">{{ item.label }}</Option>
                     </Select>
                 </div>
                 <div class="form-item">
                     <label>设备类型：</label> 
-                    <Select v-model="model1" style="width:200px">
-                        <Option v-for="item in genreList " :value="item.value" :key="item.value">{{ item.label }}</Option>
+                    <Select  style="width:200px">
+                        <Option v-for="item in genreList " :value="item.id" :key="item.id">{{ item.label }}</Option>
                     </Select>
                 </div>
                 <div class="form-search-btn">
@@ -68,7 +68,7 @@
                 </div>
             </div>
             <div class="table-wrapper" :style="{height: (height-45)+'px'}">
-                <Table stripe :columns="tableList" :data="tableData">
+                <Table stripe :columns="tableList" >
                     <template slot-scope="{ row }" slot="name">
                         <strong>{{ row.name }}</strong>
                     </template>
@@ -93,12 +93,21 @@ export default {
                 {
                     value: 'New York',
                     label: 'New York'
-                }
+                },
+                {
+                    value: 'London',
+                    label: 'London'
+                },
+                {
+                    value: 'Sydney',
+                    label: 'Sydney'
+                },
             ],
             model1: '',
             searchShow: false,
             typeCheckedAll: false,
             typeBox: [],
+            location:'',
             genreList: [
                 {label: '在线仪表',id: 1},
                 {label: '泵',id: 2},

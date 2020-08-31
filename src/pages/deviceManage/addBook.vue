@@ -24,7 +24,7 @@
                             <Row>
                                 <Col span="12">
                                     <FormItem label="设备名称:" prop="name">
-                                        <Select v-model="formValidate.name" placeholder="请选择" style="width:200px" size="samll">
+                                        <Select v-model="formValidate.name" placeholder="请选择" style="width:200px" size="small">
                                             <Option value="beijing">New York</Option>
                                             <Option value="shanghai">London</Option>
                                             <Option value="shenzhen">Sydney</Option>
@@ -45,7 +45,7 @@
                                 </Col>
                                 <Col span="12">
                                     <FormItem label="区域位置:" prop="location">
-                                        <Select v-model="formValidate.location" placeholder="请选择" style="width:200px" size="samll">
+                                        <Select v-model="formValidate.location" placeholder="请选择" style="width:200px" size="small">
                                             <Option value="beijing">New York</Option>
                                             <Option value="shanghai">London</Option>
                                             <Option value="shenzhen">Sydney</Option>
@@ -56,7 +56,7 @@
                             <Row>
                                 <Col span="12">
                                     <FormItem label="资产状态:" prop="state">
-                                         <Select v-model="formValidate.state" placeholder="请选择" style="width:200px" size="samll">
+                                         <Select v-model="formValidate.state" placeholder="请选择" style="width:200px" size="small">
                                             <Option value="beijing"> 启用</Option>
                                             <Option value="shanghai">封存</Option>
                                             <Option value="shenzhen">报废</Option>
@@ -65,7 +65,7 @@
                                 </Col>
                                 <Col span="12">
                                     <FormItem label="ABC类:" prop="location">
-                                        <Select v-model="formValidate.location" placeholder="请选择" style="width:200px" size="samll">
+                                        <Select v-model="formValidate.location" placeholder="请选择" style="width:200px" size="small">
                                             <Option value="beijing">A</Option>
                                             <Option value="shanghai">B</Option>
                                             <Option value="shenzhen">C</Option>
@@ -76,7 +76,7 @@
                              <Row>
                                 <Col span="12">
                                     <FormItem label="所属组织:" prop="tissue">
-                                         <Select v-model="formValidate.tissue" placeholder="请选择" style="width:200px" size="samll">
+                                         <Select v-model="formValidate.tissue" placeholder="请选择" style="width:200px" size="small">
                                             <Option value="beijing"> 启用</Option>
                                             <Option value="shanghai">封存</Option>
                                             <Option value="shenzhen">报废</Option>
@@ -85,7 +85,7 @@
                                 </Col>
                                 <Col span="12">
                                     <FormItem label="责任人:" prop="person">
-                                        <Select v-model="formValidate.person" placeholder="请选择" style="width:200px" size="samll">
+                                        <Select v-model="formValidate.person" placeholder="请选择" style="width:200px" size="small">
                                             <Option value="beijing">A</Option>
                                             <Option value="shanghai">B</Option>
                                             <Option value="shenzhen">C</Option>

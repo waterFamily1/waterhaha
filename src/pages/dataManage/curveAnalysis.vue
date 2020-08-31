@@ -47,7 +47,7 @@
                 <div  style="display:inline-block;height: 28px;border: 0;padding: 4px 7px;background:#eee;border-top-right-radius:3px;border-bottom-right-radius:3px;">
                     <Icon type="ios-search-outline" />
                 </div>
-                <Table stripe :columns="tableList" :data="tableData">
+                <Table stripe :columns="tableList">
                     <template slot-scope="{ row }" slot="name">
                         <strong>{{ row.name }}</strong>
                     </template>
@@ -250,7 +250,9 @@ export default {
                 this.modal1 =true
             }
         },
-        
+        save(){
+
+        }
         
     }
 }

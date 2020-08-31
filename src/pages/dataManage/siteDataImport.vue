@@ -3,8 +3,8 @@
        <div class="search-box">
           <div class="form-item">
               <span>时间：</span>
-              <DatePicker type="date" :options="startTime" placeholder="开始时间" style="width: 120px"></DatePicker>-
-              <DatePicker type="date" :options="startTime" placeholder="结束时间" style="width: 120px"></DatePicker>
+              <DatePicker type="date"  placeholder="开始时间" style="width: 120px"></DatePicker>-
+              <DatePicker type="date"  placeholder="结束时间" style="width: 120px"></DatePicker>
           </div>
           <div class="form-item">
               <span>状态：</span>
@@ -91,6 +91,7 @@ export default {
                 }
             ],
             siteTableData: [],
+            startTime:''
       }
     },
     mounted() {

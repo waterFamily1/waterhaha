@@ -40,8 +40,8 @@
                     <div class="form-item">
                         <label>业务时间：</label>
                         <div class="cmp-tab">
-                           <DatePicker type="date" :options="startTime" placeholder="开始日期" style="width: 190px"></DatePicker> -
-                           <DatePicker type="date" :options="endTime" placeholder="结束日期" style="width: 190px"></DatePicker>
+                           <DatePicker type="date"  placeholder="开始日期" style="width: 190px"></DatePicker> -
+                           <DatePicker type="date"  placeholder="结束日期" style="width: 190px"></DatePicker>
                         </div>
                     </div>
                 </div>
@@ -53,7 +53,7 @@
                  <button type="button" @click="deleteNew()" style="margin-left:10px">删除</button>
             </div>
             <div class="table-wrapper" :style="{height: (height-45)+'px'}">
-                <Table stripe :columns="tableList" :data="tableData">
+                <Table stripe :columns="tableList" >
                     <template slot-scope="{ row }" slot="name">
                         <strong>{{ row.name }}</strong>
                     </template>
@@ -123,7 +123,9 @@ export default {
                     width: 150,
                     align: 'center'
                 }
-            ]
+            ],
+            startTime:'',
+            endTime:''
         }
     },
     mounted() {

@@ -166,7 +166,7 @@
                         </Select>
                     </FormItem>
                     <FormItem label="ICCID" prop="ICCID">
-                        <Input type="type" v-model="modalValidate.ICCID"></Input>
+                        <Input type="text" v-model="modalValidate.ICCID"></Input>
                         <Tooltip content="Top Center text" placement="top">
                             <Icon type="ios-help-circle" style="font-size:18px;color: rgb(0, 151, 207);vertical-align:middle;margin-left:6px" @click="disabled = true" />
                             <div slot="content">
