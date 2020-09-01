@@ -57,7 +57,7 @@
                         </DropdownMenu>
                     </Dropdown>
                 </div>
-            </div>
+            </div> 
             <div class="table-wrapper" :style="{height: (height-45)+'px'}">
                 <Table stripe :columns="tableList" >
                     <template slot-scope="{ row }" slot="name">

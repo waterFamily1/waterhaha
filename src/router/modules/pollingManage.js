@@ -69,6 +69,15 @@ export default {
                 closable: false
             },
             component: () => import('@/pages/pollingManage/pollingManage')
+        },{
+            path: 'addPoint',
+            name: `${pre}addPoint`,
+            meta: {
+                ...meta,
+                title: '巡检点新增',
+                closable: false
+            },
+            component: () => import('@/pages/pollingManage/addPoint')
         }
     ]
 }

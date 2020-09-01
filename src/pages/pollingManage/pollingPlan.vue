@@ -182,7 +182,9 @@ export default {
                     createTime:'2020-08-19 15:31'
                 }
             ],
-            modal:false
+            modal:false,
+            keyword:'',
+            model1:''
         }
     },
     methods :{

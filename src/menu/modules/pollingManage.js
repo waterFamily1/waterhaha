@@ -26,6 +26,11 @@ export default {
             path: `${pre}plan/add`,
             title: '巡检计划新增',
             auth: ['hidden']
+        },
+        {
+            path: `${pre}addPoint`,
+            title: '巡检点新增',
+            auth: ['hidden']
         }
     ]
 }

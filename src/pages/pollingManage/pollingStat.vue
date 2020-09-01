@@ -3,12 +3,19 @@
         <div class="index-search" :class="{searchTrans:searchShow, searchPack:!searchShow}">
             <div class="search-main">
                 <div class="form-item">
-                    <label>关键字：</label>
-                    <Input v-model="keyword" placeholder="名称" style="width: 200px" size="small" />
+                    <label>起止日期：</label>
+                    <DatePicker type="date" placeholder="Select date" style="width: 120px"></DatePicker> - 
+                    <DatePicker type="date" placeholder="Select date" style="width: 120px"></DatePicker>
                 </div>
                 <div class="form-item">
                     <label>所属组织：</label> 
-                    <Select v-model="tissue" style="width:200px" size="small">
+                    <Select v-model="tissue" style="width:150px" size="small">
+                        <Option v-for="item in cityList" :value="item.value" :key="item.value">{{ item.label }}</Option>
+                    </Select>
+                </div>
+                <div class="form-item">
+                    <label>执行人员：</label> 
+                    <Select v-model="tissue" style="width:150px" size="small">
                         <Option v-for="item in cityList" :value="item.value" :key="item.value">{{ item.label }}</Option>
                     </Select>
                 </div>
@@ -23,18 +30,9 @@
                 </div>
             </div>
             <div class="c-adv-search">
-                 <div class="c-adv-search-row">
-                    <div class="form-item">
-                        <label>执行日期：</label>
-                        <div class="cmp-tab">
-                           <DatePicker type="date" placeholder="开始日期" style="width: 200px" size="small"></DatePicker> - 
-                           <DatePicker type="date" placeholder="结束日期" style="width: 200px" size="small"></DatePicker>
-                        </div>
-                    </div>
-                </div>
                 <div class="c-adv-search-row">
                     <div class="form-item">
-                        <label>状态：</label>
+                        <label>巡检状态：</label>
                         <div class="cmp-tab">
                             <a href="javascript:;" @click="typeCheckAll()" :class="{checked:typeCheckedAll}">全部</a>
                             <a href="javascript:;" v-for="(item, index) in stateList" 
@@ -43,20 +41,12 @@
                         </div>
                     </div>
                 </div>
-                <div class="c-adv-search-row">
-                    <div class="form-item">
-                        <label>类型：</label>
-                        <div class="cmp-tab">
-                            <a href="javascript:;" @click="typeCheckAll()" :class="{checked:typeCheckedAll}">全部</a>
-                            <a href="javascript:;" v-for="(item, index) in typeList" 
-                            :key="index" @click="typeCheck(item.id)" 
-                            :class="{checked:typeBox.includes(item.id)}">{{ item.label }}</a>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
         <div class="task-content">
+            <div class="title">
+                <button>导出表格</button>
+            </div>
              <Table stripe :columns="tableList" >
                 <template slot-scope="{ row }" slot="name">
                     <strong>{{ row.name }}</strong>
@@ -91,10 +81,6 @@ export default {
                 {label: '异常',id: 5},
                 {label: '已终止',id: 6}
             ],
-            typeList:[
-                {label:'普通巡检',id:'1'},
-                {label:'地图巡检',id:'2'}
-            ],
             typeCheckedAll: false,
             typeBox: [],
             tissue:'',
@@ -102,11 +88,7 @@ export default {
             keyword:'',
             tableList: [
                 {
-                    title: '编号',
-                    key: 'number'
-                },
-                {
-                    title: '巡检名称',
+                    title: '巡检任务名称',
                     key: 'name'
                 },
                 {
@@ -126,12 +108,32 @@ export default {
                     key: 'endTime'
                 },
                 {
+                    title: '所属组织',
+                    key: 'tissue'
+                },
+                {
                     title: '巡检点',
                     key: 'point'
                 },
                 {
-                    title: '发现缺陷',
+                    title: '巡检项',
+                    key: 'point'
+                },
+                {
+                    title: '缺陷申报',
                     key: 'defect'
+                },
+                {
+                    title: '计划距离',
+                    key: 'distance'
+                },
+                {
+                    title: '实际距离',
+                    key: 'realDistance'
+                },	
+                {
+                    title: '巡检耗时',
+                    key: 'elapsedTime'
                 },
                 {
                     title: '操作',
@@ -263,7 +265,7 @@ export default {
         }
     }
     .searchTrans {
-        height: 180px;
+        height: 100px;
         overflow: hidden;
         transition: 0.5s height;
     }
@@ -275,7 +277,19 @@ export default {
    .task-content{
        border-top: 5px solid #f0f0f0;
        padding: 10px;
-
+       .title{
+            height: 36px;
+            border-bottom: 1px solid #EEE;
+            button{
+                background: #576374;
+                font-size: 12px;
+                padding: 4px 12px;
+                color: #fff;
+                border: 0;
+                border-radius: 3px;
+                margin: 0 5px;
+            }
+       }
    }
 }
 </style>
