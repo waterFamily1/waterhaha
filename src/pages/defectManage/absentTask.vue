@@ -68,11 +68,11 @@
         </div>
         <div class="c-top-border-gray">
             <div class="c-table-top-btns">
-                <button>缺陷申报</button>
+                <button @click="declareHandle()">缺陷申报</button>
             </div>
             <Table stripe :columns="columns" :data="data">
                 <template slot-scope="{ row, index }" slot="action">
-                    <a class="check-btn" src="javascript:;" @click="checkHandle()">查看</a>
+                    <a class="check-btn" src="javascript:;" @click="checkHandle(index)">查看</a>
                 </template>
             </Table>
             <Page :total="100" show-elevator show-total class="page" />
@@ -150,6 +150,16 @@ export default {
     methods: {
         higherSearch() {
             this.searchShow = !this.searchShow
+        },
+        declareHandle() {
+            this.$router.push({
+                path:'defect/declare'
+            })
+        },
+        checkHandle() {
+            this.$router.push({
+                path:'defect/detail'
+            })
         }
     }
 }

@@ -25,6 +25,24 @@ export default {
             },
             component: () => import('@/pages/defectManage/absentTask')
         }, {
+            path: 'defect/declare',
+            name: `${pre}defect-declare`,
+            meta: {
+                ...meta,
+                title: '缺陷申报',
+                closable: false
+            },
+            component: () => import('@/pages/defectManage/defect/declare')
+        }, {
+            path: 'defect/detail',
+            name: `${pre}defect-detail`,
+            meta: {
+                ...meta,
+                title: '缺陷详情',
+                closable: false
+            },
+            component: () => import('@/pages/defectManage/defect/detail')
+        }, {
             path: 'defectStat',
             name: `${pre}defectStat`,
             meta: {

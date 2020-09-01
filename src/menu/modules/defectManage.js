@@ -10,6 +10,14 @@ export default {
             path: `${pre}absentTask`,
             title: '消缺任务'
         }, {
+            path: `${pre}defect/declare`,
+            title: '缺陷申报',
+            auth: ['hidden']
+        }, {
+            path: `${pre}defect/detail`,
+            title: '缺陷详情',
+            auth: ['hidden']
+        }, {
             path: `${pre}defectStat`,
             title: '缺陷统计'
         }
