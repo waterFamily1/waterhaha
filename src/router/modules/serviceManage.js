@@ -33,6 +33,16 @@ export default {
                 closable: false
             },
             component: () => import('@/pages/serviceManage/serviceStat')
+        },
+        {
+            path: 'serviceDetail',
+            name: `${pre}serviceDetail`,
+            meta: {
+                ...meta,
+                title: '维修详情',
+                closable: false
+            },
+            component: () => import('@/pages/serviceManage/serviceDetail')
         }
     ]
 }

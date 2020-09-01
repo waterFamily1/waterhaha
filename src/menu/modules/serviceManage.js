@@ -12,6 +12,11 @@ export default {
         }, {
             path: `${pre}serviceStat`,
             title: '维修统计'
+        },
+        {
+            path: `${pre}serviceDetail`,
+            title: '维修详情',
+            auth: ['hidden']
         }
     ]
 }
