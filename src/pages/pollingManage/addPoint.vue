@@ -39,7 +39,7 @@
         <div class="table-define">
             <div class="info">
                 <h3>巡检步骤</h3>
-                <button>新增</button>
+                <button @click="add()">新增</button>
             </div>
             <Table stripe :columns="columns7" :data="data6"></Table>
         </div>
@@ -67,7 +67,9 @@ export default {
             columns7: [
                 {
                     title: '序号',
-                    key: 'number',
+                    // key: 'number',
+                    type: 'index',
+                    align: 'center'
                 },
                 {
                     title: '步骤',
@@ -125,6 +127,9 @@ export default {
                     width: 150,
                     align: 'center',
                     render: (h, params) => {
+                        console.log(
+                            params.index
+                        )
                         return h('div', [
                             h('Button', {
                                 props: {
@@ -137,7 +142,7 @@ export default {
                                 },
                                 on: {
                                     click: () => {
-                                        this.remove(params.index)
+                                       this.data6.splice(params.index,1)
                                     }
                                 }
                             }, '删除')
@@ -147,7 +152,6 @@ export default {
             ],
             data6: [
                 {
-                    number: '1',
                     steps: '',
                     result: [
                         {
@@ -161,12 +165,32 @@ export default {
                     ],
                     point:'--'
                 },
-            ]
+            ],
+            
 
        }
     },
     mounted() {
         this.height = document.body.clientHeight-75
+    },
+    methods:{      
+        add(){
+            let obj= {
+                steps: '',
+                result: [
+                    {
+                        value:'0',
+                        name:'状态'
+                    },
+                    {
+                        value:'0',
+                        name:'数据'
+                    }
+                ],
+                point:'--'
+            };
+            this.data6.push(obj)
+        }
     }
 }
 </script>

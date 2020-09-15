@@ -123,6 +123,76 @@ export default {
                 closable: false
             },
             component: () => import('@/pages/storeManage/checkPLForm')
+        },
+        {          
+            path: 'childPage/adjustAdd',
+            name: `${pre}childPage-adjustAdd`,
+            meta: {
+                ...meta,
+                title: '库存调整新增',
+                closable: false
+            },
+            component: () => import('@/pages/storeManage/childPage/adjustAdd')
+        },
+        {          
+            path: 'childPage/putAdd',
+            name: `${pre}childPage-putAdd`,
+            meta: {
+                ...meta,
+                title: '入库新增',
+                closable: false
+            },
+            component: () => import('@/pages/storeManage/childPage/putAdd')
+        },
+        {          
+            path: 'childPage/outAdd',
+            name: `${pre}childPage-outAdd`,
+            meta: {
+                ...meta,
+                title: '出库新增',
+                closable: false
+            },
+            component: () => import('@/pages/storeManage/childPage/outAdd')
+        },
+        {          
+            path: 'childPage/allotAdd',
+            name: `${pre}childPage-allotAdd`,
+            meta: {
+                ...meta,
+                title: '调拨新增',
+                closable: false
+            },
+            component: () => import('@/pages/storeManage/childPage/allotAdd')
+        },
+        {          
+            path: 'childPage/checkAdd',
+            name: `${pre}childPage-checkAdd`,
+            meta: {
+                ...meta,
+                title: '调拨新增',
+                closable: false
+            },
+            component: () => import('@/pages/storeManage/childPage/checkAdd')
+        },
+        {          
+            path: 'childPage/warehouseAdd',
+            name: `${pre}childPage-warehouseAdd`,
+            meta: {
+                ...meta,
+                title: '仓库新增',
+                closable: false
+            },
+            component: () => import('@/pages/storeManage/childPage/warehouseAdd')
+        },
+        {          
+            path: 'childPage/materialAdd',
+            name: `${pre}childPage-materialAdd`,
+            meta: {
+                ...meta,
+                title: '物料新增',
+                closable: false
+            },
+            component: () => import('@/pages/storeManage/childPage/materialAdd')
         }
     ]
 }

@@ -42,6 +42,34 @@ export default {
         }, {
             path: `${pre}checkPLForm`,
             title: '盘点盈亏报表'
+        },{
+            path: `${pre}childPage/adjustAdd`,
+            title: '库存调整新增',
+            auth: ['hidden']
+        },{
+            path: `${pre}childPage/putAdd`,
+            title: '入库新增',
+            auth: ['hidden']
+        },{
+            path: `${pre}childPage/outAdd`,
+            title: '出库新增',
+            auth: ['hidden']
+        },{
+            path: `${pre}childPage/allotAdd`,
+            title: '调拨新增',
+            auth: ['hidden']
+        },{
+            path: `${pre}childPage/checkAdd`,
+            title: '盘点新增',
+            auth: ['hidden']
+        },{
+            path: `${pre}childPage/warehouseAdd`,
+            title: '仓库新增',
+            auth: ['hidden']
+        },{
+            path: `${pre}childPage/materialAdd`,
+            title: '物料新增',
+            auth: ['hidden']
         }
     ]
 }
