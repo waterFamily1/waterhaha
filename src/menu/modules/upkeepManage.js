@@ -10,6 +10,14 @@ export default {
             path: `${pre}upkeepPlan`,
             title: '保养计划'
         }, {
+            path: `${pre}upkeep/planDetail`,
+            title: '保养计划详情',
+            auth: ['hidden']
+        }, {
+            path: `${pre}upkeep/planAllot`,
+            title: '保养计划分配',
+            auth: ['hidden']
+        }, {
             path: `${pre}upkeepTask`,
             title: '保养任务'
         }, {

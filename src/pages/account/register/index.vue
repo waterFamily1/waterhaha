@@ -58,7 +58,6 @@
     import { mapActions } from 'vuex'
     import mixins from '../mixins'
     import api from './api'
-    import { verifyPhone } from '@/api/account'
 
     export default {
         mixins: [ mixins ],

@@ -25,6 +25,24 @@ export default {
             },
             component: () => import('@/pages/upkeepManage/upkeepPlan')
         }, {
+            path: 'upkeep/planDetail',
+            name: `${pre}upkeep-planDetail`,
+            meta: {
+                ...meta,
+                title: '保养计划详情',
+                closable: false
+            },
+            component: () => import('@/pages/upkeepManage/upkeep/planDetail')
+        }, {
+            path: 'upkeep/planAllot',
+            name: `${pre}upkeep-planAllot`,
+            meta: {
+                ...meta,
+                title: '保养计划分配',
+                closable: false
+            },
+            component: () => import('@/pages/upkeepManage/upkeep/planAllot')
+        }, {
             path: 'upkeepTask',
             name: `${pre}upkeepTask`,
             meta: {

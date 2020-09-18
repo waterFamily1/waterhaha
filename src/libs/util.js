@@ -3,6 +3,7 @@ import log from './util.log';
 import db from './util.db';
 
 import Setting from '@/setting';
+import { forEach } from 'lodash';
 
 const util = {
     cookies,
@@ -44,5 +45,21 @@ function requestAnimation (task) {
 }
 
 export { requestAnimation };
+
+export const createRouters = (menus) => {
+    let arr = []
+    const parent = arr.filter(item => item.parentId == 0)
+    const len = parent.length
+    arr.forEach(item => {
+        if (item.parentId == 0) return
+        for (let i = 0; i < len; i++) {
+            if (item.parentId == parent[i].id) {
+                if (!parent[i].children) parent[i].children = []
+                parent[i].children.push(item)
+                break
+            }
+        }
+    })
+}
 
 export default util;

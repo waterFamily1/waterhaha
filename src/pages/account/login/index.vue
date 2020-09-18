@@ -38,7 +38,7 @@
 <script>
     import { mapActions } from 'vuex';
     import mixins from '../mixins';
-    import { getUserAccount } from '@/api/account'
+    import { getUserCurrent } from '@/api/account'
 
     export default {
         mixins: [ mixins ],
@@ -86,11 +86,11 @@
                         rememberMe: this.rememberMe
                     })
                     .then((res) => {
-                        console.log(res)
-                        getUserAccount().then(res => {
-                            console.log(res)
+                        getUserCurrent().then(async res => {
+                            // console.log(JSON.stringify(res))
                         }).catch(err => {
-                            // 异常情况
+                            console.log('err: ', err);
+                            reject(err);
                         })
                         // 重定向对象不存在则返回顶层路径
                         this.$router.replace(this.$route.query.redirect || '/');

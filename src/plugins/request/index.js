@@ -11,8 +11,10 @@ const VUEINS = new Vue();
 
 // 创建一个 axios 实例
 const service = axios.create({
-    baseURL: Setting.apiBaseURL,
-    timeout: 5000 // 请求超时时间
+    // baseURL: Setting.apiBaseURL,
+    baseURL: '/api',
+    timeout: 1000,
+    withCredentials: true
 });
 
 // 请求拦截器
@@ -21,7 +23,7 @@ service.interceptors.request.use(
         // 在请求发送之前做一些处理
         const token = util.cookies.get('token');
         // // 让每个请求携带token-- ['X-Token']为自定义key 请根据实际情况自行修改
-        config.headers['X-Token'] = token;
+        // config.headers['token'] = token;
         return config;
     },
     error => {
@@ -48,7 +50,6 @@ service.interceptors.response.use(
             switch (status) {
             case 200:
                 // [ 示例 ] code === 0 代表没有错误
-                console.log(0)
                 return dataAxios;
             case 'xxx':
                 // [ 示例 ] 其它和后台约定的 code

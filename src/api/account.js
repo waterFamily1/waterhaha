@@ -16,17 +16,9 @@ export function AccountRegister (data) {
     });
 }
 
-export function getUserAccount () {
+export function getUserCurrent () {
     return request({
-        url: '/uaa/api/account',
-        method: 'get'
-    });
-}
-
-//验证手机号
-export function verifyPhone (data) {
-    return request({
-        url: '/uaa/api/users/validate-tel?tel:'+ data,
+        url: '/uaa/api/users/current?webOper='+true,
         method: 'get'
     });
 }

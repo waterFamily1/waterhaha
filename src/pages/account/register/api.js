@@ -12,11 +12,3 @@ const API = {
     getUserAccount: "uaa/api/account"
 }
 export default API;
-
-//验证手机号
-// export function verifyPhone () {
-//     return request({
-//         url: '/uaa/api/users/validate-tel',
-//         method: 'get'
-//     });
-// }

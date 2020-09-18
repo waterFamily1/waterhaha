@@ -171,6 +171,7 @@ export default {
                 margin: 0 5px;
                 border: none;
                 height: 28px;
+                background-color: #576374;
             }
             .c-btn-back {
                 background: #c8c8c8;
