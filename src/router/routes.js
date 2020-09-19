@@ -117,6 +117,86 @@ const frameIn = [
     other
 ];
 
+export const asyncRoute = [
+    {
+        path: '/',
+        redirect: {
+            name: 'dashboard-console'
+        },
+        component: BasicLayout,
+        children: [
+            {
+                path: 'index',
+                name: 'index',
+                redirect: {
+                    name: 'dashboard-console'
+                }
+            },
+            {
+                path: 'log',
+                name: 'log',
+                meta: {
+                    title: '前端日志',
+                    auth: true
+                },
+                component: () => import('@/pages/system/log')
+            },
+            // 刷新页面 必须保留
+            {
+                path: 'refresh',
+                name: 'refresh',
+                hidden: true,
+                component: {
+                    beforeRouteEnter (to, from, next) {
+                        next(instance => instance.$router.replace(from.fullPath));
+                    },
+                    render: h => h()
+                }
+            },
+            // 页面重定向 必须保留
+            {
+                path: 'redirect/:route*',
+                name: 'redirect',
+                hidden: true,
+                component: {
+                    beforeRouteEnter (to, from, next) {
+                        next(instance => instance.$router.replace(JSON.parse(from.params.route)));
+                    },
+                    render: h => h()
+                }
+            }
+        ]
+    },
+    // 我的关注
+    {
+        path: '/myAttention',
+        name: 'myAttention',
+        meta: {
+            title: '我的关注'
+        },
+        component: () => import('@/pages/header/myAttention')
+    },
+    //任务看板
+    {
+        path: '/taskBoard',
+        name: 'taskBoard',
+        meta: {
+            title: '任务看板'
+        },
+        component: () => import('@/pages/header/taskBoard')
+    },
+    //消息中心
+    {
+        path: '/newsCenter',
+        name: 'newsCenter',
+        meta: {
+            title: '消息中心'
+        },
+        component: () => import('@/pages/header/newsCenter')
+    },
+    dashboard
+]
+
 /**
  * 在主框架之外显示
  */

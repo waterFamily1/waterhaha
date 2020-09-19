@@ -1,12 +1,12 @@
 import BasicLayout from '@/layouts/basic-layout'
-const pre = 'serviceManage-'
+const pre = 'repaiR-'
 
 const meta = {
     auth: false
 }
 
 export default {
-    path: '/serviceManage',
+    path: '/repaiR',
     title: '维修管理',
     custom: 'icon iconfont i-icon-demo icon-weixiu',
     redirect: {
@@ -16,8 +16,8 @@ export default {
     meta,
     children: [
         {
-            path: 'serviceOrder',
-            name: `${pre}serviceOrder`,
+            path: '/repair',
+            name: `${pre}repair-order`,
             meta: {
                 ...meta,
                 title: '维修工单',
@@ -25,8 +25,8 @@ export default {
             },
             component: () => import('@/pages/serviceManage/serviceOrder')
         }, {
-            path: 'serviceStat',
-            name: `${pre}serviceStat`,
+            path: '/repair/statistics',
+            name: `${pre}repair-statistics`,
             meta: {
                 ...meta,
                 title: '维修统计',
@@ -35,7 +35,7 @@ export default {
             component: () => import('@/pages/serviceManage/serviceStat')
         },
         {
-            path: 'serviceDetail',
+            path: '/serviceDetail',
             name: `${pre}serviceDetail`,
             meta: {
                 ...meta,

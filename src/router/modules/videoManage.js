@@ -1,12 +1,12 @@
 import BasicLayout from '@/layouts/basic-layout'
-const pre = 'videoManage-'
+const pre = 'monitor-'
 
 const meta = {
     auth: false
 }
 
 export default {
-    path: '/videoManage',
+    path: '/monitor',
     title: '视频管理',
     custom: 'icon iconfont i-icon-demo icon-shipinzixun',
     redirect: {
@@ -16,8 +16,8 @@ export default {
     meta,
     children: [
         {
-            path: 'RTVideo',
-            name: `${pre}RTVideo`,
+            path: '/monitor-screen/monitor',
+            name: `${pre}monitor-screen`,
             meta: {
                 ...meta,
                 title: '实时视频',
@@ -25,8 +25,8 @@ export default {
             },
             component: () => import('@/pages/videoManage/RTVideo')
         }, {
-            path: 'videoCapture',
-            name: `${pre}videoCapture`,
+            path: '/monitor-screen/capture',
+            name: `${pre}monitor-capture`,
             meta: {
                 ...meta,
                 title: '视频抓拍',
@@ -34,8 +34,8 @@ export default {
             },
             component: () => import('@/pages/videoManage/videoCapture')
         }, {
-            path: 'videoDeploy',
-            name: `${pre}videoDeploy`,
+            path: '/video',
+            name: `${pre}video`,
             meta: {
                 ...meta,
                 title: '视频配置',
@@ -43,7 +43,7 @@ export default {
             },
             component: () => import('@/pages/videoManage/videoDeploy')
         }, {
-            path: 'videoD/addVideo',
+            path: '/videoD/addVideo',
             name: `${pre}videoD-addVideo`,
             meta: {
                 ...meta,
@@ -52,7 +52,7 @@ export default {
             },
             component: () => import('@/pages/videoManage/videoD/addVideo')
         }, {
-            path: 'videoD/editVideo',
+            path: '/videoD/editVideo',
             name: `${pre}videoD-editVideo`,
             meta: {
                 ...meta,
@@ -61,7 +61,7 @@ export default {
             },
             component: () => import('@/pages/videoManage/videoD/addVideo')
         }, {
-            path: 'videoD/checkVideo',
+            path: '/videoD/checkVideo',
             name: `${pre}videoD-checkVideo`,
             meta: {
                 ...meta,

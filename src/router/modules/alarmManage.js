@@ -1,23 +1,23 @@
 import BasicLayout from '@/layouts/basic-layout'
-const pre = 'alarmManage-'
+const pre = 'alarm-'
 
 const meta = {
     auth: false
 }
 
 export default {
-    path: '/alarmManage',
+    path: '/alarm',
     title: '报警管理',
     custom: 'icon iconfont i-icon-demo icon-zuoyebaojing',
     redirect: {
-        name: `${pre}alarmHistory`
+        name: `${pre}history`
     },
     component: BasicLayout,
     meta,
     children: [
         {
-            path: 'alarmHistory',
-            name: `${pre}alarmHistory`,
+            path: 'history',
+            name: `${pre}history`,
             meta: {
                 ...meta,
                 title: '报警历史',
@@ -25,8 +25,8 @@ export default {
             },
             component: () => import('@/pages/alarmManage/alarmHistory')
         }, {
-            path: 'alarmDefinition',
-            name: `${pre}alarmDefinition`,
+            path: 'define',
+            name: `${pre}define`,
             meta: {
                 ...meta,
                 title: '报警定义',
@@ -61,8 +61,8 @@ export default {
             },
             component: () => import('@/pages/alarmManage/alarm/definAdd')
         }, {
-            path: 'alarmTake',
-            name: `${pre}alarmTake`,
+            path: 'subscribe',
+            name: `${pre}subscribe`,
             meta: {
                 ...meta,
                 title: '报警订阅',

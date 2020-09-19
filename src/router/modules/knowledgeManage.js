@@ -1,23 +1,23 @@
 import BasicLayout from '@/layouts/basic-layout'
-const pre = 'knowledgeManage-'
+const pre = 'knowledge-'
 
 const meta = {
     auth: false
 }
 
 export default {
-    path: '/knowledgeManage',
+    path: '/knowledge',
     title: '知识管理',
     custom: 'icon iconfont i-icon-demo icon-zhishi',
     redirect: {
-        name: `${pre}knowledgeOverview`
+        name: `${pre}knowledge-overview`
     },
     component: BasicLayout,
     meta,
     children: [
         {
-            path: 'knowledgeOverview',
-            name: `${pre}knowledgeOverview`,
+            path: '/knowledge/overview',
+            name: `${pre}knowledge-overview`,
             meta: {
                 ...meta,
                 title: '知识总览',
@@ -25,8 +25,8 @@ export default {
             },
             component: () => import('@/pages/knowledgeManage/knowledgeOverview')
         }, {
-            path: 'documentManage',
-            name: `${pre}documentManage`,
+            path: '/knowledge/doc',
+            name: `${pre}knowledge-doc`,
             meta: {
                 ...meta,
                 title: '文档管理',
@@ -34,8 +34,8 @@ export default {
             },
             component: () => import('@/pages/knowledgeManage/documentManage')
         }, {
-            path: 'tagManage',
-            name: `${pre}tagManage`,
+            path: '/knowledge/label',
+            name: `${pre}knowledge-label`,
             meta: {
                 ...meta,
                 title: '标签管理',
@@ -43,8 +43,8 @@ export default {
             },
             component: () => import('@/pages/knowledgeManage/tagManage')
         }, {
-            path: 'myKnowledge',
-            name: `${pre}myKnowledge`,
+            path: '/knowledge/personal',
+            name: `${pre}knowledge-personal`,
             meta: {
                 ...meta,
                 title: '我的知识',

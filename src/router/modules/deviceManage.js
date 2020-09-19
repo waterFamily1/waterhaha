@@ -6,18 +6,18 @@ const meta = {
 }
 
 export default {
-    path: '/deviceManage',
+    path: '/equU',
     title: '设备管理',
     custom: 'icon iconfont i-icon-demo icon-shebeiguanli',
     redirect: {
-        name: `${pre}deviceBook`
+        name: `${pre}equ`
     },
     component: BasicLayout,
     meta,
     children: [
         {
-            path: 'deviceBook',
-            name: `${pre}deviceBook`,
+            path: '/equ',
+            name: `${pre}equ`,
             meta: {
                 ...meta,
                 title: '设备台账',
@@ -25,8 +25,8 @@ export default {
             },
             component: () => import('@/pages/deviceManage/deviceBook')
         }, {
-            path: 'deviceState',
-            name: `${pre}deviceState`,
+            path: '/equ/status/list',
+            name: `${pre}equ-state`,
             meta: {
                 ...meta,
                 title: '设备状态',
@@ -34,7 +34,7 @@ export default {
             },
             component: () => import('@/pages/deviceManage/deviceState')
         },{
-            path: 'addBook',
+            path: '/addBook',
             name: `${pre}addBook`,
             meta: {
                 ...meta,

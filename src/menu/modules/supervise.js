@@ -1,22 +1,22 @@
 const pre = '/supervise/';
 
 export default {
-    path: '/supervise',
+    path: '/process-view',
     title: '实时监管',
     header: 'home',
     custom: 'icon iconfont i-icon-demo icon-jianguan',
     children: [
         {
-            path: `${pre}controlCenter`,
+            path: `/dispatch/map`,
             title: '调度中心'
         }, {
-            path: `${pre}monitorScreen`,
+            path: `/process-view/monitor`,
             title: '监视画面'
         }, {
-            path: `${pre}screenProfile`,
+            path: `/process-view/setting/2d`,
             title: '监视画面配置'
         }, {
-            path: `${pre}screenProfile3D`,
+            path: `/process-view/setting/3d`,
             title: '监视画面配置3D'
         }
     ]

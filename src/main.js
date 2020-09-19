@@ -78,6 +78,7 @@ new Vue({
     watch: {
         // 监听路由 控制侧边栏显示 标记当前顶栏菜单（如需要）
         '$route' (to, from) {
+            console.log('watch0000000')
             let path = to.matched[to.matched.length - 1].path
             if (!Setting.dynamicSiderMenu) {
                 let headerName = getHeaderName(path, menuSider)

@@ -10,8 +10,6 @@ import store from '@/store/index';
 
 // 路由数据
 import routes from './routes';
-import { getRouter } from '@api/router';
-import createRoutes from '@/libs/router-util'
 
 Vue.use(VueRouter);
 
@@ -27,51 +25,73 @@ const router = new VueRouter({
  * 权限验证
  */
 
-let hasMenus = false
+// import { getRouter } from '@api/router';
+// import createRoutes from '@/libs/router-util'
 
-router.beforeEach(async (to, from, next) => {
+// let hasMenus = false
+
+// router.beforeEach(async (to, from, next) => {
+//     if (Setting.showProgressBar) iView.LoadingBar.start();
+//     // next();
+//     // 判断是否需要登录才可以进入
+//     if (to.matched.some(_ => _.meta.auth)) {
+//         // 这里依据 token 判断是否登录，可视情况修改
+//         const token = util.cookies.get('access_token');
+
+//         if (token && token !== 'undefined') {
+//             // next();
+//             if(hasMenus) {
+//                 next();
+//             } else {
+//                 // 没有登录的时候跳转到登录界面
+//                 // 携带上登陆成功之后需要跳转的页面完整路径
+//                 try {  
+//                     const data = await getRouter()
+//                     const routes = createRoutes(data)
+//                     router.addRoutes(routes)
+//                     console.log(router)
+//                 } catch (error) {
+//                     console.log(22222222222)
+//                 }
+//             }
+//         } else {
+//             next({
+//                 name: 'login',
+//                 query: {
+//                     redirect: to.fullPath
+//                 }
+//             });
+//         }
+//     } else {
+//         // 不需要身份校验 直接通过
+//         next();
+//     }
+// });
+
+router.beforeEach((to, from, next) => {
     if (Setting.showProgressBar) iView.LoadingBar.start();
-    // next();
+    next();
     // 判断是否需要登录才可以进入
-    if (to.matched.some(_ => _.meta.auth)) {
-        // 这里依据 token 判断是否登录，可视情况修改
-        const token = util.cookies.get('access_token');
+    // if (to.matched.some(_ => _.meta.auth)) {
+    //     // 这里依据 token 判断是否登录，可视情况修改
+    //     const token = util.cookies.get('token');
 
-        if (token && token !== 'undefined') {
-            // next();
-            if(hasMenus) {
-                next();
-            } else {
-                // 没有登录的时候跳转到登录界面
-                // 携带上登陆成功之后需要跳转的页面完整路径
-                try {  
-                    const data = await getRouter()
-                    console.log(data)
-                    const routes = createRoutes(data)
-                    // router.addRoutes(routes)
-                    console.log(routes)
-                } catch (error) {
-                    console.log(22222222222)
-                    // next({
-                    //     name: 'login',
-                    //     query: {
-                    //         redirect: to.fullPath
-                    //     }
-                    // });
-                }
-            }
-        } else {
-            next({
-                name: 'login',
-                query: {
-                    redirect: to.fullPath
-                }
-            });
-        }
-    } else {
-        // 不需要身份校验 直接通过
-        next();
-    }
+    //     if (token && token !== 'undefined') {
+    //         next();
+    //     } else {
+    //         // 没有登录的时候跳转到登录界面
+    //         // 携带上登陆成功之后需要跳转的页面完整路径
+    //         next({
+    //             name: 'login',
+    //             query: {
+    //                 redirect: to.fullPath
+    //             }
+    //         });
+    //     }
+    // } else {
+    //     // 不需要身份校验 直接通过
+    //     next();
+    // }
 });
 
 router.afterEach(to => {

@@ -1,23 +1,23 @@
 import BasicLayout from '@/layouts/basic-layout'
-const pre = 'dataQuality-'
+const pre = 'data-'
 
 const meta = {
     auth: false
 }
 
 export default {
-    path: '/dataQuality',
+    path: '/data',
     title: '数据质量',
     custom: 'icon iconfont i-icon-demo icon-zhiliang',
     redirect: {
-        name: `${pre}qualityStat`
+        name: `${pre}data-quality-statistics`
     },
     component: BasicLayout,
     meta,
     children: [
         {
-            path: 'qualityStat',
-            name: `${pre}qualityStat`,
+            path: '/data-quality/statistics',
+            name: `${pre}data-quality-statistics`,
             meta: {
                 ...meta,
                 title: '质量统计',
@@ -25,7 +25,7 @@ export default {
             },
             component: () => import('@/pages/dataQuality/qualityStat')
         }, {
-            path: 'stat/recountLog',
+            path: '/stat/recountLog',
             name: `${pre}stat-recountLog`,
             meta: {
                 ...meta,
@@ -34,8 +34,8 @@ export default {
             },
             component: () => import('@/pages/dataQuality/stat/recountLog')
         }, {
-            path: 'sampleDeploy',
-            name: `${pre}sampleDeploy`,
+            path: '/data-quality/setting',
+            name: `${pre}data-quality-setting`,
             meta: {
                 ...meta,
                 title: '样本配置',
@@ -43,8 +43,8 @@ export default {
             },
             component: () => import('@/pages/dataQuality/sampleDeploy')
         }, {
-            path: 'qualityStandard',
-            name: `${pre}qualityStandard`,
+            path: '/data-quality/standard',
+            name: `${pre}data-quality-standard`,
             meta: {
                 ...meta,
                 title: '质量标准',

@@ -1,23 +1,23 @@
 import BasicLayout from '@/layouts/basic-layout'
-const pre = 'systemManage-'
+const pre = 'system-'
 
 const meta = {
     auth: false
 }
 
 export default {
-    path: '/systemManage',
+    path: '/system',
     title: '系统管理',
     custom: 'icon iconfont i-icon-demo icon-xitong',
     redirect: {
-        name: `${pre}rolePermission`
+        name: `${pre}role`
     },
     component: BasicLayout,
     meta,
     children: [
         {
-            path: 'rolePermission',
-            name: `${pre}rolePermission`,
+            path: '/system/role',
+            name: `${pre}role`,
             meta: {
                 ...meta,
                 title: '角色权限',
@@ -25,8 +25,8 @@ export default {
             },
             component: () => import('@/pages/systemManage/rolePermission')
         }, {
-            path: 'terminalDeploy',
-            name: `${pre}terminalDeploy`,
+            path: '/terminal-setting',
+            name: `${pre}terminal-setting`,
             meta: {
                 ...meta,
                 title: '终端配置',
@@ -34,7 +34,7 @@ export default {
             },
             component: () => import('@/pages/systemManage/terminalDeploy')
         }, {
-            path: 'teminal/addUser',
+            path: '/teminal/addUser',
             name: `${pre}teminal-addUser`,
             meta: {
                 ...meta,
@@ -43,7 +43,7 @@ export default {
             },
             component: () => import('@/pages/systemManage/teminal/terminalDetail'),
         }, {
-            path: 'teminal/terminalDetail',
+            path: '/teminal/terminalDetail',
             name: `${pre}teminal-terminalDetail`,
             meta: {
                 ...meta,
@@ -52,7 +52,7 @@ export default {
             },
             component: () => import('@/pages/systemManage/teminal/terminalDetail'),
         }, {
-            path: 'teminal/terminalTest',
+            path: '/teminal/terminalTest',
             name: `${pre}teminal-terminalTest`,
             meta: {
                 ...meta,
@@ -61,8 +61,8 @@ export default {
             },
             component: () => import('@/pages/systemManage/teminal/terminalTest'),
         }, {
-            path: 'SIMManage',
-            name: `${pre}SIMManage`,
+            path: '/sim/sim-manager',
+            name: `${pre}sim-manager`,
             meta: {
                 ...meta,
                 title: 'SIM卡管理',
@@ -70,8 +70,8 @@ export default {
             },
             component: () => import('@/pages/systemManage/SIMManage')
         }, {
-            path: 'indexManage',
-            name: `${pre}indexManage`,
+            path: '/indicator',
+            name: `${pre}indicator`,
             meta: {
                 ...meta,
                 title: '指标管理',
@@ -79,7 +79,7 @@ export default {
             },
             component: () => import('@/pages/systemManage/indexManage')
         }, {
-            path: 'index/indexAdd',
+            path: '/index/indexAdd',
             name: `${pre}index-indexAdd`,
             meta: {
                 ...meta,
@@ -88,8 +88,8 @@ export default {
             },
             component: () => import('@/pages/systemManage/index/indexAdd')
         }, {
-            path: 'flowAlarm',
-            name: `${pre}flowAlarm`,
+            path: '/sim/sim-alarm',
+            name: `${pre}sim-alarm`,
             meta: {
                 ...meta,
                 title: '流量报警设置',
@@ -97,7 +97,7 @@ export default {
             },
             component: () => import('@/pages/systemManage/flowAlarm')
         }, {
-            path: 'alarm/addAlarm',
+            path: '/alarm/addAlarm',
             name: `${pre}alarm-addAlarm`,
             meta: {
                 ...meta,
@@ -106,8 +106,8 @@ export default {
             },
             component: () => import('@/pages/systemManage/alarm/addAlarm')
         }, {
-            path: 'handleLog',
-            name: `${pre}handleLog`,
+            path: '/system/logs',
+            name: `${pre}oper-log`,
             meta: {
                 ...meta,
                 title: '操作日志',

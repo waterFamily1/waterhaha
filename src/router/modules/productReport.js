@@ -1,23 +1,23 @@
 import BasicLayout from '@/layouts/basic-layout'
-const pre = 'productReport-'
+const pre = 'report-'
 
 const meta = {
     auth: false
 }
 
 export default {
-    path: '/productReport',
+    path: '/reportR',
     title: '生产报表',
     custom: 'icon iconfont i-icon-demo icon-icon',
     redirect: {
-        name: `${pre}reportBrowse`
+        name: `${pre}report-list`
     },
     component: BasicLayout,
     meta,
     children: [
         {
-            path: 'reportBrowse',
-            name: `${pre}reportBrowse`,
+            path: '/report',
+            name: `${pre}report-list`,
             meta: {
                 ...meta,
                 title: '报表浏览',
@@ -25,8 +25,8 @@ export default {
             },
             component: () => import('@/pages/productReport/reportBrowse')
         }, {
-            path: 'bulletinBrowse',
-            name: `${pre}bulletinBrowse`,
+            path: '/report/brief',
+            name: `${pre}report-brief`,
             meta: {
                 ...meta,
                 title: '简报浏览',
@@ -34,8 +34,8 @@ export default {
             },
             component: () => import('@/pages/productReport/bulletinBrowse')
         }, {
-            path: 'reportDeploy',
-            name: `${pre}reportDeploy`,
+            path: '/report/setting/normal',
+            name: `${pre}report-normal`,
             meta: {
                 ...meta,
                 title: '报表配置',
@@ -43,8 +43,8 @@ export default {
             },
             component: () => import('@/pages/productReport/reportDeploy')
         }, {
-            path: 'smartReportDeploy',
-            name: `${pre}smartReportDeploy`,
+            path: '/report/setting/smart',
+            name: `${pre}report-smart`,
             meta: {
                 ...meta,
                 title: '智能报表配置',

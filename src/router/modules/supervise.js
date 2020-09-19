@@ -6,7 +6,7 @@ const meta = {
 }
 
 export default {
-    path: '/supervise',
+    path: '/process-view',
     title: '实时监管',
     custom: 'icon iconfont i-icon-demo icon-jianguan',
     redirect: {
@@ -16,8 +16,8 @@ export default {
     meta,
     children: [
         {
-            path: 'controlCenter',
-            name: `${pre}controlCenter`,
+            path: '/dispatch/map',
+            name: `${pre}dispatch-map`,
             meta: {
                 ...meta,
                 title: '调度中心',
@@ -25,8 +25,8 @@ export default {
             },
             component: () => import('@/pages/supervise/controlCenter')
         }, {
-            path: 'monitorScreen',
-            name: `${pre}monitorScreen`,
+            path: '/process-view/monitor',
+            name: `${pre}process-view-monito`,
             meta: {
                 ...meta,
                 title: '监视画面',
@@ -34,8 +34,8 @@ export default {
             },
             component: () => import('@/pages/supervise/monitorScreen')
         }, {
-            path: 'screenProfile',
-            name: `${pre}screenProfile`,
+            path: '/process-view/setting/2d',
+            name: `${pre}process-view-2d`,
             meta: {
                 ...meta,
                 title: '监视画面配置',
@@ -43,8 +43,8 @@ export default {
             },
             component: () => import('@/pages/supervise/screenProfile')
         }, {
-            path: 'screenProfile3D',
-            name: `${pre}screenProfile3D`,
+            path: '/process-view/setting/3d',
+            name: `${pre}process-view-3d`,
             meta: {
                 ...meta,
                 title: '监视画面配置3D',

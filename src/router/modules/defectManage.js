@@ -1,23 +1,23 @@
 import BasicLayout from '@/layouts/basic-layout'
-const pre = 'defectManage-'
+const pre = 'fault-'
 
 const meta = {
     auth: false
 }
 
 export default {
-    path: '/defectManage',
+    path: '/faultD',
     title: '缺陷管理',
     custom: 'icon iconfont i-icon-demo icon-zhuyi',
     redirect: {
-        name: `${pre}absentTask`
+        name: `${pre}fault`
     },
     component: BasicLayout,
     meta,
     children: [
         {
-            path: 'absentTask',
-            name: `${pre}absentTask`,
+            path: '/fault',
+            name: `${pre}fault-task`,
             meta: {
                 ...meta,
                 title: '消缺任务',
@@ -25,7 +25,7 @@ export default {
             },
             component: () => import('@/pages/defectManage/absentTask')
         }, {
-            path: 'defect/declare',
+            path: '/defect/declare',
             name: `${pre}defect-declare`,
             meta: {
                 ...meta,
@@ -34,7 +34,7 @@ export default {
             },
             component: () => import('@/pages/defectManage/defect/declare')
         }, {
-            path: 'defect/detail',
+            path: '/defect/detail',
             name: `${pre}defect-detail`,
             meta: {
                 ...meta,
@@ -43,8 +43,8 @@ export default {
             },
             component: () => import('@/pages/defectManage/defect/detail')
         }, {
-            path: 'defectStat',
-            name: `${pre}defectStat`,
+            path: '/fault/statistics',
+            name: `${pre}fault-statistics`,
             meta: {
                 ...meta,
                 title: '缺陷统计',

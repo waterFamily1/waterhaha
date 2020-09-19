@@ -1,23 +1,23 @@
 import BasicLayout from '@/layouts/basic-layout'
-const pre = 'dataManage-'
+const pre = 'data-'
 
 const meta = {
     auth: false
 }
 
 export default {
-    path: '/dataManage',
+    path: '/data',
     title: '数据管理',
     custom: 'icon iconfont i-icon-demo icon-wulumuqishigongandashujuguanlipingtai-ico-',
     redirect: {
-        name: `${pre}curveAnalysis`
+        name: `${pre}data-analysis`
     },
     component: BasicLayout,
     meta,
     children: [
         {
-            path: 'curveAnalysis',
-            name: `${pre}curveAnalysis`,
+            path: '/data-analysis',
+            name: `${pre}data-analysis`,
             meta: {
                 ...meta,
                 title: '数据曲线分析',
@@ -25,8 +25,8 @@ export default {
             },
             component: () => import('@/pages/dataManage/curveAnalysis')
         }, {
-            path: 'labourData',
-            name: `${pre}labourData`,
+            path: '/data-input/hour',
+            name: `${pre}data-input-hour`,
             meta: {
                 ...meta,
                 title: '人工数据采集',
@@ -34,7 +34,7 @@ export default {
             },
             component: () => import('@/pages/dataManage/labourData')
         },{
-            path: 'analyze/labourAdd',
+            path: '/analyze/labourAdd',
             name: `${pre}analyze-labourAdd`,
             meta: {
                 ...meta,
@@ -43,8 +43,8 @@ export default {
             },
             component: () => import('@/pages/dataManage/analyze/labourAdd'),
         },{
-            path: 'bulletinData',
-            name: `${pre}bulletinData`,
+            path: '/data-input/brief',
+            name: `${pre}data-input-brief`,
             meta: {
                 ...meta,
                 title: '简报数据采集',
@@ -52,7 +52,7 @@ export default {
             },
             component: () => import('@/pages/dataManage/bulletinData')
         },{
-            path: 'analyze/bulletinAdd',
+            path: '/analyze/bulletinAdd',
             name: `${pre}analyze-bulletinAdd`,
             meta: {
                 ...meta,
@@ -61,8 +61,8 @@ export default {
             },
             component: () => import('@/pages/dataManage/analyze/bulletinAdd'),
         },{
-            path: 'SiteManage',
-            name: `${pre}SiteManage`,
+            path: '/mpoint',
+            name: `${pre}mpoint`,
             meta: {
                 ...meta,
                 title: '测点管理',
@@ -70,7 +70,7 @@ export default {
             },
             component: () => import('@/pages/dataManage/SiteManage')
         }, {
-            path: 'analyze/addAutomatic',
+            path: '/analyze/addAutomatic',
             name: `${pre}analyze-addAutomatic`,
             meta: {
                 ...meta,
@@ -79,7 +79,7 @@ export default {
             },
             component: () => import('@/pages/dataManage/analyze/addAutomatic')
         },{
-            path: 'analyze/addManual',
+            path: '/analyze/addManual',
             name: `${pre}analyze-addManual`,
             meta: {
                 ...meta,
@@ -88,8 +88,8 @@ export default {
             },
             component: () => import('@/pages/dataManage/analyze/addAutomatic')
         },{
-            path: 'siteDataImport',
-            name: `${pre}siteDataImport`,
+            path: '/mpoint/data-import',
+            name: `${pre}mpoint-data-import`,
             meta: {
                 ...meta,
                 title: '测点数据导入',
@@ -97,8 +97,8 @@ export default {
             },
             component: () => import('@/pages/dataManage/siteDataImport')
         }, {
-            path: 'calculationMisson',
-            name: `${pre}calculationMisson`,
+            path: '/task-calc',
+            name: `${pre}task-calc`,
             meta: {
                 ...meta,
                 title: '计算任务',

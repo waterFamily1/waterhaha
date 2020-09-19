@@ -1,20 +1,20 @@
 const pre = '/deviceManage/';
 
 export default {
-    path: '/deviceManage',
+    path: '/equU',
     title: '设备管理',
     header: 'home',
     custom: 'icon iconfont i-icon-demo icon-shebeiguanli',
     children: [
         {
-            path: `${pre}deviceBook`,
+            path: `/equ`,
             title: '设备台账'
         }, {
-            path: `${pre}deviceState`,
+            path: `/equ/status/list`,
             title: '设备状态'
         },
         {
-            path: `${pre}addBook`,
+            path: `/addBook`,
             title: '添加设备',
             auth: ['hidden']
         }

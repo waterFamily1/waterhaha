@@ -7,16 +7,16 @@ export default {
     custom: 'icon iconfont i-icon-demo icon-zhishi',
     children: [
         {
-            path: `${pre}knowledgeOverview`,
+            path: `/knowledge/overview`,
             title: '知识总览'
         }, {
-            path: `${pre}documentManage`,
+            path: `/knowledge/doc`,
             title: '文档管理'
         }, {
-            path: `${pre}tagManage`,
+            path: `/knowledge/label`,
             title: '标签管理'
         }, {
-            path: `${pre}myKnowledge`,
+            path: `/knowledge/personal`,
             title: '我的知识'
         }
     ]

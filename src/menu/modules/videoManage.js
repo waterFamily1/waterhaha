@@ -1,30 +1,30 @@
 const pre = '/videoManage/';
 
 export default {
-    path: '/videoManage',
+    path: '/monitor',
     title: '视频管理',
     header: 'home',
     custom: 'icon iconfont i-icon-demo icon-shipinzixun',
     children: [
         {
-            path: `${pre}RTVideo`,
+            path: `/monitor-screen/monitor`,
             title: '实时视频'
         }, {
-            path: `${pre}videoCapture`,
+            path: `/monitor-screen/capture`,
             title: '视频抓拍'
         }, {
-            path: `${pre}videoDeploy`,
+            path: `/video`,
             title: '视频配置'
         }, {
-            path: `${pre}videoD/addVideo`,
+            path: `/videoD/addVideo`,
             title: '视频添加',
             auth: ['hidden']
         }, {
-            path: `${pre}videoD/editVideo`,
+            path: `/videoD/editVideo`,
             title: '视频编辑',
             auth: ['hidden']
         }, {
-            path: `${pre}videoD/checkVideo`,
+            path: `/videoD/checkVideo`,
             title: '视频详情',
             auth: ['hidden']
         }

@@ -1,23 +1,23 @@
 const pre = '/dataQuality/';
 
 export default {
-    path: '/dataQuality',
+    path: '/data-quality',
     title: '数据质量',
     header: 'home',
     custom: 'icon iconfont i-icon-demo icon-zhiliang',
     children: [
         {
-            path: `${pre}qualityStat`,
+            path: `/data-quality/statistics`,
             title: '质量统计'
         }, {
-            path: `${pre}stat/recountLog`,
+            path: `/stat/recountLog`,
             title: '重算日志',
             auth: ['hidden']
         }, {
-            path: `${pre}sampleDeploy`,
+            path: `/data-quality/setting`,
             title: '样本配置'
         }, {
-            path: `${pre}qualityStandard`,
+            path: `/data-quality/standard`,
             title: '质量标准'
         }
     ]

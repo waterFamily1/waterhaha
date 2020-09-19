@@ -1,12 +1,12 @@
 import BasicLayout from '@/layouts/basic-layout'
-const pre = 'pollingManage-'
+const pre = 'patrol-'
 
 const meta = {
     auth: false
 }
 
 export default {
-    path: '/pollingManage',
+    path: '/patrol',
     title: '巡检管理',
     custom: 'icon iconfont i-icon-demo icon-ditu',
     redirect: {
@@ -16,8 +16,8 @@ export default {
     meta,
     children: [
         {
-            path: 'pollingPlan',
-            name: `${pre}pollingPlan`,
+            path: '/patrol/plan',
+            name: `${pre}patrol-plan`,
             meta: {
                 ...meta,
                 title: '巡检计划',
@@ -25,7 +25,7 @@ export default {
             },
             component: () => import('@/pages/pollingManage/pollingPlan')
         }, {
-            path: 'plan/add',
+            path: '/plan/add',
             name: `${pre}plan-add`,
             meta: {
                 ...meta,
@@ -34,8 +34,8 @@ export default {
             },
             component: () => import('@/pages/pollingManage/plan/add')
         }, {
-            path: 'pollingTask',
-            name: `${pre}pollingTask`,
+            path: '/patrol/task',
+            name: `${pre}patrol-task`,
             meta: {
                 ...meta,
                 title: '巡检任务',
@@ -43,8 +43,8 @@ export default {
             },
             component: () => import('@/pages/pollingManage/pollingTask')
         }, {
-            path: 'mapPolling',
-            name: `${pre}mapPolling`,
+            path: '/patrol/trace',
+            name: `${pre}task-trace`,
             meta: {
                 ...meta,
                 title: '地图巡检跟踪',
@@ -52,8 +52,8 @@ export default {
             },
             component: () => import('@/pages/pollingManage/mapPolling')
         }, {
-            path: 'pollingStat',
-            name: `${pre}pollingStat`,
+            path: '/patrol/statistics',
+            name: `${pre}patrol-statistics`,
             meta: {
                 ...meta,
                 title: '巡检统计',
@@ -61,8 +61,8 @@ export default {
             },
             component: () => import('@/pages/pollingManage/pollingStat')
         }, {
-            path: 'pollingManage',
-            name: `${pre}pollingManage`,
+            path: '/patrol/point',
+            name: `${pre}patrol-point`,
             meta: {
                 ...meta,
                 title: '巡检点管理',
@@ -70,7 +70,7 @@ export default {
             },
             component: () => import('@/pages/pollingManage/pollingManage')
         },{
-            path: 'addPoint',
+            path: '/addPoint',
             name: `${pre}addPoint`,
             meta: {
                 ...meta,

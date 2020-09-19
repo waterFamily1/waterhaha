@@ -3,7 +3,6 @@
 export default function createRoutes(item) {
     let arr = item.data
     const parent = arr.filter(item => item.parentId == 0)
-    console.log(parent)
     const len = parent.length
     arr.forEach(item => {
         if (item.parentId == 0) return

@@ -1,23 +1,23 @@
 import BasicLayout from '@/layouts/basic-layout'
-const pre = 'basicsManage-'
+const pre = 'basic-'
 
 const meta = {
     auth: false
 }
 
 export default {
-    path: '/basicsManage',
+    path: '/basic',
     title: '基础管理',
     custom: 'icon iconfont i-icon-demo icon-jichuxinxi',
     redirect: {
-        name: `${pre}tissueInfor`
+        name: `${pre}org`
     },
     component: BasicLayout,
     meta,
     children: [
         {   
-            path: 'tissueInfor',
-            name: `${pre}tissueInfor`,
+            path: 'org',
+            name: `${pre}org`,
             meta: {
                 ...meta,
                 title: '组织信息',
@@ -25,8 +25,8 @@ export default {
             },
             component: () => import('@/pages/basicsManage/tissueInfor')
         }, {
-            path: 'userInfor',
-            name: `${pre}userInfor`,
+            path: 'user',
+            name: `${pre}user`,
             meta: {
                 ...meta,
                 title: '用户信息',
@@ -61,8 +61,8 @@ export default {
             },
             component: () => import('@/pages/basicsManage/user/addUserInfor'),
         }, {
-            path: 'areaSiteInfor',
-            name: `${pre}areaSiteInfor`,
+            path: 'process',
+            name: `${pre}process`,
             meta: {
                 ...meta,
                 title: '区域位置信息',
@@ -70,8 +70,8 @@ export default {
             },
             component: () => import('@/pages/basicsManage/areaSiteInfor')
         }, {
-            path: 'deviceKindInfor',
-            name: `${pre}deviceKindInfor`,
+            path: 'equ',
+            name: `${pre}equ`,
             meta: {
                 ...meta,
                 title: '设备类型信息',
