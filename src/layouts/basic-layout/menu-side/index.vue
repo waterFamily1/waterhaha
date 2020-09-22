@@ -108,12 +108,19 @@
         }
     }
 </script>
-<style scoped>
+<style scoped lang="less">
 .logo {
     width: 180px;
     height: 62px;
     background-size: 100% 100%;
     cursor: pointer;
     background-image: url(http://chaoying.tjdeht.cn:8803/group1/M00/00/00/wKgyrl79ek6AUrURAABGBlNN4EA007.png);
+}
+/deep/.ivu-menu-vertical {
+    /deep/.ivu-menu-submenu {
+        /deep/.ivu-menu-item {
+            padding-left: 0px!important;
+        }
+    }
 }
 </style>

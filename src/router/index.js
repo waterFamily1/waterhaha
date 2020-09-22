@@ -10,6 +10,7 @@ import store from '@/store/index';
 
 // 路由数据
 import routes from './routes';
+import { getHeaderName, getMenuSider, getSiderSubmenu } from '@/libs/system';
 
 Vue.use(VueRouter);
 
@@ -25,74 +26,188 @@ const router = new VueRouter({
  * 权限验证
  */
 
-// import { getRouter } from '@api/router';
-// import createRoutes from '@/libs/router-util'
+import { getRouter } from '@api/router';
+import menuSider from '@/menu/sider'
+import createRoutes from '@/libs/router-util'
 
-// let hasMenus = false
+let hasMenus = false
 
-// router.beforeEach(async (to, from, next) => {
-//     if (Setting.showProgressBar) iView.LoadingBar.start();
-//     // next();
-//     // 判断是否需要登录才可以进入
-//     if (to.matched.some(_ => _.meta.auth)) {
-//         // 这里依据 token 判断是否登录，可视情况修改
-//         const token = util.cookies.get('access_token');
+router.beforeEach(async (to, from, next) => {
+    if (Setting.showProgressBar) iView.LoadingBar.start();
+    // next();
+    // 判断是否需要登录才可以进入
+    if (to.matched.some(_ => _.meta.auth)) {
+        // 这里依据 token 判断是否登录，可视情况修改
+        const token = util.cookies.get('access_token');
 
-//         if (token && token !== 'undefined') {
-//             // next();
-//             if(hasMenus) {
-//                 next();
-//             } else {
-//                 // 没有登录的时候跳转到登录界面
-//                 // 携带上登陆成功之后需要跳转的页面完整路径
-//                 try {  
-//                     const data = await getRouter()
-//                     const routes = createRoutes(data)
-//                     router.addRoutes(routes)
-//                     console.log(router)
-//                 } catch (error) {
-//                     console.log(22222222222)
-//                 }
-//             }
-//         } else {
-//             next({
-//                 name: 'login',
-//                 query: {
-//                     redirect: to.fullPath
-//                 }
-//             });
-//         }
-//     } else {
-//         // 不需要身份校验 直接通过
-//         next();
-//     }
-// });
+        if (token && token !== 'undefined') {
+            // next();
+            if(hasMenus) {
+                next();
+            } else {
+                // console.log('无menu')
+                let routeList = []
+                const data = await getRouter()
+                var menu = data.data;
+                menuSider.length = 0;
 
-router.beforeEach((to, from, next) => {
-    if (Setting.showProgressBar) iView.LoadingBar.start();
-    next();
-    // 判断是否需要登录才可以进入
-    // if (to.matched.some(_ => _.meta.auth)) {
-    //     // 这里依据 token 判断是否登录，可视情况修改
-    //     const token = util.cookies.get('token');
+                for(var i = 0; i < menu.length; i ++) {
+                    if(menu[i].name == '实时监管') {
+                        menu[i].path = '/process-view'
+                        menu[i].icon = 'icon iconfont i-icon-demo icon-jianguan'
+                        menu[i].custom = menu[i].icon
+                        menu[i].title = menu[i].name
+                        menu[i].name = menu[i].key
+                    } else if (menu[i].name == '数据管理') {
+                        menu[i].path = '/data'
+                        menu[i].icon = 'icon iconfont i-icon-demo icon-wulumuqishigongandashujuguanlipingtai-ico-'
+                        menu[i].custom = menu[i].icon
+                        menu[i].title = menu[i].name
+                        menu[i].name = menu[i].key
+                    } else if (menu[i].name == '数据质量') {
+                        menu[i].path = '/data-quality'
+                        menu[i].icon = 'icon iconfont i-icon-demo icon-zhiliang'
+                        menu[i].custom = menu[i].icon
+                        menu[i].title = menu[i].name
+                        menu[i].name = menu[i].key
+                    } else if (menu[i].name == '生产报表') {
+                        menu[i].path = '/reportR'
+                        menu[i].icon = 'icon iconfont i-icon-demo icon-icon'
+                        menu[i].custom = menu[i].icon
+                        menu[i].title = menu[i].name
+                        menu[i].name = menu[i].key
+                    } else if (menu[i].name == '视频管理') {
+                        menu[i].path = '/monitor'
+                        menu[i].icon = 'icon iconfont i-icon-demo icon-shipinzixun'
+                        menu[i].custom = menu[i].icon
+                        menu[i].title = menu[i].name
+                        menu[i].name = menu[i].key
+                    } else if (menu[i].name == '报警管理') {
+                        menu[i].path = '/alarm'
+                        menu[i].icon = 'icon iconfont i-icon-demo icon-zuoyebaojing'
+                        menu[i].custom = menu[i].icon
+                        menu[i].title = menu[i].name
+                        menu[i].name = menu[i].key
+                    } else if (menu[i].name == '设备管理') {
+                        menu[i].path = '/equU'
+                        menu[i].icon = 'icon iconfont i-icon-demo icon-shebeiguanli'
+                        menu[i].custom = menu[i].icon
+                        menu[i].title = menu[i].name
+                        menu[i].name = menu[i].key
+                    } else if (menu[i].name == '巡检管理') {
+                        menu[i].path = '/patrol'
+                        menu[i].icon = 'icon iconfont i-icon-demo icon-ditu'
+                        menu[i].custom = menu[i].icon
+                        menu[i].title = menu[i].name
+                        menu[i].name = menu[i].key
+                    } else if (menu[i].name == '缺陷管理') {
+                        menu[i].path = '/faultD'
+                        menu[i].icon = 'icon iconfont i-icon-demo icon-zhuyi'
+                        menu[i].custom = menu[i].icon
+                        menu[i].title = menu[i].name
+                        menu[i].name = menu[i].key
+                    } else if (menu[i].name == '维修管理') {
+                        menu[i].path = '/repaiR'
+                        menu[i].icon = 'icon iconfont i-icon-demo icon-weixiu'
+                        menu[i].custom = menu[i].icon
+                        menu[i].title = menu[i].name
+                        menu[i].name = menu[i].key
+                    } else if (menu[i].name == '保养管理') {
+                        menu[i].path = '/maintain'
+                        menu[i].icon = 'icon iconfont i-icon-demo icon-gongren'
+                        menu[i].custom = menu[i].icon
+                        menu[i].title = menu[i].name
+                        menu[i].name = menu[i].key
+                    } else if (menu[i].name == '知识管理') {
+                        menu[i].path = '/knowledge'
+                        menu[i].icon = 'icon iconfont i-icon-demo icon-zhishi'
+                        menu[i].custom = menu[i].icon
+                        menu[i].title = menu[i].name
+                        menu[i].name = menu[i].key
+                    } else if (menu[i].name == '基础管理') {
+                        menu[i].path = '/basic'
+                        menu[i].icon = 'icon iconfont i-icon-demo icon-jichuxinxi'
+                        menu[i].custom = menu[i].icon
+                        menu[i].title = menu[i].name
+                        menu[i].name = menu[i].key
+                    } else if (menu[i].name == '系统管理') {
+                        menu[i].path = '/system'
+                        menu[i].icon = 'icon iconfont i-icon-demo icon-xitong'
+                        menu[i].custom = menu[i].icon
+                        menu[i].title = menu[i].name
+                        menu[i].name = menu[i].key
+                    } else {
+                        menu[i].path = menu[i].url
+                        menu[i].title = menu[i].name
+                        menu[i].name = menu[i].key
+                    }
+                    routeList.push(menu[i])
+                }
+                let routePush = createRoutes(routeList)
+                for(i = 0; i < routePush.length; i ++) {
+                    menuSider.push(routePush[i])
+                }
+                // console.log(routePush)
+                // menuSider = routePush
+                // menuSider.createRoutes()
 
-    //     if (token && token !== 'undefined') {
-    //         next();
-    //     } else {
-    //         // 没有登录的时候跳转到登录界面
-    //         // 携带上登陆成功之后需要跳转的页面完整路径
-    //         next({
-    //             name: 'login',
-    //             query: {
-    //                 redirect: to.fullPath
-    //             }
-    //         });
-    //     }
-    // } else {
-    //     // 不需要身份校验 直接通过
-    //     next();
-    // }
+                let path = to.matched[to.matched.length - 1].path
+                let headerName = await getHeaderName(path, menuSider)
+                if (headerName === null) {
+                    path = to.path;
+                    headerName = await getHeaderName(path, menuSider)
+                }
+
+                store.commit('admin/menu/setHeaderName', headerName)
+                store.commit('admin/menu/setMenuSider', menuSider)
+
+                const filterMenuSider = await getMenuSider(menuSider, headerName)
+                store.commit('admin/menu/setSider', filterMenuSider)
+                store.commit('admin/menu/setActivePath', to.path)
+
+                const openNames = await getSiderSubmenu(path, menuSider)
+                store.commit('admin/menu/setOpenNames', openNames)
+                next();
+            }
+        } else {
+            next({
+                name: 'login',
+                query: {
+                    redirect: to.fullPath
+                }
+            });
+        }
+    } else {
+        // 不需要身份校验 直接通过
+        next();
+    }
 });
+
+// router.beforeEach((to, from, next) => {
+//     if (Setting.showProgressBar) iView.LoadingBar.start();
+//     // next();
+//     // 判断是否需要登录才可以进入
+//     if (to.matched.some(_ => _.meta.auth)) {
+//         // 这里依据 token 判断是否登录，可视情况修改
+//         const token = util.cookies.get('token');
+
+//         if (token && token !== 'undefined') {
+//             next();
+//         } else {
+//             // 没有登录的时候跳转到登录界面
+//             // 携带上登陆成功之后需要跳转的页面完整路径
+//             next({
+//                 name: 'login',
+//                 query: {
+//                     redirect: to.fullPath
+//                 }
+//             });
+//         }
+//     } else {
+//         // 不需要身份校验 直接通过
+//         next();
+//     }
+// });
 
 router.afterEach(to => {
     if (Setting.showProgressBar) iView.LoadingBar.finish();

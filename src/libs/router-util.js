@@ -1,8 +1,9 @@
 //遍历返回路由
 
 export default function createRoutes(item) {
-    let arr = item.data
+    let arr = item
     const parent = arr.filter(item => item.parentId == 0)
+    // console.log(JSON.stringify(parent))
     const len = parent.length
     arr.forEach(item => {
         if (item.parentId == 0) return
@@ -14,4 +15,5 @@ export default function createRoutes(item) {
             }
         }
     })
+    return parent;
 }

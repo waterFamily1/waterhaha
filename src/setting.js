@@ -23,7 +23,7 @@ const Setting = {
     // 接口请求返回错误时，弹窗的类型，可选值为 Message 或 Notice
     errorModalType: 'Message',
     // Cookies 默认保存时间，单位：天
-    cookiesExpires: 1,
+    cookiesExpires: 7,
     /**
      * 多语言配置
      * */
@@ -112,7 +112,7 @@ const Setting = {
     // 相同路由，不同参数间进行切换，是否强力更新
     sameRouteForceUpdate: false,
     // 是否使用动态侧边菜单
-    dynamicSiderMenu: false
+    dynamicSiderMenu: true
 };
 
 export default Setting;

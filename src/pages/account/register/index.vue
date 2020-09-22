@@ -5,31 +5,60 @@
         </div>
         <div class="page-account-container">
             <div class="page-login">
-                <Form ref="loginForm" :model="password" :rules="userRules">
-                    <div class="login-form">
-                        <h3>验证手机号</h3>
-                        <FormItem lable="tel" prop="tel">
-                            <Input v-model="password.tel" @on-enter="sumit('loginForm')" size="large" placeholder="请输入手机号" clearable></Input>
-                            <Icon type="android-phone-portrait" class="login-input-left"></Icon>
-                        </FormItem>
-                        <FormItem style="margin:20px 0;">
-                            <Button class="login-button" size="large" long type="primary" @click="sumit()">下一步</Button>
-                        </FormItem>
-                        <FormItem style="text-align:right;">
-                            <a href="javascript:;" style="color:#0bb2df" @click="returnLogin()">返回登录页</a>
-                        </FormItem>
-                    </div>        
-                </Form>
+                <div v-if="!whichForm">
+                    <Form ref="password" :model="password" :rules="userRules">
+                        <div class="login-form">
+                            <h3>验证手机号</h3>
+                            <FormItem lable="tel" prop="tel">
+                                <Input v-model="password.tel" size="large" placeholder="请输入手机号" clearable>
+                                    <Icon type="md-phone-portrait" slot="prefix"/>
+                                </Input>
+                            </FormItem>
+                            <FormItem style="margin:20px 0;">
+                                <Button class="login-button" size="large" long type="primary" @click="sumit('password')">下一步</Button>
+                            </FormItem>
+                            <FormItem style="text-align:right;">
+                                <a href="javascript:;" style="color:#0bb2df" @click="returnLogin()">返回登录页</a>
+                            </FormItem>
+                        </div>        
+                    </Form>
+                </div>
+                <div v-if="whichForm">
+                    <Form class="pwd-form" ref="pwdForms" :model="pwdForms" :rules="pwdRuleValidate">
+                        <div class="login-form">
+                            <div class="phone-div">手机号：{{ mobilePhone }}</div>
+                            <FormItem prop="authCode">
+                                <Input v-model="pwdForms.authCode" placeholder="请输入验证码" style="width: 50%;float: left;">
+                                </Input>
+                                <Button type="primary" style="padding: 0 25px;" 
+                                @click="sendCode()" v-show="codeBtn">获取验证码</Button>
+                                
+                                <Button style="padding: 0 25px;" disabled="disabled" 
+                                v-show="!codeBtn">{{ time }}秒后重新获取</Button>
+                            </FormItem>
+                            <FormItem prop="password">
+                                <Input v-model="pwdForms.password" placeholder="请输入新密码" type="password"></Input>
+                            </FormItem>
+                            <FormItem prop="againPsw">
+                                <Input v-model="pwdForms.againPsw" placeholder="请确认新密码" type="password"></Input>
+                            </FormItem>
+                            <FormItem style="margin:20px 0;">
+                                <Button class="login-button" size="large" long type="primary" 
+                                @click="changeSubmit('pwdForms')">确认</Button>
+                            </FormItem>
+                        </div>
+                    </Form>
+                </div>
             </div>
         </div>
         <div class="login-foot">
 
         </div>
 
-        <Modal class="modal-first-login" v-model="firstPwdModal" 
+        <!-- <Modal class="modal-first-login" v-model="firstPwdModal" 
             :mask-closable="false" width="380" height="295" :closable="false"
             class-name="vertical-center-modal">
-            <Form class="pwd-form" ref="pwdForm" :model="pwdForms" :rules="pwdRuleValidate">
+            <Form class="pwd-form" ref="pwdForms" :model="pwdForms" :rules="pwdRuleValidate">
                 <Row><h3>修改密码</h3></Row>
                 <Row>
                     <Col span="24">
@@ -47,10 +76,10 @@
             <div slot="footer">
                 <div class="c-modal-footer-btns">
                     <Button type="default" shape="circle" size="large" @click="firstPwdModal=false">返回</Button>
-                    <Button type="primary" shape="circle" size="large" :loading="submitLoading" @click="changeSubmit">确认</Button>
+                    <Button type="primary" shape="circle" size="large" :loading="submitLoading" @click="changeSubmit('pwdForms')">确认</Button>
                 </div>
             </div>
-        </Modal>
+        </Modal> -->
 
     </div>
 </template>
@@ -58,15 +87,13 @@
     import { mapActions } from 'vuex'
     import mixins from '../mixins'
     import api from './api'
+    import { verifyPhone, sendAuthCode } from '@/api/account'
 
     export default {
         mixins: [ mixins ],
         data () {
-            // 二次校验密码
-            // 因为 iView Pro 的表单控件省去了对数据的绑定，因此需要通过 ref 从 Login 组件中获取数据
-            // 下面的 formValidate.password 中的 password，指的是给 <Password> 组件设置的 name="password"
             const validatePassCheck = (rule, value, callback) => {
-                if (value !== this.$refs.form.formValidate.password) {
+                if (value !== this.$refs.form.pwdForms.password) {
                     callback(new Error('两次输入的密码不匹配！'));
                 } else {
                     callback();
@@ -82,7 +109,8 @@
                     tel: ''
                 },
                 userRules: {
-                    tel: [{required: true,message: "请输入手机号",trigger: "blur"},
+                    tel: [
+                        {required: true,message: "请输入手机号",trigger: "blur"},
                         {
                             validator(rule, value, callback) {
                                 var pattern = /^1[34578]\d{9}$/;
@@ -93,46 +121,38 @@
                                 }
                             },
                             trigger: "blur"
-                        }],
-                    verifycationCode: [{ 
-                        validator:(rule,value,callback)=>{
-                            this.validatePhone(callback);
                         }
-                    }]
+                    ]
                 },
-
+                mobilePhone: '',
+                whichForm: false,
+                codeBtn: true,
                 firstPwdModal: false,
                 submitLoading: false,
                 pwdForms: {
-                    password1: '',
-                    password2: ''
+                    authCode: '',
+                    password: '',
+                    againPsw: ''
                 },
                 pwdRuleValidate: {
-                    password1: [
-                        { required: true, message: '请输入新密码', trigger: 'blur' },
-                        {min:6,max:20, message: '请输入大于6位小于20位的密码', trigger: 'blur'}                    
+                    authCode: [
+                        { required: true, message: '请输入验证码', trigger: 'blur' }
                     ],
-                    password2: [
-                        { required: true, message: '请确认新密码', trigger: 'blur' },
-                        { min:6,max:20, message: '请输入大于6位小于20位的密码', trigger: 'blur'} 
+                    password: [
+                        { 
+                            required: true, message: '请输入新密码', trigger: 'change'
+                        },
+                        { 
+                            min: 6, max: 20, message: '至少包含大小写字母+数字', trigger: 'change' 
+                        }                    
+                    ],
+                    againPsw: [
+                        {
+                            required: true, message: '确认密码不能为空！', trigger: 'change'
+                        },
+                        { validator: validatePassCheck, trigger: 'change' }
                     ]
                 }
-                // passwordRule: [
-                //     {
-                //         required: true, message: '密码不能为空！', trigger: 'change'
-                //     },
-                //     {
-                //         min: 6, message: '密码不能少于6位！', trigger: 'change'
-                //     }
-                // ],
-                // passwordConfirmRule: [
-                //     {
-                //         required: true, message: '确认密码不能为空！', trigger: 'change'
-                //     },
-                //     { validator: validatePassCheck, trigger: 'change' }
-                // ],
-                // // 密码长度，在密码强度提示时作为判断依据
-                // passwordLen: 0
             }
         },
         computed: {
@@ -172,59 +192,48 @@
             ]),
             //验证码
             sendCode() {
-                if(this.password.tel) {
-                    this.$http.get(api.verifycationCode, {tel:this.password.tel}).then(data => {
-                        this.time = 60;
-                        this.timer = setInterval(()=>{
-                            //倒计时
-                            if(this.time<=0) {
-                                this.time = 0;
-                                clearInterval(this.timer);
-                            } else {
-                                this.time-=1;
-                            }
-                            
-                        },1000);
-                    });
-                    return false;
-                } else {
-                    this.$Message.error('手机号不能为空');
-                }
-            },
-            validatePhone(callback) {
-                if(this.password.verifycationCode.length<4)
-                {
-                    callback(new Error('请输入4位验证码'));
-                    return;
-                }
-                let query = '&tel='+this.password.tel;
-                query+= '&captchaValue='+this.password.verifycationCode;
-                this.$http.get(api.verifyTelphone+'?'+ query).then((data) => {
-                    this.password.verifycationCodeId = data.verifyResult;
-                    callback();
-                },()=>{
-                    this.password.verifycationCodeId = '';
-                    callback(new Error('验证码不正确'));
-                });
+                sendAuthCode({
+                    tel: this.mobilePhone
+                }).then(res => {
+                    this.codeBtn = false
+                    this.time = 60
+                    this.timer = setInterval(()=>{
+                        //倒计时
+                        if(this.time <= 0) {
+                            this.codeBtn = true
+                            this.time = 0;
+                            clearInterval(this.timer);
+                        } else {
+                            this.time -= 1;
+                        }
+                    },1000);
+                }).catch(err => {
+                    // 异常情况
+                })
             },
             sumit(name) {
-                // this.$refs[name].validate((valid) => {
-                //     if (valid) {
-                        verifyPhone({
-                            tel: this.password.tel
-                        }).then(res => {
+                this.$refs[name].validate((valid) => {
+                    if (valid) {
+                        let tel = this.password.tel
+                        verifyPhone(tel).then(res => {
+                            if(res.data == false) {
+                                this.$Message.error('手机号验证失败');
+                            } else if(res.data == true) {
+                                this.mobilePhone = this.password.tel
+                                this.whichForm = true
+                            }
                             console.log(res)
                         }).catch(err => {
                             // 异常情况
                         })
-                //     }
-                // })
+                    }
+                })
             },
             returnLogin() {
                 this.$router.push({path: '/login'})
             },
             changeSubmit() {
-                this.$refs["pwdForm"].validate((valid) => {
+                this.$refs[name].validate((valid) => {
                     if(valid) {
                         if(this.pwdForms.password1 === this.pwdForms.password2){
                             this.submitLoading = true;
@@ -432,5 +441,9 @@
     height: 140px;
     background: url('../../../assets/images/login2.png') no-repeat center top;
     text-align: center;
+}
+.phone-div {
+    margin: 10px 0 20px;
+    text-align: left;
 }
 </style>
