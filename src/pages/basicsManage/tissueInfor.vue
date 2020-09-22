@@ -23,7 +23,7 @@
                             <h4>组织名称</h4>
                             <FormItem :label-width="0" v-if="appear">
                                 <Input v-model="tissueList.name"></Input>
-                            </FormItem v-if="appearOther"rmItem>
+                            </FormItem v-if="appearOther">
                             <div v-if="appearOther">联泰潮英智慧水务</div>
                         </div>
                         <div class="form-li">
@@ -179,7 +179,8 @@ export default {
             },
             appear: false,
             appearOther: false,
-            height: ''
+            height: '',
+            height:''
         }
     },
     mounted() {

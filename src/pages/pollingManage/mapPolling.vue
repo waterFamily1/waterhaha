@@ -28,7 +28,7 @@
                         <!-- <Button class="action" size="small" style="margin-right: 5px;">配置</Button> -->
                         <Button class="action" size="small">查看</Button>
                     </template>
-                </Table>
+                </Table> 
             </div>
             <div class="map-show">
                 <baidu-map center="天津" :zoom="13" 
