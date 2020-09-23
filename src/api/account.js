@@ -41,3 +41,20 @@ export function sendAuthCode (data) {
     })
 }
 
+//验证密码强弱
+export function verifyCodeRule (data) {
+    return request({
+        url: '/uaa/api/users/validate-password-strength?password='+data,
+        method: 'get'
+    })
+}
+
+//修改密码
+export function alterCode (data) {
+    return request({
+        url: '/uaa/api/users/forget-password',
+        method: 'put',
+        data
+    })
+}
+

@@ -39,7 +39,7 @@
     },
     methods: {
         edit(){
-            this.$router.push({path:'/basicsManage/user/editUserInfor'})
+            this.$router.push({path:'/user/editUserInfor'})
         },
         back(){
             this.$router.go(-1);

@@ -10,7 +10,7 @@
                         <div class="login-form">
                             <h3>验证手机号</h3>
                             <FormItem lable="tel" prop="tel">
-                                <Input v-model="password.tel" size="large" placeholder="请输入手机号" clearable>
+                                <Input v-model="password.tel" size="large" placeholder="请输入手机号" type="text" clearable>
                                     <Icon type="md-phone-portrait" slot="prefix"/>
                                 </Input>
                             </FormItem>
@@ -28,7 +28,8 @@
                         <div class="login-form">
                             <div class="phone-div">手机号：{{ mobilePhone }}</div>
                             <FormItem prop="authCode">
-                                <Input v-model="pwdForms.authCode" placeholder="请输入验证码" style="width: 50%;float: left;">
+                                <Input v-model="pwdForms.authCode" placeholder="请输入验证码" type="password" 
+                                style="width: 50%;float: left;">
                                 </Input>
                                 <Button type="primary" style="padding: 0 25px;" 
                                 @click="sendCode()" v-show="codeBtn">获取验证码</Button>
@@ -36,8 +37,15 @@
                                 <Button style="padding: 0 25px;" disabled="disabled" 
                                 v-show="!codeBtn">{{ time }}秒后重新获取</Button>
                             </FormItem>
-                            <FormItem prop="password">
-                                <Input v-model="pwdForms.password" placeholder="请输入新密码" type="password"></Input>
+                            <FormItem prop="password" class="level-item">
+                                <Input v-model="pwdForms.password" placeholder="请输入新密码" 
+                                type="password"
+                                @on-change="codeChange"></Input>
+                                <div class="level-box">
+                                    <span :class="{'weak':level == 0}">弱</span>
+                                    <span :class="{'qualified':level == 1}">合格</span>
+                                    <span :class="{'strong':level == 2}">强</span>
+                                </div>
                             </FormItem>
                             <FormItem prop="againPsw">
                                 <Input v-model="pwdForms.againPsw" placeholder="请确认新密码" type="password"></Input>
@@ -86,8 +94,7 @@
 <script>
     import { mapActions } from 'vuex'
     import mixins from '../mixins'
-    import api from './api'
-    import { verifyPhone, sendAuthCode } from '@/api/account'
+    import { verifyPhone, sendAuthCode, verifyCodeRule, alterCode } from '@/api/account'
 
     export default {
         mixins: [ mixins ],
@@ -110,14 +117,14 @@
                 },
                 userRules: {
                     tel: [
-                        {required: true,message: "请输入手机号",trigger: "blur"},
+                        {required: true,message: '请输入手机号',trigger: 'blur'},
                         {
                             validator(rule, value, callback) {
                                 var pattern = /^1[34578]\d{9}$/;
                                 if (pattern.test(value)) {
                                     callback();
                                 } else {
-                                    callback(new Error("请正确输入有效的手机号"));
+                                    callback(new Error('请正确输入有效的手机号'));
                                 }
                             },
                             trigger: "blur"
@@ -140,45 +147,29 @@
                     ],
                     password: [
                         { 
-                            required: true, message: '请输入新密码', trigger: 'change'
+                            required: true, message: '6-20个字符', trigger: 'blur'
                         },
                         { 
-                            min: 6, max: 20, message: '至少包含大小写字母+数字', trigger: 'change' 
+                            min: 6, max: 20, message: '至少包含大小写字母+数字', trigger: 'blue' 
+                        }, 
+                        {
+                            validator(rule, value, callback, source, options) {
+                                let errors = []
+                                if(!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[^]{8,16}$/.test(value)) {
+                                    callback('至少包含大小写字母+数字')
+                                }
+                                callback(errors)
+                            }
                         }                    
                     ],
                     againPsw: [
                         {
-                            required: true, message: '确认密码不能为空！', trigger: 'change'
+                            required: true, message: '确认密码不能为空！', trigger: 'blur'
                         },
-                        { validator: validatePassCheck, trigger: 'change' }
+                        { validator: validatePassCheck, trigger: 'blur' }
                     ]
-                }
-            }
-        },
-        computed: {
-            // 密码强度提示文案等
-            passwordTip () {
-                let strong = '强';
-                let className = 'strong';
-                let percent = this.passwordLen > 10 ? 10 : this.passwordLen;
-                let color = '#19be6b';
-
-                if (this.passwordLen < 6) {
-                    strong = '太短';
-                    className = 'low';
-                    color = '#ed4014';
-                } else if (this.passwordLen < 10) {
-                    strong = '中';
-                    className = 'medium';
-                    color = '#ff9900';
-                }
-
-                return {
-                    strong,
-                    class: `page-account-register-tip-${className}`,
-                    percent: percent * 10,
-                    color
-                }
+                },
+                level: ''
             }
         },
         mounted() {
@@ -235,68 +226,42 @@
             changeSubmit() {
                 this.$refs[name].validate((valid) => {
                     if(valid) {
-                        if(this.pwdForms.password1 === this.pwdForms.password2){
+                        if(this.pwdForms.password === this.pwdForms.againPsw){
                             this.submitLoading = true;
-                            this.$http.put(api.forgetPassword,{tel: this.password.tel,verifyCode: this.password.verifycationCode,newPassword:this.pwdForms.password1})
-                                .then(res=>{
-                                    this.firstPwdModal = false;
-                                    this.$Message.success('密码修改成功');
-                                    this.login();
-                                })
-                                .catch(() => {
-                                    this.submitLoading = false;
-                                })
+                            alterCode({
+                                newPassword: this.pwdForms.password,
+                                tel: this.mobilePhone,
+                                verifyCode: this.pwdForms.authCode
+                            }).then(res=>{
+                                // this.firstPwdModal = false;
+                                this.$Message.success('密码修改成功');
+                                // this.returnLogin();
+                            })
+                            .catch(() => {
+                                this.submitLoading = false;
+                            })
                         }else{
                             this.$Message.error('两次密码不一致，请重新输入');
                         }
                     }
                 })
             },
-            login() {
-                let user = {
-                    username: this.password.tel,
-                    password: this.pwdForms.password1
+            // 验证密码强弱
+            codeChange(e) {
+                let code = this.pwdForms.password
+                this.level = 0
+                if(code.length >= 6) {
+                    verifyCodeRule(code).then(res=>{
+                        // console.log(JSON.stringify(res))
+                        this.level = res.data.level
+                    })
+                    .catch(() => {
+                        // this.submitLoading = false;
+                    })
+                } else {
+                    this.level = 0
                 }
-                this.$http.post(api.login, user).then((loginRes) => {
-                    if(loginRes && loginRes.access_token) {
-                        this.$http.get(api.getUserAccount).then((res) => {
-                            sessionStorage.setItem('__MANGO_U_', JSON.stringify(res));
-                            this.submitLoading = false;
-                            location.href = "/";
-                        });
-                    }
-                })
             }
-
-            // handleChangePassword (val) {
-            //     this.passwordLen = val.length;
-            // },
-            // /**
-            //  * @description 注册
-            //  * 表单校验已有 iView Pro 自动完成，如有需要修改，请阅读 iView Pro 文档
-            //  */
-            // handleSubmit (valid, values) {
-            //     if (valid) {
-            //         if (valid) {
-            //             const { mail, password, mobile, captcha } = values;
-            //             this.register({
-            //                 mail,
-            //                 password,
-            //                 mobile,
-            //                 captcha
-            //             })
-            //             .then(() => {
-            //                     this.$router.replace({ name: 'register-result' });
-            //             });
-            //         }
-            //     }
-            // },
-            // /**
-            //  * @description 获取验证码
-            //  * */
-            // handleGetCaptcha () {
-
-            // }
         }
     };
 </script>
@@ -363,6 +328,35 @@
     padding: 20px 20px 0 20px;
     border-radius: 5px;
     box-shadow: 1px 1px 15px #777;
+    .level-item {
+        position: relative;
+        .level-box {
+            position: absolute;
+            bottom: -22px;
+            right: 0;
+            font-size: 12px;
+            line-height: 14px;
+            span {
+                display: inline-block;
+                background: rgb(234, 234, 234);
+                color: #999;
+                padding: 2px 15px;
+                margin-left: 3px;
+            }
+            .weak {
+                background: rgb(227, 31, 73);
+                color: #fff;
+            }
+            .qualified {
+                background: #57a3f3;
+                color: #fff;
+            }
+            .strong {
+                background: rgb(21, 202, 85);
+                color: #fff;
+            }
+        }
+    }
 }
 .login-form h3 {
     text-align: center;

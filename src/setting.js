@@ -67,7 +67,7 @@ const Setting = {
         // 侧边菜单栏是否开启手风琴模式
         menuAccordion: true,
         // 是否显示折叠侧边栏按钮，移动端下会自动强制开启
-        showSiderCollapse: true,
+        showSiderCollapse: false,
         // 侧边菜单栏是否默认折起
         menuCollapse: false,
         // 再次点击当前侧边菜单时，是否重载当前页面

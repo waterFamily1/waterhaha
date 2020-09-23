@@ -1,73 +1,73 @@
 const pre = '/storeManage/';
 
 export default {
-    path: '/storeManage',
+    path: '/storage',
     title: '库存管理',
     header: 'home',
     custom: 'icon iconfont i-icon-demo icon-fangzi01-copy',
     children: [
         {
-            path: `${pre}storeQuery`,
+            path: `/storage/stock-search-list`,
             title: '库存查询'
         }, {
-            path: `${pre}storeAdjust`,
+            path: `/storage/inventory`,
             title: '库存调整'
         }, {
-            path: `${pre}putStorage`,
+            path: `/storage/checkin`,
             title: '入库管理'
         }, {
-            path: `${pre}outStorage`,
+            path: `/storage/checkout`,
             title: '出库管理'
         }, {
-            path: `${pre}allotManage`,
+            path: `/storage/allot`,
             title: '调拨管理'
         }, {
-            path: `${pre}checkManage`,
+            path: `/storage/take-stock`,
             title: '盘点管理'
         }, {
-            path: `${pre}warehouseInfor`,
+            path: `/storage/repertory`,
             title: '仓库信息'
         }, {
-            path: `${pre}materialInfor`,
+            path: `/storage/material`,
             title: '物料信息'
         }, {
-            path: `${pre}materialCategory`,
+            path: `/storage/material-category`,
             title: '物料类别'
         }, {
-            path: `${pre}goodsRntryForm`,
+            path: `/storage/purchase-sale-stock-list`,
             title: '进销存报表'
         }, {
-            path: `${pre}storeMoveForm`,
+            path: `/storage/inventory-move-list`,
             title: '库存移动报表'
         }, {
-            path: `${pre}checkPLForm`,
+            path: `/storage/inventory-profit-loss-list`,
             title: '盘点盈亏报表'
         },{
-            path: `${pre}childPage/adjustAdd`,
+            path: `/childPage/adjustAdd`,
             title: '库存调整新增',
             auth: ['hidden']
         },{
-            path: `${pre}childPage/putAdd`,
+            path: `/childPage/putAdd`,
             title: '入库新增',
             auth: ['hidden']
         },{
-            path: `${pre}childPage/outAdd`,
+            path: `/childPage/outAdd`,
             title: '出库新增',
             auth: ['hidden']
         },{
-            path: `${pre}childPage/allotAdd`,
+            path: `/childPage/allotAdd`,
             title: '调拨新增',
             auth: ['hidden']
         },{
-            path: `${pre}childPage/checkAdd`,
+            path: `/childPage/checkAdd`,
             title: '盘点新增',
             auth: ['hidden']
         },{
-            path: `${pre}childPage/warehouseAdd`,
+            path: `/childPage/warehouseAdd`,
             title: '仓库新增',
             auth: ['hidden']
         },{
-            path: `${pre}childPage/materialAdd`,
+            path: `/childPage/materialAdd`,
             title: '物料新增',
             auth: ['hidden']
         }

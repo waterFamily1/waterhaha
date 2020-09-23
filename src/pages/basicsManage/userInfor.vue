@@ -157,10 +157,10 @@
                 }, 2000);
             },
             checkUser(index) {
-                this.$router.push({path:'/basicsManage/user/checkUserInfor'})
+                this.$router.push({path:'/user/checkUserInfor'})
             },
             addUser(){
-                this.$router.push({path:'/basicsManage/user/addUserInfor'})
+                this.$router.push({path:'/user/addUserInfor'})
             },
             upload(){
                 this.$router.push({

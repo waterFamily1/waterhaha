@@ -34,7 +34,7 @@ export default {
             },
             component: () => import('@/pages/basicsManage/userInfor')
         }, {
-            path: 'user/checkUserInfor',
+            path: '/user/checkUserInfor',
             name: `${pre}user-checkUserInfor`,
             meta: {
                 ...meta,
@@ -43,7 +43,7 @@ export default {
             },
             component: () => import('@/pages/basicsManage/user/checkUserInfor'),
         }, {
-            path: 'user/editUserInfor',
+            path: '/user/editUserInfor',
             name: `${pre}user-editUserInfor`,
             meta: {
                 ...meta,
@@ -52,7 +52,7 @@ export default {
             },
             component: () => import('@/pages/basicsManage/user/editUserInfor'),
         }, {
-            path: 'user/addUserInfor',
+            path: '/user/addUserInfor',
             name: `${pre}user-addUserInfor`,
             meta: {
                 ...meta,

@@ -1,23 +1,23 @@
 import BasicLayout from '@/layouts/basic-layout'
-const pre = 'storeManage-'
+const pre = 'storage-'
 
 const meta = {
     auth: false
 }
 
 export default {
-    path: '/storeManage',
+    path: '/storage',
     title: '库存管理',
     custom: 'icon iconfont i-icon-demo icon-fangzi01-copy',
     redirect: {
-        name: `${pre}storeQuery`
+        name: `${pre}stock-search-list`
     },
     component: BasicLayout,
     meta,
     children: [
         {
-            path: 'storeQuery',
-            name: `${pre}storeQuery`,
+            path: '/storage/stock-search-list',
+            name: `${pre}stock-search-list`,
             meta: {
                 ...meta,
                 title: '库存查询',
@@ -25,8 +25,8 @@ export default {
             },
             component: () => import('@/pages/storeManage/storeQuery')
         }, {
-            path: 'storeAdjust',
-            name: `${pre}storeAdjust`,
+            path: '/storage/inventory',
+            name: `${pre}inventory`,
             meta: {
                 ...meta,
                 title: '库存调整',
@@ -34,8 +34,8 @@ export default {
             },
             component: () => import('@/pages/storeManage/storeAdjust')
         }, {
-            path: 'putStorage',
-            name: `${pre}putStorage`,
+            path: '/storage/checkin',
+            name: `${pre}checkin`,
             meta: {
                 ...meta,
                 title: '入库管理',
@@ -43,8 +43,8 @@ export default {
             },
             component: () => import('@/pages/storeManage/putStorage')
         }, {
-            path: 'outStorage',
-            name: `${pre}outStorage`,
+            path: '/storage/checkout',
+            name: `${pre}checkout`,
             meta: {
                 ...meta,
                 title: '出库管理',
@@ -52,8 +52,8 @@ export default {
             },
             component: () => import('@/pages/storeManage/outStorage')
         }, {
-            path: 'allotManage',
-            name: `${pre}allotManage`,
+            path: '/storage/allot',
+            name: `${pre}allot`,
             meta: {
                 ...meta,
                 title: '调拨管理',
@@ -61,8 +61,8 @@ export default {
             },
             component: () => import('@/pages/storeManage/allotManage')
         }, {
-            path: 'checkManage',
-            name: `${pre}checkManage`,
+            path: '/storage/take-stock',
+            name: `${pre}take-stock`,
             meta: {
                 ...meta,
                 title: '盘点管理',
@@ -70,8 +70,8 @@ export default {
             },
             component: () => import('@/pages/storeManage/checkManage')
         }, {
-            path: 'warehouseInfor',
-            name: `${pre}warehouseInfor`,
+            path: '/storage/repertory',
+            name: `${pre}repertory`,
             meta: {
                 ...meta,
                 title: '仓库信息',
@@ -79,8 +79,8 @@ export default {
             },
             component: () => import('@/pages/storeManage/warehouseInfor')
         }, {
-            path: 'materialInfor',
-            name: `${pre}materialInfor`,
+            path: '/storage/material',
+            name: `${pre}material`,
             meta: {
                 ...meta,
                 title: '物料信息',
@@ -88,8 +88,8 @@ export default {
             },
             component: () => import('@/pages/storeManage/materialInfor')
         }, {
-            path: 'materialCategory',
-            name: `${pre}materialCategory`,
+            path: '/storage/material-category',
+            name: `${pre}material-category`,
             meta: {
                 ...meta,
                 title: '物料类别',
@@ -97,8 +97,8 @@ export default {
             },
             component: () => import('@/pages/storeManage/materialCategory')
         }, {
-            path: 'goodsRntryForm',
-            name: `${pre}goodsRntryForm`,
+            path: '/storage/purchase-sale-stock-list',
+            name: `${pre}purchase-sale-stock-list`,
             meta: {
                 ...meta,
                 title: '进销存报表',
@@ -106,8 +106,8 @@ export default {
             },
             component: () => import('@/pages/storeManage/goodsRntryForm')
         }, {
-            path: 'storeMoveForm',
-            name: `${pre}storeMoveForm`,
+            path: '/storage/inventory-move-list',
+            name: `${pre}inventory-move-list`,
             meta: {
                 ...meta,
                 title: '库存移动报表',
@@ -115,8 +115,8 @@ export default {
             },
             component: () => import('@/pages/storeManage/storeMoveForm')
         }, {          
-            path: 'checkPLForm',
-            name: `${pre}checkPLForm`,
+            path: '/storage/inventory-profit-loss-list',
+            name: `${pre}inventory-profit-loss-list`,
             meta: {
                 ...meta,
                 title: '盘点盈亏报表',
@@ -135,7 +135,7 @@ export default {
             component: () => import('@/pages/storeManage/childPage/adjustAdd')
         },
         {          
-            path: 'childPage/putAdd',
+            path: '/childPage/putAdd',
             name: `${pre}childPage-putAdd`,
             meta: {
                 ...meta,
@@ -145,7 +145,7 @@ export default {
             component: () => import('@/pages/storeManage/childPage/putAdd')
         },
         {          
-            path: 'childPage/outAdd',
+            path: '/childPage/outAdd',
             name: `${pre}childPage-outAdd`,
             meta: {
                 ...meta,
@@ -155,7 +155,7 @@ export default {
             component: () => import('@/pages/storeManage/childPage/outAdd')
         },
         {          
-            path: 'childPage/allotAdd',
+            path: '/childPage/allotAdd',
             name: `${pre}childPage-allotAdd`,
             meta: {
                 ...meta,
@@ -165,7 +165,7 @@ export default {
             component: () => import('@/pages/storeManage/childPage/allotAdd')
         },
         {          
-            path: 'childPage/checkAdd',
+            path: '/childPage/checkAdd',
             name: `${pre}childPage-checkAdd`,
             meta: {
                 ...meta,
@@ -175,7 +175,7 @@ export default {
             component: () => import('@/pages/storeManage/childPage/checkAdd')
         },
         {          
-            path: 'childPage/warehouseAdd',
+            path: '/childPage/warehouseAdd',
             name: `${pre}childPage-warehouseAdd`,
             meta: {
                 ...meta,
@@ -185,7 +185,7 @@ export default {
             component: () => import('@/pages/storeManage/childPage/warehouseAdd')
         },
         {          
-            path: 'childPage/materialAdd',
+            path: '/childPage/materialAdd',
             name: `${pre}childPage-materialAdd`,
             meta: {
                 ...meta,

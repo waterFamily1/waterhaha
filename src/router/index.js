@@ -118,6 +118,12 @@ router.beforeEach(async (to, from, next) => {
                         menu[i].custom = menu[i].icon
                         menu[i].title = menu[i].name
                         menu[i].name = menu[i].key
+                    } else if (menu[i].name == '库存管理'){
+                        menu[i].path = '/storage'
+                        menu[i].icon = 'icon iconfont i-icon-demo icon-fangzi01-copy'
+                        menu[i].custom = menu[i].icon
+                        menu[i].title = menu[i].name
+                        menu[i].name = menu[i].key
                     } else if (menu[i].name == '知识管理') {
                         menu[i].path = '/knowledge'
                         menu[i].icon = 'icon iconfont i-icon-demo icon-zhishi'
@@ -146,6 +152,7 @@ router.beforeEach(async (to, from, next) => {
                 let routePush = createRoutes(routeList)
                 for(i = 0; i < routePush.length; i ++) {
                     menuSider.push(routePush[i])
+                    console.log(JSON.stringify(routePush[i]))
                 }
                 // console.log(routePush)
                 // menuSider = routePush

@@ -19,12 +19,16 @@ export default {
             path: `/basic/equ`,
             title: '设备类型信息'
         }, {
-            path: `/basic/user/checkUserInfor`,
+            path: `/user/checkUserInfor`,
             title: '用户详情',
             auth: ['hidden'] 
         }, {
-            path: `/basic/user/editUserInfor`,
+            path: `/user/editUserInfor`,
             title: '用户编辑',
+            auth: ['hidden']
+        }, {
+            path: `/user/addUserInfor`,
+            title: '新增用户',
             auth: ['hidden']
         }
     ]
