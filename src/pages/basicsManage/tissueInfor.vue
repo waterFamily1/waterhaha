@@ -6,7 +6,7 @@
                     <h3>组织结构</h3>
                 </div>
                 <div class="tissue-list">
-                    <Tree :data="baseData" :render="renderContent" class="demo-tree-render"></Tree>
+                    <Tree :data="baseData" :render="renderContent" @on-check-change="getNode" class="demo-tree-render"></Tree>
                 </div>
             </div>
             <div class="tissue-right">
@@ -86,84 +86,15 @@
     </div>
 </template>
 <script>
+import { getAllOrg } from '@/api/basic/org'
+import createTree from '@/libs/public-util'
+
 export default {
     name: 'tissueInfor',
     data () {
         return {
-            baseData: [{
-                title: 'parent 1',
-                expand: true,
-                render: (h, { root, node, data }) => {
-                    return h('span', {
-                        style: {
-                            display: 'inline-block',
-                            width: '100%'
-                        },
-                        on: {
-                            'mouseenter': () => {
-                                data.is_show = true
-                            },
-                            'mouseleave': () => {
-                                data.is_show = false
-                            }
-                        }
-                    }, [
-                        h('span', [
-                            h('span', data.title),
-                        ]),
-                        h('span', {
-                            style: {
-                                display: 'inline-block',
-                                float: 'right'
-                            }
-                        }, [
-                            h('Button', {
-                                props: Object.assign({}, this.buttonProps, {
-                                    type: 'primary'
-                                }),
-                                style: {
-                                    display: data.is_show ? 'block' : 'none'
-                                },
-                                on: {
-                                    click: () => { 
-                                        this.newFun()
-                                    }
-                                }
-                            },'新增')
-                        ])
-                    ]);
-                },
-                children: [
-                    {
-                        title: 'child 1-1',
-                        expand: true,
-                        children: [
-                            {
-                                title: 'leaf 1-1-1',
-                                expand: true
-                            },
-                            {
-                                title: 'leaf 1-1-2',
-                                expand: true
-                            }
-                        ]
-                    },
-                    {
-                        title: 'child 1-2',
-                        expand: true,
-                        children: [
-                            {
-                                title: 'leaf 1-2-1',
-                                expand: true
-                            },
-                            {
-                                title: 'leaf 1-2-1',
-                                expand: true
-                            }
-                        ]
-                    }
-                ]
-            }],
+            ifGet: true,
+            baseData: [],
             buttonProps: {
                 type: 'default',
                 size: 'small'
@@ -180,13 +111,103 @@ export default {
             appear: false,
             appearOther: false,
             height: '',
-            height:''
+            height:'',
+            // {
+            //     title: 'parent 1',
+            //     expand: true,
+            //     render: (h, { root, node, data }) => {
+            //         return h('span', {
+            //             style: {
+            //                 display: 'inline-block',
+            //                 width: '100%'
+            //             },
+            //             on: {
+            //                 'mouseenter': () => {
+            //                     data.is_show = true
+            //                 },
+            //                 'mouseleave': () => {
+            //                     data.is_show = false
+            //                 }
+            //             }
+            //         }, [
+            //             h('span', [
+            //                 h('span', data.title),
+            //             ]),
+            //             h('span', {
+            //                 style: {
+            //                     display: 'inline-block',
+            //                     float: 'right'
+            //                 }
+            //             }, [
+            //                 h('Button', {
+            //                     props: Object.assign({}, this.buttonProps, {
+            //                         type: 'primary'
+            //                     }),
+            //                     style: {
+            //                         display: data.is_show ? 'block' : 'none'
+            //                     },
+            //                     on: {
+            //                         click: () => { 
+            //                             this.newFun()
+            //                         }
+            //                     }
+            //                 },'新增')
+            //             ])
+            //         ]);
+            //     },
+            //     children: [
+            //         {
+            //             title: 'child 1-1',
+            //             expand: true,
+            //             children: [
+            //                 {
+            //                     title: 'leaf 1-1-1',
+            //                     expand: true
+            //                 },
+            //                 {
+            //                     title: 'leaf 1-1-2',
+            //                     expand: true
+            //                 }
+            //             ]
+            //         },
+            //         {
+            //             title: 'child 1-2',
+            //             expand: true,
+            //             children: [
+            //                 {
+            //                     title: 'leaf 1-2-1',
+            //                     expand: true
+            //                 },
+            //                 {
+            //                     title: 'leaf 1-2-1',
+            //                     expand: true
+            //                 }
+            //             ]
+            //         }
+            //     ]
+            // }
         }
     },
     mounted() {
         this.height = document.body.clientHeight-80
+        this.allOrg()
     },
     methods: {
+        allOrg () {
+            let ifGet = this.ifGet
+            getAllOrg(ifGet).then(res => {
+                console.log(JSON.stringify(res.data))
+                let treeItem = []
+                let trees = res.data
+                for(let i = 0; i < trees.length; i ++) {
+                    trees[i].title = trees[i].name
+                    treeItem.push(trees[i])
+                }
+                this.baseData = createTree(treeItem)
+            }).catch(err => {
+                // 异常情况
+            })
+        },
         renderContent (h, { root, node, data }) {
             return h('span', {
                 style: {
@@ -215,10 +236,12 @@ export default {
                 }, [
                     h('Button', {
                         props: Object.assign({}, this.buttonProps, {
-                            type: 'primary'
+                            type: 'primary',
+                            size: 'small'
                         }),
                         style: {
-                            marginRight: '4px',
+                            marginRight: '2px',
+                            fontSize: '12px',
                             display: data.is_show ? 'inline-block' : 'none'
                         },
                         on: {
@@ -227,17 +250,36 @@ export default {
                     },'编辑'),
                     h('Button', {
                         props: Object.assign({}, this.buttonProps, {
-                            type: 'primary'
+                            type: 'primary',
+                            size: 'small'
                         }),
                         style: {
+                            marginRight: '2px',
+                            fontSize: '12px',
                             display: data.is_show ? 'inline-block' : 'none'
                         },
                         on: {
                             // click: () => { this.remove(root, node, data) }
                         }
-                    },'删除')
+                    },'删除'),
+                    h('Button', {
+                        props: Object.assign({}, this.buttonProps, {
+                            type: 'primary',
+                            size: 'small'
+                        }),
+                        style: {
+                            fontSize: '12px',
+                            display: data.is_show ? 'inline-block' : 'none'
+                        },
+                        on: {
+                            // click: () => { this.remove(root, node, data) }
+                        }
+                    },'新建')
                 ])
             ]);
+        },
+        getNode() {
+
         },
         append (data) {
             const children = data.children || [];

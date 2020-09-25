@@ -152,11 +152,8 @@ router.beforeEach(async (to, from, next) => {
                 let routePush = createRoutes(routeList)
                 for(i = 0; i < routePush.length; i ++) {
                     menuSider.push(routePush[i])
-                    console.log(JSON.stringify(routePush[i]))
+                    // console.log(JSON.stringify(routePush[i]))
                 }
-                // console.log(routePush)
-                // menuSider = routePush
-                // menuSider.createRoutes()
 
                 let path = to.matched[to.matched.length - 1].path
                 let headerName = await getHeaderName(path, menuSider)

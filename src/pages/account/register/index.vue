@@ -63,32 +63,6 @@
 
         </div>
 
-        <!-- <Modal class="modal-first-login" v-model="firstPwdModal" 
-            :mask-closable="false" width="380" height="295" :closable="false"
-            class-name="vertical-center-modal">
-            <Form class="pwd-form" ref="pwdForms" :model="pwdForms" :rules="pwdRuleValidate">
-                <Row><h3>修改密码</h3></Row>
-                <Row>
-                    <Col span="24">
-                        <FormItem prop="password1">
-                            <Input v-model="pwdForms.password1" placeholder="请输入新密码" type="password"></Input>
-                        </FormItem>
-                    </Col>
-                    <Col span="24">
-                        <FormItem prop="password2">
-                            <Input v-model="pwdForms.password2" placeholder="请确认新密码" type="password"></Input>
-                        </FormItem>
-                    </Col>
-                </Row>
-            </Form>
-            <div slot="footer">
-                <div class="c-modal-footer-btns">
-                    <Button type="default" shape="circle" size="large" @click="firstPwdModal=false">返回</Button>
-                    <Button type="primary" shape="circle" size="large" :loading="submitLoading" @click="changeSubmit('pwdForms')">确认</Button>
-                </div>
-            </div>
-        </Modal> -->
-
     </div>
 </template>
 <script>
