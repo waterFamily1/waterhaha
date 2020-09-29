@@ -10,7 +10,7 @@ export default {
     title: '系统管理',
     custom: 'icon iconfont i-icon-demo icon-xitong',
     redirect: {
-        name: `${pre}role`
+        name: `${pre}systemRole`
     },
     component: BasicLayout,
     meta,
@@ -79,7 +79,7 @@ export default {
             },
             component: () => import('@/pages/systemManage/indexManage')
         }, {
-            path: '/index/indexAdd',
+            path: 'index/indexAdd',
             name: `${pre}index-indexAdd`,
             meta: {
                 ...meta,

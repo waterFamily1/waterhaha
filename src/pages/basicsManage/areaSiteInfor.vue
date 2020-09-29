@@ -5,49 +5,63 @@
                 <div class="area-title">
                     <h3>区域位置结构</h3>
                     <span class="area-title-btn-box">
-                        <Button>导出二维码</Button>
+                        <Button @click="exportQRcode()">导出二维码</Button>
                         <Button @click="uploadArea()">导入区域位置</Button>
                     </span>
                 </div>
                 <div class="area-list">
-                    <Tree :data="baseData" class="demo-tree-render"></Tree>
+                    <Tree :data="baseData" class="demo-tree-render" 
+                    @on-select-change="getNode" :render="renderContent"></Tree>
                 </div>
             </div>
             <div class="area-right">
                 <div class="area-title">
                     <h3>区域位置信息</h3> 
                     <span>
-                        <Button type="primary">保存</Button>
-                        <Button>取消</Button>
+                        <Button type="primary" @click="saveHandle()">保存</Button>
+                        <Button @click="cancleHandle()">取消</Button>
                     </span>
                 </div>
                 <div class="area-form">
                     <Form ref="areaList" :model="areaList" :rules="ruleValidate" label-position="right" :label-width="120" autocomplete="off">
-                        <FormItem label="区域位置名称" prop="areaName">
-                            <Input v-model="areaList.areaName" style="width: 280px"></Input>
+                        <FormItem label="区域位置名称" prop="name">
+                            <Input v-model="areaList.name" style="width: 280px" v-if="appear"></Input>
+                            <span v-if="appearOther">{{ name }}</span>
                         </FormItem>
                         <FormItem label="备注">
-                            <Input v-model="areaList.other" style="width: 280px"></Input>
+                            <Input v-model="areaList.remarks" style="width: 280px" v-if="appear"></Input>
+                            <span v-if="appearOther">{{ remarks }}</span>
                         </FormItem>
                         <FormItem label="URL">
-                            <Input v-model="areaList.url" style="width: 280px"></Input>
+                            <Input v-model="areaList.url" style="width: 280px" placeholder="请输入以https://开头的链接" v-if="appear"></Input>
+                            <span v-if="appearOther">{{ url }}</span>
                         </FormItem>
                         <FormItem label="MR">
                             <span>真实世界、虚拟世界、数字化信息的实时互动与结合</span>
-                            <Button class="area-form-upload">上传文件</Button>
+                            <Button class="area-form-upload" v-if="appear">上传文件</Button>
                         </FormItem>
-                        <FormItem label="位置类别" prop="areaKind">
-                            <RadioGroup v-model="areaList.areaKind" style="width: 280px">
-                                <Radio label="male">区域</Radio>
-                                <Radio label="female">位置</Radio>
+                        <FormItem label="位置类别" prop="type">
+                            <RadioGroup v-model="areaList.type" style="width: 280px" v-if="appear">
+                                <Radio label="2">区域</Radio>
+                                <Radio label="1">位置</Radio>
                             </RadioGroup>
+                            <span v-if="appearOther">{{ type }}</span>
                         </FormItem>
                         <FormItem label="站点定位">
-                            <RadioGroup v-model="areaList.location">
+                            <RadioGroup v-model="areaList.location" v-if="appear" @on-change="locationChange">
                                 <Radio label="no">无</Radio>
                                 <Radio label="yes">有</Radio>
                             </RadioGroup>
-                            <span>无</span>
+                            <div class="loca-box" v-if="locationShow">
+                                经纬度
+                                <Input v-model="areaList.longitude" size="small" style="width: 100px;" />
+                                <Input v-model="areaList.latitude" size="small" style="width: 100px;" />
+                                <Button size="small" @click="locationBtn()">定位</Button>
+                            </div>
+                            <span v-if="appearOther">{{ location }}</span>
+                            <div v-if="appearOther&&longitude != ''" style="display:inline-block;margin-left: 300px;">经纬度
+                                <span>{{ longitude }},{{ latitude }}</span>
+                            </div>
                         </FormItem>
                     </Form>
                     <div class="upload-img">
@@ -81,6 +95,9 @@
     </div>
 </template>
 <script>
+import { regionalCon, exportcode1, exportcode2, getlocationInfor, appendLocation } from '@/api/basic/process'
+import createTree from '@/libs/public-util'
+
 export default {
     name: 'areaSiteInfor',
     data () {
@@ -88,34 +105,286 @@ export default {
             height: '',
             mapHei: '',
             uploadUrl: '',
-            baseData: [],
+            baseData: [
+                {
+                    title: '全部',
+                    parentId: 'all',
+                    expand: true,
+                    render: (h, { root, node, data }) => {
+                        return h('span', {
+                            style: {
+                                display: 'inline-block',
+                                width: '100%'
+                            },
+                            on: {
+                                //鼠标进入
+                                mouseover: () => {
+                                    data.is_show = true;
+                                },
+                                //鼠标离开
+                                mouseout: () => {
+                                    data.is_show = false;
+                                }
+                            }
+                        }, [
+                            h('span', [
+                                h('span', data.title)
+                            ]),
+                            h('span', {
+                                style: {
+                                    display: 'inline-block',
+                                    float: 'right',
+                                    marginRight: '32px'
+                                }
+                            }, [
+                                h('Button', {
+                                    props: Object.assign({}, this.buttonProps, {
+                                        type: 'primary',
+                                        size: 'small'
+                                    }),
+                                    style: {
+                                        marginRight: '2px',
+                                        fontSize: '12px',
+                                        zIndex: '999',
+                                        display: data.is_show ? 'inline-block' : 'none'
+                                    },
+                                    on: {
+                                        click: () => { this.append(data) }
+                                    }
+                                }, '新建')
+                            ])
+                        ]);
+                    },
+                    children: []
+                }
+            ],
             areaList: {
-                areaName: '',
-                other: '',
+                name: '',
+                remarks: '',
                 url: '',
-                areaKind: '',
-                location: ''
+                type: '',
+                location: '',
+                longitude: '',
+                latitude: ''
             },
             ruleValidate: {
-                areaName: [
+                name: [
                     { required: true, message: '请输入区域位置名称', trigger: 'blur' }
                 ],
-                areaKind: [
+                type: [
                     { required: true, message: '位置类别', trigger: 'blur' }
+                ],
+                url: [
+                    { pattern: /^(https):\/\/.+$/, message: '请输入以https://开头的链接', trigger: 'change' }
                 ]
             },
             postionMap:{  //地图坐标
-                lng: 120.211486,
-                lat: 30.256576
+                lng: '',
+                lat: ''
             },
-            keyword: ''
+            keyword: '',
+            id: '',
+            seqOrder: '',
+            name: '',
+            type: '',
+            imageUrl: '',
+            url: '',
+            longitude: '',
+            latitude: '',
+            location: '',
+            remarks: '',
+            parentId: '',
+            appear: false,
+            appearOther: false,
+            locationShow: false
         }
     },
     mounted() {
         this.height = document.body.clientHeight-80
         this.mapHei = document.body.clientHeight-390
+        this.postionMap.lng = '120.211486'
+        this.postionMap.lat = '30.256576'
+        this.getRegional()
     },
     methods: {
+        getRegional() {
+            regionalCon().then(res => {
+                // console.log(JOSN.stringify(res.data))
+                let treeItem = []
+                let trees = res.data
+                for(let i = 0; i < trees.length; i ++) {
+                    trees[i].title = trees[i].name
+                    trees[i].expand = true
+                    treeItem.push(trees[i])
+                }
+                this.baseData[0].children = createTree(treeItem)
+            }).catch(err => {
+                // 异常情况
+            })
+        },
+        renderContent (h, { root, node, data }) {
+            return h('span', {
+                style: {
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    width: '100%'
+                },
+                on: {
+                    //鼠标进入
+                    mouseover: () => {
+                        data.is_show = true;
+                    },
+                    //鼠标离开
+                    mouseout: () => {
+                        data.is_show = false;
+                    }
+                }
+            }, [
+                h('span', [
+                    h('span', data.title)
+                ]),
+                h('span', [
+                    h('Button', {
+                        props: Object.assign({}, this.buttonProps, {
+                            type: 'primary',
+                            size: 'small'
+                        }),
+                        style: {
+                            marginRight: '2px',
+                            fontSize: '12px',
+                            zIndex: '999',
+                            display: data.is_show ? 'inline-block' : 'none'
+                        },
+                        on: {
+                            // click: () => { this.edit(root, node, data) }
+                        }
+                    },'编辑'),
+                    h('Button', {
+                        props: Object.assign({}, this.buttonProps, {
+                            type: 'primary',
+                            size: 'small'
+                        }),
+                        style: {
+                            marginRight: '2px',
+                            fontSize: '12px',
+                            zIndex: '999',
+                            display: data.is_show ? 'inline-block' : 'none'
+                        },
+                        on: {
+                            // click: () => { this.remove(root, node, data) }
+                        }
+                    },'删除'),
+                    (data.children) && h('Button', {
+                        props: Object.assign({}, this.buttonProps, {
+                            type: 'primary',
+                            size: 'small'
+                        }),
+                        style: {
+                            fontSize: '12px',
+                            zIndex: '999',
+                            display: data.is_show ? 'inline-block' : 'none'
+                        },
+                        on: {
+                            click: () => { this.append(root, node, data) }
+                        }
+                    },'新建')
+                ])
+            ]);
+        },
+        exportQRcode() {
+           exportcode1().then(res => {
+                console.log(res.data.key)
+                let key = res.data.key
+                this.export2(key)
+            }).catch(err => {
+                // 异常情况
+            })
+        },
+        export2(key) {
+            exportcode2(key).then(res => {
+                console.log(JSON.stringify(res))
+            }).catch(err => {
+                // 异常情况
+            })
+        },
+        getNode(data) {
+            let id = data[0].id
+            getlocationInfor(id).then(res=> {
+                // console.log(JSON.stringify(res.data))
+                this.id = res.data.id
+                this.parentId = res.data.id
+                this.name = res.data.name
+                if(res.data.type == 0) {
+                    this.type = '区域'
+                } else if(res.data.type == 1) {
+                    this.type = '位置'
+                }
+                if(res.data.location == false) {
+                    this.location = '无'
+                } else if(res.data.location == true) {
+                    this.location = '有'
+                }
+                this.remarks = res.data.remarks
+                this.url = res.data.url
+                if(res.data.longitude == '') {
+                    this.postionMap.lng = '120.211486'
+                    this.postionMap.lat = '30.256576'
+                } else {
+                    this.postionMap.lng = res.data.longitude
+                    this.postionMap.lat = res.data.latitude
+                }
+            }).catch(err => {
+                // 异常情况
+            })
+            if(data[0].parentId == 'all') {    
+                console.log('点击全部')
+                this.appear = false
+                this.appearOther = false
+            } else {
+                this.appear = false
+                this.appearOther = true
+                console.log('点击其他')
+            }
+        },
+        append(root, data, node) {
+            console.log(JSON.stringify(data))
+            this.appear = true
+            this.appearOther = false
+            this.areaList.location = 'no'
+            console.log(data.id)
+        },
+        locationChange(val) {
+            console.log(val)
+            if(val == 'yes') {
+                this.locationShow = true
+            } else {
+                this.locationShow = false
+            }
+        },
+        locationBtn() {
+            
+        },
+        saveHandle() {
+            // appendLocation({
+            //     checked: 0,
+            //     imageUrl: ,
+            //     latitude: this.areaList.latitude,
+            //     longitude: this.areaList.longitude,
+            //     mrs: ,
+            //     name: this.areaList.name,
+            //     parentId: this.parentId,
+            //     remarks: this.areaList.remarks,
+            //     type: this.areaList.type,
+            //     url: this.areaList.url
+            // }).then(res=> {
+            //     console.log(console.log(res))
+            // }).catch(err => {
+            //     // 异常情况
+            // })
+        },
+        cancleHandle() {
+
+        },
         getPoint() {
            
         },
@@ -265,6 +534,25 @@ export default {
                 }
             }
         }
+    }
+    .loca-box {
+        display: inline-block;
+        margin-left: 300px;
+        /deep/.ivu-input-wrapper:first-child {
+            margin-left: 10px;
+        }
+        /deep/.ivu-input-wrapper {
+            margin-right: 5px;
+        }
+        /deep/.ivu-btn-default {
+            background-color: #c8c8c8;
+            color: #FFF;
+            border: none;
+        }
+    }
+    /deep/.ivu-form-item-error-tip {
+        top: 5px;
+        left: 290px;
     }
 }
 </style>

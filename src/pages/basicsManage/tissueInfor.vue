@@ -6,14 +6,15 @@
                     <h3>组织结构</h3>
                 </div>
                 <div class="tissue-list">
-                    <Tree :data="baseData" :render="renderContent" @on-check-change="getNode" class="demo-tree-render"></Tree>
+                    <Tree :data="baseData" :render="renderContent" 
+                    @on-select-change="getNode" class="demo-tree-render"></Tree>
                 </div>
             </div>
             <div class="tissue-right">
                 <div class="tissue-title">
                     <h3>组织信息</h3> 
                     <span v-if="appear">
-                        <Button type="primary">保存</Button>
+                        <Button type="primary" @click="saveHandle()">保存</Button>
                         <Button @click="cancel()">取消</Button>
                     </span>
                 </div>
@@ -23,76 +24,93 @@
                             <h4>组织名称</h4>
                             <FormItem :label-width="0" v-if="appear">
                                 <Input v-model="tissueList.name"></Input>
-                            </FormItem v-if="appearOther">
-                            <div v-if="appearOther">联泰潮英智慧水务</div>
+                            </FormItem>
+                            <FormItem :label-width="0" v-if="appearOther">
+                                <span>{{ name }}</span>
+                            </FormItem>
                         </div>
                         <div class="form-li">
                             <h4>组织类别</h4>
                             <FormItem :label-width="0" v-if="appear">
-                                <RadioGroup v-model="tissueList.type">
-                                    <Radio label="company">公司</Radio>
-                                    <Radio label="plant">工厂</Radio>
-                                    <Radio label="department">部门</Radio>
-                                    <Radio label="班组">班组</Radio>
+                                <RadioGroup v-model="tissueList.type" @on-change="radioChange">
+                                    <Radio label="1" :disabled="editDisable">公司</Radio>
+                                    <Radio label="2" :disabled="editDisable">工厂</Radio>
+                                    <Radio label="3" :disabled="editDisable">部门</Radio>
+                                    <Radio label="4" :disabled="editDisable">班组</Radio>
                                 </RadioGroup>
                             </FormItem>
+                            <FormItem :label-width="0" v-if="appearOther">
+                                <span>{{ tissueList.typeName }}</span>
+                            </FormItem>
                         </div>
-                        <div class="form-box" v-if="appear">
+                        <div class="form-box" v-if="appear && treeType == '1'">
                             <div class="form-title">公司信息</div>
                             <FormItem label="公司全称：">
                                 <Input v-model="tissueList.fullName"></Input>
                             </FormItem>
                             <FormItem label="负责人：">
-                                <Input v-model="tissueList.principal"></Input>
+                                <Input v-model="tissueList.leader"></Input>
                             </FormItem>
                             <FormItem label="手机：">
-                                <Input v-model="tissueList.phone"></Input>
+                                <Input v-model="tissueList.tel"></Input>
                             </FormItem>
 
                             <FormItem label="地址：">
-                                <Input v-model="tissueList.site"></Input>
+                                <Input v-model="tissueList.address"></Input>
                             </FormItem>
                             <FormItem label="附属信息：">
-                                <Input v-model="tissueList.other"></Input>
+                                <Input v-model="tissueList.remarks"></Input>
                             </FormItem>
                         </div>
-                        <div class="form-box form-other" v-if="appearOther">
+                        <div class="form-box form-other" v-if="appearOther && treeType == '1'">
                             <div class="form-title">公司信息</div>
                             <div class="other-li">
                                 <span>公司全称：</span>
-                                <span>联泰潮英智慧水务</span>
+                                <span>{{ fullName }}</span>
                             </div> 
                             <div class="other-li">
                                 <span>负责人：</span>
-                                <span>deht</span>
+                                <span>{{ leader }}</span>
                             </div>
                             <div class="other-li">
                                 <span>手机：</span>
-                                <span>17180654515</span>
+                                <span>{{ tel }}</span>
                             </div>
                             <div class="other-li">
                                 <span>地址：</span>
-                                <span></span>
+                                <span>{{ address }}</span>
                             </div>
                             <div class="other-li">
                                 <span>附属信息：</span>
-                                <span></span>
+                                <span>{{ remarks }}</span>
                             </div>
                         </div>
                     </Form>
                 </div>
             </div>
         </div>
+        <Modal
+            v-model="cancelModal"
+            width="260"
+            :closable="false"
+            @on-ok="cancelOk"
+            @on-cancel="cancelClose">
+            <p style="text-align:left">
+                <Icon type="ios-information-circle" style="color:#f60;margin"></Icon>
+                <span>你确定要删除吗？</span>
+            </p>
+        </Modal>
     </div>
 </template>
 <script>
-import { getAllOrg } from '@/api/basic/org'
+import { getAllOrg, cancelOrg, appendOrg, editOrg } from '@/api/basic/org'
 import createTree from '@/libs/public-util'
 
 export default {
     name: 'tissueInfor',
     data () {
         return {
+            identify: '',
             ifGet: true,
             baseData: [],
             buttonProps: {
@@ -101,91 +119,27 @@ export default {
             },
             tissueList: {
                 name: '',
-                type: 'company',
+                type: '',
                 fullName: '',
-                principal: '',
-                phone: '',
-                site: '',
-                other: ''
+                leader: '',
+                tel: '',
+                address: '',
+                remarks: ''
             },
+            name: '',
             appear: false,
             appearOther: false,
             height: '',
-            height:'',
-            // {
-            //     title: 'parent 1',
-            //     expand: true,
-            //     render: (h, { root, node, data }) => {
-            //         return h('span', {
-            //             style: {
-            //                 display: 'inline-block',
-            //                 width: '100%'
-            //             },
-            //             on: {
-            //                 'mouseenter': () => {
-            //                     data.is_show = true
-            //                 },
-            //                 'mouseleave': () => {
-            //                     data.is_show = false
-            //                 }
-            //             }
-            //         }, [
-            //             h('span', [
-            //                 h('span', data.title),
-            //             ]),
-            //             h('span', {
-            //                 style: {
-            //                     display: 'inline-block',
-            //                     float: 'right'
-            //                 }
-            //             }, [
-            //                 h('Button', {
-            //                     props: Object.assign({}, this.buttonProps, {
-            //                         type: 'primary'
-            //                     }),
-            //                     style: {
-            //                         display: data.is_show ? 'block' : 'none'
-            //                     },
-            //                     on: {
-            //                         click: () => { 
-            //                             this.newFun()
-            //                         }
-            //                     }
-            //                 },'新增')
-            //             ])
-            //         ]);
-            //     },
-            //     children: [
-            //         {
-            //             title: 'child 1-1',
-            //             expand: true,
-            //             children: [
-            //                 {
-            //                     title: 'leaf 1-1-1',
-            //                     expand: true
-            //                 },
-            //                 {
-            //                     title: 'leaf 1-1-2',
-            //                     expand: true
-            //                 }
-            //             ]
-            //         },
-            //         {
-            //             title: 'child 1-2',
-            //             expand: true,
-            //             children: [
-            //                 {
-            //                     title: 'leaf 1-2-1',
-            //                     expand: true
-            //                 },
-            //                 {
-            //                     title: 'leaf 1-2-1',
-            //                     expand: true
-            //                 }
-            //             ]
-            //         }
-            //     ]
-            // }
+            cancelModal: false,
+            treeId: '',
+            parentId: '',
+            treeType: '',
+            fullName: '',
+            leader: '',
+            tel: '',
+            address: '',
+            remarks: '',
+            editDisable: false
         }
     },
     mounted() {
@@ -196,11 +150,12 @@ export default {
         allOrg () {
             let ifGet = this.ifGet
             getAllOrg(ifGet).then(res => {
-                console.log(JSON.stringify(res.data))
+                // console.log(JSON.stringify(res.data))
                 let treeItem = []
                 let trees = res.data
                 for(let i = 0; i < trees.length; i ++) {
                     trees[i].title = trees[i].name
+                    trees[i].expand = true
                     treeItem.push(trees[i])
                 }
                 this.baseData = createTree(treeItem)
@@ -211,16 +166,17 @@ export default {
         renderContent (h, { root, node, data }) {
             return h('span', {
                 style: {
-                    display: 'inline-block',
+                    display: 'flex',
+                    justifyContent: 'space-between',
                     width: '100%'
                 },
                 on: {
                     //鼠标进入
-                    'mouseenter': () => {
+                    mouseover: () => {
                         data.is_show = true;
                     },
                     //鼠标离开
-                    'mouseleave': () => {
+                    mouseout: () => {
                         data.is_show = false;
                     }
                 }
@@ -228,13 +184,8 @@ export default {
                 h('span', [
                     h('span', data.title)
                 ]),
-                h('span', {
-                    style: {
-                        display: 'inline-block',
-                        float: 'right'
-                    }
-                }, [
-                    h('Button', {
+                h('span', [
+                    (data.parentId != 0) && h('Button', {
                         props: Object.assign({}, this.buttonProps, {
                             type: 'primary',
                             size: 'small'
@@ -242,13 +193,14 @@ export default {
                         style: {
                             marginRight: '2px',
                             fontSize: '12px',
+                            zIndex: '999',
                             display: data.is_show ? 'inline-block' : 'none'
                         },
                         on: {
-                            // click: () => { this.append(data) }
+                            click: () => { this.edit(root, node, data) }
                         }
                     },'编辑'),
-                    h('Button', {
+                    (data.parentId != 0) && h('Button', {
                         props: Object.assign({}, this.buttonProps, {
                             type: 'primary',
                             size: 'small'
@@ -256,10 +208,11 @@ export default {
                         style: {
                             marginRight: '2px',
                             fontSize: '12px',
+                            zIndex: '999',
                             display: data.is_show ? 'inline-block' : 'none'
                         },
                         on: {
-                            // click: () => { this.remove(root, node, data) }
+                            click: () => { this.remove(root, node, data) }
                         }
                     },'删除'),
                     h('Button', {
@@ -269,40 +222,155 @@ export default {
                         }),
                         style: {
                             fontSize: '12px',
+                            zIndex: '999',
                             display: data.is_show ? 'inline-block' : 'none'
                         },
                         on: {
-                            // click: () => { this.remove(root, node, data) }
+                            click: () => { this.append(root, node, data) }
                         }
                     },'新建')
                 ])
             ]);
         },
-        getNode() {
+        getNode(data) {
+            // console.log(JSON.stringify(data[0]))
+            this.parentId = data[0].id
+            this.treeType = data[0].type.toString()
+            this.fullName = data[0].fullName
+            this.leader = data[0].leader
+            this.tel = data[0].tel
+            this.address = data[0].address
+            this.remarks = data[0].remarks
+            this.identify = data[0].type.toString()
 
+            this.name = data[0].name
+            this.tissueList.type = data[0].type
+            if(data[0].type == 1) {
+                this.tissueList.typeName = '公司'
+            } else if (data[0].type == 2) {
+                this.tissueList.typeName = '工厂'
+            } else if (data[0].type == 3) {
+                this.tissueList.typeName = '部门'
+            } else if (data[0].type == 4) {
+                this.tissueList.typeName = '班组'
+            }
+
+            if(data[0].parentId == 0) {
+                this.appearOther = false
+                this.appear = false
+            } else {
+                this.appearOther = true
+                this.appear = false
+            }
         },
-        append (data) {
-            const children = data.children || [];
-            children.push({
-                title: 'appended node',
-                expand: true
-            });
-            this.$set(data, 'children', children);
+        edit (root, node, data) {
+            this.editDisable = true
+            this.appearOther = false
+            this.appear = true
+            this.tissueList.name = data.name
+            this.tissueList.type = data.type.toString()
+            this.tissueList.address = data.address
+            this.tissueList.fullName = data.fullName
+            this.tissueList.leader = data.leader
+            this.tissueList.remarks = data.remarks
+            this.tissueList.tel = data.tel
+        },
+        append (root, node, data) {
+            this.tissueList.type = data.type.toString()
+            this.editDisable = false
+            this.appear = true
+            this.appearOther = false
+            this.tissueList.name = ''
         },
         remove (root, node, data) {
-            const parentKey = root.find(el => el === node).parent;
-            const parent = root.find(el => el.nodeKey === parentKey).node;
-            const index = parent.children.indexOf(data);
-            parent.children.splice(index, 1);
+            this.cancelModal = true
+            this.treeId = data.id
+        },
+        cancelOk () {
+            let treeId = this.treeId
+            cancelOrg(treeId).then(res => {
+                // console.log(JSON.stringify(res.data))
+                this.success1(true)
+                this.allOrg()
+            }).catch(err => {
+                // 异常情况
+            })
+        },
+        cancelClose () {
+            console.log(111)
+            this.cancelModal = false
         },
         newFun() {
-            let self = this
-            self.appear = true
+            this.appear = true
+            this.tissueList.name = ''
         },
         cancel() {
-            let self = this
-            self.appear = false
-            self.appearOther = true
+            this.appear = false
+            this.appearOther = true
+            this.treeType = this.identify
+            this.editDisable = false
+        },
+        saveHandle() {
+            if(this.editDisable == true) {
+                editOrg({
+                    name: this.tissueList.name,
+                    type: this.tissueList.type,
+                    address: this.tissueList.address,
+                    fullName: this.tissueList.fullName,
+                    leader: this.tissueList.leader,
+                    remarks: this.tissueList.remarks,
+                    tel: this.tissueList.tel,
+                    id: this.parentId
+                }).then(res => {
+                    // console.log(JSON.stringify(res.data))
+                    this.success(true)
+                    this.allOrg()
+                    this.appear = false
+                    this.appearOther = true
+                }).catch(err => {
+                    // 异常情况
+                })
+            } else {
+                appendOrg({
+                    name: this.tissueList.name,
+                    parentId: this.parentId,
+                    type: this.tissueList.type,
+                    address: this.tissueList.address,
+                    fullName: this.tissueList.fullName,
+                    leader: this.tissueList.leader,
+                    remarks: this.tissueList.remarks,
+                    tel: this.tissueList.tel
+                }).then(res => {
+                    // console.log(JSON.stringify(res.data))
+                    this.success2(true)
+                    this.allOrg()
+                    this.appear = false
+                    this.appearOther = true
+                }).catch(err => {
+                    // 异常情况
+                })
+            }
+        },
+        radioChange(val) {
+            this.treeType = val
+        },
+        success (nodesc) {
+            this.$Notice.success({
+                title: '编辑成功',
+                desc: nodesc ? '' : 'Here is the notification description. Here is the notification description. '
+            });
+        },
+        success1 (nodesc) {
+            this.$Notice.success({
+                title: '删除成功',
+                desc: nodesc ? '' : 'Here is the notification description. Here is the notification description. '
+            });
+        },
+        success2 (nodesc) {
+            this.$Notice.success({
+                title: '新建成功',
+                desc: nodesc ? '' : 'Here is the notification description. Here is the notification description. '
+            });
         }
     }
 }
@@ -345,8 +413,17 @@ export default {
                 width: 100%;
                 padding: 0 10px;
                 /deep/.ivu-tree-title {
-                    width: 100%;
+                    width: 96%;
+                    padding: 0px;
+                    // .tree-btn {
+                    //     visibility: hidden;
+                    // }
                 }
+                // /deep/.ivu-tree-title:hover {
+                //     .tree-btn {
+                //         visibility: visible;
+                //     }
+                // }
             }
         }
         .tissue-right {
@@ -410,6 +487,14 @@ export default {
             width: 24%;
             margin-right: 1%;
         }
+    }
+}
+/deep/.ivu-modal-footer {
+    border-top: none;
+    /deep/.ivu-btn {
+        font-size: 13px;
+        height: 24px;
+        padding: 0 8px;
     }
 }
 </style>

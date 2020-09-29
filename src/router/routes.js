@@ -113,7 +113,7 @@ const frameIn = [
     storeManage,
     knowledgeManage,
     basicsManage,
-    // systemManage,
+    systemManage,
     other
 ];
 
