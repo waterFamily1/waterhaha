@@ -297,7 +297,6 @@ export default {
             })
         },
         cancelClose () {
-            console.log(111)
             this.cancelModal = false
         },
         newFun() {

@@ -17,9 +17,9 @@
             <div class="area-right">
                 <div class="area-title">
                     <h3>区域位置信息</h3> 
-                    <span>
+                    <span v-if="appear">
                         <Button type="primary" @click="saveHandle()">保存</Button>
-                        <Button @click="cancleHandle()">取消</Button>
+                        <Button @click="cancleHandle('areaList')">取消</Button>
                     </span>
                 </div>
                 <div class="area-form">
@@ -42,15 +42,15 @@
                         </FormItem>
                         <FormItem label="位置类别" prop="type">
                             <RadioGroup v-model="areaList.type" style="width: 280px" v-if="appear">
-                                <Radio label="2">区域</Radio>
-                                <Radio label="1">位置</Radio>
+                                <Radio label="2" :disabled="whichAppear == '3'">区域</Radio>
+                                <Radio label="1" :disabled="whichAppear == '3'">位置</Radio>
                             </RadioGroup>
                             <span v-if="appearOther">{{ type }}</span>
                         </FormItem>
                         <FormItem label="站点定位">
                             <RadioGroup v-model="areaList.location" v-if="appear" @on-change="locationChange">
-                                <Radio label="no">无</Radio>
-                                <Radio label="yes">有</Radio>
+                                <Radio label="false">无</Radio>
+                                <Radio label="true">有</Radio>
                             </RadioGroup>
                             <div class="loca-box" v-if="locationShow">
                                 经纬度
@@ -65,14 +65,18 @@
                         </FormItem>
                     </Form>
                     <div class="upload-img">
-                        <div class="img-box">
-                            <img :src="uploadUrl">
-                        </div>
                         <div class="img-btn">
-                            <Upload action="//jsonplaceholder.typicode.com/posts/"
+                            <Upload 
+                                action=""
                                 :format="['jpg','jpeg','png']"
+                                :before-upload="handleUploadicon"
+                                :on-format-error="uploadError"
+                                accept=".jpg , .png, .jpeg"
                                 ref="upload">
-                                <Button>添加图片</Button>
+                                <div class="img-box">
+                                    <img :src="areaList.imageUrl">
+                                </div>
+                                <Button v-if="appear">添加图片</Button>
                             </Upload>
                         </div>
                     </div>
@@ -81,7 +85,7 @@
                     <baidu-map center="天津" :zoom="13" 
                         :scroll-wheel-zoom="true" :style="{height: mapHei+'px'}">
                         <bm-map-type :map-types="['BMAP_NORMAL_MAP', 'BMAP_HYBRID_MAP']" anchor="BMAP_ANCHOR_TOP_LEFT"></bm-map-type>
-                        <bm-view class="map"></bm-view>
+                        <bm-view class="map" id="map"></bm-view>
                         <bm-control :offset="{width: '10px', height: '10px'}">
                             <bm-auto-complete v-model="keyword" :sugStyle="{zIndex: 1}">
                                 <Input suffix="ios-search" placeholder="请输入地名关键字" style="width: auto" />
@@ -92,19 +96,32 @@
                 </div>
             </div>
         </div>
+        <Modal
+            v-model="cancelModal"
+            width="260"
+            :closable="false"
+            @on-ok="cancelOk"
+            @on-cancel="cancelClose">
+            <p style="text-align:left">
+                <Icon type="ios-information-circle" style="color:#f60;margin"></Icon>
+                <span>你确定要删除吗？</span>
+            </p>
+        </Modal>
     </div>
 </template>
 <script>
-import { regionalCon, exportcode1, exportcode2, getlocationInfor, appendLocation } from '@/api/basic/process'
+import { regionalCon, exportcode1, exportcode2, getlocationInfor, appendLocation, uploadFun, cancleLocation, editLocation } from '@/api/basic/process'
 import createTree from '@/libs/public-util'
+import axios from 'axios'
 
 export default {
     name: 'areaSiteInfor',
     data () {
         return {
+            cancelModal: false,
             height: '',
             mapHei: '',
-            uploadUrl: '',
+            map: '',
             baseData: [
                 {
                     title: '全部',
@@ -165,7 +182,8 @@ export default {
                 type: '',
                 location: '',
                 longitude: '',
-                latitude: ''
+                latitude: '',
+                imageUrl: ''
             },
             ruleValidate: {
                 name: [
@@ -196,7 +214,8 @@ export default {
             parentId: '',
             appear: false,
             appearOther: false,
-            locationShow: false
+            locationShow: false,
+            whichAppear: '4'
         }
     },
     mounted() {
@@ -256,7 +275,7 @@ export default {
                             display: data.is_show ? 'inline-block' : 'none'
                         },
                         on: {
-                            // click: () => { this.edit(root, node, data) }
+                            click: () => { this.edit(root, node, data) }
                         }
                     },'编辑'),
                     h('Button', {
@@ -271,7 +290,7 @@ export default {
                             display: data.is_show ? 'inline-block' : 'none'
                         },
                         on: {
-                            // click: () => { this.remove(root, node, data) }
+                            click: () => { this.remove(root, node, data) }
                         }
                     },'删除'),
                     (data.children) && h('Button', {
@@ -292,7 +311,7 @@ export default {
             ]);
         },
         exportQRcode() {
-           exportcode1().then(res => {
+            exportcode1().then(res => {
                 console.log(res.data.key)
                 let key = res.data.key
                 this.export2(key)
@@ -314,7 +333,7 @@ export default {
                 this.id = res.data.id
                 this.parentId = res.data.id
                 this.name = res.data.name
-                if(res.data.type == 0) {
+                if(res.data.type == 2) {
                     this.type = '区域'
                 } else if(res.data.type == 1) {
                     this.type = '位置'
@@ -333,28 +352,56 @@ export default {
                     this.postionMap.lng = res.data.longitude
                     this.postionMap.lat = res.data.latitude
                 }
+                this.areaList.imageUrl = res.data.imageUrl
             }).catch(err => {
                 // 异常情况
             })
             if(data[0].parentId == 'all') {    
-                console.log('点击全部')
                 this.appear = false
                 this.appearOther = false
             } else {
                 this.appear = false
                 this.appearOther = true
-                console.log('点击其他')
             }
         },
         append(root, data, node) {
-            console.log(JSON.stringify(data))
+            this.whichAppear = '2'
             this.appear = true
             this.appearOther = false
-            this.areaList.location = 'no'
-            console.log(data.id)
+            this.areaList.location = 'false'
+            this.areaList.name = ''
+            this.areaList.remarks = ''
+            this.areaList.url = ''
+            this.areaList.imageUrl = ''
+            this.areaList.latitude = ''
+            this.areaList.longitude = ''
+            this.areaList.type = ''
+        },
+        remove(root, node, data) {
+            this.cancelModal = true
+        },
+        edit(root, node, data) {
+            this.appear = true
+            this.appearOther = false
+            this.whichAppear = '3'
+            this.areaList.name = this.name
+            this.areaList.remarks = this.remarks
+            this.areaList.url = this.url
+            this.areaList.imageUrl = this.imageUrl
+            this.areaList.latitude = this.latitude
+            this.areaList.longitude = this.longitude
+            if(this.location == '有') {
+                this.areaList.location = 'true'
+            } else if(this.location == '无') {
+                this.areaList.location = 'false'
+            }
+            if(this.type == '位置') {
+                this.areaList.type = '1'
+            } else if(this.type == '区域') {
+                this.areaList.type = '2'
+            }
         },
         locationChange(val) {
-            console.log(val)
             if(val == 'yes') {
                 this.locationShow = true
             } else {
@@ -362,31 +409,109 @@ export default {
             }
         },
         locationBtn() {
-            
+            this.map = new BMap.Map('map')
+            if(this.areaList.latitude != '' && this.areaList.longitude != '') {
+                map.clearOverlays(); 
+                var new_point = new BMap.Point(this.areaList.longitude ,this.areaList.latitude)
+                var marker = new BMap.Marker(new_point);  // 创建标注
+                map.addOverlay(marker);              // 将标注添加到地图中
+                map.panTo(new_point);
+            }
         },
         saveHandle() {
-            // appendLocation({
-            //     checked: 0,
-            //     imageUrl: ,
-            //     latitude: this.areaList.latitude,
-            //     longitude: this.areaList.longitude,
-            //     mrs: ,
-            //     name: this.areaList.name,
-            //     parentId: this.parentId,
-            //     remarks: this.areaList.remarks,
-            //     type: this.areaList.type,
-            //     url: this.areaList.url
-            // }).then(res=> {
-            //     console.log(console.log(res))
-            // }).catch(err => {
-            //     // 异常情况
-            // })
+            if(this.whichAppear == '2') {
+                appendLocation({
+                    checked: 0,
+                    imageUrl: this.areaList.imageUrl,
+                    latitude: this.areaList.latitude,
+                    longitude: this.areaList.longitude,
+                    mrs: [],
+                    name: this.areaList.name,
+                    parentId: this.parentId,
+                    remarks: this.areaList.remarks,
+                    type: this.areaList.type,
+                    url: this.areaList.url
+                }).then(res=> {
+                    this.success2(true)
+                    this.appearOther = true
+                    this.appear = false
+                    this.getRegional()
+                    this.name = this.areaList.name
+                    this.remarks = this.areaList.remarks
+                    this.url = this.areaList.url
+                    this.imageUrl = this.areaList.imageUrl
+                    this.latitude = this.areaList.latitude
+                    this.longitude = this.areaList.longitude
+                    if( this.areaList.type == 0) {
+                        this.type = '区域'
+                    } else if( this.areaList.type == 1) {
+                        this.type = '位置'
+                    }
+                    if( this.areaList.location == false) {
+                        this.location = '无'
+                    } else if( this.areaList.location == true) {
+                        this.location = '有'
+                    }
+                    // this.locationBtn()
+                }).catch(err => {
+                    // 异常情况
+                })
+            } else if(this.whichAppear == '3') {
+                editLocation({
+                    checked: 0,
+                    imageUrl: this.areaList.imageUrl,
+                    latitude: this.areaList.latitude,
+                    longitude: this.areaList.longitude,
+                    mrs: [],
+                    name: this.areaList.name,
+                    parentId: this.parentId,
+                    remarks: this.areaList.remarks,
+                    type: this.areaList.type,
+                    url: this.areaList.url
+                }).then(res => {
+                    this.appearOther = true
+                    this.appear = false
+                    this.getRegional()
+                    this.name = this.areaList.name
+                    this.remarks = this.areaList.remarks
+                    this.url = this.areaList.url
+                    this.imageUrl = this.areaList.imageUrl
+                    this.latitude = this.areaList.latitude
+                    this.longitude = this.areaList.longitude
+                    if( this.areaList.type == 0) {
+                        this.type = '区域'
+                    } else if( this.areaList.type == 1) {
+                        this.type = '位置'
+                    }
+                    if( this.areaList.location == false) {
+                        this.location = '无'
+                    } else if( this.areaList.location == true) {
+                        this.location = '有'
+                    }
+                }).catch(err => {
+                    // 异常情况
+                })
+            }
         },
-        cancleHandle() {
-
+        cancleHandle(name) {
+            this.$refs[name].resetFields();
         },
-        getPoint() {
-           
+        handleUploadicon(file) {
+            let formData = new FormData()
+            formData.append('file', file)
+            uploadFun(formData).then(res=> {
+                // console.log(res)
+                this.areaList.imageUrl = res.data.fullPath
+            }).catch(err => {
+                // 异常情况
+            })
+        },
+        uploadError(file) { 
+            //上传失败
+            this.$Notice.error({
+                title: '图片上传失败，请重新上传。',
+                desc: nodesc ? '' : 'Here is the notification description. Here is the notification description. '
+            });
         },
         uploadArea() {
             this.$router.push({
@@ -395,6 +520,33 @@ export default {
                     uploadName: '区域位置导入'
                 }
             })
+        },
+        cancelOk() {
+            let id = this.id
+            cancleLocation(id).then(res => {
+                // console.log(JSON.stringify(res.data))
+                this.success1(true)
+                this.getRegional()
+                this.appearOther = false
+                this.appear = false
+            }).catch(err => {
+                // 异常情况
+            })
+        },
+        cancelClose () {
+            this.cancelModal = false
+        },
+        success1 (nodesc) {
+            this.$Notice.success({
+                title: '删除成功',
+                desc: nodesc ? '' : 'Here is the notification description. Here is the notification description. '
+            });
+        },
+        success2 (nodesc) {
+            this.$Notice.success({
+                title: '新建成功',
+                desc: nodesc ? '' : 'Here is the notification description. Here is the notification description. '
+            });
         }
     }
 }
@@ -507,6 +659,12 @@ export default {
                         width: 200px;
                         height: 100px;
                         background: rgb(245, 245, 245);
+                        img {
+                            display: block;
+                            width: 100%;
+                            height: 100%;
+                        }
+                        margin-bottom: 10px;
                     }
                     .img-btn {
                         text-align: center;

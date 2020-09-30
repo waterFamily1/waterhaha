@@ -29,3 +29,40 @@ export function getlocationInfor(data) {
         method: 'get'
     })
 }
+
+//新增
+export function appendLocation(data) {
+    return request({
+        url: '/uaa/api/processes',
+        method: 'post',
+        data
+    })
+}
+
+//上传图片
+export function uploadFun(data) {
+    return request({
+        url: '/zuul/base/api/files/upload',
+        method: 'post',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        data
+    })
+}
+
+//删除
+export function cancleLocation(data) {
+    return request({
+        url: '/uaa/api/processes/'+data,
+        method: 'delete'
+    })
+}
+
+//编辑
+export function editLocation() {
+    return request({
+        url: '/uaa/api/processes/',
+        method: 'put'
+    })
+}
