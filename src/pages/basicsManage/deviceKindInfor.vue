@@ -41,7 +41,7 @@
                         <div class="form-li">
                             <div  v-if="appear">
                                 <h4>设备类型名称</h4>
-                                <div  style="min-height:40px">{{currentEqu.name}}</div>
+                                <div  style="min-height:40px">{{isCancel?tissueList.devicename:currentEqu.name}}</div>
                             </div>
                             <FormItem label="设备类型名称" label-position="top" prop="devicename" v-else>
                                 <Input v-model="tissueList.devicename" ></Input>
@@ -50,7 +50,7 @@
                         <div class="form-li">
                             <div  v-if="appear">
                                 <h4>备注</h4>
-                                <div style="min-height:40px">{{currentEqu.remarks}}</div>
+                                <div style="min-height:40px">{{isCancel?tissueList.remark:currentEqu.remarks}}</div>
                             </div>
                             <FormItem label="备注" label-position="top" v-else>
                                 <Input v-model="tissueList.remark" ></Input>
@@ -58,16 +58,18 @@
                         </div>
                         <div class="form-li" style="border:0">
                             <h4>默认图片</h4>
-                            <div v-if="!appear" >
-                                <img src="../../assets/images/default.png" alt="" style="max-width:400px">
+                            <div  >
+                                <img src="../../assets/images/default.png" alt="" style="width:130px;height:150px" v-if="!imgPath">
+                                <img :src="imgPath" alt="" style="max-width:400px" v-else>
                            </div>
-                            <Upload   action=""
+                            <Upload   
+                                action=""
                                 :format="['jpg','jpeg','png']"
                                 :before-upload="handleUploadicon"
                                 :on-format-error="uploadError"
                                 accept=".jpg , .png, .jpeg"
-                                ref="upload">
-                                <button style="background:#576374;border:0;padding:4px 12px;color:#fff;outline:0;border-radius:3px" >上传图片</button>
+                                ref="upload" v-if="!appear">
+                                <Button style="background:#576374;border:0;padding:4px 12px;color:#fff;outline:0;border-radius:3px" >上传图片</Button>
                             </Upload> 
                          
                         </div>
@@ -78,7 +80,7 @@
     </div>
 </template>
 <script>
-import { getOrg ,getEqu , saveEqu, deleteEqu,createEqu,searchEqu} from '@api/basic/equ';
+import { getOrg ,getEqu , saveEqu, deleteEqu,createEqu,searchEqu,uploadImg} from '@api/basic/equ';
 import createTree from '@/libs/public-util'
 export default {
     name: 'tissueInfor',
@@ -96,7 +98,6 @@ export default {
                 remark:''
             },
             appear: true,
-            appearOther: false,
             listshow: true,
             equList:[],
             idx:0,
@@ -111,7 +112,9 @@ export default {
             searchList:[],
             isSeachdata:false,
             orgBaseData:[],
-            equBaseData:[]
+            equBaseData:[],
+            imgPath:'',
+            isCancel:false
         }
     },
     mounted() {
@@ -125,6 +128,7 @@ export default {
                 let trees = res.data
                 for(let i = 0; i < trees.length; i ++) {
                     trees[i].title = trees[i].name
+                    // trees[i].expand = true
                     treeItem.push(trees[i])
                 }
                 this.orgBaseData=treeItem
@@ -175,47 +179,29 @@ export default {
                     this.currentOrg= element
                 }
             });
-            console.log(JSON.stringify(this.baseData))
-           this.checkParent(this.currentEqu.orgId,this.baseData)
+        //     console.log(JSON.stringify(this.baseData))
+           this.checkParent(this.currentEqu.orgId,this.orgBaseData)
            console.log(this.baseData)
         },
-        // checkParent(id,arr){
-        //    arr.forEach(element => {
-        //        console.log(element)
-        //        if(element.id ==id) {
-                  
-        //        }else{
-        //            this.checkParent(id,element.children)
-        //        }
-        //    });
-        //    console.log(arr)
-        // },
-        aaav(a,da,array,id){
-            for (let i = 0; i < array.length; i++) {
-                if(array[i].id==id){
-                    console.log(a)
-                    console.log(da)
-                    da.expand=true
-                }else{
-                    if(array[i].children && array[i].children.length>0){
-                        this.aaav(a,array[i],array[i].children,id)
-                    }
+        checkParent(id,arr){
+            for (let i = 0; i < arr.length; i++) {
+                if(arr[i].id ==id) {
+                    let parentId=arr[i].parentId
+                    this.aaavs(parentId,arr)
                 }
             }
 
+            console.log(arr)
         },
-
-
-        checkParent(id,treeItem){
-            console.log(treeItem)
-            for(var i=0;i<treeItem.length;i++) {
-                if(treeItem[i].id==35){
-                    console.log(treeItem[i])
-                }else if(treeItem[i].children && treeItem[i].children.length>0){
-                   this.aaav(treeItem[i],treeItem[i].children,treeItem[i].children,id)
-
+        aaavs(parentId,arr){
+            for (let i = 0; i < arr.length; i++) {
+                if(arr[i].id ==parentId) {
+                    console.log(arr[i])
+                    arr[i].expand = true
+                    if(arr[i].parentId!=0){
+                        this.aaavs(arr[i].parentId,arr)
+                    }
                 }
-
             }
         },
         renderContent (h, { root, node, data }) {
@@ -431,8 +417,8 @@ export default {
         },
         cancel() {
             let self = this
-            self.appear = false
-            self.appearOther = true  
+            self.appear = true
+            self.isCancel=true
         },
         edit(data){
            this.appear= false
@@ -447,15 +433,11 @@ export default {
         save(name){
              this.$refs[name].validate((valid) => {
                 if (valid) {
-                    
                     if(this.isChooseequ){
                        this.saveEqu()
                     }else{
                        this.createEqu()
-                    }
-                  
-                } else {
-                    
+                    }  
                 }
             })
         },
@@ -463,6 +445,7 @@ export default {
             this.currentEqu.name= this.tissueList.devicename 
             this.currentEqu.title= this.tissueList.devicename 
             this.currentEqu.remarks = this.tissueList.remark
+            this.currentEqu.imageUrl = this.imgPath
             saveEqu(this.currentEqu).then(res=>{
                 if(res.data.id){
                     this.$Message.success('编辑成功');
@@ -476,7 +459,7 @@ export default {
         createEqu(){
             let data={
                 id: "",
-                imageUrl: "",
+                imageUrl: this.imageUrl,
                 name: this.tissueList.devicename ,
                 orgId: this.currentOrg.id,
                 orgName: this.currentOrg.name,
@@ -493,15 +476,16 @@ export default {
                 }
             })
         },
-        uploadError(file){
-            console.log(file)
+        uploadError(){
+            // console.log(file)
         },
         handleUploadicon(file) {
+            console.log(file)
             let formData = new FormData()
             formData.append('file', file)
-            uploadFun(formData).then(res=> {
-                // console.log(res)
-                this.areaList.imageUrl = res.data.fullPath
+            uploadImg(formData).then(res=> {
+                console.log(res)
+                this.imgPath = res.data.fullPath
             }).catch(err => {
                 // 异常情况
             })

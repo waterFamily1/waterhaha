@@ -53,6 +53,9 @@ export function uploadImg (data) {
     return request({
         url: '/zuul/base/api/files/upload',
         method : 'post',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
         data:data
     })
 }
