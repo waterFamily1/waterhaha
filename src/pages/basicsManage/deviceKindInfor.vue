@@ -374,11 +374,14 @@ export default {
             this.getCurrentequ(item[0].id)
             this.currentEqu={}
             this.appear= true
+            this.imgPath=""
+
         },
         selectEquNode(node){
            this.isChooseequ=true
            this.currentEqu = node[0]
            this.appear= true
+           this.imgPath=""
         },
         append (data) {
             const children = data.children || [];
@@ -412,23 +415,26 @@ export default {
         newFun() {
             let self = this
             self.appear = false
-            
             this.currentEqu={}
+            this.imgPath=""
         },
         cancel() {
             let self = this
             self.appear = true
             self.isCancel=true
+            this.imgPath=""
         },
         edit(data){
            this.appear= false
            this.tissueList.devicename = this.currentEqu.name
            this.tissueList.remark = this.currentEqu.remarks
+           this.imgPath=""
         },
         create(data){
             this.appear= false
             this.isChooseequ = false
             this.currentEqu={}
+            this.imgPath=""
         },
         save(name){
              this.$refs[name].validate((valid) => {
