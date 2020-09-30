@@ -4,7 +4,9 @@ export default function createTree(item) {
     const parent = arr.filter(item => item.parentId == 0)
     const len = parent.length
     arr.forEach(item => {
-        if (item.parentId == 0) return
+        if (item.parentId == 0) {
+            return
+        }
         for (let i = 0; i < len; i++) {
             if (item.idPath == parent[i].idPath+parent[i].id+',') {
                 if (!parent[i].children) parent[i].children = []

@@ -225,6 +225,9 @@ export default {
         this.postionMap.lat = '30.256576'
         this.getRegional()
     },
+    created() {
+        
+    },
     methods: {
         getRegional() {
             regionalCon().then(res => {

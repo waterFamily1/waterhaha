@@ -3,16 +3,19 @@
         <div class="search-header">
             <div class="c-form-item">
                 <label>关键词：</label>
-                <Input placeholder="用户姓名/手机号/邮箱" style="width: 300px" />
+                <Input placeholder="用户姓名/手机号/邮箱" style="width: 300px" v-model="kWord" />
             </div>
-             <div class="c-form-item">
+             <div class="c-form-item" style="position:relative">
                  <label>所属组织：</label>
-                <Select v-model="model1" style="width:300px">
-                    <Option v-for="item in cityList" :value="item.value" :key="item.value">{{ item.label }}</Option>
-                </Select>
+                <!-- <Select v-model="orgId" style="width:300px">  
+                  <Tree :data="data4" multiple @on-select-change="selectItem" ></Tree>
+                </Select> -->
+                <select name="" id="" v-if="!show"></select>
+                <selectTree v-else v-model="orgId" multiple  :treeData="data4" style="width:350px"></selectTree>
+                
             </div>
             <div class="c-adv-search-btn">
-                 <button type="button">搜索</button>
+                 <button type="button" @click="search()">搜索</button>
                   <button type="button" class="reset">重置</button>
             </div>
         </div>  
@@ -22,16 +25,16 @@
                 <button type="button" style="margin-left:10px" @click="upload()">批量导入</button>
             </div>
             <div class="table-wrapper" :style="{height: (height-45)+'px'}">
-                <Table stripe :columns="columns1" :data="data1">
+                <Table stripe :columns="columns1" :data="data1" size="small">
                     <template slot-scope="{ row }" slot="name">
                         <strong>{{ row.name }}</strong>
                     </template>
                     <template slot-scope="{ row, index }" slot="action">
-                        <Button class="action" size="small" style="margin-right: 5px;" @click="checkUser(index)">查看</Button>
-                        <Button class="action" size="small" @click="remove(index)">删除</Button>
+                        <Button class="action" size="small" style="margin-right: 5px;" @click="checkUser(row.id)">查看</Button>
+                        <Button class="action" size="small" @click="remove(row.id)">删除</Button>
                     </template>
                 </Table>
-                 <Page :total="100" show-elevator show-total class="page" />
+                 <Page :total="total" show-elevator show-total class="page" @on-change="changeSize" />
             </div>
         </div>
         <Modal  v-model="modal" title="提示" @on-ok="asyncOK">
@@ -40,41 +43,21 @@
      </div>
 </template>
 <script>
+import { getUser,deleteUser,searchUser,getOrganizations } from '@api/basic/user';
+import createTree from '@/libs/public-util'
+import selectTree from 'iview-select-tree'
     export default {
         data () {
             return {
-                cityList: [
-                    {
-                        value: 'New York',
-                        label: 'New York'
-                    },
-                    {
-                        value: 'London',
-                        label: 'London'
-                    },
-                    {
-                        value: 'Sydney',
-                        label: 'Sydney'
-                    },
-                    {
-                        value: 'Ottawa',
-                        label: 'Ottawa'
-                    },
-                    {
-                        value: 'Paris',
-                        label: 'Paris'
-                    },
-                    {
-                        value: 'Canberra',
-                        label: 'Canberra'
-                    }
-                ],
+                
                 model1: '',
                 height:0,
                 columns1: [
                     {
+                        type: 'index',
+                        width: 80,
+                        align: 'center',
                         title: '序号',
-                        key: 'number'
                     },
                     {
                         title: '用户姓名',
@@ -86,19 +69,20 @@
                     },
                     {
                         title: '所属组织',
-                        key: 'organization'
+                        key: 'orgName'
                     },
                     {
                         title: '手机号',
-                        key: 'phone'
+                        key: 'tel'
                     },
                     {
                         title: '邮箱地址',
-                        key: 'email'
+                        key: 'email',
+                        // width: 170,
                     },
                     {
                         title: '权限角色',
-                        key: 'authorizationRole'
+                        key: 'role'
                     },
                     {
                         title: '操作',
@@ -107,57 +91,70 @@
                         align: 'center'
                     }
                 ],
-                data1: [
-                    {
-                        number:'1',
-                        name: '萧鸿耀',
-                        department:'',
-                        organization:'联泰潮英智慧水务',
-                        phone:'123444',
-                        email:'123@qq.com',
-                        authorizationRole:'组长',
-                        action:''
-                    },
-                    {
-                        number:'2',
-                        name: '萧鸿耀',
-                        department:'',
-                        organization:'联泰潮英智慧水务',
-                        phone:'123444',
-                        email:'123@qq.com',
-                        authorizationRole:'组长',
-                        action:''
-                    },
-                    {
-                        number:'3',
-                        name: '萧鸿耀',
-                        department:'',
-                        organization:'联泰潮英智慧水务',
-                        phone:'123444',
-                        email:'123@qq.com',
-                        authorizationRole:'组长',
-                        action:''
-                    },
-                    
-                ],
+                data1: [],
                 modal: false,
+                total:0,
+                userId:'',
+                kWord:'',
+                orgId:'',
+                orgName:'',
+                data4: [],
+                show:false
             }
+        },
+        components: {
+            selectTree
         },
         mounted() {
             this.height = document.body.clientHeight-80
+            
+        },
+        created(){
+            this.getUserList(this.kWord,this.orgId,1)
+            getOrganizations().then(res=>{
+                console.log(res)
+                let treeItem = []
+                let trees = res.data
+                for(let i = 0; i < trees.length; i ++) {
+                    trees[i].title = trees[i].name
+                    trees[i].value = trees[i].id
+                    treeItem.push(trees[i])
+                }
+                this.show=true
+                this.data4 = createTree(treeItem)
+             })
         },
         methods: {
-            remove(index) {
-                let that=this;
+            remove(id) {
+               let that=this;
                that.modal=true
+               this.userId=id
             },
-             asyncOK () {
-                setTimeout(() => {
-                    this.modal = false;
-                }, 2000);
+            asyncOK () {
+                deleteUser(this.userId).then(res=>{
+                    console.log(res)
+                    if(res.data.count==1){
+                        this.modal = false;
+                        this.getUserList(this.kWord,this.orgId,1)
+                    }
+                })
             },
-            checkUser(index) {
-                this.$router.push({path:'/user/checkUserInfor'})
+            getUserList(kword,orgid,size){
+                searchUser(kword,orgid,size).then(res=>{
+                   let result=res.data.items
+                    for(var index in result){
+                      if(result[index].roleMap.length!=0){
+                          result[index].role= result[index].roleMap[0].roleName
+                      }else{
+                          result[index].role=''
+                      }
+                    }
+                   this.data1=result
+                   this.total=res.data.total
+                })
+            },
+            checkUser(id) {
+                this.$router.push({path:'/user/checkUserInfor',query:{id:id}})
             },
             addUser(){
                 this.$router.push({path:'/user/addUserInfor'})
@@ -169,6 +166,26 @@
                         uploadName: '用户导入'
                     }
                 })
+            },
+            search(){
+                searchUser(this.kWord,this.orgId,1).then(res=>{
+                    console.log(res)
+                })
+            },
+            changeSize(size){
+                console.log(size)
+                this.getUserList(this.kWord,this.orgId,size)
+            },
+            selectItem(value){
+                console.log(value)
+                let arr = value
+                let orgIds=[],orgName=[]
+                arr.forEach(element => {
+                    orgIds.push(element.id)
+                    orgName.push(element.name)
+                });
+                this.orgId = orgIds.join(",")
+                this.orgName = orgName.join(',')
             }
         }
     }
