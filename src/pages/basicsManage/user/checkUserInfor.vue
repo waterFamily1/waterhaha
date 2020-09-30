@@ -10,36 +10,45 @@
         <div class="con-show" :style="{height: (height-45)+'px'}">
           <div class="ivu-form-item" style="margin-top:5px">
               <span class="first">用户姓名：</span>
-              <span>萧鸿耀</span>
+              <span>{{ userDetail.name }}</span>
           </div>
           <div class="ivu-form-item">
               <span class="first">所属组织：</span>
-              <span>萧鸿耀</span>
+              <span>{{ userDetail.orgName }}</span>
           </div>
           <div class="ivu-form-item">
               <span class="first">手机号：</span>
-              <span>萧鸿耀</span>
+              <span>{{ userDetail.tel }}</span>
           </div>
           <div class="ivu-form-item">
               <span class="first">邮箱：</span>
-              <span>萧鸿耀</span>
+              <span>{{ userDetail.email }}</span>
           </div>
         </div>
     </div>
 </template>
 <script>
+import { putUser } from '@api/basic/user';
   export default {
+      name:'checkUserInfor',
       data(){
         return {
-            height:0
+            height:0,
+            userDetail:{},
+            userId:''
         }
       },
       mounted() {
         this.height = document.body.clientHeight-70
+        this.userId = this.$route.query.id
+        putUser(this.$route.query.id).then(res=>{
+            console.log(res)
+            this.userDetail = res.data
+        })
     },
     methods: {
         edit(){
-            this.$router.push({path:'/user/editUserInfor'})
+            this.$router.push({path:'/user/editUserInfor',query:{id:this.userId}})
         },
         back(){
             this.$router.go(-1);

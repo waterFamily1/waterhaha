@@ -3,22 +3,25 @@
         <div class="user-title">
             <h3>用户编辑</h3>
             <div>
-                <Button type="info" size="small" style="background:#4b7efe" @click="save()">保存</Button>
+                <Button type="info" size="small" style="background:#4b7efe" @click="save('formInline')">保存</Button>
                 <Button type="info" size="small" style="background:#c8c8c8" @click="cancel()">取消</Button>
             </div>
         </div>
         <div class="con-show" :style="{height: (height-45)+'px'}">
             <Form ref="formInline" label-position="right" :label-width="100" :model="formInline" :rules="ruleValidate">
                 <FormItem label="用户姓名：" prop="name">
-                    <Input v-model="formInline.name" placeholder="请输入用户姓名" value="123" style="width:350px"></Input>
+                    <Input v-model="formInline.name" placeholder="请输入用户姓名"  style="width:350px"></Input>
                 </FormItem>
-                <FormItem label="所属组织：" prop="tissue">
-                    <Select v-model="formInline.tissue" placeholder="请选择"  style="width:350px">
-                        <Option v-for="item in cityList" :value="item.value" :key="item.value">{{ item.label }}</Option>
-                    </Select>
+                <FormItem label="所属组织：" prop="orgId" style="position:relative">
+                    <!-- <Select v-model="formInline.orgId" :placeholder="orgName?'':'请选择'"  style="width:350px">
+                         <Tree :data="data4"  @on-select-change="selectItem" ></Tree>
+                    </Select> -->
+                    <select name="" id="" v-if="!show"></select>
+                    <selectTree v-else v-model="formInline.orgId"  :treeData="data4" style="width:350px"></selectTree>
+                    <!-- <div style="position: absolute;top: 3px;left:10px;width:310px;height:28px;">{{orgName}}</div> -->
                 </FormItem>
-                <FormItem label="手机号：" prop="phone">
-                    <Input v-model="formInline.phone" placeholder="请输入手机号" value="123" style="width:350px"></Input>
+                <FormItem label="手机号：" prop="tel">
+                    <Input v-model="formInline.tel" placeholder="请输入手机号"  style="width:350px"></Input>
                     <Tooltip max-width="250"  placement="right" >
                         <Icon type="ios-help-circle" style="font-size:18px;color:rgb(173, 173, 173);vertical-align:middle;margin-left:6px" @click="disabled = true" />
                         <div slot="content">
@@ -29,7 +32,7 @@
                     </Tooltip>
                 </FormItem>
                 <FormItem label="邮箱：" prop="email" :required="false">
-                    <Input v-model="formInline.email" placeholder="请输入邮箱" value="123" style="width:350px"></Input>
+                    <Input v-model="formInline.email" placeholder="请输入邮箱"  style="width:350px"></Input>
                 </FormItem>
             </Form>
             
@@ -37,61 +40,102 @@
     </div>
 </template>
 <script>
+import { getUser,getOrganizations } from '@api/basic/user';
+import createTree from '@/libs/public-util'
+import selectTree from 'iview-select-tree'
   export default {
+      name:'addUserInfor',
+      components: {
+        selectTree
+      },
       data(){
         return {
             formInline: {
-                username: '',
-                tissue:'',
-                phone:'',
-                email:''
+                email: '',
+                name: '',
+                orgId: '',
+                tel: ''
              },
              ruleValidate:{
                 name: [
                     { required: true, message: '请输入姓名', trigger: 'blur' }
                 ],
-                tissue: [
-                    { required: true, message: '请输入姓名', trigger: 'change' }
+                orgId: [
+                    { required: true, message: '请选择所属组织', trigger: 'change',type:'number' }
                 ],
-                phone: [
-                    { required: true, message: '请输入手机号', trigger: 'blur' }
+                tel: [
+                    { required: true, message: '请输入手机号', trigger: 'blur' },
+                    {validator:(rule, value, callback)=>{
+                        let reg=/^\d{11}$/
+                        if(!reg.test(value)){
+                            callback(new Error("请正确输入有效的手机号"));
+                        }else{
+                            callback()
+                        }
+                    }, trigger: 'blur'}
                 ],
+                email: [
+                    {validator:(rule, value, callback)=>{
+                        let reg=/^[a-zA-Z0-9]+([-_.][a-zA-Z0-9]+)*@([a-z0-9A-Z]+(-[a-z0-9A-Z]+)?\\.)+[a-zA-Z]{2,}$/;
+                        if(!reg.test(value)){
+                            callback(new Error("请正确输入有效的邮箱"));
+                        }else{
+                            callback()
+                        }
+                    }, trigger: 'blur'}
+                ]
              },
+             
             height:0,
-            cityList: [
-                    {
-                        value: 'New York',
-                        label: 'New York'
-                    },
-                    {
-                        value: 'London',
-                        label: 'London'
-                    },
-                    {
-                        value: 'Sydney',
-                        label: 'Sydney'
-                    },
-                    {
-                        value: 'Ottawa',
-                        label: 'Ottawa'
-                    },
-                    {
-                        value: 'Paris',
-                        label: 'Paris'
-                    },
-                    {
-                        value: 'Canberra',
-                        label: 'Canberra'
-                    }
-                ],
-                model1: '',
+            data4: [],
+            orgName:'',
+            treeData:[],
+            show:false
         }
       },
-      mounted() {
+    mounted() {
         this.height = document.body.clientHeight-70
+        this.getOrg() 
     },
     methods: {
-       
+        async getOrg(){
+            await getOrganizations().then(res=>{
+                console.log(res)
+                let treeItem = []
+                let trees = res.data
+                for(let i = 0; i < trees.length; i ++) {
+                    trees[i].title = trees[i].name
+                    trees[i].value = trees[i].id
+                    treeItem.push(trees[i])
+                }
+                this.show=true
+                this.data4 = createTree(treeItem)
+            })
+        },
+        save(name){
+            this.$refs[name].validate((valid) => {
+                console.log(valid)
+                if (valid) {
+                    getUser('post',this.formInline).then(res=>{
+                        console.log(res)
+                        if(res.data.id){
+                            this.$Message.success('添加成功');
+                             this.$router.go(-1)
+                        }
+                    })
+                } else {
+                    
+                }
+            })
+        },
+        cancel(){
+             this.$router.go(-1)
+        },
+        selectItem(value){
+            console.log(value)
+            this.formInline.orgId= value[0].id
+            this.orgName = value[0].name
+        }
     }
   }
 </script>
@@ -129,4 +173,7 @@
         }
     }
 }
+// /deep/.ivu-select-dropdown div:first-child{
+//     display: none
+// }
 </style>

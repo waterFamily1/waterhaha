@@ -115,6 +115,9 @@ export default {
         this.height = document.body.clientHeight-80
         this.mapHei = document.body.clientHeight-390
     },
+    created() {
+        
+    },
     methods: {
         getPoint() {
            

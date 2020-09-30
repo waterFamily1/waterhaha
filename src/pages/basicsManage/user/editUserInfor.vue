@@ -12,13 +12,13 @@
                 <FormItem label="用户姓名：" prop="name">
                     <Input v-model="formInline.name" placeholder="请输入用户姓名" value="123" style="width:350px"></Input>
                 </FormItem>
-                <FormItem label="所属组织：" prop="tissue">
-                    <Select v-model="formInline.tissue" placeholder="请选择"  style="width:350px">
+                <FormItem label="所属组织：" prop="orgId">
+                    <Select v-model="formInline.orgId" placeholder="请选择"  style="width:350px">
                         <Option v-for="item in cityList" :value="item.value" :key="item.value">{{ item.label }}</Option>
                     </Select>
                 </FormItem>
-                <FormItem label="手机号：" prop="phone">
-                    <Input v-model="formInline.phone" placeholder="请输入手机号" value="123" style="width:350px"></Input>
+                <FormItem label="手机号：" prop="tel">
+                    <Input v-model="formInline.tel" placeholder="请输入手机号" value="123" style="width:350px"></Input>
                     <Tooltip max-width="250"  placement="right" >
                         <Icon type="ios-help-circle" style="font-size:18px;color:rgb(173, 173, 173);vertical-align:middle;margin-left:6px" @click="disabled = true" />
                         <div slot="content">
@@ -37,23 +37,25 @@
     </div>
 </template>
 <script>
+import { putUser,getUser } from '@api/basic/user';
   export default {
+      name:'addUserInfor',
       data(){
         return {
             formInline: {
-                username: '',
-                tissue:'',
-                phone:'',
-                email:''
+                name: '',
+                orgId:'',
+                tel:'',
+                email:'',
              },
              ruleValidate:{
                 name: [
                     { required: true, message: '请输入姓名', trigger: 'blur' }
                 ],
-                tissue: [
-                    { required: true, message: '请输入姓名', trigger: 'change' }
+                orgId: [
+                    { required: true, message: '请选择组织', trigger: 'change' }
                 ],
-                phone: [
+                tel: [
                     { required: true, message: '请输入手机号', trigger: 'blur' }
                 ],
              },
@@ -89,9 +91,28 @@
       },
       mounted() {
         this.height = document.body.clientHeight-70
+        putUser(this.$route.query.id).then(res=>{
+            console.log(res)
+            this.userDetail = res.data
+            this.formInline = {
+                name: res.data.name,
+                orgId:res.data.orgId,
+                tel:res.data.tel,
+                email:res.data.email
+            }
+        })
     },
     methods: {
-       
+       save(){
+         this.userDetail.name= this.formInline.name
+         getUser('put',this.userDetail).then(res=>{
+            console.log(res)
+            if(res.data.count==1){
+                this.$Message.success('数据保存成功');
+                this.$router.go(-1);
+            }
+         })
+       }
     }
   }
 </script>
