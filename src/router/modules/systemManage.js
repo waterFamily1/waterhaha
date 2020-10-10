@@ -70,6 +70,15 @@ export default {
             },
             component: () => import('@/pages/systemManage/SIMManage')
         }, {
+            path: '/sim/simDetail',
+            name: `${pre}sim-detail`,
+            meta: {
+                ...meta,
+                title: 'SIM卡详情',
+                closable: false
+            },
+            component: () => import('@/pages/systemManage/sim/index')
+        }, {
             path: '/indicator',
             name: `${pre}indicator`,
             meta: {
@@ -79,7 +88,7 @@ export default {
             },
             component: () => import('@/pages/systemManage/indexManage')
         }, {
-            path: 'index/indexAdd',
+            path: '/index/indexAdd',
             name: `${pre}index-indexAdd`,
             meta: {
                 ...meta,

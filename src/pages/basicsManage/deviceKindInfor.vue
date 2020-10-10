@@ -61,13 +61,14 @@
                             <div v-if="!appear" >
                                 <img src="../../assets/images/default.png" alt="" style="max-width:400px">
                            </div>
-                            <Upload   action=""
+                            <Upload  
+                                action=""
                                 :format="['jpg','jpeg','png']"
                                 :before-upload="handleUploadicon"
                                 :on-format-error="uploadError"
                                 accept=".jpg , .png, .jpeg"
                                 ref="upload">
-                                <button style="background:#576374;border:0;padding:4px 12px;color:#fff;outline:0;border-radius:3px" >上传图片</button>
+                                <Button style="background:#576374;border:0;padding:4px 12px;color:#fff;outline:0;border-radius:3px" >上传图片</Button>
                             </Upload> 
                          
                         </div>
@@ -499,12 +500,13 @@ export default {
         handleUploadicon(file) {
             let formData = new FormData()
             formData.append('file', file)
-            uploadFun(formData).then(res=> {
-                // console.log(res)
-                this.areaList.imageUrl = res.data.fullPath
-            }).catch(err => {
-                // 异常情况
-            })
+            console.log(file)
+            // uploadFun(formData).then(res=> {
+            //     // console.log(res)
+            //     this.areaList.imageUrl = res.data.fullPath
+            // }).catch(err => {
+            //     // 异常情况
+            // })
         },
     }
 }

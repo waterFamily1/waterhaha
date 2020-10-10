@@ -37,6 +37,10 @@ let system = [
         path: `/alarm/addAlarm`,
         title: '新增报警',
         auth: ['hidden']
+    }, {
+        path: '/sim/simDetail',
+        title: 'SIM卡详情',
+        auth: ['hidden']
     }
 ]
 

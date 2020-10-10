@@ -42,7 +42,7 @@
                 <button type="button" @click="addNew()">新增</button>
             </div>
             <div class="table-wrapper" :style="{height: (height-45)+'px'}">
-                <Table stripe size="small" :columns="tableList" :data="tableData">
+                <Table stripe :columns="tableList" :data="tableData">
                     <template slot-scope="{ row }" slot="name">
                         <strong>{{ row.name }}</strong>
                     </template>
@@ -51,12 +51,16 @@
                         <Button class="action" size="small">测试</Button>
                     </template>
                 </Table>
-                 <Page :total="100" show-elevator show-total class="page" />
+                <Page 
+                    :total="allTotal" show-total show-elevator @on-change="changePage" 
+                    style="text-align: right;margin-top: 10px;" 
+                />
             </div>
         </div>
     </div>
 </template>
 <script>
+import { getListMethod } from '@/api/system/indicator'
 export default {
     name: 'indexManage',
     data() {
@@ -75,19 +79,19 @@ export default {
             tableList: [
                 {
                     title: '指标名称',
-                    key: 'name'
+                    key: 'indexName'
                 },
                 {
                     title: '指标类型',
-                    key: 'type'
+                    key: 'indexType'
                 },
                 {
                     title: '区域位置',
-                    key: 'location'
+                    key: 'processName'
                 },
                 {
                     title: '测点名称',
-                    key: 'sightName'
+                    key: 'mpointName'
                 },
                 {
                     title: '操作',
@@ -95,13 +99,26 @@ export default {
                     width: 150,
                     align: 'center'
                 }
-            ]
+            ],
+            tableData: [],
+            allTotal: 0,
+            pageNum: '1',
         }
     },
     mounted() {
         this.height = document.body.clientHeight-80
+        this.getList()
     },
     methods: {
+        getList() {
+            getListMethod().then(res=> {
+                console.log(JSON.stringify(res.data))
+                this.tableData = res.data.items
+                this.allTotal = res.data.total
+            }).catch(err=> {
+
+            })
+        },
         higherSearch() {
             this.searchShow = !this.searchShow
         },
@@ -118,6 +135,10 @@ export default {
             } else {
                 this.typeBox.push(i);
             }
+        },
+        changePage(index) {
+            this.pageNum = index
+            this.getList()
         },
         addNew() {
             this.$router.push({path:'/systemManage/index/indexAdd'})

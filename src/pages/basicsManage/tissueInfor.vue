@@ -159,7 +159,7 @@ export default {
                     treeItem.push(trees[i])
                 }
                 this.baseData = createTree(treeItem)
-                console.log(this.baseData)
+                // console.log(this.baseData)
             }).catch(err => {
                 // 异常情况
             })
