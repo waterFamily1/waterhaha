@@ -62,21 +62,13 @@
                                 <img src="../../assets/images/default.png" alt="" style="width:130px;height:150px" v-if="!imgPath">
                                 <img :src="imgPath" alt="" style="max-width:400px" v-else>
                            </div>
-<<<<<<< HEAD
-                            <Upload  
-=======
                             <Upload   
->>>>>>> c014f3668c04f107f8c1396098ab6e88501363dc
                                 action=""
                                 :format="['jpg','jpeg','png']"
                                 :before-upload="handleUploadicon"
                                 :on-format-error="uploadError"
                                 accept=".jpg , .png, .jpeg"
-<<<<<<< HEAD
-                                ref="upload">
-=======
                                 ref="upload" v-if="!appear">
->>>>>>> c014f3668c04f107f8c1396098ab6e88501363dc
                                 <Button style="background:#576374;border:0;padding:4px 12px;color:#fff;outline:0;border-radius:3px" >上传图片</Button>
                             </Upload> 
                          
@@ -497,22 +489,12 @@ export default {
             console.log(file)
             let formData = new FormData()
             formData.append('file', file)
-<<<<<<< HEAD
-            console.log(file)
-            // uploadFun(formData).then(res=> {
-            //     // console.log(res)
-            //     this.areaList.imageUrl = res.data.fullPath
-            // }).catch(err => {
-            //     // 异常情况
-            // })
-=======
             uploadImg(formData).then(res=> {
                 console.log(res)
                 this.imgPath = res.data.fullPath
             }).catch(err => {
                 // 异常情况
             })
->>>>>>> c014f3668c04f107f8c1396098ab6e88501363dc
         },
     }
 }
