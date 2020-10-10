@@ -77,7 +77,8 @@ import selectTree from 'iview-select-tree'
                 email: [
                     {validator:(rule, value, callback)=>{
                         let reg=/^[a-zA-Z0-9]+([-_.][a-zA-Z0-9]+)*@([a-z0-9A-Z]+(-[a-z0-9A-Z]+)?\\.)+[a-zA-Z]{2,}$/;
-                        if(!reg.test(value)){
+                        // !reg.test(value)
+                        if(false){
                             callback(new Error("请正确输入有效的邮箱"));
                         }else{
                             callback()
