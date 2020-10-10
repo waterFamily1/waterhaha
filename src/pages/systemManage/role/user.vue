@@ -3,7 +3,7 @@
         <div class="main-box">
             <div class="main-title">
                 <h3>角色用户</h3>
-                <Button @click="userModal = true">添加用户</Button>
+                <Button @click="addUser()">添加用户</Button>
             </div>
             <div class="main-table">
                 <Table :columns="columns" :data="data" size="small">
@@ -14,6 +14,7 @@
                         <Button size="small" @click="remove(index)">删除</Button>
                     </template>
                 </Table>
+                
             </div>
         </div>
         <!-- 添加用户 -->
@@ -53,12 +54,14 @@
                         @on-select-all="handleSelectAll"
                         @on-select-all-cancel="handleSelectAllCancel">
                     </Table>
+                     <Page :total="total" show-elevator show-total class="page" size="small" @on-change="changeSize" />
                 </div>
             </div>
         </Modal>
     </div>
 </template>
 <script>
+import { getUser,getRole} from '@api/system/role';
 export default {
     name: 'roleUser',
     data() {
@@ -76,7 +79,7 @@ export default {
                 },
                 {
                     title: '所属组织',
-                    key: 'tissue',
+                    key: 'orgName',
                     ellipsis: true
                 },
                 {
@@ -86,13 +89,7 @@ export default {
                     align: 'center'
                 }
             ],
-            data: [
-                {
-                    name: 'deht',
-                    department: '11',
-                    tissue: '1111111111111111111111'
-                }
-            ],
+            data: [],
             keyword: '',
             tissue: '',
             tissueList: [
@@ -117,36 +114,24 @@ export default {
                 },
                 {
                     title: '所属组织',
-                    key: 'tissue'
+                    key: 'orgName'
                 }
             ],
-            modelData: [
-                {
-                    name: '吴镕譞0',
-                    department: '技术部0',
-                    tissue: '易烊千玺老婆团'
-                },
-                {
-                    name: '吴镕譞1',
-                    department: '技术部1',
-                    tissue: '易烊千玺老婆团'
-                },
-                {
-                    name: '吴镕譞2',
-                    department: '技术部2',
-                    tissue: '易烊千玺老婆团'
-                }
-            ],
+            modelData: [],
             list: [],
-            selectedData: []
+            selectedData: [],
+            total:0,
+            havedData:[]
         }
     },
+    props:['roleId'],
     methods: {
         remove(i) {
-
+           this.selectedData.splice(i,1)
         },
         ok () {
-            this.$Message.info('Clicked ok');
+           console.log(this.selectedData)
+           this.data=this.data.concat(this.selectedData)
         },
         cancel () {
             this.$Message.info('Clicked cancel');
@@ -158,6 +143,8 @@ export default {
         },
         // 选中一项，将数据添加至已选项中
         handleSelect (selection, row) {
+            console.log(selection)
+            console.log(row)
             this.selectedData.push(row);
         },
         // 取消选中一项，将取消的数据从已选项中删除
@@ -167,11 +154,12 @@ export default {
         },
         // 当前页全选时，判断已选数据是否存在，不存在则添加
         handleSelectAll (selection) {
-            selection.forEach(item => {
-                if (this.selectedData.findIndex(i => i.name === item.name) < 0) {
-                    this.selectedData.push(item);
-                }
-            });
+            // selection.forEach(item => {
+            //     if (this.selectedData.findIndex(i => i.name === item.name) < 0) {
+            //         this.selectedData.push(item);
+            //     }
+            // });
+            this.selectedData=selection
         },
         // 取消当前页全选时，将当前页的数据（即 modelData）从已选项中删除
         handleSelectAllCancel () {
@@ -182,6 +170,44 @@ export default {
                     this.selectedData.splice(index, 1);
                 }
             });
+        },
+        getUser(queryName,page,orgId){
+            getUser(queryName,page,orgId).then(res=>{
+                console.log(res)
+                if(res.data){
+                    this.modelData = res.data.items
+                    this.total = res.data.total
+
+                }
+            })
+        },
+        changeSize(size){
+            console.log(size)
+            // this.getUser(this.kWord,size,this.orgId)
+        },
+        addUser(){
+            this.userModal = true
+            this.modelData.forEach(item=>{
+                this.data.forEach(ele=>{
+                    if(item.id == ele.id){
+                        item._checked = true
+                    }
+                })
+            })
+            console.log(this.modelData)
+        },
+        async getHavedRole(){
+            getRole(this.roleId).then(res=>{
+                this.data = res.data.items
+            })
+        }
+    },
+    mounted(){
+         this.getUser('',1,'')
+    },
+    watch: {
+         roleId () {
+            this.getHavedRole()
         }
     }
 }
@@ -261,6 +287,10 @@ export default {
     }
     .model-table {
         margin-top: 10px;
+        .page{
+            text-align: right;
+            margin: 10px 0;
+        }
     }
 }
 /deep/.ivu-modal-footer {

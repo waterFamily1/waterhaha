@@ -62,12 +62,20 @@
                                 <img src="../../assets/images/default.png" alt="" style="width:130px;height:150px" v-if="!imgPath">
                                 <img :src="imgPath" alt="" style="max-width:400px" v-else>
                            </div>
+<<<<<<< HEAD
+=======
+
+>>>>>>> 217a3009582c8da1dc0881d6bd26a7bf34bba55f
                             <Upload   
                                 action=""
                                 :format="['jpg','jpeg','png']"
                                 :before-upload="handleUploadicon"
                                 :on-format-error="uploadError"
                                 accept=".jpg , .png, .jpeg"
+<<<<<<< HEAD
+=======
+                                ref="upload">
+>>>>>>> 217a3009582c8da1dc0881d6bd26a7bf34bba55f
                                 ref="upload" v-if="!appear">
                                 <Button style="background:#576374;border:0;padding:4px 12px;color:#fff;outline:0;border-radius:3px" >上传图片</Button>
                             </Upload> 

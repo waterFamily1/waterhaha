@@ -3,8 +3,8 @@
         <div class="role-main">
             <div class="role-left">
                 <h3>角色</h3>
-                <div class="left-tree ivu-p-8">
-                    <Tree :data="baseData" :render="renderContent" class="demo-tree-render"></Tree>
+                <div class="left-tree ">
+                    <Tree :data="baseData" :render="renderContent" class="demo-tree-render" @on-select-change="selectNode"></Tree>
                 </div>
             </div>
             <div class="role-right">
@@ -14,103 +14,57 @@
                 </div>
                 <div class="right-box">
                     <div class="user-box">
-                        <role-user></role-user>
+                        <role-user :roleId="roleId"></role-user>
                     </div>
                     <div class="tab-box">
-                        <tab-user></tab-user>
+                        <tab-user ref="tab"  :showData="showData"></tab-user>
                     </div>
                 </div>
             </div>
         </div>
+        <!-- 修改名称 -->
+        <Modal 
+            v-model="showModel" 
+            @on-ok="ok"
+            width="450"
+            @on-cancel="cancelModal">
+            <h4 style="margin-bottom:20px">角色名称</h4>
+            <Input v-model="roleName" placeholder="Enter something..." style="width:300px" />
+        </Modal>
+        <!-- 新建名称 -->
+        <Modal 
+            v-model="createModal" 
+            @on-ok="createOK"
+            width="450"
+            @on-cancel="createCancel">
+            <h4 style="margin-bottom:20px">角色名称</h4>
+            <Input v-model="newName" placeholder="Enter something..." style="width:300px" />
+        </Modal>
     </div>
 </template>
 <script>
 import roleUser from './role/user'
 import tabUser from './role/tab'
-
+import { getTree,modifyName,getOrg,createyName,deleteName} from '@api/system/role';
 export default {
     name: 'rolePermission',
     data() {
         return {
             height: '',
-            baseData: [{
-                title: 'parent 1',
-                expand: true,
-                render: (h, { root, node, data }) => {
-                    return h('span', {
-                        style: {
-                            display: 'inline-block',
-                            width: '100%'
-                        },
-                        on: {
-                            'mouseenter': () => {
-                                data.is_show = true
-                            },
-                            'mouseleave': () => {
-                                data.is_show = false
-                            }
-                        }
-                    }, [
-                        h('span', [
-                            h('span', data.title),
-                        ]),
-                        h('span', {
-                            style: {
-                                display: 'inline-block',
-                                float: 'right'
-                            }
-                        }, [
-                            h('Button', {
-                                props: Object.assign({}, this.buttonProps, {
-                                    type: 'primary'
-                                }),
-                                style: {
-                                    display: data.is_show ? 'block' : 'none'
-                                },
-                                on: {
-                                    click: () => { 
-                                        this.newFun()
-                                    }
-                                }
-                            },'新增')
-                        ])
-                    ]);
-                },
-                children: [
-                    {
-                        title: 'child 1-1',
-                        expand: true,
-                        children: [
-                            {
-                                title: 'leaf 1-1-1',
-                                expand: true
-                            },
-                            {
-                                title: 'leaf 1-1-2',
-                                expand: true
-                            }
-                        ]
-                    },
-                    {
-                        title: 'child 1-2',
-                        expand: true,
-                        children: [
-                            {
-                                title: 'leaf 1-2-1',
-                                expand: true
-                            },
-                            {
-                                title: 'leaf 1-2-1',
-                                expand: true
-                            }
-                        ]
-                    }
-                ]
-            }],
+            baseData: [],
             buttonProps: {
                 type: 'default',
                 size: 'small'
-            }
+            },
+            tableData:{},
+            roleId:'',
+            showData:'',
+            roleName:'',
+            showModel:false,
+            allOrg:[],
+            currentNode:{},
+            newName:'',
+            createModal:false
         }
     },
     components: {
@@ -119,6 +73,7 @@ export default {
     },
     mounted() {
         this.height = document.body.clientHeight-80
+        this.getRoleTree()
     },
     methods: {
         renderContent (h, { root, node, data }) {
@@ -149,31 +104,185 @@ export default {
                 }, [
                     h('Button', {
                         props: Object.assign({}, this.buttonProps, {
-                            type: 'primary'
+                            type: 'primary',
+                            size: 'small'
                         }),
                         style: {
                             marginRight: '4px',
-                            display: data.is_show ? 'inline-block' : 'none'
+                            display: data.type =='role'?'none':(data.is_show ? 'inline-block' : 'none'),
+                            fontSize:'12px'
                         },
                         on: {
-                            // click: () => { this.append(data) }
+                            click: (e) => { 
+                                e.stopPropagation()
+                                this.create(data) 
+                            }
+                        }
+                    },'新建'),
+                    h('Button', {
+                        props: Object.assign({}, this.buttonProps, {
+                            type: 'primary',
+                            size: 'small'
+                        }),
+                        style: {
+                            marginRight: '4px',
+                            display: data.type =='org'?'none':(data.is_show ? 'inline-block' : 'none'),
+                            fontSize:'12px'
+                        },
+                        on: {
+                            click: (e) => { 
+                                e.stopPropagation() 
+                                this.edit(data)
+                            }
                         }
                     },'编辑'),
                     h('Button', {
                         props: Object.assign({}, this.buttonProps, {
-                            type: 'primary'
+                            type: 'primary',
+                            size: 'small'
                         }),
                         style: {
-                            display: data.is_show ? 'inline-block' : 'none'
+                            marginRight: '4px',
+                            display: data.type =='org'?'none':(data.is_show ? 'inline-block' : 'none'),
+                            fontSize:'12px'
                         },
                         on: {
-                            // click: () => { this.remove(root, node, data) }
+                            click: (e) => {
+                               e.stopPropagation()
+                               this.cancel(data) 
+                            }
                         }
                     },'删除')
+                    
                 ])
             ]);
+        },  
+        getRoleTree(){
+            getTree().then(res=>{
+                
+                let trees = res.data
+                let tree=[]
+                for(let i = 0; i < trees.length; i ++) {
+                    trees[i].title = trees[i].name
+                    trees[i].expand = true
+                    tree.push(trees[i])
+                }
+                this.baseData=this.drawTree(tree)
+            })
+        } ,
+        drawTree(treeItem){
+            let  parent=treeItem.filter(item => item.parentId == 0)
+            treeItem.forEach(element => {
+                 if (element.parentId == 0) return
+                 this.draw(element,parent)
+            });
+            return parent;
+        },
+        draw(item,arr){
+            for(var i=0;i<arr.length;i++) {
+                if(item.parentId==arr[i].id){
+                    if( !(arr[i].children &&  arr[i].children.length>0)){
+                        arr[i].children = []
+                    }
+                    arr[i].children.push(item)
+
+                }else if(arr[i].children && arr[i].children.length>0){
+                    this.draw(item,arr[i].children)
+                }
+            }
+        },
+        selectNode(node){
+           console.log(node)
+           this.roleId = node[0].busId
+           sessionStorage.setItem('roleId',this.roleId)
+           if(node[0].type=='org')return
+           this.$refs.tab.dataRole();
+        },
+        create(data){
+           this.createModal = true
+           this.currentNode = data
+        },
+        edit(data){
+           this.showModel = true
+           this.roleName = data.name
+           this.currentNode = data
+        },
+        cancel(data){
+            this.$Modal.confirm({
+                title: '提示',
+                content: '<p>你确定要删除吗？</p>',
+                onOk: () => {
+                    this.deleteName(data.busId)
+                },
+                onCancel: () => {
+                    this.$Message.info('Clicked cancel');
+                }
+            });
+        },
+        cancelModal(){
+
+        },
+        ok(){
+           this.modifyName(this.currentNode)
+        },
+        createOK(){
+           this.createyName(this.currentNode)
+        },
+        createCancel(){
+
+        },
+        modifyName(node){
+            let data = {
+                id: node.busId,
+                name: this.roleName,
+                orgId: node.parentId,
+                version: "0"
+            }
+           modifyName(data).then(res=>{
+               console.log(res)
+               if(res.data.count){
+                   this.getRoleTree()
+               }
+           })
+        },
+        createyName(node){
+            let data= {
+                id: "",
+                name: this.newName,
+                orgId: node.id,
+                version: "0"
+            }
+           createyName(data).then(res=>{
+               console.log(res)
+               if(res.data.id){
+                this.getRoleTree()
+               }
+
+           })
+        },
+        deleteName(data){
+           deleteName(data).then(res=>{
+               console.log(res)
+               if(res.data.count){
+                this.getRoleTree()
+               }
+
+           })
+        },
+        getAllorg(){
+            getOrg().then(res=>{
+                console.log(res)
+                if(res.data){
+                    this.allOrg = res.data
+                }
+            })
         }
-    }
+    },
+    destroyed(){
+        console.log("摧毁")
+        sessionStorage.clear()
+    },
+    
 }
 </script>
 <style lang="less" scoped>
@@ -193,6 +302,7 @@ export default {
                 text-indent: 10px;
             }
             .left-tree {
+                padding-right: 20px;
                 /deep/.ivu-tree-title {
                     width: 100%;
                 }
@@ -222,6 +332,8 @@ export default {
                 border-top: 5px solid #f0f0f0;
                 display: flex;
                 height: 100%;
+                box-sizing: border-box;
+                
                 .user-box {
                     width: 49%;
                 }
@@ -229,6 +341,8 @@ export default {
                     width: 50%;
                     float: right;
                     border-left: 5px solid #f0f0f0;
+                    overflow: scroll;
+
                 }
             }
         }
