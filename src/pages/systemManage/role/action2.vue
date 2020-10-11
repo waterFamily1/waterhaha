@@ -5,7 +5,7 @@
             <div class="role-autho-tab">
                 <Tabs :animated="false" @on-click="handleChangeData">
                     <TabPane label="平台" name="web">
-                         <Tree :data="webbaseData" show-checkbox multiple class="demo-tree-render"></Tree>
+                         <Tree :data="webbaseData" show-checkbox multiple class="demo-tree-render" @on-check-change="getWebCheck"></Tree>
                     </TabPane>
                     <TabPane label="APP" name="app">
                          <Tree :data="appbaseData" show-checkbox ref="tree" class="demo-tree-render"  @on-check-change="getAppCheck"></Tree>
@@ -19,9 +19,9 @@
                 <li v-for="(item,index) in currentOperDTOs" :key="index" >
                     <div class="role-autho-oper-h5">{{ item.menuName }}</div>
                     <div class="role-autho-opers" v-if="item.menuOperDTOs.length!=0">
-                        <CheckboxGroup v-model="operation" @on-change="checkChange">
-                           <Checkbox :label="action.operation" v-for="(action,idx) in item.menuOperDTOs" :key="idx"></Checkbox>
-                            <!-- <Checkbox label="谢谢"></Checkbox> -->
+                        <CheckboxGroup  @on-change="checkChange">
+                            <!-- 回显有问题 -->
+                           <Checkbox  :label="action.id" v-for="(action,idx) in item.menuOperDTOs"  :key="idx">{{indicate[action.operation]}}</Checkbox>
                         </CheckboxGroup> 
                     </div>
                 </li>
@@ -31,6 +31,7 @@
 </template>
 <script>
 import { getJurisdiction,appCheck,webCheck} from '@api/system/role';
+import indicate from '@/libs/indicate_str'
 export default {
     name: 'actionTwo',
     data (){
@@ -40,14 +41,20 @@ export default {
           webOperDTOs:[],
           currentOperDTOs:[],
           appOperDTOs:[],
-          name:'',
+          name:'web',
           operation:'',
           roleId:'',
-          tempArr:[]
+          tempArr:[],
+          indicate:{},
+          appmenuIds:'',
+          webmenuIds:'',
+          appoperIds:'',
+          weboperIds:[]
       }
     },
     methods:{
         getData2(){
+            this.indicate= indicate
             let roleId = JSON.parse(sessionStorage.getItem('roleId'))
             console.log(roleId)
             this.roleId = roleId
@@ -92,7 +99,7 @@ export default {
                     // 平台
                     let data = res.data
                     let trees = data.webMenuDTOs
-                    let tree=[]
+                    let tree=[],webIds=[],webOperIds=[]
                     for(let i = 0; i < trees.length; i ++) {
                         trees[i].title = trees[i].name
                         if(trees[i].state == -1){
@@ -106,7 +113,7 @@ export default {
                     this.webbaseData=this.drawTree(tree)
                     // app
                     let apptrees = data.appMenuDTOs
-                    let apptree=[]
+                    let apptree=[],appIds=[]
                     for(let i = 0; i < apptrees.length; i ++) {
                         apptrees[i].title = apptrees[i].name
                         if(apptrees[i].state == -1){
@@ -118,34 +125,120 @@ export default {
                         apptree.push(apptrees[i])
                     }
                     this.appbaseData=this.drawTree(apptree)
-
+                    
                     // 操作权限
                     this.webOperDTOs = data.webOperDTOs
                     this.appOperDTOs = data.appOperDTOs
                     if(this.name == 'web') {
+                         this.webOperDTOs.forEach(ele=>{
+                            ele.menuOperDTOs.forEach(item=>{
+                                item.checked = item.state==1?true:false
+                            })
+                        })
+                        console.log(this.webOperDTOs)
                         this.currentOperDTOs = this.webOperDTOs
                     } else if (this.name == 'app') {
-                    this.currentOperDTOs = this.appOperDTOs
+                       this.currentOperDTOs = this.appOperDTOs
                     }
                 }
             })
         },
         checkChange(data){
            console.log(data)
+           if(this.name =="web"){
+               this.weboperIds .push(data[0])
+                sessionStorage.setItem('weboperIds',this.weboperIds.join(','))
+           }else{
+               this.appoperIds += data[0]
+               sessionStorage.setItem('appoperIds','')
+           }
         },
-        getAppCheck(data){
-            let tempArr=[]
-            appCheck(data[data.length-1].id,this.roleId).then(res=>{
-                if(res.data){
-                    tempArr.push(res.data[0])
-                    if(this.appOperDTOs.length==0){
-                        this.appOperDTOs=this.appOperDTOs.concat(tempArr)
-                    }else{
-
+        getAppCheck(data,item){
+            let arr=[]
+            data.forEach(element => {
+                arr.push(element.id)
+            });
+            this.appmenuIds = arr.join(',')
+            console.log(this.appmenuIds)
+            sessionStorage.setItem('appmenuIds',this.appmenuIds)
+            if(item.checked){
+                appCheck(item.id,this.roleId).then(res=>{
+                    if(res.data){
+                        if(this.appOperDTOs.length!=0){
+                            this.appOperDTOs.filter(item => item.menuId== item.id)
+                            this.appOperDTOs.push(res.data[0]) 
+                        }else{
+                             this.appOperDTOs.push(res.data[0])
+                        }
                     }
+                
+                })
+            }else{
+                this.appOperDTOs.forEach((ele,index)=>{
+                    if(ele.menuId == item.id) {
+                         this.appOperDTOs.splice(index,1)
+                    }
+                })
+            }
+            
+        },
+        getWebCheck(data,item){
+            let arr=[]
+            data.forEach(element => {
+                arr.push(element.id)
+            });
+            this.webmenuIds = arr.join(',')
+            console.log(this.webmenuIds)
+            sessionStorage.setItem('webmenuIds',this.webmenuIds)
+            if(item.checked){
+                let menuId;
+                if(!item.children){
+                   menuId = item.id
+                }else{
+                    let arr=[]
+                    item.children.forEach(ele=>{
+                        arr.push(ele.id)
+                    })
+                    menuId=arr.join(",")
                 }
-               
-            })
+                webCheck(menuId,this.roleId).then(res=>{
+                    console.log(res)
+                    if(res.data){
+                        let result = res.data
+                    
+                        if(this.webOperDTOs.length!=0){
+                            result.forEach(ele=>{
+                                this.webOperDTOs.filter(node=> node.menuId == ele.id)
+
+                                this.webOperDTOs.push(ele)
+                            })
+                            
+                        }else{
+                            result.forEach(ele=>{
+                                this.webOperDTOs.push(ele)
+                            })
+                        }
+                        console.log(this.webOperDTOs)
+                        this.currentOperDTOs = this.webOperDTOs
+                    }
+                })
+            }else{
+               if(!item.children){
+                    this.webOperDTOs.forEach((ele,index)=>{
+                        if(ele.menuId == item.id) {
+                            this.webOperDTOs.splice(index,1)
+                        }
+                   })
+               }else{
+                    item.children.forEach(node=>{
+                        this.webOperDTOs.forEach((ele,index)=>{
+                            if(ele.menuId == node.id) {
+                                this.webOperDTOs.splice(index,1)
+                            }
+                        })
+                    })
+               }
+            }
         }
     }
 }
@@ -184,8 +277,11 @@ export default {
         padding-left: 5px;
     }
     .role-autho-opers{
-        padding:5px 0 5px 5px;
+        padding:0 5px;
         font-size: 12px;
+    }
+    /deep/.ivu-checkbox-group{
+        margin-top: 10px;
     }
 }
 </style>

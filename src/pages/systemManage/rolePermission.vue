@@ -10,7 +10,7 @@
             <div class="role-right">
                 <div class="right-title">
                     <h3>权限设置</h3>
-                    <Button type="primary">提交</Button>
+                    <Button type="primary" @click="submit()">提交</Button>
                 </div>
                 <div class="right-box">
                     <div class="user-box">
@@ -45,7 +45,7 @@
 <script>
 import roleUser from './role/user'
 import tabUser from './role/tab'
-import { getTree,modifyName,getOrg,createyName,deleteName} from '@api/system/role';
+import { getTree,modifyName,getOrg,createyName,deleteName,submitRole} from '@api/system/role';
 export default {
     name: 'rolePermission',
     data() {
@@ -274,6 +274,56 @@ export default {
                 console.log(res)
                 if(res.data){
                     this.allOrg = res.data
+                }
+            })
+        },
+        submit(){
+             this.$Modal.confirm({
+                title: '确认操作',
+                content: '<p>修改角色权限后，相关用户会强制退出，重新登录后才能使用。是否确定提交？</p>',
+                width:'350px',
+                onOk: () => {
+                    this.submitRole()
+                },
+                onCancel: () => {
+                    this.$Message.info('Clicked cancel');
+                }
+            });
+        },
+        submitRole(){
+            let data= {
+                appMenuOperDTO:{
+                    menuIds:sessionStorage.getItem('appmenuIds'),
+                    operIds:'',
+                    roleId:this.roleId
+                },
+                processDTO:{
+                    roleId:this.roleId,
+                    value:sessionStorage.getItem('processDTOValue')
+                },
+                roleUserDTO:{
+                    roleId:this.roleId,
+                    userIds:sessionStorage.getItem('userIds')
+                },
+                templateDTO:{
+                    roleId:this.roleId,
+                    curveId:sessionStorage.getItem('templateInformation'),
+                    homepageId:sessionStorage.getItem('templateIndex')
+                },
+                warehouseDTO:{
+                    roleId:this.roleId,
+                    value:sessionStorage.getItem('warehouseDTOValue')
+                },
+                webMenuOperDTO:{
+                    menuIds:sessionStorage.getItem('webmenuIds'),
+                    operIds:sessionStorage.getItem('weboperIds'),
+                    roleId:this.roleId
+                }
+            }
+            submitRole(data).then(res=>{
+                console.log(res)
+                if(res.data.id){
+                    
                 }
             })
         }

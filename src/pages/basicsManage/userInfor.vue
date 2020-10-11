@@ -141,7 +141,7 @@ import selectTree from 'iview-select-tree'
             },
             getUserList(kword,orgid,size){
                 searchUser(kword,orgid,size).then(res=>{
-                   let result=res.data.items
+                    let result=res.data.items
                     for(var index in result){
                       if(result[index].roleMap.length!=0){
                           result[index].role= result[index].roleMap[0].roleName

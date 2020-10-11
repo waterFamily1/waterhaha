@@ -75,3 +75,12 @@ export function webCheck (menuIds,roleId) {
         url: '/uaa/api/roles/web-menu-and-oper?menuIds='+menuIds+'&roleId='+roleId
     })
 }
+// 提交
+
+export function submitRole (data) {
+    return request({
+        url: '/uaa/api/roles/detail',
+        method:'post',
+        data
+    })
+}

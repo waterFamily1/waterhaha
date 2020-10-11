@@ -127,11 +127,21 @@ export default {
     props:['roleId'],
     methods: {
         remove(i) {
-           this.selectedData.splice(i,1)
+           this.data.splice(i,1)
+            let arr=[]
+           this.data.forEach(ele=>{
+             arr.push(ele.id)
+           })
+           sessionStorage.setItem('userIds',arr.join(','))
         },
         ok () {
-           console.log(this.selectedData)
+        //    console.log(this.selectedData)
            this.data=this.data.concat(this.selectedData)
+           let arr=[]
+           this.data.forEach(ele=>{
+             arr.push(ele.id)
+           })
+           sessionStorage.setItem('userIds',arr.join(','))
         },
         cancel () {
             this.$Message.info('Clicked cancel');
@@ -177,7 +187,7 @@ export default {
                 if(res.data){
                     this.modelData = res.data.items
                     this.total = res.data.total
-
+                    
                 }
             })
         },
@@ -199,6 +209,11 @@ export default {
         async getHavedRole(){
             getRole(this.roleId).then(res=>{
                 this.data = res.data.items
+                let arr=[]
+                this.data.forEach(ele=>{
+                    arr.push(ele.id)
+                })
+                sessionStorage.setItem('userIds',arr.join(','))
             })
         }
     },
