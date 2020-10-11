@@ -7,11 +7,14 @@
             </div>
              <div class="c-form-item" style="position:relative">
                  <label>所属组织：</label>
-                <!-- <Select v-model="orgId" style="width:300px">  
-                  <Tree :data="data4" multiple @on-select-change="selectItem" ></Tree>
-                </Select> -->
-                <select name="" id="" v-if="!show"></select>
-                <selectTree v-else v-model="orgId" multiple  :treeData="data4" style="width:350px"></selectTree>
+                 <TreeSelect 
+                    v-model="orgId" 
+                    :data="data4"
+                    :multiple="true"
+                    v-width="350" 
+                />
+                <!-- <select name="" id="" v-if="!show"></select>
+                <selectTree v-else v-model="orgId" multiple  :treeData="data4" style="width:350px"></selectTree> -->
                 
             </div>
             <div class="c-adv-search-btn">
@@ -170,6 +173,18 @@ import selectTree from 'iview-select-tree'
             search(){
                 searchUser(this.kWord,this.orgId,1).then(res=>{
                     console.log(res)
+                    if(res.data){
+                        let result=res.data.items
+                        for(var index in result){
+                        if(result[index].roleMap.length!=0){
+                            result[index].role= result[index].roleMap[0].roleName
+                        }else{
+                            result[index].role=''
+                        }
+                        }
+                        this.data1=result
+                        this.total=res.data.total
+                    }
                 })
             },
             changeSize(size){

@@ -69,7 +69,6 @@
                                 :on-format-error="uploadError"
                                 accept=".jpg , .png, .jpeg"
                                 ref="upload">
-                                ref="upload" v-if="!appear">
                                 <Button style="background:#576374;border:0;padding:4px 12px;color:#fff;outline:0;border-radius:3px" >上传图片</Button>
                             </Upload> 
                          

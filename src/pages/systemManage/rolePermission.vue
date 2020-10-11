@@ -278,6 +278,10 @@ export default {
             })
         },
         submit(){
+             if(!this.roleId){
+                this.$Message.warning(' 请选择一个角色');
+                return
+             }
              this.$Modal.confirm({
                 title: '确认操作',
                 content: '<p>修改角色权限后，相关用户会强制退出，重新登录后才能使用。是否确定提交？</p>',
@@ -323,7 +327,7 @@ export default {
             submitRole(data).then(res=>{
                 console.log(res)
                 if(res.data.id){
-                    
+
                 }
             })
         }

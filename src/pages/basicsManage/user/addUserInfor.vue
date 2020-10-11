@@ -12,13 +12,13 @@
                 <FormItem label="用户姓名：" prop="name">
                     <Input v-model="formInline.name" placeholder="请输入用户姓名"  style="width:350px"></Input>
                 </FormItem>
-                <FormItem label="所属组织：" prop="orgId" style="position:relative">
-                    <!-- <Select v-model="formInline.orgId" :placeholder="orgName?'':'请选择'"  style="width:350px">
-                         <Tree :data="data4"  @on-select-change="selectItem" ></Tree>
-                    </Select> -->
-                    <select name="" id="" v-if="!show"></select>
-                    <selectTree v-else v-model="formInline.orgId"  :treeData="data4" style="width:350px"></selectTree>
-                    <!-- <div style="position: absolute;top: 3px;left:10px;width:310px;height:28px;">{{orgName}}</div> -->
+                <FormItem label="所属组织：" prop="orgId" >
+                     <TreeSelect 
+                    v-model="formInline.orgId" 
+                    :data="data4"
+                    :multiple="true"
+                    v-width="350" 
+                />
                 </FormItem>
                 <FormItem label="手机号：" prop="tel">
                     <Input v-model="formInline.tel" placeholder="请输入手机号"  style="width:350px"></Input>
