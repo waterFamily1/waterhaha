@@ -192,7 +192,7 @@ export default {
             }
         },
         selectNode(node){
-           console.log(node)
+        //    console.log(node)
            this.roleId = node[0].busId
            sessionStorage.setItem('roleId',this.roleId)
            if(node[0].type=='org')return
@@ -239,7 +239,7 @@ export default {
                 version: "0"
             }
            modifyName(data).then(res=>{
-               console.log(res)
+            //    console.log(res)
                if(res.data.count){
                    this.getRoleTree()
                }
@@ -253,7 +253,7 @@ export default {
                 version: "0"
             }
            createyName(data).then(res=>{
-               console.log(res)
+            //    console.log(res)
                if(res.data.id){
                 this.getRoleTree()
                }
@@ -262,7 +262,7 @@ export default {
         },
         deleteName(data){
            deleteName(data).then(res=>{
-               console.log(res)
+            //    console.log(res)
                if(res.data.count){
                 this.getRoleTree()
                }
@@ -271,7 +271,7 @@ export default {
         },
         getAllorg(){
             getOrg().then(res=>{
-                console.log(res)
+                // console.log(res)
                 if(res.data){
                     this.allOrg = res.data
                 }
@@ -325,7 +325,7 @@ export default {
                 }
             }
             submitRole(data).then(res=>{
-                console.log(res)
+                // console.log(res)
                 if(res.data.id){
 
                 }
@@ -333,7 +333,7 @@ export default {
         }
     },
     destroyed(){
-        console.log("摧毁")
+        // console.log("摧毁")
         sessionStorage.clear()
     },
     

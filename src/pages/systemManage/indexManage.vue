@@ -6,11 +6,14 @@
                     <label>关键字：</label>
                     <Input v-model="keyword" placeholder="指标名称" style="width: 220px" />
                 </div>
-                <div class="form-item">
+                <div class="form-item tree-item">
                     <label>区域位置：</label> 
-                    <Select v-model="model1" style="width:200px">
-                        <Option v-for="item in cityList" :value="item.value" :key="item.value">{{ item.label }}</Option>
-                    </Select>
+                    <TreeSelect 
+                        v-model="model1" 
+                        :data="cityList"
+                        @on-change="treeChange"
+                        v-width="200" 
+                    />
                 </div>
                 <div class="form-search-btn">
                     <a href="javascript:;" @click="higherSearch()">
@@ -18,8 +21,8 @@
                         <Icon type="ios-arrow-up" v-else />
                         高级搜索
                     </a>
-                    <button type="button">搜索</button>
-                    <button type="button" class="reset">重置</button>
+                    <button type="button" @click="getList()">搜索</button>
+                    <button type="button" class="reset" @click="resetHandle()">重置</button>
                 </div>
             </div>
             <div class="c-adv-search">
@@ -27,10 +30,10 @@
                     <div class="form-item">
                         <label>指标类型：</label>
                         <div class="cmp-tab">
-                            <TagSelect v-model="typeValue">
-                                <TagSelectOption name="tag1">数据KPI</TagSelectOption>
-                                <TagSelectOption name="tag2">设备KPI</TagSelectOption>
-                                <TagSelectOption name="tag3">关键指标</TagSelectOption>
+                            <TagSelect v-model="typeValue" @on-change="typeChange">
+                                <TagSelectOption name="1">数据KPI</TagSelectOption>
+                                <TagSelectOption name="2">设备KPI</TagSelectOption>
+                                <TagSelectOption name="3">关键指标</TagSelectOption>
                             </TagSelect>
                         </div>
                     </div>
@@ -39,16 +42,13 @@
         </div>
         <div class="index-content">
             <div class="c-table-top-btns">
-                <button type="button" @click="addNew()">新增</button>
+                <button type="button" @click="addHandle()">新增</button>
             </div>
             <div class="table-wrapper" :style="{height: (height-45)+'px'}">
                 <Table stripe :columns="tableList" :data="tableData">
-                    <template slot-scope="{ row }" slot="name">
-                        <strong>{{ row.name }}</strong>
-                    </template>
                     <template slot-scope="{ row, index }" slot="action">
-                        <Button class="action" size="small" style="margin-right: 5px;">配置</Button>
-                        <Button class="action" size="small">测试</Button>
+                        <Button class="action" size="small" style="margin-right: 5px;" @click="checkHandle(row.id)">查看</Button>
+                        <Button class="action" size="small" @click="handleDelete(row.id)">删除</Button>
                     </template>
                 </Table>
                 <Page 
@@ -57,22 +57,30 @@
                 />
             </div>
         </div>
+        <!-- 删除 -->
+        <Modal
+            class="delete-modal"
+            v-model="deleteModal"
+            title="确认"
+            :closable="false"
+            @on-ok="deleteOk"
+            width="300">
+            <Icon type="md-help-circle" />
+            <p>确定要删除这个指标？</p>
+        </Modal>
     </div>
 </template>
 <script>
-import { getListMethod } from '@/api/system/indicator'
+import { getListMethod, deleteMethod,areaMethod } from '@/api/system/indicator'
+import createTree from '@/libs/public-util'
+
 export default {
     name: 'indexManage',
     data() {
         return {
             height: '',
             keyword: '',
-            cityList: [
-                {
-                    value: 'New York',
-                    label: 'New York'
-                }
-            ],
+            cityList: [],
             model1: '',
             searchShow: false,
             typeValue: [],
@@ -103,45 +111,115 @@ export default {
             tableData: [],
             allTotal: 0,
             pageNum: '1',
+            deleteModal: false
         }
     },
     mounted() {
         this.height = document.body.clientHeight-80
         this.getList()
+        this.getArea()
     },
     methods: {
         getList() {
-            getListMethod().then(res=> {
-                console.log(JSON.stringify(res.data))
-                this.tableData = res.data.items
+            let queryName = this.keyword
+            let processId = this.model1
+            let indexType = this.typeValue
+            let pageNum = this.pageNum
+            getListMethod({
+                queryName,
+                processId,
+                indexType,
+                pageNum
+            }).then(res=> {
+                // console.log(JSON.stringify(res.data))
+                let arr = res.data.items
+                let list = arr.map(item=> {
+                    if(item.indexType == 1) {
+                        item.indexType = '数据KPI'
+                    } else if(item.indexType == 2) {
+                        item.indexType = '设备KPI'
+                    } else if(item.indexType == 3) {
+                        item.indexType = '关键指标'
+                    }
+                    return item
+                })
+                this.tableData = list
                 this.allTotal = res.data.total
             }).catch(err=> {
 
             })
         },
+        resetHandle() {
+            this.keyword = ''
+            this.model1 = ''
+            this.typeValue = []
+            this.pageNum = '1'
+            this.getList()
+        },
+        typeChange(checkedNames, name) {
+            if(name == '' || name == undefined || name == null) {
+                this.typeValue = []
+            }
+        },
         higherSearch() {
             this.searchShow = !this.searchShow
         },
-        typeCheckAll() {
-            this.typeBox = []
-            this.typeCheckedAll = true
+        handleDelete(id) {
+            this.ids = id
+            this.deleteModal = true
         },
-        typeCheck(i) {
-            this.typeCheckedAll = false
-            if(this.typeBox.includes(i)) {
-                this.typeBox = this.typeBox.filter((ele) => {
-                    return ele != i
-                });
-            } else {
-                this.typeBox.push(i);
-            }
+        deleteOk() {
+            let ids = this.ids
+            deleteMethod(ids).then(res=> {
+                // console.log(res)
+                if(res.data.count == 1) {
+                    this.deleteModal = false
+                    this.getList()
+                }
+            }).catch(err=> {
+                
+            })
         },
         changePage(index) {
             this.pageNum = index
             this.getList()
         },
-        addNew() {
-            this.$router.push({path:'/systemManage/index/indexAdd'})
+        checkHandle(id) {
+            this.$router.push({
+                path:'/index/indexAdd',
+                query: {
+                    type: 1,
+                    ids: id
+                }
+            })
+        },
+        addHandle() {
+            this.$router.push({
+                path:'/index/indexAdd',
+                query: {
+                    type: 0
+                }
+            })
+        },
+        getArea() {
+            areaMethod().then(res=> {
+                let treeItem = []
+                let trees = res.data
+                for(let i = 0; i < trees.length; i ++) {
+                    trees[i].title = trees[i].name
+                    trees[i].value = trees[i].id
+                    trees[i].label = trees[i].name
+                    trees[i].checked = false
+                    treeItem.push(trees[i])
+                }
+                this.cityList = createTree(treeItem)
+            }).catch(err=> {
+
+            })
+        },
+        treeChange(value) {
+            // console.log(value)
+            this.model1 = value
         }
     }
 }
@@ -256,6 +334,28 @@ export default {
                 margin-top: 10px;
             }
         }
+    }
+    .tree-item {
+        /deep/.ivu-select-dropdown {
+            min-width: 300px!important;
+        }
+    }
+}
+.delete-modal {
+    /deep/.ivu-icon {
+        color: #f90;
+        font-size: 30px;
+    }
+    p {
+        display: inline-block;
+        font-size: 14px;
+        line-height: 30px;
+        margin-left: 10px;
+    }
+}
+/deep/.ivu-modal-footer {
+    .ivu-btn-text {
+        border: 1px solid #e8eaec;
     }
 }
 </style>

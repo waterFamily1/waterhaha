@@ -235,7 +235,7 @@
                 this.getTable()
             },
             deploy(id) {
-                console.log(id)
+                // console.log(id)
                 this.$router.push({
                     path:'/teminal/terminalDetail',
                     query: {

@@ -31,7 +31,6 @@ export function putUser (data) {
 }
 
 // 获取组织
-
 export function getOrganizations (data) {
     return request({
         url: '/uaa/api/organizations',
