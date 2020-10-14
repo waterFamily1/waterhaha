@@ -12,8 +12,8 @@
                         <Icon type="ios-arrow-up" v-else />
                         高级搜索
                     </a>
-                    <button type="button">搜索</button>
-                    <button type="button" class="reset">重置</button>
+                    <button type="button" @click="getList()">搜索</button>
+                    <button type="button" class="reset" @click="resetHandle()">重置</button>
                 </div>
             </div>
             <div class="c-adv-search">
@@ -21,9 +21,9 @@
                     <div class="form-item">
                         <label>报警类型：</label>
                         <div class="cmp-tab">
-                            <TagSelect v-model="typeValue">
-                                <TagSelectOption name="tag1">单卡报警</TagSelectOption>
-                                <TagSelectOption name="tag2">流量池报警</TagSelectOption>
+                            <TagSelect v-model="typeValue" @on-change="typeChange">
+                                <TagSelectOption name="1">单卡报警</TagSelectOption>
+                                <TagSelectOption name="2">流量池报警</TagSelectOption>
                             </TagSelect>
                         </div>
                     </div>
@@ -32,9 +32,9 @@
                     <div class="form-item">
                         <label>订阅方式：</label>
                         <div class="cmp-tab">
-                            <TagSelect v-model="takeValue">
-                                <TagSelectOption name="tag1">系统消息</TagSelectOption>
-                                <TagSelectOption name="tag2">短信</TagSelectOption>
+                            <TagSelect v-model="takeValue" @on-change="takeChange">
+                                <TagSelectOption name="1">系统消息</TagSelectOption>
+                                <TagSelectOption name="2">短信</TagSelectOption>
                             </TagSelect>
                         </div>
                     </div>
@@ -43,25 +43,32 @@
         </div>
         <div class="index-content">
             <div class="c-table-top-btns">
-                <button type="button" @click="addAlarm()">新增报警</button>
-                <button type="button" style="margin-left:10px">删除</button>
+                <button type="button" @click="addHandle()">新增报警</button>
+                <button type="button" style="margin-left:10px" @click="deleteHandle()">删除</button>
             </div>
             <div class="table-wrapper" :style="{height: (height-45)+'px'}">
-                <Table stripe size="small" :columns="tableList" :data="tableData">
-                    <template slot-scope="{ row }" slot="name">
-                        <strong>{{ row.name }}</strong>
-                    </template>
+                <Table 
+                    stripe 
+                    :columns="tableList" 
+                    :data="tableData"
+                    @on-selection-change="handleSelectRow"
+                >
                     <template slot-scope="{ row, index }" slot="action">
-                        <Button class="action" size="small" style="margin-right: 5px;">配置</Button>
-                        <Button class="action" size="small">测试</Button>
+                        <Button class="action" size="small" style="margin-right: 5px;" @click="editHandle(row.id)">编辑</Button>
                     </template>
                 </Table>
-                 <Page :total="100" show-elevator show-total class="page" />
+                 <Page 
+                    :total="allTotal" show-total show-elevator @on-change="changePage" 
+                    style="text-align: right;margin-top: 10px;" 
+                />
             </div>
         </div>
     </div>
 </template>
 <script>
+import { getListMethod, deleteMethod } from '@/api/system/alarm'
+import { formatTime } from '@/libs/public'
+
 export default {
     name: 'indexManage',
     data() {
@@ -74,7 +81,7 @@ export default {
             tableList: [
                 {
                     type: 'selection',
-                    width: 50,
+                    width: 60,
                     align: 'center'
                 },
                 {
@@ -83,15 +90,15 @@ export default {
                 },
                 {
                     title: '订阅人',
-                    key: 'subscriber'
+                    key: 'userName'
                 },
                 {
                     title: '订阅方式',
-                    key: 'subType'
+                    key: 'subscribeMode'
                 },
                 {
                     title: '阈值(%)',
-                    key: 'value'
+                    key: 'threshold'
                 },
                 {
                     title: '报警类型',
@@ -99,11 +106,11 @@ export default {
                 },
                 {
                     title: '最近报警时间',
-                    key: 'recentTime'
+                    key: 'alarmTime'
                 },
                 {
                     title: '创建时间',
-                    key: 'setTime'
+                    key: 'createTime'
                 },
                 {
                     title: '操作',
@@ -111,46 +118,146 @@ export default {
                     width: 150,
                     align: 'center'
                 }
-            ]
+            ],
+            tableData: [],
+            allTotal: 0,
+            pageNum: '1',
+            ids: ''
         }
     },
     mounted() {
         this.height = document.body.clientHeight-80
+        this.getList()
+        let from = this.$route.query.from
+        if(from == 'addSuccess') {
+            this.$Notice.success({
+                title: '成功',
+                desc: '添加成功！'
+            });
+        } else if(from == 'editSuccess') {
+            this.$Notice.success({
+                title: '成功',
+                desc: '编辑成功！'
+            });
+        }
     },
     methods: {
+        getList() {
+            let queryName = this.keyword
+            let currentPage = this.pageNum
+            let alarmType = this.typeValue
+            let subscribeMode = this.takeValue
+            getListMethod({
+                queryName,
+                currentPage,
+                alarmType,
+                subscribeMode
+            }).then(res=> {
+                // console.log(res.data)
+                let arr = res.data.items
+                let list = arr.map((item) => {
+                    if(item.subscribeMode == 1) {
+                        item.subscribeMode = '系统消息'
+                    } else if (item.subscribeMode == 2) {
+                        item.subscribeMode = '短信'
+                    } else if (item.subscribeMode == '1,2') {
+                        item.subscribeMode = '系统消息,短信'
+                    }
+
+                    if(item.alarmType == 1) {
+                        item.alarmType = '单卡报警'
+                    } else if(item.alarmType == 2) {
+                        item.alarmType = '流量池报警'
+                    }
+                    if(item.alarmTime == null) {
+
+                    } else {
+                        item.alarmTime = formatTime(item.alarmTime, 'HH:mm:ss yyyy-MM-dd')
+                    }
+
+                    item.createTime = formatTime(item.createTime, 'HH:mm:ss yyyy-MM-dd')
+
+                    return item
+                })
+                this.tableData = list
+                this.allTotal = res.data.total
+            }).catch(err=> {
+
+            })
+        },  
+        resetHandle() {
+            this.keyword = ''
+            this.typeValue = []
+            this.takeValue = []
+            this.pageNum = '1'
+            this.getList()
+        },
+        typeChange(checkedNames, name) {
+            if(name == '' || name == undefined || name == null) {
+                this.typeValue = []
+            }
+        },
+        takeChange(checkedNames, name) {
+            if(name == '' || name == undefined || name == null) {
+                this.takeValue = []
+            }
+        },
+        handleSelectRow(selection) {
+            let arr = selection
+            let idArr = []
+            arr.forEach(item => {
+                idArr.push(item.id)
+                return
+            })
+            let ids1 = JSON.stringify(idArr).replace("[","").replace("]","")
+            this.ids = ids1
+            // console.log(this.ids)
+        },
+        changePage(index) {
+            this.pageNum = index
+            this.getList()
+        },
         higherSearch() {
             this.searchShow = !this.searchShow
         },
-        typeCheckAll() {
-            this.typeBox = []
-            this.typeCheckedAll = true
+        addHandle() {
+            this.$router.push({
+                path: '/alarm/addAlarm',
+                query: {
+                    alarm: 'add'
+                }
+            })
         },
-        typeCheck(i) {
-            this.typeCheckedAll = false
-            if(this.typeBox.includes(i)) {
-                this.typeBox = this.typeBox.filter((ele) => {
-                    return ele != i
+        editHandle(id) {
+            this.$router.push({
+                path: '/alarm/addAlarm',
+                query: {
+                    alarm: 'edit',
+                    ids: id
+                }
+            })
+        },
+        deleteHandle() {
+            if( this.ids == '' ||  this.ids == null ||  this.ids == undefined) {
+                this.$Notice.warning({
+                    title: '警告',
+                    desc: '请选中后删除'
                 });
             } else {
-                this.typeBox.push(i);
+                let ids = this.ids.replace("\"","").replace("\"","")
+                deleteMethod(ids).then(res=> {
+                    // console.log(res)
+                    if(res.status == 200) {
+                        this.$Notice.success({
+                            title: '成功',
+                            desc: '删除成功！'
+                        })
+                        this.getList()
+                    }
+                }).catch(err=> {
+
+                })
             }
-        },
-        takeCheckAll() {
-            this.takeBox = []
-            this.takeCheckedAll = true
-        },
-        takeCheck(i) {
-            this.takeCheckedAll = false
-            if(this.takeBox.includes(i)) {
-                this.takeBox = this.takeBox.filter((ele) => {
-                    return ele != i
-                });
-            } else {
-                this.takeBox.push(i);
-            }
-        },
-        addAlarm() {
-            this.$router.push({path:'/systemManage/alarm/addAlarm'})
         }
     }
 }

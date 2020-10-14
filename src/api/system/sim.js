@@ -3,7 +3,7 @@ import request from '@/plugins/request';
 //获取列表
 export function getListMethod(data) {
     return request({
-        url: '/box/api/sim-manager/cards?queryName=&pageSize=10&currentPage=1&iccidStart=&iccidEnd=&cardStatus=&operator=&percentage=',
+        url: '/box/api/sim-manager/cards?queryName='+data.queryName+'&pageSize=10&currentPage='+data.pageNum+'&iccidStart='+data.iccidStart+'&iccidEnd='+data.iccidEnd+'&cardStatus='+data.cardStatus+'&operator='+data.operator+'&percentage='+data.percentage+'',
         method: 'get'
     })
 }
@@ -27,9 +27,17 @@ export function deleteList(data) {
 //添加SIM卡
 export function addSim(data) {
     return request({
-        url: '/box/api/sim-manager/cards?iccids=8986111921103970586;&userid=11&remark=1111111',
+        url: '/box/api/sim-manager/cards?iccids='+data.iccid+'&userid='+data.name+'&remark='+data.remark+'',
         method: 'post',
         data
+    })
+}
+
+//同步数据
+export function syncMethod(data) {
+    return request({
+        url: '/box/api/sim-manager/cards/update?iccids='+data,
+        method: 'put'
     })
 }
 

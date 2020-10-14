@@ -15,8 +15,8 @@
                                 <Icon type="ios-arrow-up" v-else />
                                 高级搜索
                             </a>
-                            <Button>搜索</Button>
-                            <Button class="reset">重置</Button>
+                            <Button @click="getList">搜索</Button>
+                            <Button @click="handleReset" class="reset">重置</Button>
                         </div>
                     </div>
                     <div class="c-adv-search">
@@ -30,10 +30,10 @@
                             <div class="form-item">
                                 <FormItem label="运营商:">
                                     <div class="cmp-tab">
-                                        <TagSelect v-model="operatorValue">
-                                            <TagSelectOption name="tag1">电信</TagSelectOption>
-                                            <TagSelectOption name="tag2">移动</TagSelectOption>
-                                            <TagSelectOption name="tag3">联通</TagSelectOption>
+                                        <TagSelect v-model="operatorValue" @on-change="operarChange">
+                                            <TagSelectOption name="telcom">电信</TagSelectOption>
+                                            <TagSelectOption name="cmcc">移动</TagSelectOption>
+                                            <TagSelectOption name="unicom">联通</TagSelectOption>
                                         </TagSelect>
                                     </div>
                                 </FormItem>
@@ -41,12 +41,12 @@
                             <div class="form-item">
                                 <FormItem label="SIM卡状态:">
                                     <div class="cmp-tab">
-                                        <TagSelect v-model="simValue">
-                                            <TagSelectOption name="tag1">在用</TagSelectOption>
-                                            <TagSelectOption name="tag2">停机</TagSelectOption>
-                                            <TagSelectOption name="tag3">待激活</TagSelectOption>
-                                            <TagSelectOption name="tag4">销户</TagSelectOption>
-                                            <TagSelectOption name="tag5">未知</TagSelectOption>
+                                        <TagSelect v-model="simValue" @on-change="simChange">
+                                            <TagSelectOption name="0">在用</TagSelectOption>
+                                            <TagSelectOption name="1">停机</TagSelectOption>
+                                            <TagSelectOption name="2">待激活</TagSelectOption>
+                                            <TagSelectOption name="3">销户</TagSelectOption>
+                                            <TagSelectOption name="4">未知</TagSelectOption>
                                         </TagSelect>
                                     </div>
                                 </FormItem>
@@ -54,12 +54,12 @@
                             <div class="form-item">
                                 <FormItem label="剩余百分比:">
                                     <div class="cmp-tab">
-                                        <TagSelect v-model="residueValue">
-                                            <TagSelectOption name="tag1">≤100%</TagSelectOption>
-                                            <TagSelectOption name="tag2">≤80%</TagSelectOption>
-                                            <TagSelectOption name="tag3">≤60%</TagSelectOption>
-                                            <TagSelectOption name="tag4">≤40%</TagSelectOption>
-                                            <TagSelectOption name="tag5">≤20%</TagSelectOption>
+                                        <TagSelect v-model="residueValue" @on-change="residueChange">
+                                            <TagSelectOption name="100">≤100%</TagSelectOption>
+                                            <TagSelectOption name="80">≤80%</TagSelectOption>
+                                            <TagSelectOption name="60">≤60%</TagSelectOption>
+                                            <TagSelectOption name="40">≤40%</TagSelectOption>
+                                            <TagSelectOption name="20">≤20%</TagSelectOption>
                                         </TagSelect>
                                     </div>
                                 </FormItem>
@@ -74,6 +74,9 @@
                 <Button @click="addModal = true">添加SIM卡</Button>
                 <Button style="margin-left:10px" @click="uploadArea()">批量导入SIM卡</Button>
                 <Button style="margin-left:10px" @click="deleteModal = true">删除</Button>
+                <span class="refresh-btn" @click="refreshHandle">
+                    <Icon type="md-refresh" />
+                </span>
             </div>
             <div class="table-wrapper" :style="{height: (height-45)+'px'}">
                 <Table 
@@ -103,20 +106,20 @@
         <Modal
             v-model="addModal"
             title="添加SIM卡"
-            :loading="loading"
             width="400"
-            @on-ok="asyncOK">
+            @on-ok="addOK('modalValidate')"
+            @on-cancel="addCancel('modalValidate')">
             <Form ref="modalValidate" :model="modalValidate" :rules="modalRule" :label-width="80">
                 <div class="c-top-border-gray-sim">
                     <FormItem label="租户名称" prop="name">
-                        <Select v-model="modalValidate.name" placeholder="请选择">
+                        <Select v-model="modalValidate.name" @on-change="nameChange" placeholder="请选择">
                             <Option v-for="(item, index) in nameList" :value="item.id" :key="index">
                                 {{item.name}}
                             </Option>
                         </Select>
                     </FormItem>
-                    <FormItem label="ICCID" prop="ICCID">
-                        <Input type="type" v-model="modalValidate.ICCID"></Input>
+                    <FormItem label="ICCID" prop="iccid">
+                        <Input type="text" v-model="modalValidate.iccid"></Input>
                         <Tooltip content="Top Center text" placement="top">
                             <Icon type="ios-help-circle" style="font-size:18px;color: rgb(0, 151, 207);vertical-align:middle;margin-left:6px" @click="disabled = true" />
                             <div slot="content">
@@ -134,7 +137,7 @@
     </div>
 </template>
 <script>
-import { getListMethod, deleteList, nameMethod, addSim } from '@/api/system/sim'
+import { getListMethod, deleteList, nameMethod, addSim, syncMethod } from '@/api/system/sim'
 import { formatTime } from '@/libs/public'
 export default {
     name: 'SIMManage',
@@ -150,7 +153,6 @@ export default {
             deleteModal: false,
             searchShow: false,
             addModal: false,
-            loading: true,
             operatorValue: [],
             simValue: [],
             residueValue: [],
@@ -198,12 +200,22 @@ export default {
             simTableData: [],
             modalValidate: {
                 name: '',
-                ICCID: '',
+                iccid: '',
                 remark: ''
             },
             modalRule: {
-                ICCID: [
-                    {required: true, message: '请输入ICCID', trigger: 'blur' }
+                iccid: [
+                    {required: true, message: '请输入ICCID', trigger: 'blur' },
+                    {
+                        validator(rule, value, callback, source, options) {
+                            let errors = []
+                            if(!/^[0-9]{19};$/.test(value)) {
+                                callback('ICCID格式不正确')
+                            }
+                            callback(errors)
+                        },
+                        trigger: 'blur'
+                    }
                 ]
             },
             allTotal: 0,
@@ -219,7 +231,22 @@ export default {
     },
     methods: {
         getList() {
-            getListMethod().then(res=> {
+            let queryName = this.simSearchList.name
+            let iccidStart = this.simSearchList.number1
+            let iccidEnd = this.simSearchList.number2
+            let cardStatus = this.operatorValue
+            let operator = this.simValue
+            let percentage = this.residueValue
+            let pageNum = this.pageNum
+            getListMethod({
+                queryName,
+                iccidStart,
+                iccidEnd,
+                cardStatus,
+                operator,
+                percentage,
+                pageNum
+            }).then(res=> {
                 // console.log(JSON.stringify(res.data))
                 let arr = res.data.items
                 let list = arr.map((item) => {
@@ -251,14 +278,39 @@ export default {
 
             })
         },
+        handleReset() {
+            this.simSearchList.name = ''
+            this.simSearchList.number1 = ''
+            this.simSearchList.number2 = ''
+            this.operatorValue = []
+            this.simValue = ''
+            this.residueValue = ''
+            this.pageNum = 1
+            this.getList()
+        },
         getName() {
             nameMethod().then(res=> {
-                console.log(res.data)
+                // console.log(res.data)
                 this.nameList = res.data
             }).catch(err=> {
 
             })
         },
+        operarChange(checkedNames, name) {
+            if(name == '' || name == undefined || name == null) {
+                this.operatorValue = []
+            }
+        },
+        simChange(checkedNames, name) {
+            if(name == '' || name == undefined || name == null) {
+                this.simValue = []
+            }
+        },
+        residueChange(checkedNames, name) {
+            if(name == '' || name == undefined || name == null) {
+                this.residueValue = []
+            }
+        },  
         higherSearch() {
             this.searchShow = !this.searchShow
         },
@@ -286,6 +338,10 @@ export default {
                 // 异常情况
             })
         },
+        nameChange(value) {
+            // console.log(value)
+            this.modalValidate.name = value
+        },  
         success() {
             this.$Notice.success({
                 title: '删除成功'
@@ -308,10 +364,57 @@ export default {
                 }
             })
         },
-        asyncOK () {
-            setTimeout(() => {
-                this.addModal = false;
-            }, 2000);
+        addOK(name) {
+            this.addModal = true
+            this.$refs[name].validate((valid) => {
+                if (valid) {
+                    this.addModal = true
+                    let iccid = this.modalValidate.iccid
+                    let name = this.modalValidate.name
+                    let remark = this.modalValidate.remark
+                    addSim({
+                        iccid,
+                        name,
+                        remark
+                    }).then(res=> {   
+                        // console.log(res)
+                        if(res == undefined){
+                            this.addModal = true
+                            this.$Message.error('ICCID已经存在');
+                        }
+                        if(res.data == 1) {
+                            this.addModal = false
+                            this.getListMethod()
+                        } 
+                    }).catch(err=> {
+
+                    })
+                }
+            })
+        },
+        addCancel(name) {
+            this.$refs[name].resetFields();
+        },
+        refreshHandle() {
+            if(this.iccids == '') {
+                this.$Notice.warning({
+                    title: '警告',
+                    desc: '请选中后同步!'
+                });
+            } else {
+                let iccid = this.iccids.replace("\"","").replace("\"","")
+                syncMethod(iccid).then(res=> {
+                    if(res.data == '1') {
+                        this.$Notice.success({
+                            title: '成功',
+                            desc: '同步数据成功！'
+                        });
+                        this.getList()
+                    }
+                }).catch(err=> {
+
+                })
+            }
         }
     }
 }
@@ -425,6 +528,13 @@ export default {
                 text-align: right;
                 margin-top: 10px;
             }
+        }
+    }
+    .refresh-btn {
+        float: right;
+        /deep/.ivu-icon {
+            color: rgb(75, 126, 254);
+            font-size: 24px;
         }
     }
 }
