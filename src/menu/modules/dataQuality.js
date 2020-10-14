@@ -19,6 +19,10 @@ export default {
         }, {
             path: `/data-quality/standard`,
             title: '质量标准'
+        },{
+            path : `/stat/detailSetting`,
+            title :'测点数据质量详情',
+            auth: ['hidden']
         }
     ]
 }

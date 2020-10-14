@@ -44,6 +44,14 @@ let system = [
     }
 ]
 
+let  dataQuality = [
+    {
+        path : `/stat/detailSetting`,
+        title :'测点数据质量详情',
+        auth: ['hidden']
+    }
+]
+
 export default function createRoutes(item) {
     let arr = item
     const parent = arr.filter(item => item.parentId == 0)
@@ -61,6 +69,10 @@ export default function createRoutes(item) {
                 } else if (parent[i].title == '系统管理') {
                     for(let j = 0; j < system.length; j ++) {
                         parent[i].children.push(system[j])
+                    }
+                } else if(parent[i].title == '数据质量'){
+                    for(let j = 0; j < dataQuality.length; j ++) {
+                        parent[i].children.push(dataQuality[j])
                     }
                 }
                 break

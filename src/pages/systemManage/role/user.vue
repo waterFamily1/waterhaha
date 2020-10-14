@@ -33,9 +33,10 @@
                         </div>
                         <div class="search-item">
                             <label>结构组织：</label>
-                            <Select v-model="tissue" style="width:180px" size="small">
+                            <!-- <Select v-model="tissue" style="width:180px" size="small">
                                 <Option v-for="item in tissueList" :value="item.value" :key="item.value">{{ item.label }}</Option>
-                            </Select>
+                            </Select> -->
+                             <TreeSelect v-model="orgId" :data="data4" :multiple="true" v-width="180" />
                         </div>
                         <div class="search-btn">
                             <Button size="small">搜索</Button>
@@ -61,7 +62,8 @@
     </div>
 </template>
 <script>
-import { getUser,getRole} from '@api/system/role';
+import { getUser,getRole,getOrg} from '@api/system/role';
+import createTree from '@/libs/public-util'
 export default {
     name: 'roleUser',
     data() {
@@ -215,10 +217,28 @@ export default {
                 })
                 sessionStorage.setItem('userIds',arr.join(','))
             })
-        }
+        },
+          getAllorg(){
+            getOrg().then(res=>{
+                console.log(res)
+                if(res.data){
+                    this.allOrg = res.data
+                     let treeItem = []
+                    let trees = res.data
+                    for(let i = 0; i < trees.length; i ++) {
+                        trees[i].title = trees[i].name
+                        trees[i].value = trees[i].id
+                        treeItem.push(trees[i])
+                    }
+                    this.show=true
+                    this.data4 = createTree(treeItem)
+                }
+            })
+        },
     },
     mounted(){
          this.getUser('',1,'')
+         this.getAllorg()
     },
     watch: {
          roleId () {

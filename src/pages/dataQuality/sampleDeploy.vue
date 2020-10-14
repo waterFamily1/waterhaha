@@ -4,11 +4,11 @@
             <div class="search-main">
                 <div class="form-item">
                     <label>关键字：</label>
-                    <Input v-model="keyword" placeholder="指标名称" style="width: 300px" />
+                    <Input v-model="keyword" placeholder="测点名称" style="width: 300px" />
                 </div>
                 <div class="form-item">
                     <label>区域位置：</label> 
-                    <TreeSelect v-model="areaValue" multiple :data="areaData" v-width="300" />
+                    <TreeSelect v-model="areaValue" :multiple="true"  :data="areaData" v-width="300" />
                 </div>
                 <div class="form-search-btn">
                     <a href="javascript:;" @click="higherSearch()">
@@ -16,8 +16,8 @@
                         <Icon type="ios-arrow-up" v-else />
                         高级搜索
                     </a>
-                    <button type="button">搜索</button>
-                    <button type="button" class="reset">重置</button>
+                    <button type="button" @click="search()">搜索</button>
+                    <button type="button" class="reset" @click="reset()">重置</button>
                 </div>
             </div>
             <div class="c-adv-search">
@@ -25,29 +25,19 @@
                     <div class="form-item">
                         <label>信号类型：</label>
                         <div class="cmp-tab">
-                            <TagSelect v-model="singalType">
-                                <TagSelectOption name="tag1">状态信号</TagSelectOption>
-                                <TagSelectOption name="tag2">数值信号</TagSelectOption>
+                            <TagSelect v-model="singalType" @on-change="singalChange">
+                                <TagSelectOption name="State">状态信号</TagSelectOption>
+                                <TagSelectOption name="Digtal">数值信号</TagSelectOption>
                             </TagSelect>
                         </div>
                     </div>
+                </div>
+                 <div class="c-adv-search-row">
                     <div class="form-item">
                         <label>数据分类：</label>
                         <div class="cmp-tab">
-                            <TagSelect v-model="dataClassify">
-                                <TagSelectOption name="tag1">水位</TagSelectOption>
-                                <TagSelectOption name="tag2">水质</TagSelectOption>
-                                <TagSelectOption name="tag3">水能</TagSelectOption>
-                                <TagSelectOption name="tag4">能耗</TagSelectOption>
-                                <TagSelectOption name="tag5">物耗</TagSelectOption>
-                                <TagSelectOption name="tag6">药耗</TagSelectOption>
-                                <TagSelectOption name="tag7">压力</TagSelectOption>
-                                <TagSelectOption name="tag8">消防</TagSelectOption>
-                                <TagSelectOption name="tag9">电流</TagSelectOption>
-                                <TagSelectOption name="tag10">电压</TagSelectOption>
-                                <TagSelectOption name="tag11">温度</TagSelectOption>
-                                <TagSelectOption name="tag12">震动</TagSelectOption>
-                                <TagSelectOption name="tag13">状态</TagSelectOption>
+                            <TagSelect v-model="dataClassify" @on-change="dataChange" >
+                                <TagSelectOption :name="item.id" v-for="(item,index) in dataCategoryArr" :key="index">{{ item.categoryName }}</TagSelectOption>
                             </TagSelect>
                         </div>
                     </div>
@@ -56,7 +46,7 @@
         </div>
         <div class="log-content">
             <div class="c-table-top-btns">
-                <button type="button" @click="sampleModal = true">添加样本</button>
+                <button type="button" @click="addSample()">添加样本</button>
             </div>
             <div class="table-wrapper">
                 <Table stripe size="small" :columns="tableList" :data="tableData">
@@ -64,20 +54,18 @@
                         <strong>{{ row.name }}</strong>
                     </template>
                     <template slot-scope="{ row, index }" slot="action">
-                        <Button class="action" size="small" style="margin-right: 5px;">配置</Button>
-                        <Button class="action" size="small">测试</Button>
+                        <Button class="action" size="small" style="margin-right: 5px;" @click="setting()">配置</Button>
+                        <Button class="action" size="small" @click="deleteData(row)">删除</Button>
                     </template>
                 </Table>
-                 <Page :total="100" show-elevator show-total class="page" />
+                 <Page :total="total" show-elevator show-total class="page"  @on-change="tableChange" />
             </div>
         </div>
         <!-- 添加样本 -->
         <Modal
             v-model="sampleModal"
             title="添加样本"
-            @on-ok="ok"
-            width="650"
-            @on-cancel="cancel">
+            width="650" footer-hide>
             <div class="model-box">
                 <div class="model-search">
                     <div>
@@ -87,13 +75,11 @@
                         </div>
                         <div class="search-item">
                             <label>结构组织：</label>
-                            <Select v-model="modalTissue" style="width:180px" size="small">
-                                <Option v-for="item in tissueList" :value="item.value" :key="item.value">{{ item.label }}</Option>
-                            </Select>
+                            <TreeSelect v-model="siteValue" size="small"  :data="areaData" v-width="180" />
                         </div>
                         <div class="search-btn">
-                            <Button size="small">搜索</Button>
-                            <Button size="small" class="reset">重置</Button>
+                            <Button size="small" @click="searchData()">搜索</Button>
+                            <Button size="small" class="reset" @click="resetData()">重置</Button>
                         </div>
                     </div>
                     <div class="tabel-num">
@@ -108,77 +94,76 @@
                         @on-select-all="handleSelectAll"
                         @on-select-all-cancel="handleSelectAllCancel">
                     </Table>
-                    <Page :total="40" size="small" show-total show-elevator class="modalPage" />
+                    <Page :total="modelTotal" size="small" show-total show-elevator class="modalPage" @on-change="modelChange" />
+                     <div class="action-btn">
+                        <span @click="cancel">取消</span>
+                        <span style="background: #4b7efe;" @click="ok()">确定</span>
+                     </div>
                 </div>
             </div>
         </Modal>
     </div>
 </template>
 <script>
+
+import { datacategory,tableData,modelData,regionalCon,searchData,addSample,deleteSample} from '@api/dataQuality/sample';
+import {formatTime} from '@/libs/public'
+import createTree from '@/libs/public-util'
 export default {
     name: 'sampleDeploy',
     data() {
         return {
             height: '',
             keyword: '',
-            areaValue: [],
-            areaData: [
-                {
-                    title: 'parent1',
-                    expand: true,
-                    value: 'parent1',
-                    selected: false,
-                    checked: false,
-                    children: [
-                        {
-                            title: 'parent 1-1',
-                            expand: true,
-                            value: 'parent1-1',
-                            selected: false,
-                            checked: false,
-                            children: [
-                                {
-                                    title: 'leaf 1-1-1',
-                                    value: 'leaf1',
-                                    selected: false,
-                                    checked: false,
-                                }
-                            ]
-                        }
-                    ]
-                }
-            ],
+            areaValue: '',
+            areaData: [],
             searchShow: false,
             singalType: [],
             dataClassify: [],
             tableList: [
                 {
                     title: '测点名称',
-                    key: 'name'
+                    key: 'mpointName'
                 },
                 {
                     title: '区域位置',
-                    key: 'location'
+                    key: 'siteName'
                 },
                 {
                     title: '信号类型',
-                    key: 'singalType'
+                    key: 'datype',
+                    render: (h, params) => {
+                        let text= params.row.datype =='Digtal'?'A':'D'
+                        let color = params.row.datype =='Digtal'?'#7ED321':'#4A90E2'
+                        return h('div',{
+                            style:{
+                                background:color,
+                                width:'20px',
+                                height:'20px',
+                                lineHeight:'20px',
+                                color:'#fff',
+                                fontSize:'12px',
+                                borderRadius:'50%',
+                                textAlign:'center'
+                            }
+                        },text);
+                    }
                 },
                 {
                     title: '数据分类',
-                    key: 'dataType'
+                    key: 'categoryName'
                 },
                 {
                     title: '推送周期',
-                    key: 'pushCycle'
+                    key: 'period'
                 },
                 {
                     title: '所属设备',
-                    key: 'belong'
+                    key: 'equName'
                 },
                 {
                     title: '配置时间',
-                    key: 'deployTime'
+                    key: 'updateTime'
                 },
                 {
                     title: '操作',
@@ -191,12 +176,6 @@ export default {
             sampleModal: false,
             modalKeyword: '',
             modalTissue: '',
-            tissueList: [
-                {
-                    value: 'New York',
-                    label: 'New York'
-                }
-            ],
             modelColumns: [
                 {
                     type: 'selection',
@@ -204,16 +183,16 @@ export default {
                     align: 'center'
                 },
                 {
-                    title: '用户名称',
-                    key: 'name'
+                    title: '测点编号',
+                    key: 'mpointId'
                 },
                 {
-                    title: '部门',
-                    key: 'department'
+                    title: '区域位置',
+                    key: 'siteName'
                 },
                 {
-                    title: '所属组织',
-                    key: 'tissue'
+                    title: '测点名称',
+                    key: 'mpointName'
                 }
             ],
             modelData: [
@@ -234,21 +213,53 @@ export default {
                 }
             ],
             list: [],
-            selectedData: []
+            selectedData: [],
+            dataCategoryArr:[],
+            total:0,
+            modelTotal:0,
+            categoryId:'',
+            dataType:'',
+            page:1,
+            siteId :"",
+            siteName:'',
+            baseData:[],
+            siteValue:''
         }
     },
     mounted() {
         this.height = document.body.clientHeight-80
+        this.getCategory()
+        this.getTableData(this.keyword,this.dataType,this.categoryId,1)
+        this.getModelData(this.modalKeyword,this.siteValue,1,1,'AUTO')
+        this.getRegional()
     },
     methods: {
         higherSearch() {
             this.searchShow = !this.searchShow
         },
         ok () {
-            this.$Message.info('Clicked ok');
+           console.log(this.selectedData)
+           if(this.selectedData.length==0){
+                this.$Message.info('请选择测点');
+                return
+           }
+            let data=[]
+            this.selectedData.forEach(ele=>{
+                data.push({
+                    mpointId :ele.id
+                })
+            })
+            addSample(data).then(res=>{
+                console.log(res)
+                if(res.data.id){
+                    this.getTableData(this.keyword,this.dataType,this.categoryId,1)
+                    this.getModelData('','',1,1,'AUTO')
+                    this.sampleModal = false
+                }
+            })
         },
         cancel () {
-            this.$Message.info('Clicked cancel');
+            this.sampleModal = false
         },
         // 清空所有已选项
         handleClearSelect (status) {
@@ -281,6 +292,126 @@ export default {
                     this.selectedData.splice(index, 1);
                 }
             });
+        },
+        getCategory(){
+            datacategory().then(res=>{
+                console.log(res)
+                if(res.data){
+                    this.dataCategoryArr = res.data
+                }
+            })
+        },
+        getTableData(queryName,dataType,categoryId,page){
+            tableData(queryName,dataType,categoryId,page).then(res=>{
+                console.log(res)
+                if(res.data){
+                    let data= res.data.items
+                    data.forEach(ele=>{
+                        ele.updateTime = formatTime(ele.updateTime, 'HH:mm:ss yyyy-MM-dd')
+                    })
+                    this.tableData = res.data.items
+                    this.total = res.data.total
+                }
+            })
+        },
+
+        getModelData(queryName,siteId,page,confDataQuality,datasource){
+            modelData(queryName,siteId,page,confDataQuality,datasource).then(res=>{
+              console.log(res)
+                if(res.data){
+                    this.modelData = res.data.items
+                    this.modelTotal = res.data.total
+                }
+            })
+        },
+        modelChange(size){
+             this.getModelData(this.modalKeyword,this.siteValue,size,1,'AUTO')
+        },
+        getRegional() {
+            regionalCon().then(res => {
+                // console.log(JOSN.stringify(res.data))
+                let treeItem = []
+                let trees = res.data
+                for(let i = 0; i < trees.length; i ++) {
+                    trees[i].title = trees[i].name
+                    trees[i].expand = true
+                    trees[i].value = trees[i].id
+                    treeItem.push(trees[i])
+                }
+                this.baseData = treeItem
+                this.areaData= createTree(treeItem)
+            }).catch(err => {
+                // 异常情况
+            })
+        },
+        dataChange(checkedNames, name){
+           if(checkedNames.length==this.dataCategoryArr.length){
+               this.categoryId = ''
+           }else{
+               this.categoryId = checkedNames.join(',')
+           }
+        }, 
+        search(){
+            this.siteId = this.areaValue.join(',')
+            let arr=[]
+            this.baseData.forEach(ele=>{
+                this.areaValue.forEach(item=>{
+                    if(ele.id == item){
+                        arr.push(ele.name)
+                    }
+                })
+            })
+            this.siteName = arr.join(',')
+            searchData (this.keyword,this.dataType,this.categoryId,this.page,this.siteId,this.siteName).then(res=>{
+                console.log(res)
+                if(res.data){
+                    let data= res.data.items
+                    data.forEach(ele=>{
+                        ele.updateTime = formatTime(ele.updateTime, 'HH:mm:ss yyyy-MM-dd')
+                    })
+                    this.tableData = res.data.items
+                    this.total = res.data.total
+                }
+            })
+        },
+        singalChange(checkedNames,name){
+            if(checkedNames.length == 2){
+                this.dataType = ''
+            }else{
+                this.dataType = name
+            }
+        },
+        tableChange(size){
+            this.page = size
+            this.getTableData(this.keyword,this.dataType,this.categoryId,size)
+        },
+        addSample(){
+            this.sampleModal = true
+            this.selectedData = []
+        },
+        searchData(){
+            this.getModelData(this.modalKeyword,this.siteValue,1,1,'AUTO')
+        },
+        resetData(){
+            this.modalKeyword = ''
+            this.siteValue = ''
+        },
+        reset(){
+            this.keyword = ''
+            this.areaValue = []
+        },
+        deleteData(row){
+            deleteSample(row.id).then(res=>{
+                if(res.data.count){
+                    this.getTableData(this.keyword,this.dataType,this.categoryId,1)
+                }
+                
+            })
+        },
+        setting(){
+            this.$router.push({
+                path:"/stat/detailSetting"
+            })
         }
     }
 }
@@ -451,5 +582,19 @@ export default {
 .modalPage {
     text-align: right;
     margin: 10px 0 0;
+}
+.action-btn{
+    margin-top: 20px;
+    text-align:center;
+    span{
+        display: inline-block;
+        min-width: 130px;
+        margin: 0 15px;
+        padding: 4px 12px;
+        font-size: 12px;
+        background: #c8c8c8;
+        color: #fff;
+        border-radius: 3px;
+    }
 }
 </style>

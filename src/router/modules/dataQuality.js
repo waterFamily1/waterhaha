@@ -43,6 +43,16 @@ export default {
             },
             component: () => import('@/pages/dataQuality/sampleDeploy')
         }, {
+            path: '/stat/detailSetting',
+            name: `${pre}stat-detailSetting`,
+            meta: {
+                ...meta,
+                title: '测点数据质量详情',
+                closable: false
+            },
+            component: () => import('@/pages/dataQuality/stat/detailSetting')
+        },
+        {
             path: '/data-quality/standard',
             name: `${pre}data-quality-standard`,
             meta: {

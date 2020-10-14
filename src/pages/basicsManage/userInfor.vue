@@ -13,9 +13,6 @@
                     :multiple="true"
                     v-width="350" 
                 />
-                <!-- <select name="" id="" v-if="!show"></select>
-                <selectTree v-else v-model="orgId" multiple  :treeData="data4" style="width:350px"></selectTree> -->
-                
             </div>
             <div class="c-adv-search-btn">
                  <button type="button" @click="search()">搜索</button>
@@ -191,17 +188,6 @@ import selectTree from 'iview-select-tree'
                 console.log(size)
                 this.getUserList(this.kWord,this.orgId,size)
             },
-            selectItem(value){
-                console.log(value)
-                let arr = value
-                let orgIds=[],orgName=[]
-                arr.forEach(element => {
-                    orgIds.push(element.id)
-                    orgName.push(element.name)
-                });
-                this.orgId = orgIds.join(",")
-                this.orgName = orgName.join(',')
-            }
         }
     }
 </script>

@@ -45,7 +45,7 @@
 <script>
 import roleUser from './role/user'
 import tabUser from './role/tab'
-import { getTree,modifyName,getOrg,createyName,deleteName,submitRole} from '@api/system/role';
+import { getTree,modifyName,createyName,deleteName,submitRole} from '@api/system/role';
 export default {
     name: 'rolePermission',
     data() {
@@ -269,14 +269,7 @@ export default {
 
            })
         },
-        getAllorg(){
-            getOrg().then(res=>{
-                console.log(res)
-                if(res.data){
-                    this.allOrg = res.data
-                }
-            })
-        },
+      
         submit(){
              if(!this.roleId){
                 this.$Message.warning(' 请选择一个角色');

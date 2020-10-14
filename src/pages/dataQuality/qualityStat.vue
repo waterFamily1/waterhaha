@@ -229,8 +229,7 @@ export default {
     },
     methods: {
         goRecount() {
-            console.log(1111)
-            this.$router.push({path: 'stat/recountLog'})
+            this.$router.push({path: '/stat/recountLog'})
         }
     }
 }
