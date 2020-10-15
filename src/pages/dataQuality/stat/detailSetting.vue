@@ -90,7 +90,7 @@
                     <Button type="info" size="small" style="background:#576374" @click="deleteCon()">删除</Button>
                  </div>
                  <div class="symbol-con">
-                     <Row>
+                    <Row :gutter="20" >
                         <Col span="1" style="width:20px">&nbsp;</Col>
                         <Col span="2" style="width:5%">
                         &nbsp;
@@ -99,34 +99,61 @@
                                 <Option >或</Option>
                             </Select>
                         </Col>
-                        <Col span="1" style="width:20px">&nbsp;</Col>
                         <Col span="4" >
                             <Input  placeholder="选择测点" size="small" />
                         </Col>
-                         <Col span="1" style="width:20px">&nbsp;</Col>
                         <Col span="4" >
                             <Select  size="small">
                                 <Option v-for="item in symbolList" :value="item.value" :key="item.value">{{ item.label }}</Option>
                             </Select>
                         </Col>
-                        <Col span="1" style="width:20px">&nbsp;</Col>
                         <Col span="1" style="width:20px">
-                                <Radio v-model="formLeft.increase" size="small"></Radio>
+                            <Radio v-model="formLeft.increase" size="small"></Radio>
                         </Col>
                         <Col span="4" >
-                           <Input  placeholder="数值" size="small" disabled />
+                            <Input  placeholder="数值" size="small" disabled />
                         </Col>
-                         <Col span="1" style="width:20px">&nbsp;</Col>
                         <Col span="1" style="width:20px">
-                                <Radio v-model="formLeft.increase" size="small"></Radio>
+                            <Radio v-model="formLeft.increase" size="small"></Radio>
                         </Col>
                         <Col span="4" >
-                           <Input  placeholder="选择测点" size="small" />
+                            <Input  placeholder="选择测点" size="small" />
                         </Col>
-                        <Col span="1" style="width:20px">&nbsp;</Col>
                         <Col span="2" >
-                           <Icon type="ios-add-circle" style="font-size:20px;color:rgb(75, 126, 254)" />
-                           <Icon type="ios-remove-circle" style="font-size:20px;color:rgb(75, 126, 254);margin-left:8px" />
+                            <Icon type="ios-add-circle" style="font-size:20px;color:rgb(75, 126, 254)" />
+                            <Icon type="ios-remove-circle" style="font-size:20px;color:rgb(75, 126, 254);margin-left:8px" />
+                        </Col>
+                    </Row>
+                    <Row :gutter="20" >
+                        <Col span="2" style="width:5%">
+                            <Select  size="small" placeholder="" >
+                                <Option >且</Option>
+                                <Option >或</Option>
+                            </Select>
+                        </Col>
+                        <Col span="4" >
+                            <Input  placeholder="选择测点" size="small" />
+                        </Col>
+                        <Col span="4" >
+                            <Select  size="small">
+                                <Option v-for="item in symbolList" :value="item.value" :key="item.value">{{ item.label }}</Option>
+                            </Select>
+                        </Col>
+                        <Col span="1" style="width:20px">
+                            <Radio v-model="formLeft.increase" size="small"></Radio>
+                        </Col>
+                        <Col span="4" >
+                            <Input  placeholder="数值" size="small" disabled />
+                        </Col>
+                        <Col span="1" style="width:20px">
+                            <Radio v-model="formLeft.increase" size="small"></Radio>
+                        </Col>
+                        <Col span="4" >
+                            <Input  placeholder="选择测点" size="small" />
+                        </Col>
+                        <Col span="2" >
+                            <Icon type="ios-add-circle" style="font-size:20px;color:rgb(75, 126, 254)" />
+                            <Icon type="ios-remove-circle" style="font-size:20px;color:rgb(75, 126, 254);margin-left:8px" />
                         </Col>
                     </Row>
                  </div>
@@ -192,7 +219,8 @@ export default {
                     value: '<=',
                     label: '小于等于'
                 },
-            ]
+            ],
+            condition:[1,2]
             
         }
     },
@@ -212,6 +240,7 @@ export default {
 <style lang="less" scoped>
 .user-information{
     margin: 5px;
+    overflow:scroll;
     .user-title{
         background: #fff;
         padding: 5px;
@@ -258,10 +287,12 @@ export default {
             }
         }
         .symbol-con{
+            margin-left: 60px;
             /deep/.ivu-row{
                 background: #f0f0f0;
                 height: 38px;
                 line-height: 38px;
+                width: 100%;
             }
         }
        

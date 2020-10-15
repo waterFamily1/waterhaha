@@ -16,7 +16,6 @@
                      <TreeSelect 
                     v-model="formInline.orgId" 
                     :data="data4"
-                    :multiple="true"
                     v-width="350" 
                 />
                 </FormItem>
