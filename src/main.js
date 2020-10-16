@@ -48,6 +48,9 @@ Vue.use(BaiduMap, {
     ak: '5bskxOMT41wqVZxZzXme3jV57lfyHUz9'
 })
 
+import moment from 'moment'
+Vue.prototype.$moment = moment
+
 if (window) window.$t = (key, value) => i18n.t(key, value)
 
 Vue.use(plugins)
