@@ -196,21 +196,7 @@ export default {
                 }
             ],
             modelData: [
-                {
-                    name: '吴镕譞0',
-                    department: '技术部0',
-                    tissue: '易烊千玺老婆团'
-                },
-                {
-                    name: '吴镕譞1',
-                    department: '技术部1',
-                    tissue: '易烊千玺老婆团'
-                },
-                {
-                    name: '吴镕譞2',
-                    department: '技术部2',
-                    tissue: '易烊千玺老婆团'
-                }
+               
             ],
             list: [],
             selectedData: [],

@@ -7,9 +7,8 @@
                     <DatePicker 
                         type="date" v-model="startTime1" :editable="false"
                         :options="startDate" :value="startTime"
-                        format="yyyy-MM-dd"
-                        @on-change="handleChange" style="width: 120px"
-                    >
+                        format="yyyy-MM-dd" 
+                        @on-change="handleChange" style="width: 120px">
                     </DatePicker> 
                     -
                     <DatePicker 
