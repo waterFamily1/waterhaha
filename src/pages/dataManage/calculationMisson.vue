@@ -1,13 +1,13 @@
 <template>
     <div class="sim-box" :style="{height: height+'px'}">
         <div class="sim-search">
-            <Form :model="siteSearchList" label-position="right" :label-width="100">
+            <Form label-position="right" :label-width="100">
                 <div class="search-box" :class="{searchTrans:searchShow, searchPack:!searchShow}">
                     <div class="search-main">
                         <div>
                             <div class="form-item">
                                 <FormItem label="关键字:">
-                                    <Input v-model="siteSearchList.name" placeholder="任务名称/任务编号"></Input>
+                                    <Input v-model="keyword" placeholder="任务名称/任务编号"></Input>
                                 </FormItem>
                             </div>
                             <div class="form-item">
@@ -26,8 +26,8 @@
                                 <Icon type="ios-arrow-up" v-else />
                                 高级搜索
                             </a>
-                            <Button>搜索</Button>
-                            <Button class="reset">重置</Button>
+                            <Button @click="getList()">搜索</Button>
+                            <Button class="reset" @click="resetHandle()">重置</Button>
                         </div>
                     </div>
                     <div class="c-adv-search">
@@ -35,9 +35,9 @@
                             <div class="form-item">
                                 <FormItem label="任务状态:">
                                     <div class="cmp-tab">
-                                        <TagSelect v-model="operatorValue">
-                                            <TagSelectOption name="tag1">启用</TagSelectOption>
-                                            <TagSelectOption name="tag2">停用</TagSelectOption>
+                                        <TagSelect v-model="operatorValue" @on-change="operatorChange">
+                                            <TagSelectOption name="ON">启用</TagSelectOption>
+                                            <TagSelectOption name="OFF">停用</TagSelectOption>
                                         </TagSelect>
                                     </div>
                                 </FormItem>
@@ -73,12 +73,15 @@
                     @on-selection-change="siteTableChange"
                 >
                     <template slot-scope="{ row, index }" slot="action">
-                        <Button class="action" size="small" style="margin-right: 5px;">查看</Button>
+                        <Button class="action" size="small" style="margin-right: 5px;" @click="detailHandle(row)">查看</Button>
                         <Button class="action" size="small" style="margin-right: 5px;">编辑</Button>
                         <Button class="action" size="small">计算记录</Button>
                     </template>
                 </Table>
-                 <Page :total="100" show-elevator show-total class="page" />
+                <Page 
+                    :total="allTotal" show-total show-elevator @on-change="changePage" 
+                    style="text-align: right;margin-top: 10px;" 
+                />
             </div>
         </div>
         <!-- 删除 -->
@@ -166,12 +169,7 @@ export default {
             height: '',
             processList: [],
             areaSite: '',
-            siteSearchList: {
-                name: '',
-                number1: '',
-                number2: '',
-                operator: ''
-            },
+            keyword: '',
             searchShow: false,
             addModal: false,
             loading: true,
@@ -234,6 +232,8 @@ export default {
                     {required: true, message: '请输入ICCID', trigger: 'blur' }
                 ]
             },
+            allTotal: 0,
+            pageNum: '1',
             removeModal: false,
             invokeModal: false,
             blockupModal: false,
@@ -253,14 +253,17 @@ export default {
     },
     methods: {
         getList() {
-            // {
-            //     queryName,
-            //     siteId,
-            //     status,
-            //     execute,
-            //     currentPage
-            // }
-            getListMethod().then(res=> {
+            let queryName = this.keyword
+            let status = this.operatorValue
+            let siteId = this.areaSite
+            let currentPage = this.pageNum
+
+            getListMethod({
+                queryName,
+                status,
+                siteId,
+                currentPage
+            }).then(res=> {
                 // console.log(JSON.stringify(res.data))
                 let arr = res.data.items
                 arr.map(item=> {
@@ -283,9 +286,26 @@ export default {
                     return item
                 })
                 this.siteTableData = arr
+                this.allTotal = res.data.total
             }).catch(err=> {
 
             })
+        },
+        resetHandle() {
+            this.keyword = ''
+            this.operatorValue = ''
+            this.areaSite = ''
+            this.pageNum = '1'
+            this.getList()
+        },
+        changePage(index) {
+            this.pageNum = index
+            this.getList()
+        },
+        operatorChange(checkedNames, name) {
+            if(name == '' || name == undefined || name == null) {
+                this.operatorValue = []
+            }
         },
         siteTableChange(selection) {
             let arr = selection
@@ -469,6 +489,17 @@ export default {
             setTimeout(() => {
                 this.addModal = false;
             }, 2000);
+        },
+        detailHandle(row) {
+            let id = row.id
+            let mpointid = row.mpointid
+            this.$router.push({
+                path: '/task-detail',
+                query: {
+                    id: id,
+                    mpointid: mpointid
+                }
+            })
         }
     }
 }

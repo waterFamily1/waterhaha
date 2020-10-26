@@ -25,3 +25,14 @@ export function formatTime(time, format) {
         }
     })
 }
+
+//判断数组中元素是否都相同
+export function isAllEqual(array) {
+    if (array.length > 0) {
+        return !array.some(function(value, index) {
+            return value !== array[0];
+        });
+    } else {
+        return true;
+    }
+}

@@ -52,6 +52,94 @@ let  dataQuality = [
     }
 ]
 
+let dataManage = [
+    {
+        path: '/task-detail',
+        title: '查看多测点计算任务',
+        auth: ['hidden']
+    }, {
+        path: '/analyze/synthesiSite',
+        title: '批量配置综合测点',
+        auth: ['hidden']
+    }, {
+        path: `/analyze/addAutomatic`,
+        title: '新增自动采集测点',
+        auth: ['hidden']
+    }, {
+        path: `/analyze/addLabour`,
+        title: '新增人工采集测点',
+        auth: ['hidden']
+    }, {
+        path: `/analyze/addSinglePoint`,
+        title: '新增单测点计算任务',
+        auth: ['hidden']
+    }, {
+        path: `/analyze/addMorePoint`,
+        title: '新增多测点计算任务',
+        auth: ['hidden']
+    }, {
+        path: `/analyze/addcustomPoint`,
+        title: '新增自定义型计算任务',
+        auth: ['hidden']
+    }, {
+        path: `/analyze/automaticSite`,
+        title: '自动采集测点详情',
+        auth: ['hidden']
+    }, {
+        path: `/analyze/artificialSite`,
+        title: '批量配置人工采集测点',
+        auth: ['hidden']
+    }, {
+        path: `/analyze/dataSite`,
+        title: '批量配置计算测点',
+        auth: ['hidden']
+    }, {
+        path: `/analyze/checkDataAnalysis`,
+        title: '查看数据分析测点',
+        auth: ['hidden']
+    }, {
+        path: `/analyze/checkAutomatic`,
+        title: '查看自动采集测点',
+        auth: ['hidden']
+    }, {
+        path: `/analyze/checkCustom`,
+        title: '查看自定义型计算任务',
+        auth: ['hidden']
+    }, {
+        path: `/analyze/checkMoreSite`,
+        title: '查看多测点计算任务',
+        auth: ['hidden']
+    }, {
+        path: `/analyze/checkOneSite`,
+        title: '查看单测点计算任务',
+        auth: ['hidden']
+    }, {
+        path: `/analyze/checkLabour`,
+        title: '查看人工采集测点',
+        auth: ['hidden']
+    }, {
+        path: `/analyze/editLabour`,
+        title: '编辑人工采集测点',
+        auth: ['hidden']
+    }, {
+        path: `/analyze/editOneSite`,
+        title: '编辑单测点计算任务',
+        auth: ['hidden']
+    }, {
+        path: `/analyze/editMoreSite`,
+        title: '编辑多测点计算任务',
+        auth: ['hidden']
+    }, {
+        path: `/analyze/editcustomPoint`,
+        title: '编辑自定义型计算任务',
+        auth: ['hidden']
+    }, {
+        path: `/analyze/editAutomatic`,
+        title: '编辑自动采集测点',
+        auth: ['hidden']
+    }
+]
+
 export default function createRoutes(item) {
     let arr = item
     const parent = arr.filter(item => item.parentId == 0)
@@ -73,6 +161,10 @@ export default function createRoutes(item) {
                 } else if(parent[i].title == '数据质量'){
                     for(let j = 0; j < dataQuality.length; j ++) {
                         parent[i].children.push(dataQuality[j])
+                    }
+                } else if(parent[i].title == '数据管理'){
+                    for(let j = 0; j < dataManage.length; j ++) {
+                        parent[i].children.push(dataManage[j])
                     }
                 }
                 break
