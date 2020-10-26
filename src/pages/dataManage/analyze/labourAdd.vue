@@ -3,7 +3,7 @@
         <div class="user-title">
             <h3>人工数据采集</h3>
             <div>
-                <Button type="primary" size="small" style="background:#4b7efe" @click="save()">保存</Button>
+                <Button type="primary" size="small" style="background:#4b7efe" @click="save('formInline')">保存</Button>
                 <Button type="primary" size="small" style="background:#c8c8c8" @click="cancel()">取消</Button>
             </div>
         </div>
@@ -13,19 +13,17 @@
                     <Row>
                         <Col span="12">
                             <FormItem label="区域位置：" prop="location">
-                                <Select v-model="formInline.location" placeholder="请选择"  style="width:250px">
-                                    <Option v-for="item in cityList" :value="item.value" :key="item.value">{{ item.label }}</Option>
-                                </Select>
+                               <TreeSelect v-model="formInline.location" size="small" :data="areaData" v-width="250" />
                             </FormItem>
                         </Col>
                         <Col span="12">
                             <FormItem label="名称：" prop="name">
-                                <Input v-model="formInline.name" placeholder="名称"  style="width:250px"></Input>
+                                <Input v-model="formInline.name" placeholder="名称" size="small"  style="width:250px"></Input>
                             </FormItem>
                         </Col>
                     </Row>
-                    <FormItem label="采集周期：" prop="name">
-                        <Input v-model="formInline.name" placeholder="1-24范围的整数"  style="width:250px"></Input>小时
+                    <FormItem label="采集周期：" prop="duration">
+                        <Input v-model="formInline.duration" placeholder="1-24范围的整数" size="small" style="width:250px"></Input>小时
                      </FormItem>
                 </Form>
            </div>
@@ -34,13 +32,12 @@
                    <Button type="info" size="small"  @click="add()">新增</Button>
                    <Button type="info" size="small" @click="channel()">导入</Button>
                </div>
-                <Table stripe :columns="columns1" :data="data1" v-if="!ischannel">
+                <Table stripe :columns="columns1" :data="selectedData" v-if="!ischannel" size="small">
                     <template slot-scope="{ row }" slot="name">
                         <strong>{{ row.name }}</strong>
                     </template>
                     <template slot-scope="{ row, index }" slot="action">
-                        <Button class="action" size="small" style="margin-right: 5px;" @click="checkUser(index)">查看</Button>
-                        <Button class="action" size="small" @click="remove(index)">删除</Button>
+                        <Button class="action" size="small" @click="remove(index)" style="color:rgb(75, 126, 254);font-size:13px;border:0;background:none">删除</Button>
                     </template>
                 </Table>
                 <div v-else>
@@ -79,7 +76,7 @@
             </p>
             <div>
                 <div>
-                    <input type="text" name="" id="" placeholder="测点编号/名称" style="margin-right:8px;border:1px solid #eaeaea;outline:0;padding-left:10px">
+                    <input type="text" v-model="modelKey" name="" id="" placeholder="测点编号/名称" style="margin-right:8px;border:1px solid #eaeaea;outline:0;padding-left:10px">
                      <Button type="primary" size="small" @click="search()">搜索</Button>
                 </div>
                      <div class="model-table">
@@ -89,10 +86,10 @@
                         @on-select-all="handleSelectAll"
                         @on-select-all-cancel="handleSelectAllCancel">
                     </Table>
-                    <Page :total="100" show-elevator size="small" class="page" style="text-align:right;margin-top:20px"  />
+                    <Page :total="modelTotal" show-elevator size="small" class="page" style="text-align:right;margin-top:20px"  />
                      <div class="btn-group">
-                        <span>取消</span>
-                        <span style="background: #4b7efe;">确定</span>
+                        <span @change="abolish()">取消</span>
+                        <span style="background: #4b7efe;" @click="sure()">确定</span>
                      </div>
                 </div>
             </div>
@@ -103,6 +100,8 @@
     </div>
 </template>
 <script>
+import { regionalCon,dialog,addLabour} from '@api/dataManage/labour';
+import createTree from '@/libs/public-util'
   export default {
       name:'labourAdd',
       data(){
@@ -112,123 +111,186 @@
                 name:'',
                 duration:''
              },
-             ruleValidate:{
+            ruleValidate:{
                 name: [
                     { required: true, message: '请输入姓名', trigger: 'blur' }
                 ],
                 location: [
-                    { required: true, message: '请输入名称', trigger: 'change' }
+                    { required: true, message: '请选择区域位置', trigger: 'change',type:'number' }
                 ],
                  duration: [
-                    { required: true, message: '请输入采集周期', trigger: 'blur' }
+                    { required: true, message: '请输入采集周期', trigger: 'blur' },
+                     {validator:(rule, value, callback)=>{
+                         value = Number(value)
+                         let reg= /^[0-9]*[1-9][0-9]*$/
+                         if(value<1||value>24){
+                             callback(new Error("1-24范围的整数"));
+                         }else if(!reg.test(value)){
+                            callback(new Error("1-24范围的整数"));
+                        }else{
+                            callback()
+                        }
+                    }, trigger: 'blur'}
                 ],
-             },
+            },
             height:0,
-            cityList: [
-                    {
-                        value: 'New York',
-                        label: 'New York'
-                    },
-                    {
-                        value: 'London',
-                        label: 'London'
-                    },
-                    {
-                        value: 'Sydney',
-                        label: 'Sydney'
-                    },
-                    {
-                        value: 'Ottawa',
-                        label: 'Ottawa'
-                    },
-                    {
-                        value: 'Paris',
-                        label: 'Paris'
-                    },
-                    {
-                        value: 'Canberra',
-                        label: 'Canberra'
+            locationName:'',
+            modelData: [ ],
+            selectedData: [],
+            ischannel:false,
+            areaData:[],
+            columns1:[
+                {
+                    title: '测点名称',
+                    key: 'mpointName'
+                },
+                {
+                    title: '名称分组',
+                    key: 'formName',
+                    render: (h, params) => {
+                        let that = this
+                        return h('div', [
+                            h('Input', {
+                                props: {
+                                    size:'small', 
+                                    value : '未命名分组'
+                                },
+                                style:{
+                                    color:'blue',
+                                    cursor: 'pointer',
+                                    marginRight: '5px',
+                                    fontSize:'18px'
+                                },
+                                on: {
+                                    input: function (event) {
+                                      console.log(that.mpointList)
+                                      that.mpointList[params.index].groupName = event
+                                    }
+                                }
+                            })
+                        ]);
                     }
-                ],
-                 columns1: [
-                    {
-                        title: '测点名称',
-                        key: 'name'
-                    },
-                    {
-                        title: '分组名称',
-                        key: 'groupname'
-                    },
-                    {
-                        title: '组序号',
-                        key: 'number'
-                    },
-                    {
-                        title: '组内序号',
-                        key: 'inlinenumber'
-                    },
-                    {
-                        title: '操作',
-                        slot: 'action',
-                        width: 150,
-                        align: 'center'
+                },
+                {
+                    title: '组序号',
+                    key: 'cycleName',
+                    render: (h, params) => {
+                        let that = this
+                        return h('div', [
+                            h('InputNumber', {
+                                props: {
+                                    size:'small',
+                                    value : 1
+                                },
+                                style:{
+                                    color:'blue',
+                                    cursor: 'pointer',
+                                    marginRight: '5px',
+                                    fontSize:'12px'
+                                },
+                                on: {
+                                    'on-change':(e) => {
+                                        console.log(e)
+                                        that.mpointList[params.index].groupOrder = e
+                                    }
+                                }
+                            })
+                        ]);
                     }
-                ],
-                model1: '',
-                modal:false,
-                modelColumns: [
+                },
+                {
+                    title: '组内序号',
+                    key: 'formLatestdate',
+                     render: (h, params) => {
+                         let that = this
+                        return h('div', [
+                            h('InputNumber', {
+                                props: {
+                                    size:'small',
+                                    value:1
+                                },
+                                style:{
+                                    color:'blue',
+                                    cursor: 'pointer',
+                                    marginRight: '5px',
+                                    fontSize:'12px'
+                                },
+                                on: {
+                                    click: (e) => {
+                                         that.mpointList[params.index].mpointOrder = e
+                                    }
+                                }
+                            })
+                        ]);
+                    }
+                },
+                {
+                    title: '操作',
+                    slot: 'action',
+                    align: 'center'
+                }
+            ],
+            data1:[],
+            modal:false,
+            modelColumns:[
                 {
                     type: 'selection',
-                    width: 60,
+                    width: 70,
                     align: 'center'
                 },
                 {
                     title: '测点编号',
-                    key: 'number'
+                    key: 'mpointId'
                 },
                 {
                     title: '区域位置',
-                    key: 'location'
+                    key: 'siteName'
                 },
                 {
                     title: '测点名称',
-                    key: 'name'
+                    key: 'mpointName'
                 }
             ],
-            modelData: [
-                {
-                    number: '吴镕譞0',
-                    location: '技术部0',
-                    name: '易烊千玺老婆团'
-                },
-                {
-                    number: '吴镕譞1',
-                    location: '技术部1',
-                    name: '易烊千玺老婆团'
-                },
-                {
-                    number: '吴镕譞2',
-                    location: '技术部2',
-                    name: '易烊千玺老婆团'
-                }
-            ],
-            selectedData: [],
-             ischannel:false,
+            modelTotal:0,
+            modelKey:'',
+            filterId:'',
+            baseData:[],
+            mpointList:[]
         }
       },
       mounted() {
         this.height = document.body.clientHeight-70
+        this.getRegional()
+        
     },
     methods: {
-       add(){
-           this.modal=true
-       },
-       channel(){
-           this.ischannel=true
-       },
-       close(){
-           this.ischannel=false
-       },
+        add(){
+            this.modal=true
+            this.getModalData()
+        },
+        channel(){
+            this.ischannel=true
+        },
+        close(){
+            this.ischannel=false
+        },
+        getRegional() {
+            regionalCon().then(res => {
+                // console.log(JOSN.stringify(res.data))
+                let treeItem = []
+                let trees = res.data
+                for(let i = 0; i < trees.length; i ++) {
+                    trees[i].title = trees[i].name
+                    trees[i].expand = true
+                    trees[i].value = trees[i].id
+                    treeItem.push(trees[i])
+                }
+                this.baseData = treeItem
+                this.areaData= createTree(treeItem)
+            }).catch(err => {
+                // 异常情况
+            })
+        },
         // 清空所有已选项
         handleClearSelect (status) {
             this.selectedData = [];
@@ -240,13 +302,13 @@
         },
         // 取消选中一项，将取消的数据从已选项中删除
         handleSelectCancel (selection, row) {
-            const index = this.selectedData.findIndex(item => item.name === row.name);
+            const index = this.selectedData.findIndex(item => item.id === row.id);
             this.selectedData.splice(index, 1);
         },
         // 当前页全选时，判断已选数据是否存在，不存在则添加
         handleSelectAll (selection) {
             selection.forEach(item => {
-                if (this.selectedData.findIndex(i => i.name === item.name) < 0) {
+                if (this.selectedData.findIndex(i => i.id === item.id) < 0) {
                     this.selectedData.push(item);
                 }
             });
@@ -255,11 +317,80 @@
         handleSelectAllCancel () {
             const selection = this.modelData;
             selection.forEach(item => {
-                const index = this.selectedData.findIndex(i => i.name === item.name);
+                const index = this.selectedData.findIndex(i => i.id === item.id);
                 if (index >= 0) {
                     this.selectedData.splice(index, 1);
                 }
             });
+        },
+        save(name){
+            console.log(this.mpointList)
+            this.baseData.forEach(ele=>{
+                if(ele.id == this.formInline.location){
+                    this.locationName = ele.name
+                }
+            })
+            let data = {
+                cycleId: this.formInline.duration+"H", //周期
+                cycleNumber: this.formInline.duration,
+                formName: this.formInline.name, //名称
+                id: 0,
+                mpointList:this.mpointList,
+                siteId: this.formInline.location,  //区域位置
+                siteName: this.locationName //区域名称
+            }
+             this.$refs[name].validate((valid) => {
+                 addLabour(data).then(res=>{
+                     if(res.data.id){
+                         this.$Message.success('数据添加成功');
+                         this.$router.go(-1)
+                     }
+                 })
+             })
+        },
+        getModalData(){
+            if(this.selectedData.length!=0){
+                let arr = []
+                this.selectedData.forEach(ele=>{
+                   arr.push(ele.id)
+                })
+                this.filterId = arr.join(",")
+            }
+            dialog(this.filterId,this.modelKey,this.formInline.location).then(res=>{
+                console.log(res)
+                this.modelData = res.data.items
+                this.modelTotal = res.data.total
+            })
+        },
+        search(){
+             this.getModalData()
+        },
+        sure(){
+            console.log(this.selectedData)
+            this.mpointList=[]
+            this.selectedData.forEach(ele=>{
+                this.mpointList.push({
+                    autoComplete: 0,
+                    formId: 0,
+                    groupName: "未命名分组",
+                    groupOrder: 1,
+                    index: 0,
+                    mpointId: ele.id,
+                    mpointName: ele.mpointName,
+                    mpointOrder: 1,
+                    status: null,
+                    textType: "single",
+                    unit: "",
+                })
+            })
+            console.log(this.mpointList)
+            this.modal = false
+        },
+        abolish(){
+            this.modal = false
+        },
+        remove(index){
+            this.selectedData.splice(index,1)
         }
     }
   }

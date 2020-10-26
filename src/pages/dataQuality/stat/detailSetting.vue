@@ -19,61 +19,79 @@
                     </Col>
                     <Col span="8">
                         <FormItem label="信号类型:">
-                             <span>状态信号</span>
+                             <span>{{currentMpoint.datype=='Digtal'?'数值信号':'状态信号'}}</span>
                         </FormItem>
                     </Col>
                 </Row>
                 <h4>准确性</h4>
-                <div v-if="haveAccuracy">
+                <div v-if="currentMpoint.datype=='Digtal'">
                     <Row>
                         <Col span="8">
                             <FormItem label="合理范围:" >
-                            <InputNumber  v-model="formLeft.min" style="width:80px" size="small"></InputNumber>
+                            <InputNumber  v-model="formLeft.min" style="width:80px" size="small" @on-change="rangeminChange"></InputNumber>
                             -
-                            <InputNumber  v-model="formLeft.max" style="width:80px" size="small"></InputNumber>
+                            <InputNumber  v-model="formLeft.max" style="width:80px" size="small"  @on-change="rangemaxChange"></InputNumber>
                             </FormItem>
                         </Col>
                         <Col span="8">
-                            <FormItem label="单调递增:">
-                                <Radio v-model="formLeft.increase"></Radio>
+                            <FormItem label="单调递增:" >
+                                <Radio v-model="formLeft.increase" @on-change="changeIncrease"></Radio>
                             </FormItem>
                         </Col>
                     </Row>
                     <Row>
                         <Col span="8">
                             <FormItem label="3σ原则:" >
-                            <Checkbox v-model="formLeft.principle"></Checkbox>
+                            <Checkbox v-model="formLeft.sigma" @on-change="sigmaChange"></Checkbox>
                             </FormItem>
                         </Col>
                     </Row>
                     <Row>
                         <Col span="8">
                             <FormItem label="箱型图:" >
-                            <Checkbox v-model="formLeft.principle"></Checkbox>
+                            <Checkbox v-model="formLeft.principle" @on-change="boxChange"></Checkbox>
                             </FormItem>
                         </Col>
                     </Row>
+                    </div>
+                    <div v-else>
+                        
+                        <Row>
+                            <Col span="8">
+                                <FormItem label="是否校验:" >
+                                  <Checkbox v-model="formLeft.completeCheck"></Checkbox>
+                                </FormItem>
+                            </Col>
+                        </Row>
+                         <Row>
+                            <Col span="8">
+                            <div style="margin-left:60px;margin-bottom:24px">
+                                <Icon type="ios-information-circle" style="color:rgb(75, 126, 254);font-size:20px" /> 使用测点状态值校验   
+                            </div>
+                            </Col>
+                        </Row>
+                    </div>
                     <Row>
                         <Col span="8">
                             <FormItem label="异常值处理:" >
-                            <Select v-model="formLeft.dispose" style="width:280px" size="small">
-                                    <Option v-for="item in disposeList" :value="item.value" :key="item.value">{{ item.label }}</Option>
+                            <Select v-model="formLeft.dispose" style="width:280px" size="small" :disabled="disposeDisabled">
+                                    <Option v-for="(item,index) in disposeList" :value="index" :key="index">{{ item}}</Option>
                                 </Select>
                             </FormItem>
                         </Col>
                     </Row>
-                </div>
+                
                  <h4>完整性</h4>
                   <Row>
                     <Col span="8">
                         <FormItem label="是否校验:" >
-                          <Checkbox v-model="formLeft.completeCheck"></Checkbox>
+                          <Checkbox v-model="formLeft.completeCheck" @on-change="completeChange"></Checkbox>
                         </FormItem>
                     </Col>
                      <Col span="8">
                         <FormItem label="缺失值处理:" >
-                           <Select v-model="formLeft.lose" style="width:280px" size="small">
-                                <Option v-for="item in loseList" :value="item.value" :key="item.value">{{ item.label }}</Option>
+                           <Select v-model="formLeft.lose"  style="width:280px" size="small" :disabled="loseDisabled">
+                                <Option v-for="(item,index) in loseList" :value="index" :key="index">{{ item }}</Option>
                             </Select>
                         </FormItem>
                     </Col>
@@ -82,7 +100,7 @@
                   <Row>
                     <Col span="8">
                         <FormItem label="是否校验:" >
-                          <Checkbox v-model="formLeft.timeCheck"></Checkbox>
+                          <Checkbox v-model="formLeft.timeCheck" ></Checkbox>
                         </FormItem>
                     </Col>
                 </Row>
@@ -92,73 +110,66 @@
                     <Button type="info" size="small" style="background:#576374" @click="deleteCon()">删除</Button>
                  </div>
                  <div class="symbol-con">
-                    <Row :gutter="20" >
-                        <Col span="1" style="width:20px">&nbsp;</Col>
-                        <Col span="2" style="width:5%">
-                        &nbsp;
-                            <Select  size="small" placeholder="" v-if="false">
-                                <Option >且</Option>
-                                <Option >或</Option>
+                    <div  v-for="(item ,index) in symbolArr" :key="index" >
+                         <div @click="getOutIndex(index)" v-if="index!=0"  style="width:7%;margin:20px 0">
+                            <Select  size="small" placeholder="" @on-change="chooseOutSymbol"  v-model="item.outSymbol"  >
+                                <Option value="&&">且</Option>
+                                <Option value="||">或</Option>
                             </Select>
-                        </Col>
-                        <Col span="4" >
-                            <Input  placeholder="选择测点" size="small" />
-                        </Col>
-                        <Col span="4" >
-                            <Select  size="small">
-                                <!-- <Option v-for="item in symbolList" :value="item.value" :key="item.value">{{ item.label }}</Option> -->
-                            </Select>
-                        </Col>
-                        <Col span="1" style="width:20px">
-                            <Radio v-model="formLeft.increase" size="small"></Radio>
-                        </Col>
-                        <Col span="4" >
-                            <Input  placeholder="数值" size="small" disabled />
-                        </Col>
-                        <Col span="1" style="width:20px">
-                            <Radio v-model="formLeft.increase" size="small"></Radio>
-                        </Col>
-                        <Col span="4" >
-                            <Input  placeholder="选择测点" size="small" />
-                        </Col>
-                        <Col span="2" >
-                            <Icon type="ios-add-circle" style="font-size:20px;color:rgb(75, 126, 254)" />
-                            <Icon type="ios-remove-circle" style="font-size:20px;color:rgb(75, 126, 254);margin-left:8px" />
-                        </Col>
-                    </Row>
-                    <Row :gutter="20" >
-                        <Col span="1" style="width:20px">&nbsp;</Col>
-                        <Col span="2" style="width:5%;padding:0">
-                            <Select  size="small" placeholder="" >
-                                <Option >且</Option>
-                                <Option >或</Option>
-                            </Select>
-                        </Col>
-                        <Col span="4" >
-                            <Input  placeholder="选择测点" size="small" />
-                        </Col>
-                        <Col span="4" >
-                            <Select  size="small">
-                                <Option v-for="item in symbolList" :value="item.value" :key="item.value">{{ item.label }}</Option>
-                            </Select>
-                        </Col>
-                        <Col span="1" style="width:20px">
-                            <Radio v-model="formLeft.increase" size="small"></Radio>
-                        </Col>
-                        <Col span="4" >
-                            <Input  placeholder="数值" size="small" disabled />
-                        </Col>
-                        <Col span="1" style="width:20px">
-                            <Radio v-model="formLeft.increase" size="small"></Radio>
-                        </Col>
-                        <Col span="4" >
-                            <Input  placeholder="选择测点" size="small" />
-                        </Col>
-                        <Col span="2" >
-                            <Icon type="ios-add-circle" style="font-size:20px;color:rgb(75, 126, 254)" />
-                            <Icon type="ios-remove-circle" style="font-size:20px;color:rgb(75, 126, 254);margin-left:8px" />
-                        </Col>
-                    </Row>
+                        </div>
+                        <div>
+                            <Row :gutter="20" v-for="(ele,idx) in item.listItem" :key="idx">
+                                <Col span="1" style="width:20px">&nbsp;</Col>
+                                <Col span="2" style="width:7%">
+                                    <span v-if="idx==0">&nbsp;</span>
+                                    <div @click="getIndex(index,idx)" v-else>
+                                        <Select  size="small" placeholder="" @on-change="chooseRelative"  v-model="ele.relation"  >
+                                            <Option value="&&">且</Option>
+                                            <Option value="||">或</Option>
+                                        </Select>
+                                    </div>
+                                    
+                                </Col>
+                                <Col span="4" >
+                                    <div  @click="getPre(index,idx)" > 
+                                        <Input  placeholder="选择测点" size="small" v-model="ele.preItem" />
+                                    </div>
+                                </Col>
+                                <Col span="4" >
+                                    <div @click="getIndex(index,idx)">
+                                        <Select  size="small" v-model="ele.symbol"  @on-change="chooseSymbol">
+                                            <Option v-for="item in symbolList" :value="item.value" :key="item.value">{{ item.label }}</Option>
+                                        </Select>
+                                    </div>
+                                    
+                                </Col>
+                                <Col span="1" style="width:20px">
+                                    <Radio v-model="ele.numBollean" size="small" @on-change="chooseData" ></Radio>
+                                </Col>
+                                <Col span="4" >
+                                   <div @click="getIndex(index,idx)">
+                                        <Input  placeholder="数值" size="small" :disabled="ele.dataDisabled" :value="ele.num" v-model="ele.num"  />
+                                   </div>
+                                   
+                                </Col>
+                                <Col span="1" style="width:20px">
+                                    <Radio v-model="ele.siteBollean" size="small" :value="ele.site" @on-change="chooseNextSite"></Radio>
+                                </Col>
+                                <Col span="4" >
+                                    <div @click="getNext(index,idx)" >
+                                        <Input  placeholder="选择测点" size="small" v-model="ele.nextItem" :disabled="ele.siteDisabled"/>
+                                    </div>   
+                                </Col>
+                                <Col span="2" >
+                                    <Icon type="ios-add-circle" style="font-size:20px;color:rgb(75, 126, 254)"  @click="addPlus(index)"/>
+                                    <Icon type="ios-remove-circle" style="font-size:20px;color:rgb(75, 126, 254);margin-left:8px" @click="removeMinus(index,idx)" />
+                                </Col>
+                            </Row>
+                        </div>  
+                        
+                    </div>
+                    
+                    
                  </div>
             </Form>
         </div>
@@ -201,7 +212,7 @@
 </template>
 <script>
 
-import { regionalCon,changeTableData,modelData} from '@api/dataQuality/sample';
+import { regionalCon,changeTableData,modelData,cateValue,getDetail,settingSample} from '@api/dataQuality/sample';
 import createTree from '@/libs/public-util'
 export default {
     name:'detailSetting',
@@ -217,30 +228,14 @@ export default {
                 min:'',
                 increase:false,
                 principle:false,
-                dispose:1,
+                sigma:false,
+                dispose:'',
+                lose:'',
                 completeCheck:false,
                 timeCheck:false
             },
-            disposeList:[
-                {
-                    value: '1',
-                    label: '前值替换'
-                },
-                {
-                    value: '2',
-                    label: '不处理'
-                },
-            ],
-            loseList:[
-                {
-                    value: '3',
-                    label: '前值填充'
-                },
-                {
-                    value: '4',
-                    label: '不处理'
-                },
-            ],
+            disposeList:[],
+            loseList:[],
             symbolList :[
                  {
                     value: '==',
@@ -287,19 +282,83 @@ export default {
             ],
             modelData: [],
             modelTotal:0,
-            haveAccuracy:false,
             areaData:[],
-            currentMpoint:{}
+            currentMpoint:{},
+            testId:'',
+            disposeDisabled:true,
+            loseDisabled:true,
+            symbolArr :[],
+            preItem:'',
+            chooseSite:[],
+            curIndex:0,
+            curIdx:0,
+            
+            textValue:'',
+            pre:false,
+            next :false,
+            dataNum:'',
+            changeTest:false
         }
     },
     mounted (){
         this.height = document.body.clientHeight-80
+        this.testId = this.$route.query.id
         this.getRegional()
         this.getTable('',1,1,'AUTO')
+        this.getDetail()
+        this.getOption('outerlier')
+        this.getOption('missing')
     },
     methods :{
         save(){
-
+            console.log(this.symbolArr)
+            let arr = this.symbolArr
+            console.log(arr)
+            let str = ""
+            // ((62)==123&&(24)>(25)||(4)<456)&&((5)>=(6)||(9)<=098)||((7)<=789)
+            // ((62)==123&&(24)>(25)||(4)<456)&&((5)>=(6)||(9)<=098)||((7)<=789)
+            arr.forEach(ele=>{
+                let itemRela = ''
+                ele.listItem.forEach((item,index)=>{
+                    let numOrSite = item.num?item.num: "("+item.site+")";
+                    // console.log(numOrSite)
+                    let a = "("+item.pre+")" + item.symbol+numOrSite
+                    // console.log(a)
+                    if(index == 0) item.relation = ''
+                    itemRela+=item.relation+a
+                })
+                 str+=ele.outSymbol+"("+itemRela+")"
+                
+                 console.log(str)
+            })
+            let data = {
+                boxPlot: this.formLeft.principle?1:'',
+                completeness: this.formLeft.completeCheck?1:'',
+                consistency: str,
+                datype: this.currentMpoint.datype,
+                enumCheck: null,
+                id: this.currentMpoint.id,
+                increase: this.formLeft.increase?1:'',
+                lowerRange: this.formLeft.min,
+                missingProcess: this.formLeft.lose,
+                missingProcessText: null,
+                mpointId: this.currentMpoint.mpointId,
+                mpointName: this.currentMpoint.mpointName,
+                mpoints: null,
+                outlierProcess: this.formLeft.dispose,
+                outlierProcessText: null,
+                point: null,
+                sigma3: this.formLeft.sigma?1:'',
+                siteId: 1,
+                timeliness: this.formLeft.timeCheck?1:'',
+                upperRange: this.formLeft.max,
+            }
+            // settingSample(data).then(res=>{
+            //     console.lose(res)
+            //     if(res.data.count){
+            //         this.$Message.success('数据保存成功');
+            //     }
+            // })
         },
         cancel(){
 
@@ -309,6 +368,7 @@ export default {
         },
         change(){
             this.modal = true
+            this.changeTest = true
         },
         searchData(){
             console.log(this.siteValue)
@@ -335,7 +395,7 @@ export default {
                 // 异常情况
             })
         },
-        getTable(queryName,page,confDataQuality,datasource){
+        async getTable(queryName,page,confDataQuality,datasource){
             changeTableData(queryName,page,confDataQuality,datasource).then(res=>{
                 console.log(res)
                  if(res.data){
@@ -346,7 +406,7 @@ export default {
         },
         getModelData(queryName,siteId,page,confDataQuality,datasource){
             modelData(queryName,siteId,page,confDataQuality,datasource).then(res=>{
-              console.log(res)
+            //   console.log(res)
                 if(res.data){
                     this.modelData = res.data.items
                     this.modelTotal = res.data.total
@@ -355,12 +415,260 @@ export default {
         },
         checkSite(row,index){
             console.log(row)
-            this.currentMpoint = row
-            this.haveAccuracy = true
+            if(this.changeTest){
+                this.currentMpoint = row
+            }else{
+                this.chooseSite = row
+            }
             this.modal = false
+            if(this.pre){
+                this.symbolArr[this.curIndex].listItem[this.curIdx].preItem = this.chooseSite.mpointName
+                this.symbolArr[this.curIndex].listItem[this.curIdx].pre = this.chooseSite.id
+            }else{
+                this.symbolArr[this.curIndex].listItem[this.curIdx].nextItem = this.chooseSite.mpointName
+                this.symbolArr[this.curIndex].listItem[this.curIdx].site = this.chooseSite.id 
+            }
+            
         },
         modelChange(size){
             this.getTable('',size,1,'AUTO')
+        },
+        async getDetail(){
+            getDetail(this.testId).then(res=>{
+                // console.log(res)
+                this.currentMpoint = res.data
+                this.formLeft = {
+                    min : res.data.lowerRange,
+                    max : res.data.upperRange,
+                    increase:res.data.increase==1?true:false,
+                    principle :res.data.boxPlot==1?true:false, 
+                    completeCheck :res.data.completeness ==1 ?true:false,
+                    lose: res.data.missingProcess,
+                    dispose: res.data.outlierProcess,
+                    sigma :res.data.sigma3 == 1?true:false,
+                    timeCheck :res.data.timeliness==1?true:false
+                }
+                this.loseDisabled = res.data.completeness ==1 ?false:true
+                this.disposeDisabled = res.data.outlierProcess ?false:true
+                // let consistency = res.data.consistency
+                // let mpoints = res.data.mpoints
+                // 切割规则不对 z
+                let consistency = '((62)==123&&(24)>(25)||(4)<456)&&((5)>=(6)||(9)<=098)||((7)<=789)'
+                // let consistency ='((3)==(22))&&((23)>68687||(24)<(25))'
+                let symbolSplit = consistency.match(/\&\&\(\(|\|\|\(\(/g)
+                // console.log(symbolSplit)
+                symbolSplit.unshift('')
+                // console.log(symbolSplit)
+                for(let m=0;m<symbolSplit.length;m++){
+                    // console.log(m)
+                    this.symbolArr.push({
+                        listItem:[],
+                        outSymbol:""
+                    })
+                    if(m==0){
+                        this.symbolArr[m].outSymbol = ""
+                    } else{
+                        this.symbolArr[m].outSymbol = symbolSplit[m].slice(0,2)
+                    }
+                }
+                let arr = consistency.split(/\&\&\(\(|\|\|\(\(/) ;
+                for(let i=0;i<arr.length;i++){
+                    let inlineRel = arr[i].match(/\|\||&&/g)
+                    if(!inlineRel){
+                       
+                    }else{
+                        
+                    }
+                    let child = arr[i].split(/\|\||&&/)
+                        // console.log(child)
+                    for(let j=0;j<child.length;j++){ 
+                        this.symbolArr[i].listItem.push({
+                            pre:'',
+                            preItem:'',
+                            symbol:'',
+                            numBollean:false,
+                            num:'',
+                            site:'',
+                            nextItem:'',
+                            siteBollean:false,
+                            dataDisabled:true,
+                            siteDisabled:true,
+                            relation:''
+                        })
+                       this.symbolArr[i].listItem[j].relation = inlineRel?inlineRel[0]:''
+                       this.symbolArr[i].listItem[j].symbol = child[j].match(/==|>=|<=|>|</)[0]
+                       let inlineItem = child[j].split(/==|>=|<=|>|</)
+                       this.symbolArr[i].listItem[j].pre = inlineItem[0]
+                       let preId=inlineItem[0].replace("((",'').replace('(','').replace(")",'')
+                       this.symbolArr[i].listItem[j].pre = preId
+                    //    this.symbolArr[i].listItem[j].preItem = mpoints[preId] 
+                       if(inlineItem[1].indexOf("(")!=-1){
+                           let id = inlineItem[1].replace('))','').replace(')','').replace('(','')
+                           this.symbolArr[i].listItem[j].site = id
+                        //    this.symbolArr[i].listItem[j].nextItem = mpoints[id]
+                           this.symbolArr[i].listItem[j].siteBollean = true
+                            this.symbolArr[i].listItem[j].siteDisabled =false
+                       }else{
+                           let num = inlineItem[1].replace(')','')
+                           this.symbolArr[i].listItem[j].num = num
+                           this.symbolArr[i].listItem[j].numBollean = true
+                           this.symbolArr[i].listItem[j].dataDisabled = false
+                       }
+                    }
+                }
+                console.log(this.symbolArr)
+            })
+        },
+        getOption(type){
+            cateValue(type).then(res=>{
+                if(type == 'outerlier'){
+                  this.disposeList = res.data
+                }else{
+                  this.loseList = res.data
+                }
+            })
+        },
+        changeIncrease(e){
+            if(e){
+               this.formLeft.max = ''
+               this.formLeft.min = ''
+               this.formLeft.principle = false
+               this.formLeft.sigma = false 
+            }
+        },
+        sigmaChange(e){
+            if(e){
+                this.formLeft.increase = false
+                this.disposeDisabled = false
+            }else{
+                this.disposeDisabled = true
+            }
+        },
+        boxChange(e){
+            if(e){
+                this.formLeft.increase = false
+                this.disposeDisabled = false
+            }else{
+                this.disposeDisabled = true
+            }
+        },
+        rangeminChange(e){
+            if(e){
+                this.formLeft.increase = false
+                this.disposeDisabled = false
+            }else{
+                this.disposeDisabled = true
+            }
+        },
+        rangemaxChange(e){
+            if(e){
+                this.formLeft.increase = false
+                this.disposeDisabled = false
+            }else{
+                this.disposeDisabled = true
+            }
+        },
+        completeChange(e){
+            if(e){
+                this.loseDisabled = false
+            }else{
+                this.loseDisabled = true
+            }
+        },
+        add(){
+            let arr = { 
+                listItem:[{
+                    pre:'',
+                    preItem:'',
+                    symbol:'',
+                    numBollean:false,
+                    num:'',
+                    site:'',
+                    nextItem:'',
+                    siteBollean:false,
+                    dataDisabled:true,
+                    siteDisabled:true,
+                    relation:''
+                },
+                ] ,
+                outSymbol:''
+            }
+            this.symbolArr.push(arr)
+            // console.log(this.symbolArr)
+        },
+        deleteCon(){
+            this.symbolArr = []
+        },
+        addPlus(index){
+            // console.log(index)
+            // console.log(this.symbolArr)
+            this.symbolArr[index].listItem.push({
+                pre:'',
+                preItem:'',
+                symbol:'',
+                numBollean:false,
+                num:'',
+                site:'',
+                nextItem:'',
+                siteBollean:false,
+                dataDisabled:true,
+                siteDisabled:true,
+                relation:''
+            })
+        },
+        removeMinus(index,idx){
+            this.symbolArr[index].listItem.splice(idx,1)
+        },
+        getPre(index,idx,e){
+            this.modal = true
+            this.pre = true
+            this.curIdx = idx
+            this.curIndex = index
+            this.next = false
+            this.changeTest = false
+        },
+        getNext(index,idx,e){
+            this.modal = true
+            this.next = true
+             this.pre = false
+            this.curIdx = idx
+            this.curIndex = index
+            this.changeTest = false
+        },
+        getIndex(index,idx){
+            console.log(index,idx)
+            this.curIndex = index
+            this.curIdx - idx
+        },
+        chooseSymbol(e){
+            this.symbolArr[this.curIndex].listItem[this.curIdx].symbol = e
+        },
+        chooseData(e){
+            if(e){
+                this.symbolArr[this.curIndex].listItem[this.curIdx].dataDisabled = false
+                this.symbolArr[this.curIndex].listItem[this.curIdx].num = ''
+                this.symbolArr[this.curIndex].listItem[this.curIdx].siteDisabled = true
+                this.symbolArr[this.curIndex].listItem[this.curIdx].siteBollean = false
+                // this.symbolArr[this.curIndex].listItem[this.curIdx].nextItem = true
+                this.symbolArr[this.curIndex].listItem[this.curIdx].site = ''
+            }
+        },
+        chooseNextSite(e){
+            if(e){
+                this.symbolArr[this.curIndex].listItem[this.curIdx].dataDisabled = true
+                this.symbolArr[this.curIndex].listItem[this.curIdx].num = ''
+                this.symbolArr[this.curIndex].listItem[this.curIdx].numBollean = false
+                this.symbolArr[this.curIndex].listItem[this.curIdx].siteDisabled = false
+            }
+        },
+        chooseRelative(e){
+            this.symbolArr[this.curIndex].listItem[this.curIdx].relation = e
+        },
+        getOutIndex(index){
+            this.curIndex = index
+        },
+        chooseOutSymbol(e){
+
         }
     }
 }
@@ -369,6 +677,7 @@ export default {
 .user-information{
     margin: 5px;
     overflow:scroll;
+    background: #fff;
     .user-title{
         background: #fff;
         padding: 5px;

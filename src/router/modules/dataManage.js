@@ -43,6 +43,15 @@ export default {
             },
             component: () => import('@/pages/dataManage/analyze/labourAdd'),
         },{
+            path: '/analyze/labourCheckForm',
+            name: `${pre}analyze-labourCheckForm`,
+            meta: {
+                ...meta,
+                title: '查看人工数据采集', 
+                closable: false
+            },
+            component: () => import('@/pages/dataManage/analyze/labourCheckForm'),
+        },{
             path: '/data-input/brief',
             name: `${pre}data-input-brief`,
             meta: {

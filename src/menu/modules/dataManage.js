@@ -112,6 +112,11 @@ export default {
             path: `/analyze/editAutomatic`,
             title: '编辑自动采集测点',
             auth: ['hidden']
-        }
+        },{
+            path: `/analyze/labourCheckForm`,
+            title: '查看人工数据采集',
+            auth: ['hidden']
+        },
+        
     ]
 }

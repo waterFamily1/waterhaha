@@ -54,7 +54,7 @@
                         <strong>{{ row.name }}</strong>
                     </template>
                     <template slot-scope="{ row, index }" slot="action">
-                        <Button class="action" size="small" style="margin-right: 5px;" @click="setting()">配置</Button>
+                        <Button class="action" size="small" style="margin-right: 5px;" @click="setting(row.id)">配置</Button>
                         <Button class="action" size="small" @click="deleteData(row)">删除</Button>
                     </template>
                 </Table>
@@ -195,9 +195,7 @@ export default {
                     key: 'mpointName'
                 }
             ],
-            modelData: [
-               
-            ],
+            modelData: [],
             list: [],
             selectedData: [],
             dataCategoryArr:[],
@@ -394,9 +392,12 @@ export default {
                 
             })
         },
-        setting(){
+        setting(id){
             this.$router.push({
-                path:"/stat/detailSetting"
+                path:"/stat/detailSetting",
+                query :{
+                    id: id
+                }
             })
         }
     }
