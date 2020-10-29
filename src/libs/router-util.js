@@ -141,6 +141,18 @@ let dataManage = [
         path: `/analyze/labourCheckForm`,
         title: '查看人工数据采集',
         auth: ['hidden']
+    }, {
+        path: `/analyze/labourEdit`,
+        title: '编辑人工数据采集',
+        auth: ['hidden']
+    },{
+        path: `/analyze/labourCheckRecord`,
+        title: '人工查看记录',
+        auth: ['hidden']
+    }, {
+        path: `/analyze/labourLogData`,
+        title: '人工录入数据',
+        auth: ['hidden']
     }
 ]
 

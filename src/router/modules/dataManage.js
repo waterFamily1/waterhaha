@@ -52,6 +52,15 @@ export default {
             },
             component: () => import('@/pages/dataManage/analyze/labourCheckForm'),
         },{
+            path: '/analyze/labourEdit',
+            name: `${pre}analyze-labourEdit`,
+            meta: {
+                ...meta,
+                title: '编辑人工数据采集', 
+                closable: false
+            },
+            component: () => import('@/pages/dataManage/analyze/labourEdit'),
+        },{
             path: '/data-input/brief',
             name: `${pre}data-input-brief`,
             meta: {
@@ -219,7 +228,7 @@ export default {
             meta: {
                 ...meta,
                 title: '新增人工采集测点',
-                closable: false
+                closable: false 
             },
             component: () => import('@/pages/dataManage/analyze/addAutomatic')
         }, {
@@ -294,6 +303,24 @@ export default {
                 closable: false
             },
             component: () => import('@/pages/dataManage/task/taskDetail')
-        }
+        },{
+            path: '/analyze/labourCheckRecord',
+            name: `${pre}analyze-labourCheckRecord`,
+            meta: {
+                ...meta,
+                title: '人工查看记录',
+                closable: false
+            },
+            component: () => import('@/pages/dataManage/analyze/labourCheckRecord')
+        }, {
+            path: '/analyze/labourLogData',
+            name: `${pre}analyze-labourLogData`,
+            meta: {
+                ...meta,
+                title: '人工录入数据',
+                closable: false
+            },
+            component: () => import('@/pages/dataManage/analyze/labourLogData')
+        },
     ]
 }

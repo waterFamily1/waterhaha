@@ -104,7 +104,7 @@ export default {
                 {
                     type: 'selection',
                     width: 60,
-                    align: 'center'
+                    align: 'center',
                 },
                 {
                     title: '用户名称',
@@ -112,7 +112,7 @@ export default {
                 },
                 {
                     title: '部门',
-                    key: 'department'
+                    key: 'orgName'
                 },
                 {
                     title: '所属组织',
@@ -123,7 +123,9 @@ export default {
             list: [],
             selectedData: [],
             total:0,
-            havedData:[]
+            havedData:[],
+            data4:[],
+            orgId:''
         }
     },
     props:['roleId'],

@@ -23,7 +23,7 @@
                         </Col>
                     </Row>
                     <FormItem label="采集周期：" prop="duration">
-                        <Input v-model="formInline.duration" placeholder="1-24范围的整数" size="small" style="width:250px"></Input>小时
+                        <Input v-model="formInline.duration" placeholder="1-24范围的整数" size="small" style="width:250px" disabled></Input>小时
                      </FormItem>
                 </Form>
            </div>
@@ -32,7 +32,7 @@
                    <Button type="info" size="small"  @click="add()">新增</Button>
                    <Button type="info" size="small" @click="channel()">导入</Button>
                </div>
-                <Table stripe :columns="columns1" :data="selectedData" v-if="!ischannel" size="small">
+                <Table stripe :columns="columns1" :data="tableData" v-if="!ischannel" size="small">
                     <template slot-scope="{ row }" slot="name">
                         <strong>{{ row.name }}</strong>
                     </template>
@@ -97,10 +97,21 @@
                 <!-- <Button type="primary"  long  @click="save" style="font-size:12px">保存为新模版</Button> -->
             </div>
         </Modal>
+        <Modal
+            v-model="cancelModal"
+            width="260"
+            :closable="false"
+            @on-ok="cancelOk"
+            @on-cancel="cancelClose">
+            <p style="text-align:left">
+                <Icon type="ios-information-circle" style="color:#f60;margin"></Icon>
+                <span>你确定要删除吗？</span>
+            </p>
+        </Modal>
     </div>
 </template>
 <script>
-import { regionalCon,dialog,addLabour} from '@api/dataManage/labour';
+import { regionalCon,dialog,addLabour,checkForm,editLabour} from '@api/dataManage/labour';
 import createTree from '@/libs/public-util'
   export default {
       name:'labourAdd',
@@ -153,7 +164,7 @@ import createTree from '@/libs/public-util'
                             h('Input', {
                                 props: {
                                     size:'small', 
-                                    value : '未命名分组'
+                                    value : that.mpointList[params.index].groupName
                                 },
                                 style:{
                                     color:'blue',
@@ -180,7 +191,7 @@ import createTree from '@/libs/public-util'
                             h('InputNumber', {
                                 props: {
                                     size:'small',
-                                    value : 1
+                                    value : that.mpointList[params.index].groupOrder
                                 },
                                 style:{
                                     color:'blue',
@@ -207,7 +218,7 @@ import createTree from '@/libs/public-util'
                             h('InputNumber', {
                                 props: {
                                     size:'small',
-                                    value:1
+                                    value:that.mpointList[params.index].mpointOrder
                                 },
                                 style:{
                                     color:'blue',
@@ -216,7 +227,7 @@ import createTree from '@/libs/public-util'
                                     fontSize:'12px'
                                 },
                                 on: {
-                                    click: (e) => {
+                                    'on-change': (e) => {
                                          that.mpointList[params.index].mpointOrder = e
                                     }
                                 }
@@ -255,13 +266,19 @@ import createTree from '@/libs/public-util'
             modelKey:'',
             filterId:'',
             baseData:[],
-            mpointList:[]
+            mpointList:[],
+            id:'',
+            tableData:[],
+            cancelModal:false,
+            index:'',
+            a:[]
         }
       },
       mounted() {
         this.height = document.body.clientHeight-70
         this.getRegional()
-        
+        this.id = this.$route.query.id
+        this.getDetail(this.$route.query.id)
     },
     methods: {
         add(){
@@ -333,17 +350,21 @@ import createTree from '@/libs/public-util'
             let data = {
                 cycleId: this.formInline.duration+"H", //周期
                 cycleNumber: this.formInline.duration,
+                cycleName:this.formInline.duration+"小时",
                 formName: this.formInline.name, //名称
-                id: 0,
+                id: this.id,
                 mpointList:this.mpointList,
                 siteId: this.formInline.location,  //区域位置
                 siteName: this.locationName //区域名称
             }
+            console.log(data)
              this.$refs[name].validate((valid) => {
-                 addLabour(data).then(res=>{
-                     if(res.data.id){
-                         this.$Message.success('数据添加成功');
-                         this.$router.go(-1)
+                 editLabour(data).then(res=>{
+                     if(res.data.count){
+                         this.$Message.success('数据保存成功');
+                         this.$router.push({
+                            path:'/data-input/hour'
+                        })
                      }
                  })
              })
@@ -367,12 +388,12 @@ import createTree from '@/libs/public-util'
         },
         sure(){
             console.log(this.selectedData)
-            this.mpointList=[]
+            let that =this
             this.selectedData.forEach(ele=>{
-                this.mpointList.push({
+                this.mpointList.push({  
                     autoComplete: 0,
                     formId: 0,
-                    groupName: "未命名分组",
+                    groupName: '未分组命名',
                     groupOrder: 1,
                     index: 0,
                     mpointId: ele.id,
@@ -383,14 +404,44 @@ import createTree from '@/libs/public-util'
                     unit: "",
                 })
             })
-            console.log(this.mpointList)
+            
             this.modal = false
         },
         abolish(){
             this.modal = false
         },
+        cancelOk(){
+            let arr = JSON.parse(sessionStorage.getItem('list'))
+            arr[this.index].status = "delete"
+            this.mpointList=arr
+            this.tableData.splice(this.index,1)
+            console.log( this.mpointList)
+            console.log(this.tableData)
+        },
+        cancelClose(){
+
+        },
         remove(index){
-            this.selectedData.splice(index,1)
+            this.index = index
+            this.cancelModal = true
+        },
+        getDetail(id){
+             checkForm(id).then(res=>{
+                console.log(res)
+                if(res.data){
+                   this.formInline= {
+                        location: res.data.siteId,
+                        name:res.data.formName,
+                        duration:res.data.cycleName.slice(0,1)
+                    }
+                    this.mpointList = res.data.mpointList
+                    this.tableData = res.data.mpointList
+                    sessionStorage.setItem("list",JSON.stringify(res.data.mpointList))
+                }
+             })
+        },
+        cancel(){
+            this.$router.go(-1)
         }
     }
   }

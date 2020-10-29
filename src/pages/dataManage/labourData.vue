@@ -17,7 +17,7 @@
                         高级搜索
                     </a>
                     <button type="button" @click="search()">搜索</button>
-                    <button type="button" class="reset">重置</button>
+                    <button type="button" class="reset" @click="reset()">重置</button>
                 </div>
             </div>
             <div class="c-adv-search">
@@ -47,8 +47,8 @@
                         <strong>{{ row.name }}</strong>
                     </template>
                     <template slot-scope="{ row, index }" slot="action">
-                        <Button class="action" size="small" style="margin-right: 5px;">录入数据</Button>
-                        <Button class="action" size="small" style="margin-right: 5px;">查看记录</Button>
+                        <Button class="action" size="small" style="margin-right: 5px;" @click="logData(row)">录入数据</Button>
+                        <Button class="action" size="small" style="margin-right: 5px;" @click="checkRecord(row)">查看记录</Button>
                         <Button class="action" size="small" @click="checkForm(row.id)">查看表单</Button>
                     </template>
                 </Table>
@@ -161,7 +161,9 @@ export default {
             })
         },
         getData(siteId,queryName,begin,end,page,siteName){
-            getTable(siteId,queryName,begin,end,page,siteName).then(res=>{
+            let start = begin?begin+"T16:00:00.000Z":''
+            let endS = end?end+"T15:59:59.000Z":""
+            getTable(siteId,queryName,start,endS,page,siteName).then(res=>{
                 console.log(res)
                 let data= res.data.items
                 data.forEach(ele=>{
@@ -254,7 +256,42 @@ export default {
            
         },
         checkForm(id){
-             this.$router.push({path:'/analyze/labourCheckForm'})
+            this.$router.push({
+                 path:'/analyze/labourCheckForm',
+                 query : {
+                     id: id
+                 }
+            })
+        },
+        checkRecord(row){
+            this.$router.push({
+                 path:'/analyze/labourCheckRecord',
+                 query : {
+                     id: row.id,
+                      cycleId: row.cycleId
+                 }
+            })
+        },
+        logData(row){
+            console.log(row)
+             this.$router.push({
+                 path:'/analyze/labourLogData',
+                 query : {
+                     id: row.id,
+                     cycleId: row.cycleId
+                 }
+            })
+        },
+        reset(){
+            this.keyword = ""
+            this.areaLocation = []
+            this.startTime = ""
+            this.endTime = ""
+            this.start = ""
+            this.end = ""
+            this.endDate=""
+            this.startDate=""
+            this.getData('','','','',1,'')
         }
     }
 }

@@ -64,7 +64,8 @@ export default {
             allOrg:[],
             currentNode:{},
             newName:'',
-            createModal:false
+            createModal:false,
+            orgId:""
         }
     },
     components: {

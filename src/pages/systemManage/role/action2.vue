@@ -20,8 +20,7 @@
                     <div class="role-autho-oper-h5">{{ item.menuName }}</div>
                     <div class="role-autho-opers" v-if="item.menuOperDTOs.length!=0">
                         <CheckboxGroup  @on-change="checkChange">
-                            <!-- 回显有问题 -->
-                           <Checkbox  :label="action.id" v-for="(action,idx) in item.menuOperDTOs"  :key="idx">{{indicate[action.operation]}}</Checkbox>
+                           <Checkbox v-model="action.checked"  :label="action.id" v-for="(action,idx) in item.menuOperDTOs"  :key="idx">{{indicate[action.operation]}}</Checkbox>
                         </CheckboxGroup> 
                     </div>
                 </li>

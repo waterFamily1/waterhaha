@@ -311,25 +311,18 @@ export default {
     },
     methods :{
         save(){
-            console.log(this.symbolArr)
             let arr = this.symbolArr
             console.log(arr)
             let str = ""
-            // ((62)==123&&(24)>(25)||(4)<456)&&((5)>=(6)||(9)<=098)||((7)<=789)
-            // ((62)==123&&(24)>(25)||(4)<456)&&((5)>=(6)||(9)<=098)||((7)<=789)
             arr.forEach(ele=>{
                 let itemRela = ''
                 ele.listItem.forEach((item,index)=>{
                     let numOrSite = item.num?item.num: "("+item.site+")";
-                    // console.log(numOrSite)
                     let a = "("+item.pre+")" + item.symbol+numOrSite
-                    // console.log(a)
                     if(index == 0) item.relation = ''
                     itemRela+=item.relation+a
                 })
                  str+=ele.outSymbol+"("+itemRela+")"
-                
-                 console.log(str)
             })
             let data = {
                 boxPlot: this.formLeft.principle?1:'',
@@ -353,12 +346,12 @@ export default {
                 timeliness: this.formLeft.timeCheck?1:'',
                 upperRange: this.formLeft.max,
             }
-            // settingSample(data).then(res=>{
-            //     console.lose(res)
-            //     if(res.data.count){
-            //         this.$Message.success('数据保存成功');
-            //     }
-            // })
+            settingSample(data).then(res=>{
+                if(res.data.count){
+                    this.$Message.success('数据保存成功');
+                    this.$router.go(-1)
+                }
+            })
         },
         cancel(){
 
@@ -371,7 +364,6 @@ export default {
             this.changeTest = true
         },
         searchData(){
-            console.log(this.siteValue)
             this.getModelData(this.modalKeyword,this.siteValue.join(','),1,1,'AUTO')
         },
         resetData(){
@@ -380,7 +372,6 @@ export default {
         },
         getRegional() {
             regionalCon().then(res => {
-                // console.log(JOSN.stringify(res.data))
                 let treeItem = []
                 let trees = res.data
                 for(let i = 0; i < trees.length; i ++) {
@@ -414,7 +405,6 @@ export default {
             })
         },
         checkSite(row,index){
-            console.log(row)
             if(this.changeTest){
                 this.currentMpoint = row
             }else{
@@ -435,7 +425,6 @@ export default {
         },
         async getDetail(){
             getDetail(this.testId).then(res=>{
-                // console.log(res)
                 this.currentMpoint = res.data
                 this.formLeft = {
                     min : res.data.lowerRange,
@@ -450,17 +439,11 @@ export default {
                 }
                 this.loseDisabled = res.data.completeness ==1 ?false:true
                 this.disposeDisabled = res.data.outlierProcess ?false:true
-                // let consistency = res.data.consistency
-                // let mpoints = res.data.mpoints
-                // 切割规则不对 z
-                let consistency = '((62)==123&&(24)>(25)||(4)<456)&&((5)>=(6)||(9)<=098)||((7)<=789)'
-                // let consistency ='((3)==(22))&&((23)>68687||(24)<(25))'
+                let consistency = res.data.consistency
+                let mpoints = res.data.mpoints
                 let symbolSplit = consistency.match(/\&\&\(\(|\|\|\(\(/g)
-                // console.log(symbolSplit)
                 symbolSplit.unshift('')
-                // console.log(symbolSplit)
                 for(let m=0;m<symbolSplit.length;m++){
-                    // console.log(m)
                     this.symbolArr.push({
                         listItem:[],
                         outSymbol:""
@@ -474,13 +457,10 @@ export default {
                 let arr = consistency.split(/\&\&\(\(|\|\|\(\(/) ;
                 for(let i=0;i<arr.length;i++){
                     let inlineRel = arr[i].match(/\|\||&&/g)
-                    if(!inlineRel){
-                       
-                    }else{
-                        
+                    if(inlineRel){
+                       inlineRel.unshift("")
                     }
                     let child = arr[i].split(/\|\||&&/)
-                        // console.log(child)
                     for(let j=0;j<child.length;j++){ 
                         this.symbolArr[i].listItem.push({
                             pre:'',
@@ -495,17 +475,17 @@ export default {
                             siteDisabled:true,
                             relation:''
                         })
-                       this.symbolArr[i].listItem[j].relation = inlineRel?inlineRel[0]:''
+                        this.symbolArr[i].listItem[j].relation = inlineRel?inlineRel[j]:''
                        this.symbolArr[i].listItem[j].symbol = child[j].match(/==|>=|<=|>|</)[0]
                        let inlineItem = child[j].split(/==|>=|<=|>|</)
                        this.symbolArr[i].listItem[j].pre = inlineItem[0]
                        let preId=inlineItem[0].replace("((",'').replace('(','').replace(")",'')
                        this.symbolArr[i].listItem[j].pre = preId
-                    //    this.symbolArr[i].listItem[j].preItem = mpoints[preId] 
+                       this.symbolArr[i].listItem[j].preItem = mpoints[preId] 
                        if(inlineItem[1].indexOf("(")!=-1){
-                           let id = inlineItem[1].replace('))','').replace(')','').replace('(','')
+                           let id = inlineItem[1].replace(')','').replace('(','')
                            this.symbolArr[i].listItem[j].site = id
-                        //    this.symbolArr[i].listItem[j].nextItem = mpoints[id]
+                           this.symbolArr[i].listItem[j].nextItem = mpoints[id]
                            this.symbolArr[i].listItem[j].siteBollean = true
                             this.symbolArr[i].listItem[j].siteDisabled =false
                        }else{
@@ -516,7 +496,6 @@ export default {
                        }
                     }
                 }
-                console.log(this.symbolArr)
             })
         },
         getOption(type){
@@ -594,14 +573,11 @@ export default {
                 outSymbol:''
             }
             this.symbolArr.push(arr)
-            // console.log(this.symbolArr)
         },
         deleteCon(){
             this.symbolArr = []
         },
         addPlus(index){
-            // console.log(index)
-            // console.log(this.symbolArr)
             this.symbolArr[index].listItem.push({
                 pre:'',
                 preItem:'',
@@ -638,7 +614,7 @@ export default {
         getIndex(index,idx){
             console.log(index,idx)
             this.curIndex = index
-            this.curIdx - idx
+            this.curIdx = idx
         },
         chooseSymbol(e){
             this.symbolArr[this.curIndex].listItem[this.curIdx].symbol = e
@@ -649,7 +625,6 @@ export default {
                 this.symbolArr[this.curIndex].listItem[this.curIdx].num = ''
                 this.symbolArr[this.curIndex].listItem[this.curIdx].siteDisabled = true
                 this.symbolArr[this.curIndex].listItem[this.curIdx].siteBollean = false
-                // this.symbolArr[this.curIndex].listItem[this.curIdx].nextItem = true
                 this.symbolArr[this.curIndex].listItem[this.curIdx].site = ''
             }
         },

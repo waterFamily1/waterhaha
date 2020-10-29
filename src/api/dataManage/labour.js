@@ -40,3 +40,56 @@ export function deleteLabour(data) {
         method: 'DELETE'
     })
 }
+
+// 查看表单  loong/api/datainput-forms/17
+export function checkForm(data) {
+    return request({
+        url: 'loong/api/datainput-forms/'+data,
+    })
+}
+
+// 编辑 loong/api/datainput-forms
+export function editLabour(data) {
+    return request({
+        url: '/loong/api/datainput-forms',
+        method: 'PUT',
+        data
+    })
+}
+// 查看数据 loong/api/datainput-records/data?formId=17&recordDate=2020-10-27T16:00:00.000Z&cycleId=4H
+export function recordData(formId,recordDate,cycleId) {
+    return request({
+        url: '/loong/api/datainput-records/data?formId='+formId+'&recordDate='+recordDate+'T16:00:00.000Z&cycleId='+cycleId,
+        method: 'get',
+    })
+}
+
+// 录入数据保存 loong/api/datainput-records/data
+export function logSave(data) {
+    return request({
+        url: '/loong/api/datainput-records/data',
+        method: 'POST',
+        data
+    })
+}
+// 查看记录 /loong/api/datainput-records?queryName=&formId=17&pageSize=10&currentPage=1
+export function checkRecord(formId,queryName,page) {
+    return request({
+        url: '/loong/api/datainput-records?queryName='+queryName+'&formId='+formId+'&pageSize=10&currentPage='+page,
+        method: 'get',
+    })
+}
+// 删除记录  
+export function deleteRecord(data) {
+    return request({
+        url: '/loong/api/datainput-records?ids='+data,
+        method: 'DELETE'
+    })
+}
+// 根据时间查记录  loong/api/datainput-records?queryName=&formId=17&pageSize=10&currentPage=1&beginDate=2020-10-20T16:00:00.000Z&endDate=
+export function recordByTime(formId,queryName,page,begin,end) {
+    return request({
+        url: '/loong/api/datainput-records?queryName='+queryName+'&formId='+formId+'&pageSize=10&currentPage='+page+'&beginDate='+begin+'&endDate='+end,
+        method: 'get',
+    })
+}
