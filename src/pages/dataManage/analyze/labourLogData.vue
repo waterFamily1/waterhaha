@@ -113,6 +113,7 @@ export default {
             let day = now.getDate()
             let dayPre = now.getDate()-1
             day = day<10?'0'+day:day
+             dayPre = dayPre<10?'0'+ dayPre:dayPre
             let pre = year+"-"+month+"-"+dayPre
             let today = year+"-"+month+"-"+day
             return  pre+","+today

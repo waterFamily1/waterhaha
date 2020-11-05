@@ -18,9 +18,9 @@ export function getTable(siteId,queryName,begin,end,page,siteName) {
 // 新增模态数据
 // loong/api/mpoints/dialog?filterId=&tag=datainput&queryName=&executeStatus=&datasource=INPUT&pageSize=10&currentPage=1&inputFilter=1
 // loong/api/mpoints/dialog?filterId=&tag=datainput&queryName=&executeStatus=&siteId=1&datasource=INPUT&pageSize=10&currentPage=1&inputFilter=1
-export function dialog(filterId,queryName,siteId) {
+export function dialog(filterId,queryName,siteId,page) {
     return request({
-        url: '/loong/api/mpoints/dialog?filterId='+filterId+'&tag=datainput&queryName='+queryName+'&executeStatus=&siteId='+siteId+'&datasource=INPUT&pageSize=10&currentPage=1&inputFilter=1',
+        url: '/loong/api/mpoints/dialog?filterId='+filterId+'&tag=datainput&queryName='+queryName+'&executeStatus=&siteId='+siteId+'&datasource=INPUT&pageSize=10&currentPage='+page+'&inputFilter=1',
         method: 'get'
     })
 }

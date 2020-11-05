@@ -1,7 +1,7 @@
 <template>
     <div class="user-information" :style="{height: height+'px'}">
         <div class="user-title">
-            <h3>人工数据采集</h3>
+            <h3>简报数据采集</h3>
             <div>
                 <Button type="primary" size="small" style="background:#4b7efe" @click="save('formInline')">保存</Button>
                 <Button type="primary" size="small" style="background:#c8c8c8" @click="cancel()">取消</Button>
@@ -23,7 +23,9 @@
                         </Col>
                     </Row>
                     <FormItem label="采集周期：" prop="duration">
-                        <Input v-model="formInline.duration" placeholder="1-24范围的整数" size="small" style="width:250px" disabled></Input>小时
+                         <Select v-model="formInline.duration" placeholder="请选择" disabled style="width:250px" size="small">
+                             <Option v-for="item in dateList" :value="item.id" :key="item.id">{{ item.label }}</Option>
+                        </Select>
                      </FormItem>
                 </Form>
            </div>
@@ -130,18 +132,7 @@ import createTree from '@/libs/public-util'
                     { required: true, message: '请选择区域位置', trigger: 'change',type:'number' }
                 ],
                  duration: [
-                    { required: true, message: '请输入采集周期', trigger: 'blur' },
-                     {validator:(rule, value, callback)=>{
-                         value = Number(value)
-                         let reg= /^[0-9]*[1-9][0-9]*$/
-                         if(value<1||value>24){
-                             callback(new Error("1-24范围的整数"));
-                         }else if(!reg.test(value)){
-                            callback(new Error("1-24范围的整数"));
-                        }else{
-                            callback()
-                        }
-                    }, trigger: 'blur'}
+                    { required: false },
                 ],
             },
             height:0,
@@ -154,6 +145,63 @@ import createTree from '@/libs/public-util'
                 {
                     title: '测点名称',
                     key: 'mpointName'
+                },
+                {
+                    title: '文本类型',
+                    key: 'textType',
+                    render: (h,params) => {
+                        let that = this;
+                        return h('Select',{
+                            props:{
+                                size:'small',
+                                transfer:true,
+                                value :that.mpointList[params.index].textType
+                            },
+                            on:{
+                                'on-change':(val)=>{
+                                   that.mpointList[params.index].textType = val
+                                }
+                            }
+                        },
+                        this.textList.map(item=>{
+                            return h('Option',{
+                                props:{
+                                    value: item.value,
+                                    key: item.value
+                                }
+                            },item.name)
+                        })
+                        )
+                    }
+                },
+                {
+                     title: '自动填充上次数据',
+                    key: 'textType',
+                    render: (h,params) => {
+                        let that = this;
+                        console.log(that.mpointList[params.index].autoComplete)
+                        return h('Select',{
+                            props:{
+                                size:'small',
+                                transfer:true,
+                                value:that.mpointList[params.index].autoComplete
+                            },
+                            on:{
+                                'on-change':(val)=>{
+                                    that.mpointList[params.index].autoComplete = val
+                                }
+                            }
+                        },
+                        this.autoList.map(item=>{
+                            return h('Option',{
+                                props:{
+                                    value: item.value,
+                                    key: item.value
+                                }
+                            },item.name)
+                        })
+                        )
+                    }
                 },
                 {
                     title: '名称分组',
@@ -271,7 +319,24 @@ import createTree from '@/libs/public-util'
             tableData:[],
             cancelModal:false,
             index:'',
-            a:[]
+            a:[],
+             dateList:[
+                {label: '周',id: 'W'},
+                {label: '月',id: 'M'},
+                {label: '季度',id: 'Q'},
+                {label: '年',id: 'Y'}
+            ],
+            textList:[
+                {name:' 单行文本',value:'single'},
+                {name:'多行文本',value:'multi'}
+            ],
+            autoList:[
+                {name:' 否',value:0},
+                {name:'是',value:1}
+            ],
+            cycleName:'',
+            formLatestdate:'',
+            page:1
         }
       },
       mounted() {
@@ -348,25 +413,28 @@ import createTree from '@/libs/public-util'
                 }
             })
             let data = {
-                cycleId: this.formInline.duration+"H", //周期
-                cycleNumber: this.formInline.duration,
-                cycleName:this.formInline.duration+"小时",
+                cycleId: this.formInline.duration, //周期
+                cycleName: this.cycleName,
+                formLatestdate: this.formLatestdate,
                 formName: this.formInline.name, //名称
-                id: this.id,
+                id: Number(this.id),
                 mpointList:this.mpointList,
                 siteId: this.formInline.location,  //区域位置
                 siteName: this.locationName //区域名称
             }
             console.log(data)
-             this.$refs[name].validate((valid) => {
-                 editLabour(data).then(res=>{
-                     if(res.data.count){
-                         this.$Message.success('数据保存成功');
-                         this.$router.push({
-                            path:'/data-input/hour'
-                        })
-                     }
-                 })
+            this.$refs[name].validate((valid) => {
+                if(valid){
+                    editLabour(data).then(res=>{
+                        if(res.data.count){
+                            this.$Message.success('数据保存成功');
+                            this.$router.push({
+                                path:'/data-input/brief'
+                            })
+                        }
+                    })
+                }
+                 
              })
         },
         getModalData(){
@@ -377,7 +445,7 @@ import createTree from '@/libs/public-util'
                 })
                 this.filterId = arr.join(",")
             }
-            dialog(this.filterId,this.modelKey,this.formInline.location).then(res=>{
+            dialog(this.filterId,this.modelKey,this.formInline.location,this.page).then(res=>{
                 console.log(res)
                 this.modelData = res.data.items
                 this.modelTotal = res.data.total
@@ -401,10 +469,10 @@ import createTree from '@/libs/public-util'
                     mpointOrder: 1,
                     status: null,
                     textType: "single",
-                    unit: "",
+                    unit: "22",
                 })
             })
-            
+            console.log(this.mpointList)
             this.modal = false
         },
         abolish(){
@@ -432,8 +500,13 @@ import createTree from '@/libs/public-util'
                    this.formInline= {
                         location: res.data.siteId,
                         name:res.data.formName,
-                        duration:res.data.cycleName.slice(0,1)
+                        duration:res.data.cycleId
                     }
+                    res.data.mpointList.forEach(ele=>{
+                        ele.index = 0
+                    })
+                    this.cycleName = res.data.cycleName
+                    this.formLatestdate=res.data.formLatestdate
                     this.mpointList = res.data.mpointList
                     this.tableData = res.data.mpointList
                     sessionStorage.setItem("list",JSON.stringify(res.data.mpointList))

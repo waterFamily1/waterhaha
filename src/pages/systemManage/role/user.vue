@@ -208,7 +208,10 @@ export default {
                     }
                 })
             })
-            console.log(this.modelData)
+            this.$nextTick(() => {
+                console.log(this.modelData)
+            });
+            
         },
         async getHavedRole(){
             getRole(this.roleId).then(res=>{

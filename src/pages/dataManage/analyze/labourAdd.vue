@@ -13,7 +13,7 @@
                     <Row>
                         <Col span="12">
                             <FormItem label="区域位置：" prop="location">
-                               <TreeSelect v-model="formInline.location" size="small" :data="areaData" v-width="250" />
+                               <TreeSelect v-model="formInline.location" size="small" :data="areaData" v-width="250" /> 
                             </FormItem>
                         </Col>
                         <Col span="12">

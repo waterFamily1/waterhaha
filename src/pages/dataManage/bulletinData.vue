@@ -4,13 +4,11 @@
             <div class="search-main">
                 <div class="form-item">
                     <label>关键字：</label>
-                    <Input v-model="keyword" placeholder="录入名称" style="width: 300px" />
+                    <Input v-model="keyword" placeholder="录入名称/录入周期" style="width: 300px" size="small" />
                 </div>
                 <div class="form-item">
                     <label>区域位置：</label> 
-                    <Select v-model="model1" style="width:200px">
-                        <Option v-for="item in cityList" :value="item.value" :key="item.value">{{ item.label }}</Option>
-                    </Select>
+                     <TreeSelect v-model="areaLocation" size="small" multiple  :data="areaData" v-width="200" />
                 </div>
                 <div class="form-search-btn">
                     <a href="javascript:;" @click="higherSearch()">
@@ -18,7 +16,7 @@
                         <Icon type="ios-arrow-up" v-else />
                         高级搜索
                     </a>
-                    <button type="button">搜索</button>
+                    <button type="button" @click="search()">搜索</button>
                     <button type="button" class="reset">重置</button>
                 </div>
             </div>
@@ -40,8 +38,8 @@
                     <div class="form-item">
                         <label>业务时间：</label>
                         <div class="cmp-tab">
-                           <DatePicker type="date"  placeholder="开始日期" style="width: 190px"></DatePicker> -
-                           <DatePicker type="date"  placeholder="结束日期" style="width: 190px"></DatePicker>
+                            <DatePicker type="date"  @on-change="startTimeChange" :options="startDate" format="yyyy-MM-dd"  v-model="startTime" placeholder="开始日期" style="width: 190px"></DatePicker> -
+                           <DatePicker type="date"  @on-change="endTimeChange" :options="endDate" format="yyyy-MM-dd"  v-model="endTime" placeholder="结束日期" style="width: 190px"></DatePicker>
                         </div>
                     </div>
                 </div>
@@ -53,69 +51,72 @@
                  <button type="button" @click="deleteNew()" style="margin-left:10px">删除</button>
             </div>
             <div class="table-wrapper" :style="{height: (height-45)+'px'}">
-                <Table stripe :columns="tableList" >
+                <Table stripe :columns="tableList" :data="tableData" size="small" 
+                        @on-select="handleSelect"
+                        @on-select-cancel="handleSelectCancel"
+                        @on-select-all="handleSelectAll"
+                        @on-select-all-cancel="handleSelectAllCancel">
                     <template slot-scope="{ row }" slot="name">
                         <strong>{{ row.name }}</strong>
                     </template>
                     <template slot-scope="{ row, index }" slot="action">
-                        <Button class="action" size="small" style="margin-right: 5px;">配置</Button>
-                        <Button class="action" size="small">测试</Button>
+                        <Button class="action" size="small" style="margin-right: 5px;" @click="logData(row)">录入数据</Button>
+                        <Button class="action" size="small" style="margin-right: 5px;" @click="checkRecord(row)">查看记录</Button>
+                        <Button class="action" size="small" @click="checkForm(row.id)">查看表单</Button>
                     </template>
                 </Table>
-                 <Page :total="100" show-elevator show-total class="page" />
+                 <Page :total="total" show-elevator show-total class="page" @on-change="changeSize" />
             </div>
         </div>
     </div>
 </template>
 <script>
+import { regionalCon,getTable,deleteBulletin} from '@api/dataManage/bulletin';
+import createTree from '@/libs/public-util'
+import {formatTime} from '@/libs/public'
 export default {
     name: 'bulletinData',
     data() {
         return {
             height: '',
             keyword: '',
-            cityList: [
-                {
-                    value: 'New York',
-                    label: 'New York'
-                }
-            ],
+             areaLocation:[],
             model1: '',
             searchShow: false,
             typeCheckedAll: false,
             typeBox: [],
             typeList: [
-                {label: '天',id: 1},
-                {label: '周',id: 2},
-                {label: '月',id: 3},
-                {label: '季度',id: 4},
-                {label: '年',id: 5}
+                {label: '天',id: 'D'},
+                {label: '周',id: 'W'},
+                {label: '月',id: 'M'},
+                {label: '季度',id: 'Q'},
+                {label: '年',id: 'Y'}
             ],
             tableList: [
                 {
                     type: 'selection',
-                    width: 50,
+                    width: 70,
                     align: 'center'
                 },
                 {
                     title: '区域位置',
-                    key: 'location'
+                    key: 'siteName'
                 },
                 {
                     title: '简报名称',
-                    key: 'name'
+                    key: 'formName'
                 },
                 {
                     title: '录入周期',
-                    key: 'duration'
+                    key: 'cycleName'
                 },
                 {
                     title: '最近业务时间',
-                    key: 'businessTime'
+                    key: 'formLatestdate'
                 },
                 {
                     title: '最近录入时间',
-                    key: 'enterTime'
+                    key: 'updateTime'
                 },
                 {
                     title: '操作',
@@ -125,13 +126,72 @@ export default {
                 }
             ],
             startTime:'',
-            endTime:''
+            endTime:'',
+            start:'',
+            end:'',
+            areaData:[],
+            areaName:[],
+            baseData:[],
+            tableData:[],
+            total:0,
+            startDate: { },
+            endDate: {},
+            selectedData: [],
         }
     },
     mounted() {
         this.height = document.body.clientHeight-80
+        this.getRegional()
+        this.getData('','','','',1,'','')
     },
     methods: {
+        getRegional() {
+            regionalCon().then(res => {
+                // console.log(JOSN.stringify(res.data))
+                let treeItem = []
+                let trees = res.data
+                for(let i = 0; i < trees.length; i ++) {
+                    trees[i].title = trees[i].name
+                    trees[i].expand = true
+                    trees[i].value = trees[i].id
+                    treeItem.push(trees[i])
+                }
+                this.baseData = treeItem
+                this.areaData= createTree(treeItem)
+            }).catch(err => {
+                // 异常情况
+            })
+        },
+        getData(siteId,queryName,begin,end,page,siteName,cycleId){
+            let start = begin?begin+"T16:00:00.000Z":''
+            let endS = end?end+"T15:59:59.000Z":""
+            getTable(siteId,queryName,start,endS,page,siteName,cycleId).then(res=>{
+                console.log(res)
+                let data= res.data.items
+                data.forEach(ele=>{
+                    ele.formLatestdate= formatTime(ele.formLatestdate, 'HH:mm:ss yyyy-MM-dd')
+                    ele.updateTime = formatTime(ele.updateTime, 'HH:mm:ss yyyy-MM-dd')
+                })
+                this.tableData = data
+                this.total = res.data.total
+            })
+        },
+          startTimeChange(day){
+           this.start = day
+           this.endDate = {
+                disabledDate (date) {
+                    return date && date.valueOf() <new Date(day).getTime();
+                }
+           }
+        },
+        endTimeChange(day){
+            this.end = day
+            this.startDate = {
+                disabledDate (date) {
+                    return date && date.valueOf() >new Date(day).getTime();
+                }
+           }
+        },
         higherSearch() {
             this.searchShow = !this.searchShow
         },
@@ -150,8 +210,107 @@ export default {
             }
         },
         addNew() {
-             this.$router.push({path:'/dataManage/analyze/bulletinAdd'})
-        }
+             this.$router.push({path:'/bulletin/bulletinAdd'})
+        },
+        deleteNew(){
+             if(this.selectedData.length == 0){
+                this.$Message.warning('请选中后删除');
+            }else{
+                let arr = []
+                this.selectedData.forEach(ele=>{
+                    arr.push(ele.id)
+                    console.log(arr)
+               })
+               deleteBulletin(arr.join(',')).then(res=>{
+                   console.log(res)
+                   if(res.data.count){
+                       this.$Message.success('数据删除成功');
+                        this.getData('','','','',1,'','')
+                   }
+               })
+            }
+        },
+         // 清空所有已选项
+        handleClearSelect (status) {
+            this.selectedData = [];
+            this.$refs.selection.selectAll(status);
+        },
+        // 选中一项，将数据添加至已选项中
+        handleSelect (selection, row) {
+            this.selectedData.push(row);
+        },
+        // 取消选中一项，将取消的数据从已选项中删除
+        handleSelectCancel (selection, row) {
+            const index = this.selectedData.findIndex(item => item.id === row.id);
+            this.selectedData.splice(index, 1);
+        },
+        // 当前页全选时，判断已选数据是否存在，不存在则添加
+        handleSelectAll (selection) {
+            selection.forEach(item => {
+                if (this.selectedData.findIndex(i => i.id === item.id) < 0) {
+                    this.selectedData.push(item);
+                }
+            });
+        },
+        // 取消当前页全选时，将当前页的数据（即 modelData）从已选项中删除
+        handleSelectAllCancel () {
+            const selection = this.modelData;
+            selection.forEach(item => {
+                const index = this.selectedData.findIndex(i => i.id === item.id);
+                if (index >= 0) {
+                    this.selectedData.splice(index, 1);
+                }
+            });
+        },
+        search(){
+            this.baseData.forEach(ele => {
+                this.areaLocation.forEach(item=>{
+                    if(item == ele.id){
+                        this.areaName.push(ele.name)
+                    }
+                })
+            });
+            console.log(this.typeBox)
+            this.getData(this.areaLocation.join(','),this.keyword,this.start,this.end,1,this.areaName.join(','),this.typeBox.join(","))
+        },
+        changeSize(size){
+             this.baseData.forEach(ele => {
+                this.areaLocation.forEach(item=>{
+                    if(item == ele.id){
+                        this.areaName.push(ele.name)
+                    }
+                })
+            });
+            this.getData(this.areaLocation.join(','),this.keyword,this.start,this.end,size,this.areaName.join(','),this.typeBox.join(","))
+        },
+        checkForm(id){
+            this.$router.push({
+                 path:'/bulletin/bulletinCheckForm',
+                 query : {
+                     id: id
+                 }
+            })
+        },
+        checkRecord(row){
+            this.$router.push({
+                 path:'/bulletin/bulletinCheckRecord',
+                 query : {
+                     id: row.id,
+                      cycleId: row.cycleId
+                 }
+            })
+        },
+        logData(row){
+            console.log(row)
+             this.$router.push({
+                 path:'/bulletin/bulletinLogData', 
+                 query : {
+                     id: row.id,
+                     cycleId: row.cycleId,
+                      date:row.formLatestdate.slice(9,)
+                 }
+            })
+        },
     }
 }
 </script>

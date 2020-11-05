@@ -153,6 +153,26 @@ let dataManage = [
         path: `/analyze/labourLogData`,
         title: '人工录入数据',
         auth: ['hidden']
+    },{
+        path: `/bulletin/bulletinCheckForm`,
+        title: '查看简报数据采集',
+        auth: ['hidden']
+    }, {
+        path: `/bulletin/bulletinEdit`,
+        title: '编辑简报数据采集',
+        auth: ['hidden']
+    },{
+        path: `/bulletin/bulletinCheckRecord`,
+        title: '简报查看记录',
+        auth: ['hidden']
+    }, {
+        path: `/bulletin/bulletinLogData`,
+        title: '简报录入数据',
+        auth: ['hidden']
+    }, {
+        path: `/bulletin/recordDetail`,
+        title: '简报记录详情',
+        auth: ['hidden']
     }
 ]
 

@@ -70,14 +70,14 @@ export default {
             },
             component: () => import('@/pages/dataManage/bulletinData')
         },{
-            path: '/analyze/bulletinAdd',
-            name: `${pre}analyze-bulletinAdd`,
+            path: '/bulletin/bulletinAdd',
+            name: `${pre}bulletin-bulletinAdd`,
             meta: {
                 ...meta,
                 title: '简报数据新增', 
                 closable: false
             },
-            component: () => import('@/pages/dataManage/analyze/bulletinAdd'),
+            component: () => import('@/pages/dataManage/bulletin/bulletinAdd'),
         },{
             path: '/mpoint',
             name: `${pre}mpoint`,
@@ -321,6 +321,51 @@ export default {
                 closable: false
             },
             component: () => import('@/pages/dataManage/analyze/labourLogData')
+        },{
+            path: '/bulletin/bulletinCheckRecord',
+            name: `${pre}bulletin-bulletinCheckRecord`,
+            meta: {
+                ...meta,
+                title: '简报查看记录', 
+                closable: false
+            },
+            component: () => import('@/pages/dataManage/bulletin/bulletinCheckRecord'),
+        },{
+            path: '/bulletin/bulletinCheckForm',
+            name: `${pre}bulletin-bulletinCheckForm`,
+            meta: {
+                ...meta,
+                title: '查看简报数据采集', 
+                closable: false
+            },
+            component: () => import('@/pages/dataManage/bulletin/bulletinCheckForm'),
+        },{
+            path: '/bulletin/bulletinLogData',
+            name: `${pre}bulletin-bulletinLogData`,
+            meta: {
+                ...meta,
+                title: '简报录入数据', 
+                closable: false
+            },
+            component: () => import('@/pages/dataManage/bulletin/bulletinLogData'),
+        },{
+            path: '/bulletin/bulletinEdit',
+            name: `${pre}bulletin-bulletinEdit`,
+            meta: {
+                ...meta,
+                title: '简报数据采集', 
+                closable: false
+            },
+            component: () => import('@/pages/dataManage/bulletin/bulletinEdit'),
+        },{
+            path: '/bulletin/recordDetail',
+            name: `${pre}bulletin-recordDetail`,
+            meta: {
+                ...meta,
+                title: '简报记录详情', 
+                closable: false
+            },
+            component: () => import('@/pages/dataManage/bulletin/recordDetail'),
         },
     ]
 }

@@ -1,7 +1,7 @@
 <template>
     <div class="user-information" :style="{height: height+'px'}">
         <div class="user-title">
-            <h3>人工数据采集</h3>
+            <h3>简报数据采集</h3>
             <div>
                 <Button type="primary" size="small" style="background:#4b7efe" @click="save('formInline')">保存</Button>
                 <Button type="primary" size="small" style="background:#c8c8c8" @click="cancel()">取消</Button>
@@ -13,17 +13,19 @@
                     <Row>
                         <Col span="12">
                             <FormItem label="区域位置：" prop="location">
-                               <TreeSelect v-model="formInline.location" size="small" :data="areaData" v-width="250" />
+                                 <TreeSelect v-model="formInline.location" size="small" :data="areaData" v-width="250" /> 
                             </FormItem>
                         </Col>
                         <Col span="12">
-                            <FormItem label="名称：" prop="name">
-                                <Input v-model="formInline.name" placeholder="名称" size="small"  style="width:250px"></Input>
+                            <FormItem label="简报名称：" prop="name">
+                                <Input v-model="formInline.name" placeholder="简报名称" size="small"  style="width:250px"></Input>
                             </FormItem>
                         </Col>
                     </Row>
-                    <FormItem label="采集周期：" prop="duration">
-                        <Input v-model="formInline.duration" placeholder="1-24范围的整数" size="small" style="width:250px" disabled></Input>小时
+                    <FormItem label="录入周期：" prop="duration">
+                        <Select v-model="formInline.duration" placeholder="请选择"  style="width:250px" size="small">
+                             <Option v-for="item in dateList" :value="item.id" :key="item.id">{{ item.label }}</Option>
+                        </Select>
                      </FormItem>
                 </Form>
            </div>
@@ -32,7 +34,7 @@
                    <Button type="info" size="small"  @click="add()">新增</Button>
                    <Button type="info" size="small" @click="channel()">导入</Button>
                </div>
-                <Table stripe :columns="columns1" :data="tableData" v-if="!ischannel" size="small">
+                <Table stripe :columns="columns1"  v-if="!ischannel" :data="selectedData" size="small">
                     <template slot-scope="{ row }" slot="name">
                         <strong>{{ row.name }}</strong>
                     </template>
@@ -41,7 +43,7 @@
                     </template>
                 </Table>
                 <div v-else>
-                     <div class="upload-box" :style="{height: height+'px'}">
+                    <div class="upload-box" :style="{height: height+'px'}">
                         <div class="upload-tree">
                             <div class="upload-title">
                                 <h3>导入</h3>
@@ -76,7 +78,7 @@
             </p>
             <div>
                 <div>
-                    <input type="text" v-model="modelKey" name="" id="" placeholder="测点编号/名称" style="margin-right:8px;border:1px solid #eaeaea;outline:0;padding-left:10px">
+                    <input type="text" name="" id="" v-model="modelKey" placeholder="测点编号/名称" style="margin-right:8px;border:1px solid #eaeaea;outline:0;padding-left:10px">
                      <Button type="primary" size="small" @click="search()">搜索</Button>
                 </div>
                      <div class="model-table">
@@ -86,7 +88,7 @@
                         @on-select-all="handleSelectAll"
                         @on-select-all-cancel="handleSelectAllCancel">
                     </Table>
-                    <Page :total="modelTotal" show-elevator size="small" class="page" style="text-align:right;margin-top:20px"  />
+                    <Page :total="modelTotal" show-elevator size="small" class="page" style="text-align:right;margin-top:20px" @on-change="changeSize"  />
                      <div class="btn-group">
                         <span @click="abolish()">取消</span>
                         <span style="background: #4b7efe;" @click="sure()">确定</span>
@@ -94,66 +96,94 @@
                 </div>
             </div>
             <div slot="footer" >
-                <!-- <Button type="primary"  long  @click="save" style="font-size:12px">保存为新模版</Button> -->
             </div>
-        </Modal>
-        <Modal
-            v-model="cancelModal"
-            width="260"
-            :closable="false"
-            @on-ok="cancelOk"
-            @on-cancel="cancelClose">
-            <p style="text-align:left">
-                <Icon type="ios-information-circle" style="color:#f60;margin"></Icon>
-                <span>你确定要删除吗？</span>
-            </p>
         </Modal>
     </div>
 </template>
 <script>
-import { regionalCon,dialog,addLabour,checkForm,editLabour} from '@api/dataManage/labour';
+import { regionalCon,dialog,addBulletin} from '@api/dataManage/bulletin';
 import createTree from '@/libs/public-util'
   export default {
-      name:'labourEdit',
+      name:'bulletinAdd',
       data(){
         return {
             formInline: {
                 location: '',
                 name:'',
-                duration:''
+                duration:'W'
              },
             ruleValidate:{
                 name: [
-                    { required: true, message: '请输入姓名', trigger: 'blur' }
+                    { required: true, message: '请选择区域位置', trigger: 'blur' }
                 ],
                 location: [
-                    { required: true, message: '请选择区域位置', trigger: 'change',type:'number' }
+                    { required: true, message: '请输入名称', trigger: 'change' ,type:'number'}
                 ],
-                 duration: [
-                    { required: true, message: '请输入采集周期', trigger: 'blur' },
-                     {validator:(rule, value, callback)=>{
-                         value = Number(value)
-                         let reg= /^[0-9]*[1-9][0-9]*$/
-                         if(value<1||value>24){
-                             callback(new Error("1-24范围的整数"));
-                         }else if(!reg.test(value)){
-                            callback(new Error("1-24范围的整数"));
-                        }else{
-                            callback()
-                        }
-                    }, trigger: 'blur'}
+                duration: [
+                    { required: false }
                 ],
             },
             height:0,
-            locationName:'',
-            modelData: [ ],
-            selectedData: [],
-            ischannel:false,
-            areaData:[],
             columns1:[
                 {
                     title: '测点名称',
                     key: 'mpointName'
+                },
+                {
+                    title: '文本类型',
+                    key: 'textType',
+                    render: (h,params) => {
+                        let that = this;
+                        return h('Select',{
+                            props:{
+                                size:'small',
+                                transfer:true,
+                                value :'signle'
+                            },
+                            on:{
+                                'on-change':(val)=>{
+                                   that.mpointList[params.index].textType = val
+                                }
+                            }
+                        },
+                        this.textList.map(item=>{
+                            return h('Option',{
+                                props:{
+                                    value: item.value,
+                                    key: item.value
+                                }
+                            },item.name)
+                        })
+                        )
+                    }
+                },
+                {
+                    title: '自动填充上次数据',
+                    key: 'textType',
+                    render: (h,params) => {
+                        let that = this;
+                        return h('Select',{
+                            props:{
+                                size:'small',
+                                transfer:true,
+                                value:'0'
+                            },
+                            on:{
+                                'on-change':(val)=>{
+                                    that.mpointList[params.index].autoComplete = val
+                                }
+                            }
+                        },
+                        this.autoList.map(item=>{
+                            return h('Option',{
+                                props:{
+                                    value: item.value,
+                                    key: item.value
+                                }
+                            },item.name)
+                        })
+                        )
+                    }
                 },
                 {
                     title: '名称分组',
@@ -164,7 +194,7 @@ import createTree from '@/libs/public-util'
                             h('Input', {
                                 props: {
                                     size:'small', 
-                                    value : that.mpointList[params.index].groupName
+                                    value : '未命名分组'
                                 },
                                 style:{
                                     color:'blue',
@@ -191,7 +221,7 @@ import createTree from '@/libs/public-util'
                             h('InputNumber', {
                                 props: {
                                     size:'small',
-                                    value : that.mpointList[params.index].groupOrder
+                                    value : 1
                                 },
                                 style:{
                                     color:'blue',
@@ -218,7 +248,7 @@ import createTree from '@/libs/public-util'
                             h('InputNumber', {
                                 props: {
                                     size:'small',
-                                    value:that.mpointList[params.index].mpointOrder
+                                    value:1
                                 },
                                 style:{
                                     color:'blue',
@@ -227,7 +257,7 @@ import createTree from '@/libs/public-util'
                                     fontSize:'12px'
                                 },
                                 on: {
-                                    'on-change': (e) => {
+                                    click: (e) => {
                                          that.mpointList[params.index].mpointOrder = e
                                     }
                                 }
@@ -241,8 +271,6 @@ import createTree from '@/libs/public-util'
                     align: 'center'
                 }
             ],
-            data1:[],
-            modal:false,
             modelColumns:[
                 {
                     type: 'selection',
@@ -265,25 +293,58 @@ import createTree from '@/libs/public-util'
             modelTotal:0,
             modelKey:'',
             filterId:'',
-            baseData:[],
+            ischannel:false,
+            selectedData: [],
+            modal:false,
+            dateList:[
+                {label: '周',id: 'W'},
+                {label: '月',id: 'M'},
+                {label: '季度',id: 'Q'},
+                {label: '年',id: 'Y'}
+            ],
+            areaData:[],
+            modelColumns:[
+                {
+                    type: 'selection',
+                    width: 70,
+                    align: 'center'
+                },
+                {
+                    title: '测点编号',
+                    key: 'mpointId'
+                },
+                {
+                    title: '区域位置',
+                    key: 'siteName'
+                },
+                {
+                    title: '测点名称',
+                    key: 'mpointName'
+                }
+            ],
+            modelData:[],
+            page:1,
             mpointList:[],
-            id:'',
-            tableData:[],
-            cancelModal:false,
-            index:'',
-            a:[]
+            textList:[
+                {name:' 单行文本',value:'single'},
+                {name:'多行文本',value:'multi'}
+            ],
+            autoList:[
+                {name:' 否',value:'0'},
+                {name:'是',value:'1'}
+            ]
         }
       },
       mounted() {
         this.height = document.body.clientHeight-70
-        this.getRegional()
-        this.id = this.$route.query.id
-        this.getDetail(this.$route.query.id)
+         this.getRegional()
     },
     methods: {
         add(){
+            console.log(this.page)
             this.modal=true
             this.getModalData()
+           
         },
         channel(){
             this.ischannel=true
@@ -291,7 +352,39 @@ import createTree from '@/libs/public-util'
         close(){
             this.ischannel=false
         },
-        getRegional() {
+        // 清空所有已选项
+        handleClearSelect (status) {
+            this.selectedData = [];
+            this.$refs.selection.selectAll(status);
+        },
+        // 选中一项，将数据添加至已选项中
+        handleSelect (selection, row) {
+            this.selectedData.push(row);
+        },
+        // 取消选中一项，将取消的数据从已选项中删除
+        handleSelectCancel (selection, row) {
+            const index = this.selectedData.findIndex(item => item.name === row.name);
+            this.selectedData.splice(index, 1);
+        },
+        // 当前页全选时，判断已选数据是否存在，不存在则添加
+        handleSelectAll (selection) {
+            selection.forEach(item => {
+                if (this.selectedData.findIndex(i => i.name === item.name) < 0) {
+                    this.selectedData.push(item);
+                }
+            });
+        },
+        // 取消当前页全选时，将当前页的数据（即 modelData）从已选项中删除
+        handleSelectAllCancel () {
+            const selection = this.modelData;
+            selection.forEach(item => {
+                const index = this.selectedData.findIndex(i => i.name === item.name);
+                if (index >= 0) {
+                    this.selectedData.splice(index, 1);
+                }
+            });
+        },
+         getRegional() {
             regionalCon().then(res => {
                 // console.log(JOSN.stringify(res.data))
                 let treeItem = []
@@ -308,68 +401,8 @@ import createTree from '@/libs/public-util'
                 // 异常情况
             })
         },
-        // 清空所有已选项
-        handleClearSelect (status) {
-            this.selectedData = [];
-            this.$refs.selection.selectAll(status);
-        },
-        // 选中一项，将数据添加至已选项中
-        handleSelect (selection, row) {
-            this.selectedData.push(row);
-        },
-        // 取消选中一项，将取消的数据从已选项中删除
-        handleSelectCancel (selection, row) {
-            const index = this.selectedData.findIndex(item => item.id === row.id);
-            this.selectedData.splice(index, 1);
-        },
-        // 当前页全选时，判断已选数据是否存在，不存在则添加
-        handleSelectAll (selection) {
-            selection.forEach(item => {
-                if (this.selectedData.findIndex(i => i.id === item.id) < 0) {
-                    this.selectedData.push(item);
-                }
-            });
-        },
-        // 取消当前页全选时，将当前页的数据（即 modelData）从已选项中删除
-        handleSelectAllCancel () {
-            const selection = this.modelData;
-            selection.forEach(item => {
-                const index = this.selectedData.findIndex(i => i.id === item.id);
-                if (index >= 0) {
-                    this.selectedData.splice(index, 1);
-                }
-            });
-        },
-        save(name){
-            console.log(this.mpointList)
-            this.baseData.forEach(ele=>{
-                if(ele.id == this.formInline.location){
-                    this.locationName = ele.name
-                }
-            })
-            let data = {
-                cycleId: this.formInline.duration+"H", //周期
-                cycleNumber: this.formInline.duration,
-                cycleName:this.formInline.duration+"小时",
-                formName: this.formInline.name, //名称
-                id: this.id,
-                mpointList:this.mpointList,
-                siteId: this.formInline.location,  //区域位置
-                siteName: this.locationName //区域名称
-            }
-            console.log(data)
-             this.$refs[name].validate((valid) => {
-                 editLabour(data).then(res=>{
-                     if(res.data.count){
-                         this.$Message.success('数据保存成功');
-                         this.$router.push({
-                            path:'/data-input/hour'
-                        })
-                     }
-                 })
-             })
-        },
         getModalData(){
+            console.log(this.page)
             if(this.selectedData.length!=0){
                 let arr = []
                 this.selectedData.forEach(ele=>{
@@ -377,7 +410,7 @@ import createTree from '@/libs/public-util'
                 })
                 this.filterId = arr.join(",")
             }
-            dialog(this.filterId,this.modelKey,this.formInline.location).then(res=>{
+            dialog(this.filterId ,this.modelKey,this.formInline.location,this.page).then(res=>{
                 console.log(res)
                 this.modelData = res.data.items
                 this.modelTotal = res.data.total
@@ -386,14 +419,45 @@ import createTree from '@/libs/public-util'
         search(){
              this.getModalData()
         },
-        sure(){
+        changeSize(size){
+            this.page = size
+            this.getModalData()
+        },
+        save(name){
+             console.log(this.mpointList)
+            this.baseData.forEach(ele=>{
+                if(ele.id == this.formInline.location){
+                    this.locationName = ele.name
+                }
+            })
+            let data = {
+                cycleId: this.formInline.duration,
+                id: 0,
+                formName: this.formInline.name, //名称
+                mpointList:this.mpointList,
+                siteId: this.formInline.location,  //区域位置
+                siteName: this.locationName //区域名称
+            }
+             this.$refs[name].validate((valid) => {
+                 if(valid){
+                    addBulletin(data).then(res=>{
+                        if(res.data.id){
+                            this.$Message.success('数据添加成功');
+                            this.$router.go(-1)
+                        }
+                    })
+                 }
+                 
+             })
+        },
+         sure(){
             console.log(this.selectedData)
-            let that =this
+            this.mpointList=[]
             this.selectedData.forEach(ele=>{
-                this.mpointList.push({  
+                this.mpointList.push({
                     autoComplete: 0,
                     formId: 0,
-                    groupName: '未分组命名',
+                    groupName: "未命名分组",
                     groupOrder: 1,
                     index: 0,
                     mpointId: ele.id,
@@ -401,48 +465,15 @@ import createTree from '@/libs/public-util'
                     mpointOrder: 1,
                     status: null,
                     textType: "single",
-                    unit: "",
+                    unit: "22"
                 })
             })
-            
+            console.log(this.mpointList)
             this.modal = false
         },
         abolish(){
             this.modal = false
         },
-        cancelOk(){
-            let arr = JSON.parse(sessionStorage.getItem('list'))
-            arr[this.index].status = "delete"
-            this.mpointList=arr
-            this.tableData.splice(this.index,1)
-            console.log( this.mpointList)
-            console.log(this.tableData)
-        },
-        cancelClose(){
-
-        },
-        remove(index){
-            this.index = index
-            this.cancelModal = true
-        },
-        getDetail(id){
-             checkForm(id).then(res=>{
-                console.log(res)
-                if(res.data){
-                   this.formInline= {
-                        location: res.data.siteId,
-                        name:res.data.formName,
-                        duration:res.data.cycleName.slice(0,1)
-                    }
-                    this.mpointList = res.data.mpointList
-                    this.tableData = res.data.mpointList
-                    sessionStorage.setItem("list",JSON.stringify(res.data.mpointList))
-                }
-             })
-        },
-        cancel(){
-            this.$router.go(-1)
-        }
     }
   }
 </script>
@@ -581,5 +612,5 @@ input::-webkit-input-placeholder{
             }
         }
     }
-}    
+}
 </style>
