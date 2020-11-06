@@ -59,7 +59,7 @@
                         <Row>
                             <Col span="8">
                                 <FormItem label="是否校验:" >
-                                  <Checkbox v-model="formLeft.completeCheck"></Checkbox>
+                                  <Checkbox v-model="formLeft.enumCheck" @on-change="enumChange"></Checkbox>
                                 </FormItem>
                             </Col>
                         </Row>
@@ -232,7 +232,8 @@ export default {
                 dispose:'',
                 lose:'',
                 completeCheck:false,
-                timeCheck:false
+                timeCheck:false,
+                enumCheck:false
             },
             disposeList:[],
             loseList:[],
@@ -329,7 +330,7 @@ export default {
                 completeness: this.formLeft.completeCheck?1:'',
                 consistency: str,
                 datype: this.currentMpoint.datype,
-                enumCheck: null,
+                enumCheck: this.formLeft.enumCheck?1:'',
                 id: this.currentMpoint.id,
                 increase: this.formLeft.increase?1:'',
                 lowerRange: this.formLeft.min,
@@ -435,7 +436,8 @@ export default {
                     lose: res.data.missingProcess,
                     dispose: res.data.outlierProcess,
                     sigma :res.data.sigma3 == 1?true:false,
-                    timeCheck :res.data.timeliness==1?true:false
+                    timeCheck :res.data.timeliness==1?true:false,
+                    enumCheck: res.data.enumCheck == 1?true:false
                 }
                 this.loseDisabled = res.data.completeness ==1 ?false:true
                 this.disposeDisabled = res.data.outlierProcess ?false:true
@@ -642,8 +644,12 @@ export default {
         getOutIndex(index){
             this.curIndex = index
         },
-        chooseOutSymbol(e){
-
+        enumChange(e){
+            if(e){
+                this.formLeft.enumCheck = true
+            }else{
+                this.formLeft.enumCheck = false
+            }
         }
     }
 }
