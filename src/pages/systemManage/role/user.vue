@@ -33,9 +33,6 @@
                         </div>
                         <div class="search-item">
                             <label>结构组织：</label>
-                            <!-- <Select v-model="tissue" style="width:180px" size="small">
-                                <Option v-for="item in tissueList" :value="item.value" :key="item.value">{{ item.label }}</Option>
-                            </Select> -->
                              <TreeSelect v-model="orgId" :data="data4" :multiple="true" v-width="180" />
                         </div>
                         <div class="search-btn">
@@ -94,12 +91,6 @@ export default {
             data: [],
             keyword: '',
             tissue: '',
-            tissueList: [
-                {
-                    value: 'New York',
-                    label: 'New York'
-                }
-            ],
             modelColumns: [
                 {
                     type: 'selection',
@@ -139,35 +130,56 @@ export default {
            sessionStorage.setItem('userIds',arr.join(','))
         },
         ok () {
-        //    console.log(this.selectedData)
-           this.data=this.data.concat(this.selectedData)
+        //    this.data=this.data.concat(temp)
            let arr=[]
            this.data.forEach(ele=>{
              arr.push(ele.id)
            })
            sessionStorage.setItem('userIds',arr.join(','))
+            this.modelData.map((item,index)=>{
+                this.data.map(ele=>{
+                    if(item.id == ele.id){
+                        this.$refs.selection.toggleSelect(index)
+                        // this.handleSelect(item)
+                        item._checked = true
+                    }
+                })
+            })
         },
         cancel () {
             this.$Message.info('Clicked cancel');
+             this.modelData.map((item,index)=>{
+                this.data.map(ele=>{
+                    if(item.id == ele.id){
+                        this.$refs.selection.toggleSelect(index)
+                        // this.handleSelect(item)
+                        item._checked = true
+                    }
+                })
+            })
         },
         // 清空所有已选项
         handleClearSelect (status) {
+            console.log("清空所有")
             this.selectedData = [];
             this.$refs.selection.selectAll(status);
         },
         // 选中一项，将数据添加至已选项中
-        handleSelect (selection, row) {
-            console.log(selection)
+        handleSelect (row) {
+            console.log("添加每一项")
+            // console.log(selection)
             console.log(row)
             this.selectedData.push(row);
         },
         // 取消选中一项，将取消的数据从已选项中删除
         handleSelectCancel (selection, row) {
+             console.log("取消每一项")
             const index = this.selectedData.findIndex(item => item.name === row.name);
             this.selectedData.splice(index, 1);
         },
         // 当前页全选时，判断已选数据是否存在，不存在则添加
         handleSelectAll (selection) {
+            console.log("取消全部")
             // selection.forEach(item => {
             //     if (this.selectedData.findIndex(i => i.name === item.name) < 0) {
             //         this.selectedData.push(item);
@@ -201,16 +213,16 @@ export default {
         },
         addUser(){
             this.userModal = true
-            this.modelData.forEach(item=>{
-                this.data.forEach(ele=>{
+            console.log(this.data)
+            this.modelData.map((item,index)=>{
+                this.data.map(ele=>{
                     if(item.id == ele.id){
+                        this.$refs.selection.toggleSelect(index)
+                        // this.handleSelect(item)
                         item._checked = true
                     }
                 })
             })
-            this.$nextTick(() => {
-                console.log(this.modelData)
-            });
             
         },
         async getHavedRole(){
