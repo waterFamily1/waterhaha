@@ -103,8 +103,9 @@
                             <Select v-model="formValidate.state" placeholder="请选择" style="width: 210px">
                                 <Option value="0,关;1,开;">0,关;1,开;</Option>
                                 <Option value="0,关;1,开;2,自动;">0,关;1,开;2,自动;</Option>
-                                <Option value="自定义">自定义</Option>
+                                <Option value="1">自定义</Option>
                             </Select>
+                            <Input v-model="unitValue" style="width: 100px;margin-left: 10px;" v-if="formValidate.state == 1" />
                         </FormItem>
                     </Col>
                     <Col span="12">
@@ -116,8 +117,9 @@
                 <Row>
                     <Col span="12">
                         <FormItem label="所属设备：" class="equ-btn">
+                            <span style="margin-right: 10px;">{{ formValidate.belongEqu }}</span>
                             <Button type="primary" @click="chooseEqu">选择设备</Button>
-                            <Button type="primary">清除</Button>
+                            <Button type="primary" @click="formValidate.belongEqu = ''">清除</Button>
                         </FormItem>
                     </Col>
                     <Col span="12">
@@ -403,7 +405,7 @@
 </template>
 
 <script>
-import { batchMethod, limitMethod, dataKindTypeMethod, belongEquMethod, areaMethod, add1, detailMethod1 } from '@/api/dataManage/siteManage'
+import { batchMethod, limitMethod, dataKindTypeMethod, fromEqu, areaMethod, addMethod2, detailMethod1 } from '@/api/dataManage/siteManage'
 import createTree from '@/libs/public-util'
 
 export default {
@@ -422,6 +424,7 @@ export default {
                 remark: '',
                 yMin: '',
                 yMax: '',
+                belongEqu: '',
                 pointVal: ''
             },
             areaTree: [],
@@ -517,6 +520,12 @@ export default {
             sitePointName: '',
             unitList: [],
             unitDefalutMap: {'-2' : '无','-1' : '自定义'},
+            equipment: '',
+            roleName: '',
+            roleNameList: [],
+            categoryName: '',
+            deadZone: '',
+            id: ''
         }
     },
     created() {
@@ -547,6 +556,24 @@ export default {
                 this.formValidate.siteType = res.data.mpointType.toString() //测点类别
                 this.formValidate.signalType = res.data.datype //信号类型
                 this.formValidate.pointVal = res.data.point.toString() //点位
+                this.multipleValue = res.data.magnification //倍数
+                this.cardinalNum = res.data.cardinality //基数
+                this.upperLimit = res.data.upperRange //上限
+                this.lowerLimit = res.data.lowerRange //下限
+                this.coefficient = res.data.coefficient //系数
+                this.roleName = res.data.roleName
+                this.deadZone = res.data.deadZone
+                this.formValidate.state = res.data.enumvalue
+                let arr = res.data.roleId.split(',')//权限
+                arr.map(item=> {
+                    this.limit.push(Number(item))
+                })
+                if(res.data.increase == 0) {
+                    //单调递增。否
+                    this.ascending = false
+                } else if(res.data.increase == 1) {
+                    this.ascending = true
+                }
                 if(res.data.datype == 'State') {
                     // this.formValidate.decimal = res.data.numtail.toString() //显示小数位
                 } else {
@@ -576,8 +603,8 @@ export default {
                 } else if(res.data.pushSet == 2) {
                     this.cycleValue = res.data.deadZone
                 } else {
-                    this.changeValue = ''
-                    this.cycleValue = ''
+                    this.changeValue = null
+                    this.cycleValue = null
                 }
             }).catch(err=> {
 
@@ -659,11 +686,15 @@ export default {
         addSearch() {
             let queryName = this.belongName
             let currentPage = this.pageNum
-            belongEquMethod({
+            let processIds = this.formValidate.areaLocation
+            fromEqu({
                 queryName,
-                currentPage
+                currentPage,
+                processIds
             }).then(res=> {
-
+                console.log(res)
+                this.data = res.data.items
+                this.allTotal = res.data.total
             }).catch(err=> {
 
             })
@@ -673,9 +704,8 @@ export default {
             this.addSearch()
         },
         chooseHandle(row) {
-            console.log(row)
-            // this.mpointId = row.id
-            // this.formItem.sightName = row.mpointName
+            this.equipment = row.id
+            this.formValidate.belongEqu = row.name
             this.belongModal = false
         },
         chooseEqu() {
@@ -683,7 +713,6 @@ export default {
             this.addSearch()
         },
         limitChange(val) {
-            console.log(val)
             this.limit = val
         },  
         saveHandle(name) {
@@ -694,21 +723,32 @@ export default {
                 increase = 0
             }
             let limit = JSON.stringify(this.limit).replace("[","").replace("]","")
+            let arr = this.limit
+            arr.map(item=> {
+                this.limitList.map(list=> {
+                    if(list.id == item) {
+                        this.roleNameList.push(list.name)
+                    }
+                })
+            })
+            let roleName = JSON.stringify(this.roleNameList).replace("[","").replace("]","")
             this.$refs[name].validate((valid) => {
                 if (valid) {
-                    add1({
+                    addMethod2({
                         cardinality: this.cardinalNum,
-                        categoryId: Number(this.level),
+                        categoryId: Number(this.formValidate.dataKind),
+                        categoryName: this.categoryName,
                         coefficient: Number(this.coefficient),
                         curveYaxisLowerRange: this.formValidate.yMin,
                         curveYaxisUpperRange: this.formValidate.yMax,
-                        cycle: Number(this.cycleValue),
+                        cycle: this.cycleValue,
                         datasource: "AUTO",
                         datype: this.formValidate.signalType,
-                        deadZone: this.deadZone,
+                        deadZone: Number(this.deadZone),
                         enumvalue: this.formValidate.state,
-                        equipment: "",
-                        equipmentName: "",
+                        equipment: Number(this.equipment),
+                        equipmentName: this.formValidate.belongEqu,
+                        id: this.id,
                         increase: increase,
                         lowerRange: this.lowerLimit,
                         magnification: this.multipleValue,
@@ -720,12 +760,15 @@ export default {
                         readWriteSet: this.readWrite,
                         remarks: this.formValidate.remark,
                         roleId: limit,
+                        roleName: roleName,
                         siteId: this.formValidate.areaLocation.toString(),
                         siteName: this.sitePointName,
                         slope: 0,
+                        tenantId: null,
                         unit: this.unitValue,
                         upperRange: this.upperLimit
                     }).then(res=> {
+                        // console.log(res)
                         if(res.status == 200) {
                             this.$router.push({
                                 path: '/mpoint',

@@ -92,11 +92,17 @@
                                 v-model="formValidate.unit" 
                                 placeholder="请选择" 
                                 style="width: 210px"
+                                @on-change="unitChange"
                             >
-                                <Option v-for="(item, index) in unitList" :key="index">{{ item }}</Option>
-                                <!-- <Option value="1">自定义</Option> -->
+                                <Option 
+                                    v-for="(item, key) in unitList" 
+                                    :value="key" 
+                                    :key="key"
+                                >
+                                    {{ item }}
+                                </Option>
                             </Select>
-                            <Input v-model="unitValue" style="width: 100px;margin-left: 10px;" v-if="formValidate.unit == 1" />
+                            <Input v-model="unitValue" style="width: 100px;margin-left: 10px;" v-if="formValidate.unit == -1" />
                         </FormItem>
                         <FormItem label="状态值：" prop="state" v-if="signalKind == 'State'">
                             <Select v-model="formValidate.state" placeholder="请选择" style="width: 210px">
@@ -191,43 +197,43 @@
                 </Row>
                 <Row>
                     <Col span="24">
-                        <FormItem label="计算公式：">
+                        <FormItem label="计算公式：" prop="formula">
                             <Input 
                                 v-model="formValidate.formula" 
                                 :autosize="{minRows: 2,maxRows: 5}"
                                 type="textarea" 
                                 placeholder="仅支持+、-、*、/、括号四则运算公式，例如：(a+b)/c-d*2"
                                 style="width: 210px;"
-                                @on-change="formulaChange"
                             />
                         </FormItem>
                     </Col>
                 </Row>
                 <Row>
                     <Col span="24">
-                        <div class="row-item">
-                            <label class="label">参数设置：</label>
-                            <div class="row-item-form" v-if="paraDis">
-                                <FormItem label="参数a" prop="parameterA">
-                                    <div @click="getParaA">
-                                        <Input 
-                                            v-model="formValidate.parameterA" 
-                                            placeholder="测点" 
-                                            style="width: 210px;"
-                                        />
-                                    </div>
-                                </FormItem>
-                                <FormItem label="参数b" prop="parameterB">
-                                    <div @click="getParaB">
-                                        <Input 
-                                            v-model="formValidate.parameterB" 
-                                            placeholder="测点" 
-                                            style="width: 210px;"
-                                        />
-                                    </div>
-                                </FormItem>
-                            </div>
-                        </div>
+                        <FormItem label="参数设置:">
+                            <table class="c-paramter-layout">
+                                <tr v-for="(item, index) in formValidate.parameter" :key="item.id">
+                                    <td>参数{{ item.name }}</td>
+                                    <td>
+                                        <span class="c-form-required">*</span>
+                                        <FormItem 
+                                            span="10" 
+                                            :prop="'parameter.' + index + '.mpointname'" 
+                                            :rules="{required: true, message: '测点不能为空'}" style="display:inline-block;"
+                                        >
+                                            <div @click="choosePoint(index,9)">
+                                                <Input 
+                                                    v-model="item.mpointname"
+                                                    placeholder="测点" 
+                                                    style="width: 210px;"
+                                                    readonly
+                                                />
+                                            </div>
+                                        </FormItem>
+                                    </td>
+                                </tr>
+                            </table>
+                        </FormItem>
                     </Col>
                 </Row>
             </Form>
@@ -306,10 +312,12 @@
 import { dataKindTypeMethod, fromEqu, areaMethod, addSave, countCycleMethod, dataSiteMethod } from '@/api/dataManage/siteManage'
 import createTree from '@/libs/public-util'
 import dataList from '@/libs/public-data'
+const jsep = require('jsep')
 
 export default {
     data() {
         return {
+            parameterList: [],
             ifSite: false,
             height: '',
             formValidate: {
@@ -330,8 +338,7 @@ export default {
                 taskTime: '',
                 belongEqu: '',
                 formula: '',
-                parameterA: '',
-                parameterB: ''
+                parameter: []
             },
             areaTree: [],
             unitValue: '',
@@ -366,18 +373,12 @@ export default {
                 taskTime: [
                     { required: true, message: '请选择任务开始时间', trigger: 'blur', type: 'date' }
                 ],
-                parameterA: [
-                    { required: true, message: '测点不能为空', trigger: 'blur' }
-                ],
-                parameterB: [
-                    { required: true, message: '测点不能为空', trigger: 'blur' }
-                ],
                 formula: [
                     { 
                         validator:(rule,value,callback) => {
                             if(!value) {
                                 callback(new Error('请填写计算公式'));
-                                this.point.parameter = [];
+                                this.formValidate.parameter = [];
                             } else {
                                 this.validateExpression(callback);
                             }
@@ -419,10 +420,6 @@ export default {
             cycleStarUnit: '',
             countCycleLabel: '',
             countMethodLabel: '',
-            mpointNameValA: null,
-            mpointidValA: '',
-            mpointNameValB: null,
-            mpointidValB: '',
             startdt: '',
             sitePointName: '',
             dataModal: false,
@@ -448,9 +445,11 @@ export default {
             siteAllTotal: 0,
             sitePageNum: '1',
             cycleStarDis: false,
-            whichFrom: '',
             paraDis: false,
-            unitList: ['无','自定义']
+            unitList: [],
+            unitDefalutMap: {'-2' : '无','-1' : '自定义'},
+            index: '',
+            isRule: false
         }
     },
     created() {
@@ -463,21 +462,20 @@ export default {
         }
         this.ids = ids
         this.getRegional()
+        this.unitList = this.unitDefalutMap
     },
     mounted() {
         this.height = document.body.clientHeight+250
         let date = new Date();
         this.formValidate.taskTime = date
-        console.log(typeof(this.formValidate.taskTime))
         this.startdt = this.$moment(date).utc().format()
         this.getCountCycle()
-        // this.getParaA()
-        // this.getParaB()
     },
     methods: {
         validateExpression(callback) {
             var pattern = /^[\u4e00-\u9fa5]+$/;
             if(pattern.test(this.formValidate.formula)){
+                this.formValidate.parameter = [];
                 callback(new Error('参数限英文字母或数字'));
             } else {
                 try {
@@ -490,44 +488,63 @@ export default {
                 }
             }
         },
-        formulaChange(event) {
-            console.log(event.data)
-            if(event.data == '' || event.data == null) {
-                this.paraDis = false
-            } else {
-                this.paraDis = true
+        // 计算公式分割成数组
+        printAttr (root) {
+            var arr = [],res = [];
+            if(root != null) {
+                arr.push(root)
+            }
+            while(arr.length!=0) {
+                var temp = arr.pop()
+                if(temp.name) {
+                    res.push(temp.name)
+                }
+                //这里先放右边再放左边是因为取出来的顺序相反
+                if(temp.right != null) {
+                    arr.push(temp.right)
+                }
+                if(temp.left != null) {
+                    arr.push(temp.left)
+                }
+            }
+            var parms= []
+            for(let i = 0; i < res.length; i++) {
+                parms.push({name: res[i]})
+            }
+            return parms
+        },
+        // 添加到参数设置数组中
+        addParameter(data) {
+            if(!this.isRule) {
+                data.forEach((item,index) => {
+                    item.mpointid = 0;
+                    item.mpointname = '';
+                    item.index = index;
+                });
+                this.formValidate.parameter = data;
             }
         },
-        getParaA() {
+        choosePoint(index, id) {
+            let queryName
+            let siteId
+            let currentPage
+            if(id == 9) {
+                queryName = ''
+                siteId = ''
+                currentPage = '1'
+            } else {
+                queryName = this.siteDataName
+                siteId = ''
+                currentPage = this.sitePageNum
+            }
+            this.index = index
             this.dataModal = true
-            let queryName = this.siteDataName
-            let siteId = ''
-            let currentPage = this.sitePageNum
-            this.whichFrom = 'A'
             dataSiteMethod({
                 queryName,
                 siteId,
                 currentPage
             }).then(res=> {
-                console.log(res.data.items)
-                this.siteData = res.data.items
-                this.siteAllTotal = res.data.total
-            }).catch(err=> {
-
-            })
-        },
-        getParaB() {
-            this.dataModal = true
-            let queryName = this.siteDataName
-            let siteId = ''
-            let currentPage = this.sitePageNum
-            this.whichFrom = 'B'
-            dataSiteMethod({
-                queryName,
-                siteId,
-                currentPage
-            }).then(res=> {
-                console.log(res.data.items)
+                // console.log(res.data.items)
                 this.siteData = res.data.items
                 this.siteAllTotal = res.data.total
             }).catch(err=> {
@@ -535,34 +552,19 @@ export default {
             })
         },
         chooseSiteHandle(row) {
-            if(this.whichFrom == 'A') {
-                this.formValidate.parameterA = row.mpointName
-                this.dataModal = false
-                let id = row.id
-                this.mpointNameValA = row.mpointName
-                this.mpointidValA = row.id
-            } else if(this.whichFrom == 'B') {
-                this.formValidate.parameterB = row.mpointName
-                this.dataModal = false
-                let id = row.id
-                this.mpointNameValB = row.mpointName
-                this.mpointidValB = row.id
-            }
+            let index = this.index
+            this.formValidate.parameter[index].mpointid = row.id
+            this.formValidate.parameter[index].mpointname = row.mpointName
+            this.dataModal = false
         },
         getdataSite() {
-            if(this.whichFrom == 'A') {
-                this.getParaA()
-            } else if(this.whichFrom == 'B') {
-                this.getParaB()
-            }
+            let index = this.index
+            this.choosePoint(index)
         },
         siteChangePage(index) {
+            let i = this.index
             this.sitePageNum = index
-            if(this.whichFrom == 'A') {
-                this.getParaA()
-            } else if(this.whichFrom == 'B') {
-                this.getParaB()
-            }
+            this.choosePoint(i)
         },
         getRegional() {
             areaMethod().then(res => {
@@ -620,7 +622,6 @@ export default {
         },
         cycleStarChange(val) {
             this.formValidate.cycleStar = val
-            console.log(typeof(this.formValidate.cycleStar))
         },
         signalChange(val) {
             this.signalKind = val
@@ -628,28 +629,26 @@ export default {
         siteChange(val) {
             let id = val
             dataKindTypeMethod(id).then(res=> {
-                console.log(JSON.stringify(res.data))
+                // console.log(JSON.stringify(res.data))
                 this.dataKindList = res.data
             }).catch(err=> {
 
             })
         },
-        dataKindChange(val) {
-            console.log(val)
-            let arr = this.dataKindList
-            let unit = ''
-            let unitList = []
-            arr.map(item=> {
-                if(item.id == val) {
-                    if(item.unit != '') {
-                        unit = item.unit
-                        unitList = unit.split(';')
-                    }
-                }
-            })
-
-            console.log(JSON.stringify(unitList))
+        dataKindChange(value) {
+            let currentUnit = this.dataKindList.filter(v => v.id == value)[0].unit
+            let currentUnitArray = currentUnit == null ? [] : currentUnit.split(';');
+            let newUnitObj = {};
+            currentUnitArray.forEach(v => newUnitObj[v] = v);
+            this.unitList = Object.assign({}, newUnitObj, this.unitDefalutMap)
         },  
+        unitChange(val) {
+            if(val == '-1' || val == '-2') {
+                this.unitValue = ''
+            } else if(val != '-1' || val != '-2') {
+                this.unitValue = val
+            }
+        },
         chooseHandle(row) {
             this.equipment = row.id
             this.formValidate.belongEqu = row.name
@@ -683,11 +682,20 @@ export default {
             this.startdt = this.$moment(val).utc().format()
         },
         saveHandle(name) {
+            this.isRule = true
+            let parm = []
             this.$refs[name].validate((valid) => {
                 if (valid) {
+                    console.log(this.formValidate.parameter)
+                    this.formValidate.parameter.forEach(list => {
+                        parm.push({ 
+                            code: list.name, 
+                            mpointid: list.mpointid
+                        });
+                    });
                     addSave({
                         calcMpoint:{
-                            categoryId: Number(this.level),
+                            categoryId: Number(this.formValidate.dataKind),
                             curveYaxisLowerRange: this.formValidate.yMin,
                             curveYaxisUpperRange: this.formValidate.yMax,
                             datasource: "CALC",
@@ -700,6 +708,7 @@ export default {
                             numtail: Number(this.formValidate.decimal),
                             remarks: this.formValidate.remark,
                             siteId: this.formValidate.areaLocation.toString(),
+                            siteName: this.sitePointName,
                             unit: this.unitValue
                         },
                         calcTask: [
@@ -707,23 +716,15 @@ export default {
                                 formula: {
                                     expression: this.formValidate.formula,
                                     ftype: 'Custom',
-                                    siteid: Number(this.formValidate.areaLocation)
+                                    siteid: this.formValidate.areaLocation
                                 },
-                                params: [
-                                    {
-                                        code: 'a',
-                                        mpointid: this.mpointidValA
-                                    }, {
-                                        code: 'b',
-                                        mpointid: this.mpointidValB
-                                    }
-                                ],
+                                params: parm,
                                 task: {
                                     cycle: Number(this.formValidate.countCycle),
                                     cycleStart: Number(this.formValidate.cycleStar),
                                     expression: this.formValidate.formula,
                                     mpointid: -1,
-                                    siteid:  Number(this.formValidate.areaLocation),
+                                    siteid:  this.formValidate.areaLocation,
                                     startdt: this.startdt,
                                     status: this.figureUp,
                                     taskname: this.formValidate.taskName
@@ -731,7 +732,6 @@ export default {
                             }
                         ]
                     }).then(res=> {
-                        console.log(res)
                         if(res.status == 200) {
                             this.$router.push({
                                 path: '/mpoint',
@@ -836,6 +836,19 @@ export default {
         .mg-single-select-table-search {
             width: 250px;
         }
+    }
+}
+.c-form-required{
+    font-family: SimSun;
+    font-size: 12px;
+    color: #ed3f14;
+    margin-right: 15px;
+}
+.c-paramter-layout {
+    /deep/.ivu-form-item-error-tip {
+        top: 14%;
+        left: auto;
+        right: -100px;
     }
 }
 </style>

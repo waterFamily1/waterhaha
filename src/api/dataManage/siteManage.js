@@ -90,6 +90,14 @@ export function add1(data) {
     })
 }
 
+export function addMethod2(data) {
+    return request({
+        url: '/loong/api/mpoints-auto',
+        method: 'put',
+        data
+    })
+}
+
 //新增人工
 export function add2(data) {
     return request({
@@ -123,6 +131,7 @@ export function fromEqu(data) {
         method: 'get'
     })
 }
+
 
 //计算方法
 export function countMethod() {

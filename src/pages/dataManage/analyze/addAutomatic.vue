@@ -43,7 +43,11 @@
                     </Col>
                     <Col span="12">
                         <FormItem label="数据分类：" prop="dataKind">
-                            <Select v-model="formValidate.dataKind" style="width: 210px">
+                            <Select 
+                                v-model="formValidate.dataKind" 
+                                style="width: 210px"
+                                @on-change="dataKindChange"
+                            >
                                 <Option 
                                     v-for="(item, index) in dataKindList"
                                     :value="item.id"
@@ -84,18 +88,29 @@
                 <Row>
                     <Col span="12">
                         <FormItem label="单位：" prop="unit" v-if="signalKind == 'Digtal'">
-                            <Select v-model="formValidate.unit" placeholder="请选择" style="width: 210px">
-                                <Option value="0">无</Option>
-                                <Option value="1">自定义</Option>
+                            <Select 
+                                v-model="formValidate.unit" 
+                                placeholder="请选择" 
+                                style="width: 210px"
+                                @on-change="unitChange"
+                            >
+                                <Option 
+                                    v-for="(item, key) in unitList" 
+                                    :value="key" 
+                                    :key="key"
+                                >
+                                    {{ item }}
+                                </Option>
                             </Select>
-                            <Input v-model="unitValue" style="width: 100px;margin-left: 10px;" v-if="formValidate.unit == 1" />
+                            <Input v-model="unitValue" style="width: 100px;margin-left: 10px;" v-if="formValidate.unit == -1" />
                         </FormItem>
                         <FormItem label="状态值：" prop="state" v-if="signalKind == 'State'">
                             <Select v-model="formValidate.state" placeholder="请选择" style="width: 210px">
                                 <Option value="0,关;1,开;">0,关;1,开;</Option>
                                 <Option value="0,关;1,开;2,自动;">0,关;1,开;2,自动;</Option>
-                                <Option value="自定义">自定义</Option>
+                                <Option value="1">自定义</Option>
                             </Select>
+                            <Input v-model="unitValue" style="width: 100px;margin-left: 10px;" v-if="formValidate.state == 1" />
                         </FormItem>
                     </Col>
                     <Col span="12">
@@ -107,8 +122,9 @@
                 <Row>
                     <Col span="12">
                         <FormItem label="所属设备：" class="equ-btn">
+                            <span style="margin-right: 10px;">{{ formValidate.belongEqu }}</span>
                             <Button type="primary" @click="chooseEqu">选择设备</Button>
-                            <Button type="primary">清除</Button>
+                            <Button type="primary" @click="formValidate.belongEqu = ''">清除</Button>
                         </FormItem>
                     </Col>
                     <Col span="12">
@@ -394,7 +410,7 @@
 </template>
 
 <script>
-import { batchMethod, limitMethod, dataKindTypeMethod, belongEquMethod, areaMethod, add1 } from '@/api/dataManage/siteManage'
+import { batchMethod, limitMethod, dataKindTypeMethod, fromEqu, areaMethod, add1 } from '@/api/dataManage/siteManage'
 import createTree from '@/libs/public-util'
 
 export default {
@@ -413,7 +429,8 @@ export default {
                 remark: '',
                 yMin: '',
                 yMax: '',
-                pointVal: ''
+                pointVal: '',
+                belongEqu: ''
             },
             areaTree: [],
             unitValue: '',
@@ -489,13 +506,13 @@ export default {
             columns: [
                 {
                     title: '设备编号',
-                    key: 'siteName'
+                    key: 'code'
                 }, {
                     title: '设备类型',
-                    key: 'siteName'
+                    key: 'typeName'
                 }, {
                     title: '设备名称',
-                    key: 'siteName'
+                    key: 'name'
                 }, {
                     title: '操作',
                     slot: 'action',
@@ -506,7 +523,10 @@ export default {
             data: [],
             readWrite: '',
             treeListArr: [],
-            sitePointName: ''
+            sitePointName: '',
+            unitList: [],
+            unitDefalutMap: {'-2' : '无','-1' : '自定义'},
+            equipment: ''
         }
     },
     created() {
@@ -519,6 +539,7 @@ export default {
         }
         this.ids = ids
         this.getRegional()
+        this.unitList = this.unitDefalutMap
     },
     mounted() {
         this.height = document.body.clientHeight+250
@@ -584,6 +605,20 @@ export default {
 
             })
         },
+        dataKindChange(value) {
+            let currentUnit = this.dataKindList.filter(v => v.id == value)[0].unit
+            let currentUnitArray = currentUnit == null ? [] : currentUnit.split(';');
+            let newUnitObj = {};
+            currentUnitArray.forEach(v => newUnitObj[v] = v);
+            this.unitList = Object.assign({}, newUnitObj, this.unitDefalutMap)
+        }, 
+        unitChange(val) {
+            if(val == '-1' || val == '-2') {
+                this.unitValue = ''
+            } else if(val != '-1' || val != '-2') {
+                this.unitValue = val
+            }
+        },
         levelChange(val) {
             console.log(val)
             this.level = val.label
@@ -592,11 +627,15 @@ export default {
         addSearch() {
             let queryName = this.belongName
             let currentPage = this.pageNum
-            belongEquMethod({
+            let processIds = this.formValidate.areaLocation
+            fromEqu({
                 queryName,
-                currentPage
+                currentPage,
+                processIds
             }).then(res=> {
-
+                console.log(res)
+                this.data = res.data.items
+                this.allTotal = res.data.total
             }).catch(err=> {
 
             })
@@ -606,9 +645,9 @@ export default {
             this.addSearch()
         },
         chooseHandle(row) {
-            console.log(row)
-            // this.mpointId = row.id
-            // this.formItem.sightName = row.mpointName
+            // console.log(row)
+            this.equipment = row.id
+            this.formValidate.belongEqu = row.name
             this.belongModal = false
         },
         chooseEqu() {
@@ -631,7 +670,7 @@ export default {
                 if (valid) {
                     add1({
                         cardinality: this.cardinalNum,
-                        categoryId: Number(this.level),
+                        categoryId: Number(this.formValidate.dataKind),
                         coefficient: Number(this.coefficient),
                         curveYaxisLowerRange: this.formValidate.yMin,
                         curveYaxisUpperRange: this.formValidate.yMax,
@@ -640,8 +679,8 @@ export default {
                         datype: this.formValidate.signalType,
                         deadZone: this.deadZone,
                         enumvalue: this.formValidate.state,
-                        equipment: "",
-                        equipmentName: "",
+                        equipment: this.equipment,
+                        equipmentName: this.formValidate.belongEqu,
                         increase: increase,
                         lowerRange: this.lowerLimit,
                         magnification: this.multipleValue,

@@ -43,7 +43,11 @@
                     </Col>
                     <Col span="12">
                         <FormItem label="数据分类：" prop="dataKind">
-                            <Select v-model="formValidate.dataKind" style="width: 210px">
+                            <Select 
+                                v-model="formValidate.dataKind" 
+                                style="width: 210px"
+                                @on-change="dataKindChange"
+                            >
                                 <Option 
                                     v-for="(item, index) in dataKindList"
                                     :value="item.id"
@@ -84,18 +88,29 @@
                 <Row>
                     <Col span="24">
                         <FormItem label="单位：" prop="unit" v-if="signalKind == 'Digtal'">
-                            <Select v-model="formValidate.unit" placeholder="请选择" style="width: 210px">
-                                <Option value="0">无</Option>
-                                <Option value="1">自定义</Option>
+                            <Select 
+                                v-model="formValidate.unit" 
+                                placeholder="请选择" 
+                                style="width: 210px"
+                                @on-change="unitChange"
+                            >
+                                <Option 
+                                    v-for="(item, key) in unitList" 
+                                    :value="key" 
+                                    :key="key"
+                                >
+                                    {{ item }}
+                                </Option>
                             </Select>
-                            <Input v-model="unitValue" style="width: 100px;margin-left: 10px;" v-if="formValidate.unit == 1" />
+                            <Input v-model="unitValue" style="width: 100px;margin-left: 10px;" v-if="formValidate.unit == -1" />
                         </FormItem>
                         <FormItem label="状态值：" prop="state" v-if="signalKind == 'State'">
                             <Select v-model="formValidate.state" placeholder="请选择" style="width: 210px">
                                 <Option value="0,关;1,开;">0,关;1,开;</Option>
                                 <Option value="0,关;1,开;2,自动;">0,关;1,开;2,自动;</Option>
-                                <Option value="自定义">自定义</Option>
+                                <Option value="1">自定义</Option>
                             </Select>
+                            <Input v-model="unitValue" style="width: 100px;margin-left: 10px;" v-if="formValidate.state == 1" />
                         </FormItem>
                     </Col>
                 </Row>
@@ -435,7 +450,9 @@ export default {
             siteDataName: '',
             siteAllTotal: 0,
             sitePageNum: '1',
-            cycleStarDis: false
+            cycleStarDis: false,
+            unitList: [],
+            unitDefalutMap: {'-2' : '无','-1' : '自定义'},
         }
     },
     created() {
@@ -448,6 +465,7 @@ export default {
         }
         this.ids = ids
         this.getRegional()
+        this.unitList = this.unitDefalutMap
     },
     mounted() {
         this.height = document.body.clientHeight+250
@@ -494,6 +512,20 @@ export default {
         siteChangePage(index) {
             this.sitePageNum = index
             this.getdataSite()
+        },
+        dataKindChange(value) {
+            let currentUnit = this.dataKindList.filter(v => v.id == value)[0].unit
+            let currentUnitArray = currentUnit == null ? [] : currentUnit.split(';');
+            let newUnitObj = {};
+            currentUnitArray.forEach(v => newUnitObj[v] = v);
+            this.unitList = Object.assign({}, newUnitObj, this.unitDefalutMap)
+        }, 
+        unitChange(val) {
+            if(val == '-1' || val == '-2') {
+                this.unitValue = ''
+            } else if(val != '-1' || val != '-2') {
+                this.unitValue = val
+            }
         },
         getRegional() {
             areaMethod().then(res => {
@@ -557,7 +589,7 @@ export default {
             }
         },
         cycleStarChange(val) {
-            console.log(val)
+            // console.log(val)
             this.formValidate.cycleStar = val
             console.log(typeof(this.formValidate.cycleStar))
         },
@@ -611,7 +643,7 @@ export default {
                 if (valid) {
                     addSave({
                         calcMpoint:{
-                            categoryId: Number(this.level),
+                            categoryId: Number(this.formValidate.dataKind),
                             curveYaxisLowerRange: this.formValidate.yMin,
                             curveYaxisUpperRange: this.formValidate.yMax,
                             datasource: "CALC",

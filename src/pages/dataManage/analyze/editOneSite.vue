@@ -99,8 +99,9 @@
                             <Select v-model="formValidate.state" placeholder="请选择" style="width: 210px">
                                 <Option value="0,关;1,开;">0,关;1,开;</Option>
                                 <Option value="0,关;1,开;2,自动;">0,关;1,开;2,自动;</Option>
-                                <Option value="自定义">自定义</Option>
+                                <Option value="1">自定义</Option>
                             </Select>
+                            <Input v-model="unitValue" style="width: 100px;margin-left: 10px;" v-if="formValidate.state == 1" />
                         </FormItem>
                     </Col>
                 </Row>
@@ -398,6 +399,7 @@ export default {
                 this.formValidate.yMax = res.data.curveYaxisUpperRange //最大值
                 this.formValidate.siteType = res.data.mpointType //测点类别
                 this.formValidate.signalType = res.data.datype //信号类型
+                this.formValidate.state = res.data.enumvalue
                 if(res.data.datype == 'State') {
                     // this.formValidate.decimal = res.data.numtail.toString() //显示小数位
                 } else {

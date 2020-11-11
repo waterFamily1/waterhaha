@@ -132,7 +132,14 @@
                         </DropdownMenu>
                     </Dropdown>
                 </div>
-                
+                <div class="c-right-action" style="margin-top:5px;">
+                    <a title="导入" class="c-icon-import" @click="importMpoint">
+                        <Icon type="ios-download-outline" />
+                    </a>
+                    <a title="查看曲线" class="c-icon-chart" @click="routerToChart">
+                        <Icon type="md-trending-up" />
+                    </a>
+                </div>
             </div>
             <div class="table-wrapper" :style="{height: (height-45)+'px'}">
                 <Table 
@@ -711,6 +718,32 @@ export default {
                     }
                 })
             }
+        },
+        importMpoint() {
+            //导入
+            this.$router.push({
+                path: '/other/areaUpload'
+            })
+        },
+        routerToChart() {
+            //查看曲线
+            console.log(this.idsLength)
+            if (this.idsLength && this.idsLength > 0 && this.idsLength < 9) {
+                // var ids = [];
+                // this.haveSelected.forEach((item)=>{
+                //     ids.push(item.id);
+                // })
+                // this.$router.push({
+                //     name: 'data-analysis-info',
+                //     params: { id: ids.join(',') }
+                // });
+            } else {
+                this.$Notice.warning({
+                    title: '警告',
+                    desc: '请选择一条至八条测点数据',
+                    duration: 3
+                });
+            }
         }
     }
 }
@@ -807,6 +840,7 @@ export default {
         .c-table-top-btns {
             height: 36px;
             border-bottom: 1px solid #EEE;
+            position: relative;
             .btn-block{
                 display: inline-block;
                 /deep/.ivu-btn {
@@ -820,7 +854,19 @@ export default {
                     height: auto;
                 }
             }
-            
+            .c-right-action {
+                display: inline-block;
+                position: absolute;
+                right: 0;
+                top: -5px;
+                a {
+                    display: inline-block;
+                    margin-right: 10px;
+                    /deep/.ivu-icon {
+                        font-size: 28px;
+                    }
+                }
+            }
         }
         .table-wrapper{
             .action{

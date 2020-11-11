@@ -48,6 +48,9 @@ Vue.use(BaiduMap, {
     ak: '5bskxOMT41wqVZxZzXme3jV57lfyHUz9'
 })
 
+import HighchartsVue from 'highcharts-vue'
+Vue.use(HighchartsVue)
+
 import moment from 'moment'
 Vue.prototype.$moment = moment
 
