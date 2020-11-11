@@ -645,7 +645,6 @@ export default {
                 beginDate
             }).then(res=> {
                 // console.log(JSON.stringify(res.data))
-                console.log（）
             }).catch(err=> {
 
             })
