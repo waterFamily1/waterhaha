@@ -634,6 +634,7 @@ export default {
         },
         renderChart(data) {
             //渲染charts
+
         },
         getcharts(id) {
             console.log(id)
@@ -644,6 +645,7 @@ export default {
                 beginDate
             }).then(res=> {
                 // console.log(JSON.stringify(res.data))
+                console.log（）
             }).catch(err=> {
 
             })
