@@ -12,7 +12,7 @@
                         size="small">
                     </AutoComplete>
                     <div class="tree-box">
-                        <Tree :data="treeData"></Tree>
+                        <Tree :data="treeData" @on-select-change="selectNode"></Tree>
                     </div>
                 </div>
             </div>
@@ -20,25 +20,60 @@
                 <div class="c-left-border-blue">
                     <div class="form-item">
                         <label>业务时间：</label>
-                        <DatePicker type="date" placeholder="Select date" style="width: 250px"></DatePicker>
+                        <DatePicker type="date" v-model="currentDate" :options="endTimeOptions"  style="width: 250px" size="small" @on-change="changeTime"></DatePicker>
                     </div>
                     <div class="form-item">
                         <label>分组内容：</label>
-                        <Select v-model="groupDetail" style="width:200px">
-                            <Option v-for="item in groupList" :value="item.value" :key="item.value">{{ item.label }}</Option>
-                        </Select>
+                        <!-- <Anchor> -->
+                            <Select v-model="groupDetail" style="width:200px" size="small">
+                                
+                                <Option v-for="item in currentRecord.mpointList" :value="item.groupName" :key="item.groupName">
+                                    <!-- <AnchorLink href="'#'+item.groupName" title="item.groupName" />  -->
+                                    {{item.groupName}}
+                                </Option>        
+                              
+                            </Select>
+                          <!-- </Anchor> -->
+                       
                     </div>
                 </div>
                 <div class="c-top-border-gray">
                     <div class="table-top-btns">
-                        <Button>导出</Button>
+                        <Button  :to='url'>导出</Button>
                     </div>
+                    <div style="padding:10px" class="app-content">
+
+                        <div style="font-weight:bold">{{currentRecord.formName}}</div>
+                        <div style="padding: 5px 5px 5px 0px !important; color: gray;">{{time}}</div>
+                        <table style="width:100%;" v-for="(item,index) in currentRecord.mpointList" :key="index">
+                            <thead>
+                                <tr :id="item.groupName">
+                                    <th style="color:#838A95;text-align:left">{{item.groupName}}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <Row>
+                                        <Col span="4">
+                                            <td>{{item.mpointName}}</td>
+                                        </Col>
+                                    </Row>    
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    </div>
+                    
                 </div>
+                
             </div>
         </div>
     </div>
 </template>
 <script>
+// 
+import { getTree,getDetail,exportTable,getTable} from '@api/productReport/bulletin';
+import { formatTime } from '@/libs/public'
 export default {
     name: 'bulletinBrowse',
     data() {
@@ -46,26 +81,7 @@ export default {
             height: '',
             formName: '',
             formData: [],
-            treeData: [
-                {
-                    title: 'parent 1',
-                    expand: true,
-                    children: [
-                        {
-                            title: 'parent 1-1',
-                            expand: true,
-                            children: [
-                                {
-                                    title: 'leaf 1-1-1'
-                                },
-                                {
-                                    title: 'leaf 1-1-2'
-                                }
-                            ]
-                        }
-                    ]
-                }
-            ],
+            treeData: [],
             groupDetail: '',
             groupList: [
                 {
@@ -93,11 +109,37 @@ export default {
                     label: 'Canberra'
                 }
 
-            ]
+            ],
+            id:'',
+            currentRecord:{},
+            currentDate:'',
+            preDay:"",
+            url:'',
+            ip:'',
+            endTimeOptions :{
+                disabledDate(date){
+                    let myDate = new Date(date).getDay();
+                    let curDate = new Date().getDay()
+                    if(myDate == curDate){
+                       return false
+                    }else{
+                        return true
+                    }
+                    
+                }
+            },
+            time:''
         }
     },
     mounted() {
         this.height = document.body.clientHeight-80
+        this.getOrg()
+        console.log(this.getTime())
+        this.currentDate = this.getTime().split(',')[1]
+        this.preDay = this.getTime().split(',')[0]
+        let cur = this.$route.path
+        let com = window.location.href
+        this.ip =  com.slice(0,com.indexOf(cur))
     },
     methods: {
         handleSearch (value) {
@@ -106,7 +148,97 @@ export default {
                 value + value,
                 value + value + value
             ];
-        }
+        }, 
+        changeTime(time){
+           console.log(time)
+           this.preDay = this.getYesterday(time)
+           this.getTablebyTime()
+           
+        },
+        getTime(){
+            let now  = new Date()
+            let year = now.getFullYear()
+            let month = now.getMonth()+1
+            month=month<10?'0'+month:month
+            let day = now.getDate()
+            let dayPre = now.getDate()-1
+            day = day<10?'0'+day:day
+             dayPre = dayPre<10?'0'+ dayPre:dayPre
+            let pre = year+"-"+month+"-"+dayPre
+            let today = year+"-"+month+"-"+day
+            return  pre+","+today
+        },
+        getOrg(){
+            getTree().then(res=>{
+                console.log(res)
+                let trees = res.data
+                let tree=[]
+                for(let i = 0; i < trees.length; i ++) {
+                    trees[i].title = trees[i].name
+                    trees[i].expand = true
+                    tree.push(trees[i])
+                }
+                this.treeData=this.drawTree(tree)
+            })
+        },
+        drawTree(treeItem){
+            let  parent=treeItem.filter(item => item.parentId == 0)
+            treeItem.forEach(element => {
+                 if (element.parentId == 0) return
+                 this.draw(element,parent)
+            });
+            return parent;
+        },
+        draw(item,arr){
+            for(var i=0;i<arr.length;i++) {
+                if(item.parentId==arr[i].id){
+                    if( !(arr[i].children &&  arr[i].children.length>0)){
+                        arr[i].children = []
+                    }
+                    arr[i].children.push(item)
+
+                }else if(arr[i].children && arr[i].children.length>0){
+                    this.draw(item,arr[i].children)
+                }
+            }
+        },
+        getDetailbyId(){
+            getDetail(this.id).then(res=>{
+                 this.currentRecord = res.data
+                 this.currentRecord.time = formatTime(res.data.formLatestdate, 'yyyy-MM-dd')
+                 this.url = this.ip+'/api/loong/api/datainput-reports/export?formId='+res.data.id+'&recordDate='+this.preDay+'T16:00:00.000Z&cycleId='+res.data.cycleId
+                 this.getTablebyTime()
+            })
+        },
+        getTablebyTime(){
+            getTable(this.currentRecord.id,this.preDay,this.currentRecord.cycleId).then(res=>{
+               console.log(res)
+               this.time = formatTime(res.data.items.recordDate, 'yyyy-MM-dd')
+            })
+        },
+
+        selectNode(node){
+            console.log(node)
+            this.id = node[0].id.split('_')[1]
+            this.getDetailbyId()
+        },
+        // 获取前一天
+        getYesterday(date) {
+            var date = date.split('-'),
+            today = new Date().setFullYear(+date[0], +date[1]-1, +date[2]), 
+            yesterday = new Date(today - 24 * 60 * 60 * 1000);
+            var y = yesterday.getFullYear();
+            var m = yesterday.getMonth() + 1;
+            var d = yesterday.getDate();
+            if(m<10){
+            m = '0'+m;   
+            }
+            if(d<10){
+                d = '0'+d; 
+            }
+        
+            return y+'-'+m+'-'+d;  
+        },
     }
 }
 </script>
@@ -114,12 +246,13 @@ export default {
 .bulletin-box {
     margin: 5px;
     background: #fff;
+    overflow-y: scroll;
     .bulletin-main {
         width: 100%;
         height: 100%;
         display: flex;
         .bulletin-left {
-            width: 300px;
+            width: 350px;
             height: 100%;
             .left-box {
                 width: 100%;
@@ -127,6 +260,7 @@ export default {
                     padding: 3px;
                 }
                 .tree-box {
+                    font-size: 13px;
                     border-top: 1px solid rgb(230, 230, 230);
                     width: 100%;
                 }
