@@ -116,6 +116,7 @@
                 <div class="curves-chart-container">
                     <Spin fix v-if="chartLoading"></Spin>
                     <div id="J_CHART" class="curves-chart-left"></div>
+<<<<<<< HEAD
                     <div id="J_TABLE" class="curves-table">
                         <Drawer 
                             :mask="false"
@@ -140,6 +141,11 @@
                                 </tbody>
                             </table>
                         </Drawer>
+=======
+                    <div id="J_TABLE" class="curves-table ivu-table ivu-table-stripe"  style="margin-top:50px">
+                        <highcharts :options="chartOptions" ref="lineChart" v-if="show" style="height:294px"></highcharts>
+                        <highcharts :options="chartOptionsSec" ref="lineChart" v-if="show" style="height:294px"></highcharts>
+>>>>>>> 76394b63e42740e293c7cffae40951a860e554a5
                     </div>    
                 </div>
             </div>
@@ -192,6 +198,31 @@
             </div>
           
         </Modal>
+        <!-- 测点备注信息 -->
+          <Modal v-model="remarkModal" width="300" class="remark-modal">
+            <p slot="header" style="color:#1c2438;font-size:14px;border-left:7px solid #4b7efe;background:#f8f9fb;height:39px;line-height:39px">
+                <!-- <Icon type="ios-information-circle"></Icon> -->
+                <span class="rectangle"></span>
+                <span style="margin-left:8px">测点备注信息</span>
+            </p>
+             <Form ref="updateFormCustom" :model="updateFormCustom" :rules="ruleCustom" :label-width="80">
+                <FormItem label="时间:">
+                    <span>{{updateFormCustom.time}}</span>
+                </FormItem>
+                <FormItem label="测点名:" prop="mpointValue">
+                    <span>{{updateFormCustom.name}}</span>
+                </FormItem>
+                <FormItem label="测点值:" prop="mpointValue">
+                    <span>{{updateFormCustom.value}}</span>
+                </FormItem>
+                <FormItem label="备注:" prop="remark">
+                    <Input   placeholder="请输入" style="width: 180px"  size="small" />
+                </FormItem>
+            </Form>
+            <div slot="footer" >
+                <Button type="primary" long  @click="saveCurve" style="font-size:12px">保存</Button>
+            </div>
+        </Modal>
     </div>
     
 </template>
@@ -216,6 +247,7 @@ export default {
             curveModal: false,
             curveName: '',
             tableModal: false,
+            remarkModal:false,
             tableList: [
                 {
                     title: '模版名称',
@@ -263,6 +295,7 @@ export default {
             chartLoading: false,
             chartConHeight: '',
             chartConWidth: '',
+<<<<<<< HEAD
             drawerTable: '',
             drawerColumns1: '', //table表头
             drawerColumns2: '', //table表头
@@ -285,6 +318,123 @@ export default {
             let s = date.getSeconds();
             s = s < 10 ? ('0' + s) : s;
             return y + '-' + MM + '-' + d + ' ' + h + ':' + m + ':' + s;
+=======
+            chartOptions: {
+                
+                chart: {
+                    type: 'line'
+                },
+                legend:{
+                    enabled:false
+                },
+                title: {
+                    verticalAlign: 'bottom',
+                    style: {
+                        color: '#333',
+                        fontWeight: 'bold',
+                        fontSize:'12'
+                    },
+                    text:''//表头文字
+                },
+                xAxis: {//x轴显示的内容
+                    categories: [],
+                    visible: false
+                },
+                yAxis: {//y轴显示的内容
+                    title: {
+                        text: ''
+                    },
+                     startOnTick: false,
+                },
+                plotOptions: {
+                    line: {
+                        dataLabels: {
+                            enabled: false
+                                // 开启数据标签
+                        },
+                        enableMouseTracking: true // 关闭鼠标跟踪，对应的提示框、点击事件会失效
+                    },
+                    series:{
+                        cursor: 'pointer', 
+                        events: { 
+                            click: function(e) {
+                                console.log("add")
+                                this.remarkModal = true
+                                this.updateFormCustom = {
+                                    time:e.point.category,
+                                    name:e.point.series.name,
+                                    value:e.point.options.y
+                                }
+                            } 
+                        } 
+                    }
+                },
+                series: [{//两条数据
+                    name: '',
+                    data: [],
+                    // data :[ '1','2']
+                }],
+            },
+            chartOptionsSec: {
+                chart: {
+                    type: 'line'
+                },
+                legend:{
+                    enabled:false
+                },
+                title: {
+                    verticalAlign: 'bottom',
+                    style: {
+                        color: '#333',
+                        fontWeight: 'bold',
+                        fontSize:'12'
+                    },
+                    // y:-40,
+                    text:''//表头文字
+                },
+                xAxis: {//x轴显示的内容
+                    categories: [],
+                    visible: false
+                },
+                yAxis: {//y轴显示的内容
+                    title: {
+                        text: ''
+                    },
+                    endOnTick:false
+                },
+                plotOptions: {
+                    line: {
+                        dataLabels: {
+                            enabled: false
+                                // 开启数据标签
+                        },
+                        enableMouseTracking: true // 关闭鼠标跟踪，对应的提示框、点击事件会失效
+                    },
+                },
+                series: [{//两条数据
+                    name: '',
+                    data: [],
+                    // data :[ '1','2']
+                }],
+            },
+            firstChart:{},
+            show:false,
+            showUpdatePointModal:true,
+            updateFormCustom: {
+                time: "",
+                mpointValue: "",
+                remark: "",
+                id:""
+            },
+            ruleCustom: {
+                remark: [
+                { required: true, message: "备注不能为空" }
+                ]
+            },
+            updateFormCustom:{
+                
+            }
+>>>>>>> 76394b63e42740e293c7cffae40951a860e554a5
         }
     },
     components: {
@@ -682,21 +832,58 @@ export default {
         },
         getcharts(id) {
             console.log(id)
+           
             let ids = id
             let beginDate = this.$moment(this.beginDate).utc().format()
             chartMethod({
                 ids,
                 beginDate
             }).then(res=> {
+<<<<<<< HEAD
                 console.log(res.data)
                 this.drawerColumns1 = res.data.items[0].mpointName
                 this.drawerColumns2 = res.data.items[1].mpointName
                 this.drawerData = res.data.items[0].data
                 this.drawerData2 = res.data.items[1].data
+=======
+                let firstChart = res.data.items[0]
+                let secChart = res.data.items[1]
+                this.chartOptions.title.text = firstChart.mpointName+"-"+firstChart.siteName
+                let xData = [],yData = []
+                firstChart.data.map(ele=>{
+                    xData.push(this.timeFormat(ele.dataDate))
+                    yData.push(Number(ele.dataValue))
+                })
+                this.chartOptions.xAxis.categories = xData
+                this.chartOptions.series[0].name = firstChart.mpointName+"-"+firstChart.siteName
+                this.chartOptions.series[0].data = yData
+                this.chartOptionsSec.title.text = secChart.mpointName+"-"+secChart.siteName
+                let xDataSec = [],yDataSec = []
+                secChart.data.map(ele=>{
+                    xDataSec.push(this.timeFormat(ele.dataDate))
+                    yDataSec.push(Number(ele.dataValue))
+                })
+                this.chartOptionsSec.xAxis.categories = xDataSec
+                this.chartOptionsSec.series[0].name = secChart.mpointName+"-"+secChart.siteName
+                this.chartOptionsSec.series[0].data = yDataSec
+                this.show = true
+>>>>>>> 76394b63e42740e293c7cffae40951a860e554a5
             }).catch(err=> {
 
             })
-        }
+        },
+        add0(m){return m<10?'0'+m:m },
+        timeFormat(timestamp){
+            //timestamp是整数，否则要parseInt转换,不会出现少个0的情况
+            var time = new Date(timestamp);
+            var year = time.getFullYear();
+            var month = time.getMonth()+1;
+            var date = time.getDate();
+            var hours = time.getHours();
+            var minutes = time.getMinutes();
+            var seconds = time.getSeconds();
+            return year+'-'+this.add0(month)+'-'+this.add0(date)+' '+this.add0(hours)+':'+this.add0(minutes)+':'+this.add0(seconds);
+        },
     }
 }
 </script>
@@ -896,6 +1083,7 @@ export default {
         }
     }
 }
+<<<<<<< HEAD
 /deep/.ivu-drawer {
     top: 170px
 }
@@ -909,4 +1097,13 @@ tbody {
         }   
     }
 }
+=======
+.remark-modal {
+    font-size: 12px;
+    /deep/.ivu-form-item{
+        margin-bottom: 0;
+    }
+}
+
+>>>>>>> 76394b63e42740e293c7cffae40951a860e554a5
 </style>
