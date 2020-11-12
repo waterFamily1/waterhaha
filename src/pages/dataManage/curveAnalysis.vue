@@ -116,8 +116,30 @@
                 <div class="curves-chart-container">
                     <Spin fix v-if="chartLoading"></Spin>
                     <div id="J_CHART" class="curves-chart-left"></div>
-                    <div id="J_TABLE" class="curves-table ivu-table ivu-table-stripe">
-                            
+                    <div id="J_TABLE" class="curves-table">
+                        <Drawer 
+                            :mask="false"
+                            :closable="false" 
+                            :width="370"
+                            v-model="drawerTable"
+                        >
+                            <table border="0" align="left" style="background: #fff;">
+                                <thead style="position:fixed;z-index: 100;background: #fff;">
+                                    <tr>
+                                        <th width="160" align="left">时间</th>
+                                        <th width="94" align="left">{{ drawerColumns1 }}</th>
+                                        <th width="94" align="left">{{ drawerColumns2 }}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="(item, index) in drawerData" :key="index">
+                                        <td width="170" align="left">{{ item.dataDate | formatDate }}</td>
+                                        <td width="94" align="left">{{ item.dataValue }}</td>
+                                        <td width="94" align="left">{{ drawerData2[index].dataValue }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </Drawer>
                     </div>    
                 </div>
             </div>
@@ -241,6 +263,28 @@ export default {
             chartLoading: false,
             chartConHeight: '',
             chartConWidth: '',
+            drawerTable: '',
+            drawerColumns1: '', //table表头
+            drawerColumns2: '', //table表头
+            drawerData: [],
+            drawerData2: []
+        }
+    },
+    filters: {
+        formatDate(value) {
+            let date = new Date(value);
+            let y = date.getFullYear();
+            let MM = date.getMonth() + 1;
+            MM = MM < 10 ? ('0' + MM) : MM;
+            let d = date.getDate();
+            d = d < 10 ? ('0' + d) : d;
+            let h = date.getHours();
+            h = h < 10 ? ('0' + h) : h;
+            let m = date.getMinutes();
+            m = m < 10 ? ('0' + m) : m;
+            let s = date.getSeconds();
+            s = s < 10 ? ('0' + s) : s;
+            return y + '-' + MM + '-' + d + ' ' + h + ':' + m + ':' + s;
         }
     },
     components: {
@@ -644,8 +688,11 @@ export default {
                 ids,
                 beginDate
             }).then(res=> {
-                // console.log(JSON.stringify(res.data))
-                console.log（）
+                console.log(res.data)
+                this.drawerColumns1 = res.data.items[0].mpointName
+                this.drawerColumns2 = res.data.items[1].mpointName
+                this.drawerData = res.data.items[0].data
+                this.drawerData2 = res.data.items[1].data
             }).catch(err=> {
 
             })
@@ -847,6 +894,19 @@ export default {
             margin-right: 1%;
         
         }
+    }
+}
+/deep/.ivu-drawer {
+    top: 170px
+}
+/deep/.ivu-drawer-body {
+    padding: 0 0 0 10px;
+}
+tbody {
+    tr:first-child {
+        td {
+            padding-top: 25px;
+        }   
     }
 }
 </style>
