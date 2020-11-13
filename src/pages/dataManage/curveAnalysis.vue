@@ -116,36 +116,9 @@
                 <div class="curves-chart-container">
                     <Spin fix v-if="chartLoading"></Spin>
                     <div id="J_CHART" class="curves-chart-left"></div>
-<<<<<<< HEAD
-                    <div id="J_TABLE" class="curves-table">
-                        <Drawer 
-                            :mask="false"
-                            :closable="false" 
-                            :width="370"
-                            v-model="drawerTable"
-                        >
-                            <table border="0" align="left" style="background: #fff;">
-                                <thead style="position:fixed;z-index: 100;background: #fff;">
-                                    <tr>
-                                        <th width="160" align="left">时间</th>
-                                        <th width="94" align="left">{{ drawerColumns1 }}</th>
-                                        <th width="94" align="left">{{ drawerColumns2 }}</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr v-for="(item, index) in drawerData" :key="index">
-                                        <td width="170" align="left">{{ item.dataDate | formatDate }}</td>
-                                        <td width="94" align="left">{{ item.dataValue }}</td>
-                                        <td width="94" align="left">{{ drawerData2[index].dataValue }}</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </Drawer>
-=======
                     <div id="J_TABLE" class="curves-table ivu-table ivu-table-stripe"  style="margin-top:50px">
                         <highcharts :options="chartOptions" ref="lineChart" v-if="show" style="height:294px"></highcharts>
                         <highcharts :options="chartOptionsSec" ref="lineChart" v-if="show" style="height:294px"></highcharts>
->>>>>>> 76394b63e42740e293c7cffae40951a860e554a5
                     </div>    
                 </div>
             </div>
@@ -199,7 +172,7 @@
           
         </Modal>
         <!-- 测点备注信息 -->
-          <Modal v-model="remarkModal" width="300" class="remark-modal">
+        <Modal v-model="remarkModal" width="300" class="remark-modal">
             <p slot="header" style="color:#1c2438;font-size:14px;border-left:7px solid #4b7efe;background:#f8f9fb;height:39px;line-height:39px">
                 <!-- <Icon type="ios-information-circle"></Icon> -->
                 <span class="rectangle"></span>
@@ -247,7 +220,7 @@ export default {
             curveModal: false,
             curveName: '',
             tableModal: false,
-            remarkModal:false,
+            remarkModal: false,
             tableList: [
                 {
                     title: '模版名称',
@@ -295,30 +268,6 @@ export default {
             chartLoading: false,
             chartConHeight: '',
             chartConWidth: '',
-<<<<<<< HEAD
-            drawerTable: '',
-            drawerColumns1: '', //table表头
-            drawerColumns2: '', //table表头
-            drawerData: [],
-            drawerData2: []
-        }
-    },
-    filters: {
-        formatDate(value) {
-            let date = new Date(value);
-            let y = date.getFullYear();
-            let MM = date.getMonth() + 1;
-            MM = MM < 10 ? ('0' + MM) : MM;
-            let d = date.getDate();
-            d = d < 10 ? ('0' + d) : d;
-            let h = date.getHours();
-            h = h < 10 ? ('0' + h) : h;
-            let m = date.getMinutes();
-            m = m < 10 ? ('0' + m) : m;
-            let s = date.getSeconds();
-            s = s < 10 ? ('0' + s) : s;
-            return y + '-' + MM + '-' + d + ' ' + h + ':' + m + ':' + s;
-=======
             chartOptions: {
                 
                 chart: {
@@ -360,6 +309,7 @@ export default {
                             click: function(e) {
                                 console.log("add")
                                 this.remarkModal = true
+                                console.log(this.remarkModal)
                                 this.updateFormCustom = {
                                     time:e.point.category,
                                     name:e.point.series.name,
@@ -434,7 +384,6 @@ export default {
             updateFormCustom:{
                 
             }
->>>>>>> 76394b63e42740e293c7cffae40951a860e554a5
         }
     },
     components: {
@@ -839,13 +788,11 @@ export default {
                 ids,
                 beginDate
             }).then(res=> {
-<<<<<<< HEAD
                 console.log(res.data)
                 this.drawerColumns1 = res.data.items[0].mpointName
                 this.drawerColumns2 = res.data.items[1].mpointName
                 this.drawerData = res.data.items[0].data
                 this.drawerData2 = res.data.items[1].data
-=======
                 let firstChart = res.data.items[0]
                 let secChart = res.data.items[1]
                 this.chartOptions.title.text = firstChart.mpointName+"-"+firstChart.siteName
@@ -867,7 +814,6 @@ export default {
                 this.chartOptionsSec.series[0].name = secChart.mpointName+"-"+secChart.siteName
                 this.chartOptionsSec.series[0].data = yDataSec
                 this.show = true
->>>>>>> 76394b63e42740e293c7cffae40951a860e554a5
             }).catch(err=> {
 
             })
@@ -1083,7 +1029,6 @@ export default {
         }
     }
 }
-<<<<<<< HEAD
 /deep/.ivu-drawer {
     top: 170px
 }
@@ -1097,7 +1042,6 @@ tbody {
         }   
     }
 }
-=======
 .remark-modal {
     font-size: 12px;
     /deep/.ivu-form-item{
@@ -1105,5 +1049,4 @@ tbody {
     }
 }
 
->>>>>>> 76394b63e42740e293c7cffae40951a860e554a5
 </style>
