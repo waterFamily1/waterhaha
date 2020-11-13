@@ -132,6 +132,9 @@
                 <div class="curves-chart-container">
                     <Spin fix v-if="chartLoading"></Spin>
                     <div id="J_CHART" class="curves-chart-left"></div>
+                    <div id="J_TABLE" class="curves-table ivu-table ivu-table-stripe"  style="margin-top:50px">
+                        <highcharts :options="chartOptions" ref="lineChart" v-if="show" style="height:294px"></highcharts>
+                        <highcharts :options="chartOptionsSec" ref="lineChart" v-if="show" style="height:294px"></highcharts>
                     <div id="J_TABLE" class="curves-table">
                         <Drawer 
                             :mask="false"
@@ -212,7 +215,7 @@
           
         </Modal>
         <!-- 测点备注信息 -->
-          <Modal v-model="remarkModal" width="300" class="remark-modal">
+        <Modal v-model="remarkModal" width="300" class="remark-modal">
             <p slot="header" style="color:#1c2438;font-size:14px;border-left:7px solid #4b7efe;background:#f8f9fb;height:39px;line-height:39px">
                 <!-- <Icon type="ios-information-circle"></Icon> -->
                 <span class="rectangle"></span>
@@ -237,6 +240,7 @@
             </div>
         </Modal>
     </div>
+        </div>
     </div>
 </template>
 <script>
@@ -261,7 +265,7 @@ export default {
             curveModal: false,
             curveName: '',
             tableModal: false,
-            remarkModal:false,
+            remarkModal: false,
             tableList: [
                 {
                     title: '模版名称',
@@ -486,8 +490,6 @@ export default {
             let s = date.getSeconds();
             s = s < 10 ? ('0' + s) : s;
             return y + '-' + MM + '-' + d + ' ' + h + ':' + m + ':' + s;
-
-            
         }
     },
     components: {
@@ -1288,7 +1290,6 @@ export default {
 }
 /deep/.ivu-drawer {
     top: 170px;
-    display: none
 }
 /deep/.ivu-drawer-body {
     padding: 0 0 0 10px;
@@ -1300,7 +1301,6 @@ tbody {
         }   
     }
 }
-
 .remark-modal {
     font-size: 12px;
     /deep/.ivu-form-item{
