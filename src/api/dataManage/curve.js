@@ -155,3 +155,11 @@ export function getAlarm(data) {
         method: 'get'
     })
 }
+// 添加 备注信息 
+export function addRemark(data) {
+    return request({
+        url: '/loong/api/curve-remarks',
+        method: 'post',
+        data
+    })
+}

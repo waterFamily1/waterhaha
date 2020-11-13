@@ -240,7 +240,7 @@
     </div>
 </template>
 <script>
-import{ dataGroupMethod, singleDataMethod, searchMethod, changeCurverMethod, sureChangeCurveMethod, deleteChangeCurveMethod, saveCurveMethod, saveGroupMethod, chartMethod,getAlarm } from '@/api/dataManage/curve'
+import{ dataGroupMethod, singleDataMethod, searchMethod, changeCurverMethod, sureChangeCurveMethod, deleteChangeCurveMethod, saveCurveMethod, saveGroupMethod, chartMethod,getAlarm,addRemark } from '@/api/dataManage/curve'
 import createNameTree from '@/libs/log-util'
 import group from './curve/datagroup'
 import singledata from './curve/singleData'
@@ -366,16 +366,23 @@ export default {
                                 }
                             }
                         },
+                       
                     }
                 },
                 series: [{//两条数据
                     name: '',
                     data: [],
-                    marker: {
-                        symbol: 'triangle'
-                    }
+                //     marker: { 
+                //         enabled: false, 
+                //         radius: 3, 
+                //         symbol: 'circle'
+                //  } 
                     // data :[ '1','2']
                 }],
+                 credits: {
+                    enabled: false
+                },
+                
             },
             chartOptionsSec: {
                 chart: {
@@ -412,12 +419,33 @@ export default {
                         },
                         enableMouseTracking: true // 关闭鼠标跟踪，对应的提示框、点击事件会失效
                     },
+                    series:{
+                        cursor: 'pointer', 
+                        point: {
+                            events: {
+                                // 数据点点击事件
+                                // 其中 e 变量为事件对象，this 为当前数据点对象
+                                click: function (e) {
+                                    console.log(e.point)
+                                    that.remarkModal = true
+                                    that.updateFormCustom = {
+                                        time:e.point.category,
+                                        name:e.point.series.name,
+                                        value:e.point.options.y
+                                    }
+                                }
+                            }
+                        },
+                    }
                 },
                 series: [{//两条数据
                     name: '',
                     data: [],
-                    // data :[ '1','2']
+                    
                 }],
+                credits: {
+                    enabled: false
+                },
             },
             firstChart:{},
             show:false,
@@ -439,7 +467,8 @@ export default {
                 min: false,
                 max: false,
             },
-            mpointIds:''
+            mpointIds:'',
+            allData:[]
         }
     },
     filters: {
@@ -867,6 +896,7 @@ export default {
                 beginDate
             }).then(res=> {
                 console.log(res.data)
+                this.allData = res.data.items
                 this.drawerColumns1 = res.data.items[0].mpointName
                 this.drawerColumns2 = res.data.items[1].mpointName
                 this.drawerData = res.data.items[0].data
@@ -909,9 +939,26 @@ export default {
             return year+'-'+this.add0(month)+'-'+this.add0(date)+' '+this.add0(hours)+':'+this.add0(minutes)+':'+this.add0(seconds);
         },
         saveRemark(name){
-            console.log(name)
             this.$refs[name].validate((valid) => {
                     if (valid) {
+                        console.log(this.updateFormCustom)
+                        let a = this.updateFormCustom.name.split("-")[0]
+                        let pointId = this.allData.filter(ele=>{
+                            return ele.mpointName == a
+                        })
+                        let data = {
+                            point: pointId[0].mpointId,
+                            remark: this.updateFormCustom.remark,
+                            time: this.$moment(this.updateFormCustom.time).utc().format(),
+                            value: this.updateFormCustom.value,
+                        }
+                        addRemark(data).then(res=>{
+                            console.log()
+                            if(res.data.id){
+                                this.remarkModal = false
+                                this.getcharts(this.mpointIds)
+                            }
+                        })
                         this.$Message.success('Success!');
                     } else {
                         this.$Message.error('Fail!');
@@ -1259,5 +1306,11 @@ tbody {
     /deep/.ivu-form-item{
         margin-bottom: 0;
     }
+}
+.mark-flag {
+  width: 15px;
+  height: 15px;
+  background: url(../../assets/images/red.png) no-repeat center center;
+  cursor: pointer;
 }
 </style>
