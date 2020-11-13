@@ -148,3 +148,10 @@ export function chartMethod(data) {
         method: 'get'
     })
 }
+// 获取警戒值  
+export function getAlarm(data) {
+    return request({
+        url: '/loong/api/mpoints/alarm-condition?ids='+data,
+        method: 'get'
+    })
+}
