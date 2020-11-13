@@ -106,7 +106,23 @@
                                 <Icon type="ios-sync" />
                             </a>
                             <a href="javascript:;" class="c-icon-table"></a>
-                            <a href="javascript:;" class="c-icon-dline"> </a>
+                            <Dropdown>
+                               <a href="javascript:;" class="c-icon-dline"> </a>
+                               <DropdownMenu slot="list">
+                                    <DropdownItem>
+                                        <Checkbox @on-change="addLineAverage" v-model="lineRef.avg">显示平均线</Checkbox>
+                                    </DropdownItem>
+                                    <DropdownItem>
+                                        <Checkbox @on-change="addLineAlarm" v-model="lineRef.alarm">显示报警线</Checkbox>
+                                    </DropdownItem>
+                                    <DropdownItem>
+                                        <Checkbox @on-change="addLineMax" v-model="lineRef.max">显示最大值</Checkbox>
+                                    </DropdownItem>
+                                    <DropdownItem>
+                                        <Checkbox @on-change="addLineMin" v-model="lineRef.min">显示最小值</Checkbox>
+                                    </DropdownItem>
+                                </DropdownMenu>
+                            </Dropdown>
                             <a href="javascript:;" style="color:#333">
                                 <Icon type="ios-expand" />
                             </a>
@@ -142,7 +158,7 @@
                         </Drawer>
                     <div id="J_TABLE" class="curves-table ivu-table ivu-table-stripe"  style="margin-top:50px">
                         <highcharts :options="chartOptions" ref="lineChart" v-if="show" style="height:294px"></highcharts>
-                        <highcharts :options="chartOptionsSec" ref="lineChart" v-if="show" style="height:294px"></highcharts>
+                        <highcharts :options="chartOptionsSec" ref="lineChartSec" v-if="show" style="height:294px"></highcharts>
                     </div>    
                 </div>
             </div>
@@ -203,28 +219,28 @@
                 <span style="margin-left:8px">测点备注信息</span>
             </p>
              <Form ref="updateFormCustom" :model="updateFormCustom" :rules="ruleCustom" :label-width="80">
-                <FormItem label="时间:">
+                <FormItem label="时间:" prop="time">
                     <span>{{updateFormCustom.time}}</span>
                 </FormItem>
-                <FormItem label="测点名:" prop="mpointValue">
+                <FormItem label="测点名:" prop="name">
                     <span>{{updateFormCustom.name}}</span>
                 </FormItem>
-                <FormItem label="测点值:" prop="mpointValue">
+                <FormItem label="测点值:" prop="value">
                     <span>{{updateFormCustom.value}}</span>
                 </FormItem>
                 <FormItem label="备注:" prop="remark">
-                    <Input   placeholder="请输入" style="width: 180px"  size="small" />
+                    <Input   placeholder="请输入" style="width: 180px" v-model="updateFormCustom.remark"  size="small" />
                 </FormItem>
             </Form>
             <div slot="footer" >
-                <Button type="primary" long  @click="saveCurve" style="font-size:12px">保存</Button>
+                <Button type="primary" long  @click="saveRemark('updateFormCustom')" style="font-size:12px">保存</Button>
             </div>
         </Modal>
     </div>
     </div>
 </template>
 <script>
-import{ dataGroupMethod, singleDataMethod, searchMethod, changeCurverMethod, sureChangeCurveMethod, deleteChangeCurveMethod, saveCurveMethod, saveGroupMethod, chartMethod } from '@/api/dataManage/curve'
+import{ dataGroupMethod, singleDataMethod, searchMethod, changeCurverMethod, sureChangeCurveMethod, deleteChangeCurveMethod, saveCurveMethod, saveGroupMethod, chartMethod,getAlarm } from '@/api/dataManage/curve'
 import createNameTree from '@/libs/log-util'
 import group from './curve/datagroup'
 import singledata from './curve/singleData'
@@ -236,6 +252,7 @@ var chartCache = [] , chartDataCache = [],
 export default {
     name: 'curveAnalysis',
     data () {
+        let that = this
         return {
             keyName: '',
             keyLoading: false,
@@ -334,22 +351,29 @@ export default {
                     },
                     series:{
                         cursor: 'pointer', 
-                        events: { 
-                            click: function(e) {
-                                console.log("add")
-                                this.remarkModal = true
-                                this.updateFormCustom = {
-                                    time:e.point.category,
-                                    name:e.point.series.name,
-                                    value:e.point.options.y
+                        point: {
+                            events: {
+                                // 数据点点击事件
+                                // 其中 e 变量为事件对象，this 为当前数据点对象
+                                click: function (e) {
+                                    console.log(e.point)
+                                    that.remarkModal = true
+                                    that.updateFormCustom = {
+                                        time:e.point.category,
+                                        name:e.point.series.name,
+                                        value:e.point.options.y
+                                    }
                                 }
-                            } 
-                        } 
+                            }
+                        },
                     }
                 },
                 series: [{//两条数据
                     name: '',
                     data: [],
+                    marker: {
+                        symbol: 'triangle'
+                    }
                     // data :[ '1','2']
                 }],
             },
@@ -400,18 +424,22 @@ export default {
             showUpdatePointModal:true,
             updateFormCustom: {
                 time: "",
-                mpointValue: "",
+                value: "",
                 remark: "",
                 id:""
             },
             ruleCustom: {
                 remark: [
-                { required: true, message: "备注不能为空" }
+                  { required: true, message: "备注信息不能为空" }
                 ]
             },
-            updateFormCustom:{
-                
-            }
+            lineRef: {
+                avg: false,
+                alarm: false,
+                min: false,
+                max: false,
+            },
+            mpointIds:''
         }
     },
     filters: {
@@ -474,6 +502,7 @@ export default {
         });
     },
     methods: {
+        
         renderContent (h, { root, node, data }) {
             return h('span', {
                 style: {
@@ -750,6 +779,8 @@ export default {
             }
         },
         parentGroup(data) {
+            console.log(data)
+            this.mpointIds = data[0].id
             this.siteGroupList = data
             this.siteShow = '2'
             this.siteTitle = '您选择的组合测点：'
@@ -877,6 +908,138 @@ export default {
             var seconds = time.getSeconds();
             return year+'-'+this.add0(month)+'-'+this.add0(date)+' '+this.add0(hours)+':'+this.add0(minutes)+':'+this.add0(seconds);
         },
+        saveRemark(name){
+            console.log(name)
+            this.$refs[name].validate((valid) => {
+                    if (valid) {
+                        this.$Message.success('Success!');
+                    } else {
+                        this.$Message.error('Fail!');
+                    }
+                })
+        },
+        addLineAverage(isAdd){
+            var _self = this;
+            let sum1 = 0,sum2=0,len = this.drawerData.length,v1,v2;
+            this.drawerData.forEach(cData=>{
+                // console.log(cData)
+                sum1+= Number(cData.dataValue)
+            })
+            this.drawerData2.forEach(ele=>{
+                sum2+= Number(ele.dataValue)
+            })
+             v1 = (sum1/len).toFixed(2)
+             v2 = (sum2/len).toFixed(2)
+             if(isAdd){
+                 _self.$refs.lineChart.chart.yAxis[0].addPlotLine({
+                    id: 'line_avg_1' ,
+                    width: 1,
+                    color: '#3385ff',
+                    value: v1,
+                    label: {
+                        text: '平均值: ' + v1,
+                        style: {color: 'red'}
+                    }
+                })
+                 _self.$refs.lineChartSec.chart.yAxis[0].addPlotLine({
+                    id: 'line_avg_2' ,
+                    width: 1,
+                    color: '#3385ff',
+                    value: v2,
+                    label: {
+                        text: '平均值: ' + v2,
+                        style: {color: 'red'}
+                    }
+                })
+             }else{
+                _self.$refs.lineChart.chart.yAxis[0].removePlotLine('line_avg_1')
+                _self.$refs.lineChartSec.chart.yAxis[0].removePlotLine('line_avg_2')
+             }
+        },
+        addLineAlarm(isAdd){
+           getAlarm(this.mpointIds).then(res=>{
+               console.log(res)
+           })
+        },
+        addLineMax(isAdd){
+            var _self = this;
+            let max1 = Number(this.drawerData[0].dataValue),max2 = Number(this.drawerData2[1].dataValue)
+            this.drawerData.forEach(cData=>{
+                if(Number(cData.dataValue) > max1) {
+                    max1 = cData.dataValue;
+                }
+            })
+            this.drawerData2.forEach(ele=>{
+                if(Number(ele.dataValue) > max2) {
+                    max2 = ele.dataValue;
+                }
+            })
+            if(isAdd){
+                 _self.$refs.lineChart.chart.yAxis[0].addPlotLine({
+                    id: 'line_max_1' ,
+                    width: 1,
+                    color: '#3385ff',
+                    value: max1,
+                    label: {
+                        text: '最大值: ' + max1,
+                        style: {color: '#3385ff'}
+                    }
+                })
+                 _self.$refs.lineChartSec.chart.yAxis[0].addPlotLine({
+                     id: 'line_max_2' ,
+                    width: 1,
+                    color: '#3385ff',
+                    value: max2,
+                    label: {
+                        text: '最大值: ' + max2,
+                        style: {color: '#3385ff'}
+                    }
+                })
+             }else{
+                _self.$refs.lineChart.chart.yAxis[0].removePlotLine('line_max_1')
+                _self.$refs.lineChartSec.chart.yAxis[0].removePlotLine('line_max_2')
+             }
+           
+        },
+        addLineMin(isAdd){
+            var _self = this;
+            let min1 = Number(this.drawerData[0].dataValue),min2 = Number(this.drawerData2[1].dataValue)
+            this.drawerData.forEach(cData=>{
+                if(Number(cData.dataValue) < min1) {
+                    min1 = cData.dataValue;
+                }
+            })
+            this.drawerData2.forEach(ele=>{
+                if(Number(ele.dataValue) < min2) {
+                    min2 = ele.dataValue;
+                }
+            })
+            if(isAdd){
+                 _self.$refs.lineChart.chart.yAxis[0].addPlotLine({
+                    id: 'line_min_1' ,
+                    width: 1,
+                    color: '#3385ff',
+                    value: min1,
+                    label: {
+                        text: '最小值: ' + min1,
+                        style: {color: '#3385ff'}
+                    }
+                })
+                 _self.$refs.lineChartSec.chart.yAxis[0].addPlotLine({
+                     id: 'line_min_2' ,
+                    width: 1,
+                    color: '#3385ff',
+                    value: min2,
+                    label: {
+                        text: '最小值: ' + min2,
+                        style: {color: '#3385ff'}
+                    }
+                })
+             }else{
+                _self.$refs.lineChart.chart.yAxis[0].removePlotLine('line_min_1')
+                _self.$refs.lineChartSec.chart.yAxis[0].removePlotLine('line_min_2')
+             }
+        }
     }
 }
 </script>
@@ -1077,7 +1240,8 @@ export default {
     }
 }
 /deep/.ivu-drawer {
-    top: 170px
+    top: 170px;
+    display: none
 }
 /deep/.ivu-drawer-body {
     padding: 0 0 0 10px;
