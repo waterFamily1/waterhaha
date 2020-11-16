@@ -77,13 +77,11 @@
             <div>
                 <div class="key-item">
                     <label>关键字：</label>
-                    <Input  placeholder="输入测点名称以检索" size="small" style="width: 150px" />
+                    <Input v-model="keyword"  placeholder="输入测点名称以检索" size="small" style="width: 150px" />
                 </div>
                 <div class="key-item" style="margin-left:4px">
                     <label>区域位置：</label>
-                    <!-- <Select v-model="tissue" style="width:160px" size="small">
-                        <Option v-for="item in tissueList" :value="item.value" :key="item.value">{{ item.label }}</Option>
-                    </Select> -->
+                    <TreeSelect v-model="areaLocation" size="small"  :data="areaData" v-width="160" />
                 </div>
                 <div class="search-btn">
                     <Button size="small">搜索</Button>
@@ -93,7 +91,7 @@
             </div>
             <div class="tabel-num">
                     已选择<strong>{{ selectedData.length }}</strong>个
-                    <a href="" @click="handleClearSelect(false)">[清空]</a>
+                    <a href="javascript:;" @click="handleClearSelect(false)">[清空]</a>
                 </div>
                     <div class="model-table">
                 <Table size="small" ref="selection" :columns="modelColumns" :data="modelData"
@@ -102,10 +100,10 @@
                     @on-select-all="handleSelectAll"
                     @on-select-all-cancel="handleSelectAllCancel">
                 </Table>
-                    <Page :total="100" show-elevator size="small" class="page" style="text-align:right;margin-top:20px"  />
+                    <Page :total="total" show-elevator size="small" class="page" style="text-align:right;margin-top:20px" @on-change="changeSize"  />
                     <div class="action-btn">
-                    <span>取消</span>
-                    <span style="background: #4b7efe;">确定</span>
+                    <span @click="abolish()">取消</span>
+                    <span style="background: #4b7efe;" @click="sure()">确定</span>
                     </div>
             </div>
             <div slot="footer" >
@@ -115,7 +113,8 @@
     </div>
 </template>
 <script>
-import { getTree,newCate,deleteCate,editCate,deleteTemp} from '@api/productReport/reportSetting';
+import { regionalCon,getTree,newCate,deleteCate,editCate,deleteTemp,getTempDetail,getMpoint,tempSave} from '@api/productReport/reportSetting';
+import createTree from '@/libs/public-util'
 export default {
     name: 'reportDeploy',
     data() {
@@ -123,9 +122,7 @@ export default {
             height: '',
             formName: '',
             formData: [],
-            treeData: [
-                
-            ],
+            treeData: [],
             formValidate: {
                 name: '',
                 type: 'D',
@@ -139,17 +136,19 @@ export default {
                     { required: true, message: '请输入目录名称', trigger: 'blur' }
                 ]
             },
+            curIndex:0,
             columns: [
                 {
                     title: '分组名称',
                     key: 'name',
+                    width:'180',
                     render: (h, params) => {
                         let that = this
                         return h('div', [
                             h('Input', {
                                 props: {
                                     size:'small', 
-                                    value : that.data[params.index].name
+                                    value : that.data[params.index].groupname
                                 },
                                 style:{
                                     color:'blue',
@@ -160,7 +159,7 @@ export default {
                                 on: {
                                     input: function (event) {
                                     //   console.log(that.mpointList)
-                                    //   that.mpointList[params.index].groupName = event
+                                      that.data[params.index].groupname = event
                                     }
                                 }
                             })
@@ -176,7 +175,7 @@ export default {
                             h('Input', {
                                 props: {
                                     size:'small', 
-                                    value : that.data[params.index].number
+                                    value : that.data[params.index].groupno
                                 },
                                 style:{
                                     color:'blue',
@@ -186,8 +185,8 @@ export default {
                                 },
                                 on: {
                                     input: function (event) {
-                                    //   console.log(that.mpointList)
-                                    //   that.mpointList[params.index].groupName = event
+                                      console.log(that.mpointList)
+                                      that.data[params.index].groupno = event
                                     }
                                 }
                             })
@@ -195,7 +194,44 @@ export default {
                     }
                 }, {
                     title: '测点',
-                    key: 'station'
+                    key: 'station',
+                    render: (h,params) =>{
+                        let that =this;
+                        let len = that.data[params.index].mpointname.length
+                        console.log(that.data[params.index].mpointname)
+                        return h('div',[
+                            h('span',that.data[params.index].mpointname.join(',')),
+                            h('span',{
+                                style:{
+                                    display:'inline-block',
+                                    color:'#fff',
+                                    background:len==0?'#e09a4b':'#4778f1',
+                                    borderRadius:'7px',
+                                    width:'14px',
+                                    height:'14px',
+                                    lineHeight:'14px',
+                                    fontSize:'10px',
+                                    textAlign:'center',
+                                     marginLeft:'5px'
+                                }
+                            },len),
+                            h('a',{
+                                style:{
+                                    color:'#5c51fd',
+                                    fontSize:'13px',
+                                    textDecoration:'underline',
+                                    marginLeft:'10px'
+                                },
+                                on:{
+                                    click(){
+                                        that.curIndex = params.index
+                                        console.log(params)
+                                      that.modal = true
+                                    }
+                                }
+                            },'[选择]')
+                        ])
+                    }
                 }, {
                     title: '操作',
                     slot: 'action',
@@ -216,16 +252,16 @@ export default {
                     align: 'center'
                 },
                 {
-                    title: '测点',
-                    key: 'name'
+                    title: '测点编号',
+                    key: 'mpointId'
                 },
                 {
-                    title: '部门',
-                    key: 'department'
+                    title: '区域位置',
+                    key: 'siteName'
                 },
                 {
-                    title: '所属组织',
-                    key: 'tissue'
+                    title: '测点名称',
+                    key: 'mpointName'
                 }
             ],
             modelData: [
@@ -246,18 +282,24 @@ export default {
                 }
             ],
             selectedData: [],
+            catEdit:false,
             keyword:'',
-            catEdit:false
+            areaLocation:'',
+            areaData:[],
+            baseData:[],
+            page:1,
+            total:0,
+            parentId:'',
+            curMpoints:[]
         }
     },
     mounted() {
         this.height = document.body.clientHeight-80
         this.getOrg()
+        this.getRegional()
+        this.getPoint()
     },
     methods: {
-        templateSave(){
-
-        },
         handleSearch (value) {
             this.formData = !value ? [] : [
                 value,
@@ -267,6 +309,32 @@ export default {
         },
         tableRemove(index) {
             this.data.splice(index,1)
+        },
+        getPoint(){
+           getMpoint(this.keyword,this.areaLocation,this.page).then(res=>{
+               console.log(res)
+               if(res.data&& res.data.items){
+                   this.modelData = res.data.items
+                   this.total = res.data.total
+               }
+           })
+        },
+        getRegional() {
+            regionalCon().then(res => {
+                // console.log(JOSN.stringify(res.data))
+                let treeItem = []
+                let trees = res.data
+                for(let i = 0; i < trees.length; i ++) {
+                    trees[i].title = trees[i].name
+                    trees[i].expand = true
+                    trees[i].value = trees[i].id
+                    treeItem.push(trees[i])
+                }
+                this.baseData = treeItem
+                this.areaData= createTree(treeItem)
+            }).catch(err => {
+                // 异常情况
+            })
         },
         getOrg(){
             getTree().then(res=>{
@@ -477,28 +545,34 @@ export default {
             
         },
         templateSave(name){
+            console.log(this.curMpoints)
+            this.curMpoints.map(item=>{
+                item.mpointname = item.mpointname[0]
+            })
             let data = {
-                rname: "模板1",
-                siteid: "5",
-                temptype: "M",
-                mpoints:[
-                    {
-                        groupname: "group1",
-                        groupno: "3",
-                        id: 76,
-                        mpointid: 76,
-                        mpointname: "11111111",
-                    }
-                ]
+                folderid: null,
+                id: "1",
+                rname: this.formValidate.name,
+                siteid: Number(this.parentId),
+                temptype: this.formValidate.type,
+                remark:null,
+                rpath:null,
+                rtype:'Normal',
+                mpoints:this.curMpoints
             }
+            console.log(data)
             this.$refs[name].validate((valid) => {
                 if (valid) {
-                    
+                    tempSave(data).then(res=>{
+                        if(res.data.count){
+                            this.getTemplateDetail()
+                        }
+                    })
                 } else {
                     this.$Message.error('Fail!');
                 }
             })
-            console.log(data)
+
         },
         preview(){
 
@@ -538,6 +612,7 @@ export default {
         selectNode(node){
             console.log(node)
             this.curSiteId = node[0].id
+            this.parentId = node[0].parentId
             if(node[0].id.includes('folder')){
                 this.template = false
                 this.catalog = true
@@ -545,14 +620,72 @@ export default {
             }else if(node[0].id.includes('template')){
                 this.template = true
                 this.catalog = false
+                this.getTemplateDetail()
             }
+        },
+        getTemplateDetail(){
+             getTempDetail(this.curSiteId.split('_')[1]).then(res=>{
+                    console.log(res)
+                    if(res.data){
+                        console.log(res.data.mpoints)
+                        this.curMpoints = res.data.mpoints
+                        this.formValidate= {
+                            name: res.data.rname,
+                            type: res.data.temptype,
+                        }
+                        this.$nextTick(()=>{
+                            let arr = res.data.mpoints
+                       
+                            let tempArr=[]
+                            for(let i = 0;i<arr.length;i++){
+                                tempArr.push(arr[i].groupname)
+                            }
+                            let a = new Set(tempArr)
+                            let  curArr = []
+                            a.forEach(item=>{
+                            let b=arr.filter(ele=>{return ele.groupname == item})
+                            let bName = []
+                            b.map(item=>{
+                                bName.push(item.mpointname)
+                                b[0].mpointname = bName
+                            })
+                            curArr.push(b[0])
+                            })
+                            this.data = curArr
+                        })
+                        
+                    }
+                })
         },
         addData(){
             this.data.push({
-                name:'未命名分组1',
-                number:'1',
-
+                groupname:'未命名分组1',
+                groupno:this.data.length+1,
+                mpointname:[],
+                mpoints:[]
             })
+        },
+        abolish(){
+            this.modal = false
+        },
+        sure(){
+            this.modal = false
+            this.selectedData.map(item=>{
+                this.data[this.curIndex].mpointname.push(item.mpointName)
+              
+                this.curMpoints.push({
+                    groupname: this.data[this.curIndex].groupname,
+                    groupno: this.data[this.curIndex].groupno,
+                    id: item.id,
+                    mpointid: item.id,
+                    mpointname: item.mpointName,
+                    tempid: "1",
+                })
+            })
+        },
+        changeSize(size){
+            this.page = size
+            this.getPoint()
         }
     }
 }

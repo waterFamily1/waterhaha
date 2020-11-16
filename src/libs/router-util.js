@@ -176,6 +176,14 @@ let dataManage = [
     }
 ]
 
+let deviceManage = [
+    {
+        path: `/addBook`,
+        title: '添加设备',
+        auth: ['hidden']
+    }
+]
+
 export default function createRoutes(item) {
     let arr = item
     const parent = arr.filter(item => item.parentId == 0)
@@ -201,6 +209,12 @@ export default function createRoutes(item) {
                 } else if(parent[i].title == '数据管理'){
                     for(let j = 0; j < dataManage.length; j ++) {
                         parent[i].children.push(dataManage[j])
+                    }
+                } else if(parent[i].title == '设备管理'){
+                    console.log(parent[i])
+                    for(let j = 0; j < deviceManage.length; j ++) {
+                        console.log(deviceManage[j])
+                        parent[i].children.push(deviceManage[j])
                     }
                 }
                 break
