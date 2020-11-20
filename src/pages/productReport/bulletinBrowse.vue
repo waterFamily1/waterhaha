@@ -171,7 +171,14 @@ export default {
         getOrg(){
             getTree().then(res=>{
                 console.log(res)
-                let trees = res.data
+                let arr = []
+                res.data.map(item=>{
+                    if(item.parentId ==0 ||(item.id.includes('_'))){
+                        arr.push(item)
+                    }
+                })
+                let trees = arr
+
                 let tree=[]
                 for(let i = 0; i < trees.length; i ++) {
                     trees[i].title = trees[i].name

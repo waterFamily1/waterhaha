@@ -55,11 +55,19 @@ export function getTempDetail(id) {
 
     })
 }
-// 新增模版保存  
+// 修改模版保存  
 export function tempSave(data) {
     return request({
         url: 'loong/api/report-templates',
         method: 'put',
+        data
+    })
+}
+// 新增模板保存  
+export function newTempSave(data) {
+    return request({
+        url: 'loong/api/report-templates',
+        method: 'post',
         data
     })
 }

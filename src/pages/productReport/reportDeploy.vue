@@ -22,7 +22,7 @@
                         <h3>报表模板</h3>
                         <div class="btns-right">
                             <Button type="primary" size="small" @click="templateSave('formValidate')">保存</Button>
-                             <Button type="primary" size="small" @click="preview()">预览</Button>
+                             <Button type="primary" size="small" @click="preview()" v-if="!newFun">预览</Button>
                         </div>
                     </div>
                     <div class="right-form">
@@ -113,7 +113,7 @@
     </div>
 </template>
 <script>
-import { regionalCon,getTree,newCate,deleteCate,editCate,deleteTemp,getTempDetail,getMpoint,tempSave} from '@api/productReport/reportSetting';
+import { regionalCon,getTree,newCate,deleteCate,editCate,deleteTemp,getTempDetail,getMpoint,newTempSave,tempSave} from '@api/productReport/reportSetting';
 import createTree from '@/libs/public-util'
 export default {
     name: 'reportDeploy',
@@ -290,7 +290,8 @@ export default {
             page:1,
             total:0,
             parentId:'',
-            curMpoints:[]
+            curMpoints:[],
+            newFun:false
         }
     },
     mounted() {
@@ -308,6 +309,9 @@ export default {
             ];
         },
         tableRemove(index) {
+            console.log(this.data[index].groupname)
+            this.curMpoints=this.curMpoints.filter(ele=>{return ele.groupname!=this.data[index].groupname})
+            console.log(this.curMpoints)
             this.data.splice(index,1)
         },
         getPoint(){
@@ -509,8 +513,15 @@ export default {
         
         },
         createTemp(){
-           this.template = true
-           this.catalog = false
+            this.template = true
+            this.catalog = false
+            this.newFun = true
+            this.curMpoints = []
+            this.data = []
+            this.formValidate= {
+                name: '',
+                type: ''
+            }
         },
         deleteItem(data){
             console.log(data)
@@ -547,27 +558,48 @@ export default {
         templateSave(name){
             console.log(this.curMpoints)
             this.curMpoints.map(item=>{
+                console.log(typeof item.mpointname == 'string' )
+                if(typeof item.mpointname == 'string') return
                 item.mpointname = item.mpointname[0]
             })
-            let data = {
-                folderid: null,
-                id: "1",
-                rname: this.formValidate.name,
-                siteid: Number(this.parentId),
-                temptype: this.formValidate.type,
-                remark:null,
-                rpath:null,
-                rtype:'Normal',
-                mpoints:this.curMpoints
-            }
-            console.log(data)
+
             this.$refs[name].validate((valid) => {
                 if (valid) {
-                    tempSave(data).then(res=>{
-                        if(res.data.count){
-                            this.getTemplateDetail()
+                    if(this.newFun){
+                        let data = {
+                            rname: this.formValidate.name,
+                            siteid: this.curSiteId,
+                            temptype: this.formValidate.type,
+                            mpoints:this.curMpoints
                         }
-                    })
+                        newTempSave(data).then(res=>{
+                           console.log(res)
+                           if(res.data.id){
+                                this.getOrg()
+                           }
+                        })
+                    }else{
+                        let data = {
+                            folderid: null,
+                            id: "1",
+                            rname: this.formValidate.name,
+                            siteid: Number(this.parentId),
+                            temptype: this.formValidate.type,
+                            remark:null,
+                            rpath:null,
+                            rtype:'Normal',
+                            mpoints:this.curMpoints
+                        }
+                        tempSave(data).then(res=>{
+                            if(res.data.count){
+                                this.$Message.success('保存成功');
+                                this.getTemplateDetail()
+                                
+                                
+                            }
+                        })
+                    }
+                    
                 } else {
                     this.$Message.error('Fail!');
                 }
@@ -575,7 +607,12 @@ export default {
 
         },
         preview(){
-
+            this.$router.push({
+                path:'/report',
+                query: {
+                    siteId: this.curSiteId
+                }
+            })
         },
          // 清空所有已选项
         handleClearSelect (status) {
@@ -659,7 +696,7 @@ export default {
         },
         addData(){
             this.data.push({
-                groupname:'未命名分组1',
+                groupname:'未命名分组'+Number(this.data.length+1),
                 groupno:this.data.length+1,
                 mpointname:[],
                 mpoints:[]
@@ -670,6 +707,9 @@ export default {
         },
         sure(){
             this.modal = false
+            this.data[this.curIndex].mpointname = []
+            // console.log(this.curMpoints[this.curIndex].groupname)
+            this.curMpoints=this.curMpoints.filter(ele=>{return ele.groupname!=this.data[this.curIndex].groupname})
             this.selectedData.map(item=>{
                 this.data[this.curIndex].mpointname.push(item.mpointName)
               
