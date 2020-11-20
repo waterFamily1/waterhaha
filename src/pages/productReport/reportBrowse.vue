@@ -97,7 +97,6 @@ export default {
                     trees[i].expand = true
                     tree.push(trees[i])
                 }
-                
                 this.treeData=this.drawTree(tree)
             })
         },
