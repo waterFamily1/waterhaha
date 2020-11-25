@@ -3,105 +3,105 @@
         <div class="c-left-border-blue">
             <h3>设备详情</h3>
             <div class="c-btns-right">
-                <button type="button" ><span>保存</span></button>
-                <button type="button" class="cancel"><span>取消</span></button>
+                <Button><span>保存</span></Button>
+                <Button class="cancel"><span>取消</span></Button>
             </div>
         </div>
         <div class="c-top-border-gray">
-                <div class="c-form-common">
-                    <div class="c-title-css">基础信息</div>
-                    <div class="form-content">
-                        <div class="equ-edit-left">
-                            <div class="equ-edit-img"> 
-                                <img src="http://chaoying.tjdeht.cn:8803/group1/M00/00/C6/wKgyr19EzmmAXwYVAAEOTz1qhuA14.jpeg" alt="">
-                            </div>
-                            <div class="equ-edit-upload">
-                                <button type="button">上传图片</button>
-                            </div>
+            <div class="c-form-common">
+                <div class="c-title-css">基础信息</div>
+                <div class="form-content">
+                    <div class="equ-edit-left">
+                        <div class="equ-edit-img"> 
+                            <img src="http://chaoying.tjdeht.cn:8803/group1/M00/00/C6/wKgyr19EzmmAXwYVAAEOTz1qhuA14.jpeg" alt="">
                         </div>
-                        
-                        <Form ref="formValidate" :model="formValidate" :rules="ruleValidate" :label-width="100" class="form-module">
-                            <Row>
-                                <Col span="12">
-                                    <FormItem label="设备名称:" prop="name">
-                                        <Select v-model="formValidate.name" placeholder="请选择" style="width:200px" size="small">
-                                            <Option value="beijing">New York</Option>
-                                            <Option value="shanghai">London</Option>
-                                            <Option value="shenzhen">Sydney</Option>
-                                        </Select>
-                                    </FormItem>
-                                </Col>
-                                <Col span="12">
-                                    <FormItem label="设备类型:" prop="">
-                                       <a href="javascript:;" class="c-btn-text">[选择]</a>
-                                    </FormItem>
-                                </Col>
-                            </Row>
-                            <Row>
-                                <Col span="12">
-                                    <FormItem label="设备编号:" prop="number">
-                                        <Input v-model="formValidate.number" placeholder="请输入测点名称" style="width:200px"></Input>
-                                    </FormItem>
-                                </Col>
-                                <Col span="12">
-                                    <FormItem label="区域位置:" prop="location">
-                                        <Select v-model="formValidate.location" placeholder="请选择" style="width:200px" size="small">
-                                            <Option value="beijing">New York</Option>
-                                            <Option value="shanghai">London</Option>
-                                            <Option value="shenzhen">Sydney</Option>
-                                        </Select>
-                                    </FormItem>
-                                </Col>  
-                            </Row>
-                            <Row>
-                                <Col span="12">
-                                    <FormItem label="资产状态:" prop="state">
-                                         <Select v-model="formValidate.state" placeholder="请选择" style="width:200px" size="small">
-                                            <Option value="beijing"> 启用</Option>
-                                            <Option value="shanghai">封存</Option>
-                                            <Option value="shenzhen">报废</Option>
-                                        </Select>
-                                    </FormItem>
-                                </Col>
-                                <Col span="12">
-                                    <FormItem label="ABC类:" prop="location">
-                                        <Select v-model="formValidate.location" placeholder="请选择" style="width:200px" size="small">
-                                            <Option value="beijing">A</Option>
-                                            <Option value="shanghai">B</Option>
-                                            <Option value="shenzhen">C</Option>
-                                        </Select>
-                                    </FormItem>
-                                </Col>  
-                            </Row>
-                             <Row>
-                                <Col span="12">
-                                    <FormItem label="所属组织:" prop="tissue">
-                                         <Select v-model="formValidate.tissue" placeholder="请选择" style="width:200px" size="small">
-                                            <Option value="beijing"> 启用</Option>
-                                            <Option value="shanghai">封存</Option>
-                                            <Option value="shenzhen">报废</Option>
-                                        </Select>
-                                    </FormItem>
-                                </Col>
-                                <Col span="12">
-                                    <FormItem label="责任人:" prop="person">
-                                        <Select v-model="formValidate.person" placeholder="请选择" style="width:200px" size="small">
-                                            <Option value="beijing">A</Option>
-                                            <Option value="shanghai">B</Option>
-                                            <Option value="shenzhen">C</Option>
-                                        </Select>
-                                    </FormItem>
-                                </Col>  
-                            </Row>
-                        </Form>
-                        <div class="equ-edit-right">
-                            <a href="javascript:;" class="equ-add-icon-ar">
-                            </a>
+                        <div class="equ-edit-upload">
+                            <Button>上传图片</Button>
                         </div>
-                       
                     </div>
+                    
+                    <Form ref="formValidate" :model="formValidate" :rules="ruleValidate" :label-width="100" class="form-module">
+                        <Row>
+                            <Col span="12">
+                                <FormItem label="设备名称:" prop="name">
+                                    <Select v-model="formValidate.name" placeholder="请选择" style="width:200px" size="small">
+                                        <Option value="beijing">New York</Option>
+                                        <Option value="shanghai">London</Option>
+                                        <Option value="shenzhen">Sydney</Option>
+                                    </Select>
+                                </FormItem>
+                            </Col>
+                            <Col span="12">
+                                <FormItem label="设备类型:" prop="">
+                                    <a href="javascript:;" class="c-btn-text">[选择]</a>
+                                </FormItem>
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col span="12">
+                                <FormItem label="设备编号:" prop="number">
+                                    <Input v-model="formValidate.number" placeholder="请输入测点名称" style="width:200px"></Input>
+                                </FormItem>
+                            </Col>
+                            <Col span="12">
+                                <FormItem label="区域位置:" prop="location">
+                                    <Select v-model="formValidate.location" placeholder="请选择" style="width:200px" size="small">
+                                        <Option value="beijing">New York</Option>
+                                        <Option value="shanghai">London</Option>
+                                        <Option value="shenzhen">Sydney</Option>
+                                    </Select>
+                                </FormItem>
+                            </Col>  
+                        </Row>
+                        <Row>
+                            <Col span="12">
+                                <FormItem label="资产状态:" prop="state">
+                                        <Select v-model="formValidate.state" placeholder="请选择" style="width:200px" size="small">
+                                        <Option value="beijing"> 启用</Option>
+                                        <Option value="shanghai">封存</Option>
+                                        <Option value="shenzhen">报废</Option>
+                                    </Select>
+                                </FormItem>
+                            </Col>
+                            <Col span="12">
+                                <FormItem label="ABC类:" prop="location">
+                                    <Select v-model="formValidate.location" placeholder="请选择" style="width:200px" size="small">
+                                        <Option value="beijing">A</Option>
+                                        <Option value="shanghai">B</Option>
+                                        <Option value="shenzhen">C</Option>
+                                    </Select>
+                                </FormItem>
+                            </Col>  
+                        </Row>
+                            <Row>
+                            <Col span="12">
+                                <FormItem label="所属组织:" prop="tissue">
+                                        <Select v-model="formValidate.tissue" placeholder="请选择" style="width:200px" size="small">
+                                        <Option value="beijing"> 启用</Option>
+                                        <Option value="shanghai">封存</Option>
+                                        <Option value="shenzhen">报废</Option>
+                                    </Select>
+                                </FormItem>
+                            </Col>
+                            <Col span="12">
+                                <FormItem label="责任人:" prop="person">
+                                    <Select v-model="formValidate.person" placeholder="请选择" style="width:200px" size="small">
+                                        <Option value="beijing">A</Option>
+                                        <Option value="shanghai">B</Option>
+                                        <Option value="shenzhen">C</Option>
+                                    </Select>
+                                </FormItem>
+                            </Col>  
+                        </Row>
+                    </Form>
+                    <div class="equ-edit-right">
+                        <a href="javascript:;" class="equ-add-icon-ar">
+                        </a>
+                    </div>
+                    
                 </div>
-                <div class="ivu-tabs"></div>
+            </div>
+            <div class="ivu-tabs"></div>
         </div>
         <div class="c-top-border-gray">
             <Tabs value="name1" :animated="false">
@@ -194,7 +194,7 @@ export default {
     name:'addBook',
     data(){
       return {
-        height:0,
+        height: 0,
         dateList:[
             {
                 name:'天',
@@ -252,7 +252,8 @@ export default {
        .c-btns-right{
            float: right;
            margin-top: 2px;
-           button{
+            /deep/.ivu-btn {
+                height: auto;
                 background: #4b7efe;
                 font-size: 12px;
                 padding: 4px 0;
@@ -262,10 +263,10 @@ export default {
                 border: 0;
                 border-radius: 3px;
                 margin: 0 5px;
-           }
-           .cancel{
-               background: #c8c8c8;
-           }
+            }
+            .cancel{
+                background: #c8c8c8;
+            }
        }
     }
     .c-top-border-gray{
@@ -302,7 +303,8 @@ export default {
                     .equ-edit-upload{
                         text-align: center;
                         margin-top: 20px;
-                        button{
+                        /deep/.ivu-btn {
+                            height: auto;
                             background: #576374;
                             font-size: 12px;
                             padding: 4px 0;

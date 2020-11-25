@@ -181,6 +181,10 @@ let deviceManage = [
         path: `/addBook`,
         title: '添加设备',
         auth: ['hidden']
+    }, {
+        path: `/checkBook`,
+        title: '设备详情',
+        auth: ['hidden']
     }
 ]
 

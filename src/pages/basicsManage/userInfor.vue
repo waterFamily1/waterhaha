@@ -25,7 +25,7 @@
                 <button type="button" style="margin-left:10px" @click="upload()">批量导入</button>
             </div>
             <div class="table-wrapper" :style="{height: (height-45)+'px'}">
-                <Table stripe :columns="columns1" :data="data1" size="small">
+                <Table stripe :columns="columns1" :data="data1">
                     <template slot-scope="{ row }" slot="name">
                         <strong>{{ row.name }}</strong>
                     </template>

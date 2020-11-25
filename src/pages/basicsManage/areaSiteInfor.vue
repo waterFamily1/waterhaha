@@ -113,6 +113,7 @@
 import { regionalCon, exportcode1, exportcode2, getlocationInfor, appendLocation, uploadFun, cancleLocation, editLocation } from '@/api/basic/process'
 import createTree from '@/libs/public-util'
 import axios from 'axios'
+import util from '@/libs/public_js'
 
 export default {
     name: 'areaSiteInfor',
@@ -325,6 +326,8 @@ export default {
         export2(key) {
             exportcode2(key).then(res => {
                 console.log(JSON.stringify(res))
+                let expQrcode = '/uaa/api/process/qrcode-export'
+                util.download(expQrcode);
             }).catch(err => {
                 // 异常情况
             })

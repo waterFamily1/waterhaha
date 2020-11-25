@@ -252,10 +252,13 @@ export default [
             }, {
                 path: `/equ/status/list`,
                 title: '设备状态'
-            },
-            {
+            }, {
                 path: `/addBook`,
                 title: '添加设备',
+                auth: ['hidden']
+            }, {
+                path: `/checkBook`,
+                title: '设备详情',
                 auth: ['hidden']
             }
         ]

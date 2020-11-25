@@ -8,14 +8,25 @@
                 </div>
                 <div class="form-item">
                     <label>区域位置：</label> 
-                    <Select v-model="model1" style="width:200px">
-                        <Option v-for="item in cityList" :value="item.value" :key="item.value">{{ item.label }}</Option>
-                    </Select>
+                    <TreeSelect 
+                        v-model="areaSite" 
+                        :data="processList"
+                        @on-change="treeChange"
+                        :multiple="true"
+                        :max-tag-count="1"
+                        v-width="220" 
+                    />
                 </div>
                 <div class="form-item">
                     <label>设备类型：</label> 
-                    <Select v-model="model1" style="width:200px">
-                        <Option v-for="item in genreList " :value="item.id" :key="item.id">{{ item.label }}</Option>
+                    <Select v-model="equType" multiple :max-tag-count="3" style="width:300px">
+                        <Option 
+                            v-for="item in equTypeList" 
+                            :value="item.id" 
+                            :key="item.id"
+                            :label-in-value="true"
+                            @on-change="equChange"
+                        >{{ item.name }}</Option>
                     </Select>
                 </div>
                 <div class="form-search-btn">
@@ -24,88 +35,71 @@
                         <Icon type="ios-arrow-up" v-else />
                         高级搜索
                     </a>
-                    <button type="button">搜索</button>
-                    <button type="button" class="reset">重置</button>
+                    <Button @click="getList()">搜索</Button>
+                    <Button class="reset" @click="resetHandle()">重置</Button>
                 </div>
             </div>
             <div class="c-adv-search">
                 <div class="c-adv-search-row">
-                    <div class="form-item">
+                    <div class="form-item" style="display: flex;">
                         <label>ABC类：</label>
-                        <div class="cmp-tab">
-                            <a href="javascript:;" @click="typeCheckAll()" :class="{checked:typeCheckedAll}">全部</a>
-                            <a href="javascript:;" v-for="(item, index) in typeList" 
-                            :key="index" @click="typeCheck(item.id)" 
-                            :class="{checked:typeBox.includes(item.id)}">{{ item.label }}</a>
-                        </div>
+                        <TagSelect v-model="ABCtype">
+                            <TagSelectOption name="1">A</TagSelectOption>
+                            <TagSelectOption name="2">B</TagSelectOption>
+                            <TagSelectOption name="3">C</TagSelectOption>
+                        </TagSelect>
                     </div>
                 </div>
             </div>
         </div>
         <div class="index-content">
             <div class="c-table-top-btns">
-                <button type="button" @click="addDevice()">添加设备</button>
-                <button type="button" @click="msgUpload()" style="margin-left:10px">信息导入</button>
+                <Button @click="addDevice()">添加设备</Button>
+                <Button @click="msgUpload()" style="margin-left:10px">信息导入</Button>
                 <div style="display:inline-block">
-                    <Dropdown>
-                        <button type="button" style="margin-left:10px" @click="batchsetting()">
+                    <Dropdown @on-click="deleteDown">
+                        <Button style="margin-left:10px">
                             批量删除<Icon type="md-arrow-dropdown" />
-                        </button>
+                        </Button>
                         <DropdownMenu slot="list">
-                            <DropdownItem>选中设备</DropdownItem>
-                            <DropdownItem>全部设备</DropdownItem>
+                            <DropdownItem name='0'>选中设备</DropdownItem>
+                            <DropdownItem name='1'>全部设备</DropdownItem>
                         </DropdownMenu>
                     </Dropdown>
                 </div>
             </div> 
             <div class="table-wrapper" :style="{height: (height-45)+'px'}">
-                <Table stripe :columns="tableList" >
-                    <template slot-scope="{ row }" slot="name">
-                        <strong>{{ row.name }}</strong>
-                    </template>
+                <Table stripe :columns="tableList" :data="tableDate" @on-selection-change="getSelect">
                     <template slot-scope="{ row, index }" slot="action">
-                        <!-- <Button class="action" size="small" style="margin-right: 5px;">配置</Button> -->
-                        <Button class="action" size="small">查看</Button>
+                        <Button class="action" size="small" @click="checkHandle(row.id)">查看</Button>
                     </template>
                 </Table>
-                 <Page :total="100" show-elevator class="page" />
+                <Page :total="allTotal" @on-change="changePage" show-elevator show-total class="page" />
             </div>
         </div>
     </div>
 </template>
 <script>
+import { regionalCon, equTypeMethod , listMethod, deleteMethod } from '@/api/deviceManage/equ'
+import createTree from '@/libs/public-util'
+
 export default {
     name: 'deviceBook',
     data() {
         return {
             height: '',
             keyword: '',
-            cityList: [
-                {
-                    value: 'New York',
-                    label: 'New York'
-                }
-            ],
-            model1: '',
+            processList: [],
+            areaSite: [],
             searchShow: false, 
-            typeCheckedAll: false,
             typeBox: [],
-            genreList: [
-                {label: '在线仪表',id: 1},
-                {label: '泵',id: 2},
-                {label: '阀门',id: 3},
-                {label: '控制柜',id: 4},
-                {label: '浮球',id: 5}
-            ],
-            typeList: [
-                {label: 'A',id: 1},
-                {label: 'B',id: 2},
-                {label: 'C',id: 3},
-            ],
+            equTypeList: [],
+            equType: [],
+            ABCtype: [],
             tableList: [
                 {
                     type: 'selection',
-                    width: 50,
+                    width: 55,
                     align: 'center'
                 },
                 {
@@ -114,64 +108,212 @@ export default {
                 },
                 {
                     title: '设备编号',
-                    key: 'number'
+                    key: 'code'
                 },
                 {
                     title: '设备类型',
-                    key: 'type'
+                    key: 'typeName'
                 },
                 {
                     title: '型号',
-                    key: 'Version'
+                    key: 'model'
                 },
                 {
                     title: '所属组织',
-                    key: 'tissue'
+                    key: 'orgName',
+                    ellipsis: true
                 },
                 {
                     title: 'ABC类',
-                    key: 'tissue'
+                    key: 'abc'
                 },
                  {
                     title: '区域位置',
-                    key: 'location'
+                    key: 'processName',
+                    ellipsis: true
                 },
                 {
                     title: '状态',
-                    key: 'state'
+                    key: 'state',
+                    width: 70
                 },
                 {
                     title: '操作',
                     slot: 'action',
-                    width: 150,
+                    width: 70,
                     align: 'center'
                 }
-            ]
+            ],
+            tableDate: [],
+            selectList: [],
+            allTotal: 0,
+            pageNum: '1'
         }
     },
     mounted() {
-        this.height = document.body.clientHeight-130
+        this.height = document.body.clientHeight - 130
+        this.getList()
+        this.getRegional()
+        this.getEquType()
     },
     methods: {
+        getList() {
+            let queryName = this.keyword
+            let currentPage = this.pageNum
+            let processIds = this.areaSite.toString()
+            let abcs = this.ABCtype.toString()
+            listMethod({
+                queryName,
+                processIds,
+                abcs,
+                currentPage
+            }).then(res=> {
+                // console.log(JSON.stringify(res))
+                let arr = res.data.items
+                arr.map(item=> {
+                    if(item.abc == 1) {
+                        item.abc = 'A'
+                    } else if(item.abc == 2) {
+                        item.abc = 'B'
+                    } else if(item.abc == 3) {
+                        item.abc = 'C'
+                    }
+
+                    if(item.state == 1) {
+                        item.state = '启用'
+                    } else if(item.state == 2) {
+                        item.state = '封存'
+                    } else if(item.state == 3) {
+                        item.state = '报废'
+                    }
+                })
+                this.tableDate = arr
+                this.allTotal = res.data.total
+            }).catch(err=> {
+                
+            })
+        },
+        changePage(index) {
+            this.pageNum = index
+            this.getList()
+        },
+        getSelect(list) {
+            this.selectList = list
+        },
+        getRegional() {
+            regionalCon().then(res => {
+                // console.log(res)
+                let treeItem = []
+                let trees = res.data
+                for(let i = 0; i < trees.length; i ++) {
+                    trees[i].title = trees[i].name
+                    trees[i].value = trees[i].id
+                    trees[i].checked = false
+                    treeItem.push(trees[i])
+                }
+                this.processList = createTree(treeItem)
+            }).catch(err => {
+                // 异常情况
+            })
+        },
+        getEquType() {
+            equTypeMethod().then(res=> {
+                // console.log(res.data)
+                this.equTypeList = res.data.items
+            }).catch(err=> {
+
+            })
+        },
+        equChange(val) {
+            console.log(val)
+        },
+        resetHandle() {
+            this.keyword = ''
+            this.areaSite = []
+            this.equType = []
+            this.ABCtype = []
+        },
+        treeChange(value) {
+            // this.areaSite = value
+        },
         higherSearch() {
             this.searchShow = !this.searchShow
         },
-        typeCheckAll() {
-            this.typeBox = []
-            this.typeCheckedAll = true
-        },
-        typeCheck(i) {
-            this.typeCheckedAll = false
-            if(this.typeBox.includes(i)) {
-                this.typeBox = this.typeBox.filter((ele) => {
-                    return ele != i
+        deleteDown(all) {
+            var selectNum = 0
+            var ids = []
+            let alls
+            this.selectList.forEach((item)=>{
+                ids.push(item.id)
+            })
+            if(all == 0) {
+                selectNum = this.selectList.length
+                if(selectNum == 0) {
+                    this.$Notice.info({title: '请选择要删除的设备'})
+                    return
+                } else {
+                    if(selectNum != this.allTotal) {
+                        alls = false
+                    }
+                    this.$Modal.confirm({
+                        title: '删除',
+                        content: '您确定要删除 '+selectNum+' 个设备吗？',
+                        onOk: () => {
+                            let id = ids.toString()
+                            deleteMethod({
+                                id,
+                                alls
+                            }).then(res=> {
+                                if(res.status == 200) {
+                                    this.$Notice.success({
+                                        title: '设备删除成功！'
+                                    });
+                                    this.getList()
+                                }
+                            }).catch(err=> {
+
+                            })
+                        }
+                    });
+                }
+            } else if (all == 1) {
+                selectNum = this.allTotal
+                alls = true
+                let id = ''
+                this.$Modal.confirm({
+                    title: '删除',
+                    content: '您确定要删除 '+selectNum+' 个设备吗？',
+                    onOk: () => {
+                        deleteMethod({
+                            id,
+                            alls
+                        }).then(res=> {
+                            if(res.status == 200) {
+                                this.$Notice.success({
+                                    title: '设备删除成功！'
+                                });
+                                this.getList()
+                            }
+                        }).catch(err=> {
+                            
+                        })
+                    }
                 });
-            } else {
-                this.typeBox.push(i);
             }
         },
+        checkHandle(id) {
+            this.$router.push({
+                path:'/checkBook',
+                query: {
+                    ids: id
+                }
+            })
+            sessionStorage.setItem('isEdit', false)
+        },
         addDevice() {
-             this.$router.push({path:'/deviceManage/addBook'})
+            this.$router.push({
+                path:'/deviceManage/addBook'
+            })
         },
         msgUpload(){
              this.$router.push({
@@ -212,7 +354,8 @@ export default {
                     color: #576374;
                     font-size: 12px;
                 }
-                button{
+                /deep/.ivu-btn {
+                    height: auto;
                     background: #4b7efe;
                     font-size: 12px;
                     padding: 4px 12px;
@@ -272,7 +415,8 @@ export default {
         .c-table-top-btns {
             height: 36px;
             border-bottom: 1px solid #EEE;
-            button{
+            /deep/.ivu-btn {
+                height: auto;
                 min-width: 50px;
                 background: #576374;
                 font-size: 12px;
@@ -293,6 +437,17 @@ export default {
                 text-align: right;
                 margin-top: 10px;
             }
+        }
+    }
+    /deep/.ivu-tag-select {
+        margin-left: 0;
+    }
+    /deep/.ivu-tag-select-option {
+         .ivu-tag {
+            margin-right: 10px;
+        }
+        .ivu-tag-text {
+            font-size: 14px;
         }
     }
 }

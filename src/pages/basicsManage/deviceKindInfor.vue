@@ -4,7 +4,7 @@
             <div class="tissue-left">
                 <div class="tissue-title">
                     <h3>设备类型</h3>
-                    <button class="btn">导入设备类型</button>
+                    <Button class="btn" @click="importType">导入设备类型</Button>
                 </div>
                 <div class="search-input">
                     <Input v-model="kword" placeholder="输入设备类型以检索" @on-change="search" />
@@ -28,8 +28,8 @@
                 <div class="tissue-title">
                     <h3>设备类型信息</h3> 
                     <span v-if="!appear">
-                        <button @click="cancel()" style="background:#c8c8c8">取消</button>
-                        <button type="primary" style="background:#4b7efe" @click="save('tissueList')"> 保存</button>
+                        <Button @click="cancel()" style="background:#c8c8c8">取消</Button>
+                        <Button type="primary" style="background:#4b7efe" @click="save('tissueList')"> 保存</Button>
                     </span>
                 </div>
                 <div class="tissue-content">
@@ -122,6 +122,14 @@ export default {
         this.getOrg()
     },
     methods: {
+        importType() {
+            this.$router.push({
+                path:'/other/areaUpload',
+                query: {
+                    uploadName: '设备类型导入'
+                }
+            })
+        },
         getOrg(){
            getOrg(3).then(res=>{ 
                 let treeItem = []
@@ -519,7 +527,8 @@ export default {
                 display: inline;
                 float: right;
             }
-            button{
+            .ivu-btn {
+                height: auto;
                 padding:3px 15px;
                 background: #576374;
                 border: 0;
@@ -580,7 +589,8 @@ export default {
                         display: inline-block;
                         text-align: right;
                         
-                        button{
+                        .ivu-btn {
+                            height: auto;
                             background: #6f98fe;
                             color: #fff;
                             font-size: 12px;

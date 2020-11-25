@@ -33,7 +33,7 @@ export default {
                 closable: false
             },
             component: () => import('@/pages/deviceManage/deviceState')
-        },{
+        }, {
             path: '/addBook',
             name: `${pre}addBook`,
             meta: {
@@ -42,6 +42,15 @@ export default {
                 closable: false
             },
             component: () => import('@/pages/deviceManage/addBook')
-        },
+        }, {
+            path: '/checkBook',
+            name: `${pre}checkBook`,
+            meta: {
+                ...meta,
+                title: '设备详情',
+                closable: false
+            },
+            component: () => import('@/pages/deviceManage/book/checkDetail')
+        }
     ]
 }
