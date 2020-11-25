@@ -1,18 +1,16 @@
 <template>
     <div class="take-wrap" :style="{height: height+'px'}">
         <div class="take-search">
-            <Form :model="takeList" label-position="right" :label-width="120">
+            <Form  label-position="right" :label-width="120">
                 <div class="search-box" :class="{searchTrans:searchShow, searchPack:!searchShow}">
                     <div class="search-main">
                         <div class="form-item">
-                            <FormItem label="关键字:">
-                                <Input v-model="takeList.name" placeholder="报警名称" style="width: 200px;"></Input>
-                            </FormItem>
+                            <label style="display:inline-block;width:120px;text-align:right">关键字：</label>
+                            <Input size="small" v-model="keyword" placeholder="报警名称" style="width: 200px;"></Input>
                         </div>
                         <div class="form-item">
-                            <FormItem label="区域位置:">
-                                <TreeSelect v-model="takeList.area" multiple show-checkbox :data="treeData" v-width="200" />
-                            </FormItem>
+                             <label style="display:inline-block;width:120px;text-align:right">区域位置：</label> 
+                             <TreeSelect size="small" v-model="area" multiple :data="treeData" v-width="200" />
                         </div>
                         <div class="form-search-btn">
                             <a href="javascript:;" @click="higherSearch()">
@@ -20,8 +18,8 @@
                                 <Icon type="ios-arrow-up" v-else />
                                 高级搜索
                             </a>
-                            <button type="button">搜索</button>
-                            <button type="button" class="reset">重置</button>
+                            <button type="button" @click="search()">搜索</button>
+                            <button type="button" class="reset" @click="reset()">重置</button>
                         </div>
                     </div>
                     <div class="c-adv-search">
@@ -30,8 +28,9 @@
                                 <FormItem label="接收方式:">
                                     <div class="cmp-tab">
                                         <TagSelect v-model="acceptWay">
-                                            <TagSelectOption name="tag1">在线消息</TagSelectOption>
-                                            <TagSelectOption name="tag2">短信</TagSelectOption>
+                                            
+                                            <TagSelectOption name="SysMsg">在线消息</TagSelectOption>
+                                            <TagSelectOption name="SMS">短信</TagSelectOption>
                                         </TagSelect>
                                     </div>
                                 </FormItem>
@@ -39,16 +38,8 @@
                             <div class="form-item">
                                 <FormItem label="推送频率:">
                                     <div class="cmp-tab">
-                                        <TagSelect v-model="pushFre">
-                                            <TagSelectOption name="tag1">5分钟</TagSelectOption>
-                                            <TagSelectOption name="tag2">10分钟</TagSelectOption>
-                                            <TagSelectOption name="tag3">15分钟</TagSelectOption>
-                                            <TagSelectOption name="tag4">30分钟</TagSelectOption>
-                                            <TagSelectOption name="tag5">1小时</TagSelectOption>
-                                            <TagSelectOption name="tag6">2小时</TagSelectOption>
-                                            <TagSelectOption name="tag7">12小时</TagSelectOption>
-                                            <TagSelectOption name="tag8">24小时</TagSelectOption>
-                                            <TagSelectOption name="tag9">仅推送一次</TagSelectOption>
+                                        <TagSelect v-model="pushFre" >
+                                            <TagSelectOption :name="index+1" v-for="(item,index) in freList" :key="index">{{item}} </TagSelectOption>
                                         </TagSelect>
                                     </div>
                                 </FormItem>
@@ -57,16 +48,7 @@
                                 <FormItem label="推迟推送时间:">
                                     <div class="cmp-tab">
                                         <TagSelect v-model="pushTime">
-                                            <TagSelectOption name="tag1">5分钟</TagSelectOption>
-                                            <TagSelectOption name="tag2">10分钟</TagSelectOption>
-                                            <TagSelectOption name="tag3">15分钟</TagSelectOption>
-                                            <TagSelectOption name="tag4">30分钟</TagSelectOption>
-                                            <TagSelectOption name="tag5">1小时</TagSelectOption>
-                                            <TagSelectOption name="tag6">2小时</TagSelectOption>
-                                            <TagSelectOption name="tag7">12小时</TagSelectOption>
-                                            <TagSelectOption name="tag8">24小时</TagSelectOption>
-                                            <TagSelectOption name="tag9">立即推送</TagSelectOption>
-                                            <TagSelectOption name="tag10">不推送</TagSelectOption>
+                                            <TagSelectOption :name="index+1" v-for="(item,index) in timeList" :key="index">{{item}}</TagSelectOption>
                                         </TagSelect>
                                     </div>
                                 </FormItem>
@@ -93,48 +75,24 @@
                 <Button @click="addHandle()">新增</Button>
                 <Button @click="selectHandle()">删除</Button>
             </div>
-            <Table ref="selection" :columns="columns" :data="data"></Table>
-            <Page :total="100" show-total show-elevator class="page" />
+            <Table ref="selection" :columns="columns" :data="data" size="small"></Table>
+            <Page :total="total" show-total show-elevator class="page" />
         </div>
     </div>
 </template>
 <script>
+import { getTree,getList } from '@/api/alarm/subscribe'
+import createTree from '@/libs/public-util'
+import {formatTime} from '@/libs/public'
 export default {
     name: 'alarmTake',
     data() {
         return {
             height: '',
             searchShow: false,
-            takeList: {
-                name: '',
-                area: []
-            },
-            treeData: [
-                {
-                    title: 'parent1',
-                    expand: true,
-                    value: 'parent1',
-                    selected: false,
-                    checked: false,
-                    children: [
-                        {
-                            title: 'parent 1-1',
-                            expand: true,
-                            value: 'parent1-1',
-                            selected: false,
-                            checked: false,
-                            children: [
-                                {
-                                    title: 'leaf 1-1-1',
-                                    value: 'leaf1',
-                                    selected: false,
-                                    checked: false,
-                                }
-                            ]
-                        }
-                    ]
-                }
-            ],
+            keyword:'',
+            area:[],
+            treeData: [],
             acceptWay: [],
             pushFre: [],
             pushTime: [],
@@ -146,28 +104,54 @@ export default {
                     align: 'center'
                 }, {
                     title: '区域位置',
-                    key: 'name'
+                    width:140,
+                    key: 'siteName'
                 }, {
                     title: '报警名称',
-                    key: 'name'
+                    key: 'defineName'
                 }, {
                     title: '接收对象',
-                    key: 'name'
+                    key: 'userName'
                 }, {
                     title: '接收方式',
-                    key: 'name'
+                    key: 'subscribeMode',
+                     render: (h, params) => {
+                        const text = params.row.subscribeMode=='SysMsg'?'在线消息':'短信'
+                        return h('span', {
+                        }, text);
+                    }
                 }, {
                     title: '推送频率',
-                    key: 'name'
+                    key: 'pushFrequency',
+                    render: (h, params) => {
+                        let that = this
+                        const text = Number(params.row.pushFrequency)-1
+                        return h('span', {}, that.freList[text]);
+                    }
                 }, {
                     title: '延迟推送时间',
-                    key: 'name'
+                    key: 'delayPushTime',
+                    render: (h, params) => {
+                        let that = this
+                        const text = Number(params.row.delayPushTime)-1
+                        return h('span', {}, that.timeList[text]);
+                    }
                 }, {
                     title: '创建人',
-                    key: 'name'
+                    key: 'createUsername',
+                    render: (h, params) => {
+                        let that = this
+                        const text = Number(params.row.delayPushTime)-1
+                        return h('span', {}, that.timeList[text]);
+                    }
                 }, {
                     title: '创建时间',
-                    key: 'name'
+                    key: 'createTime',
+                    render: (h, params) => {
+                        let that = this
+                        const text = params.row.createTime
+                        return h('span', {}, formatTime(text, 'HH:mm:ss yyyy-MM-dd'));
+                    }
                 }, {
                     title: '操作',
                     key: 'handle',
@@ -177,7 +161,11 @@ export default {
                             h('Button', {
                                 props: {
                                     type: 'text',
-                                    size: 'small'
+                                    size: 'small',
+                                },
+                                style :{
+                                    color:'rgb(75, 126, 254)',
+                                    fontSize:'12px'
                                 },
                                 on: {
                                     click: () => { 
@@ -190,6 +178,10 @@ export default {
                                     type: 'text',
                                     size: 'small'
                                 },
+                                style :{
+                                    color:'rgb(75, 126, 254)',
+                                    fontSize:'12px'
+                                },
                                 on: {
                                     click: () => { 
                                         this.editHandle()
@@ -200,30 +192,57 @@ export default {
                     }
                 },
             ],
-            data: [
-                {
-                    name: '1',
-                    name: '1',
-                    name: '1',
-                    name: '1',
-                    name: '1',
-                    name: '1',
-                    name: '1',
-                    name: '1'
-                }
-            ]
+            data: [],
+            page:1,
+            total:0,
+            freList:['5分钟','10分钟','15分钟','30分钟','1小时','2小时','12小时','24小时','仅推送1次'],
+            timeList :['5分钟','10分钟','15分钟','30分钟','1小时','2小时','12小时','24小时','立即推送','不推送']
         }
     },
     mounted() {
         this.height = document.body.clientHeight-80
+        this.getRegional()
+        this.getSubList()
     },
     methods: {
+        getRegional() {
+            getTree().then(res => {
+                console.log(res)
+                let treeItem = []
+                let trees = res.data
+                for(let i = 0; i < trees.length; i ++) {
+                    trees[i].title = trees[i].name
+                    trees[i].value = trees[i].id
+                    trees[i].expand = true
+                    treeItem.push(trees[i])
+                }
+                console.log(treeItem)
+                this.treeData = createTree(treeItem)
+            }).catch(err => {
+                // 异常情况
+            })
+        },
+        getSubList(){
+            console.log(this.area)
+            let siteId = this.area.length!=0?this.area.join(','):''
+            let way = this.acceptWay.length!=0?this.acceptWay.join(','):''
+            let fre = this.pushFre.length!=0?this.pushFre.join(','):''
+            let time = this.pushTime.length!=0?this.pushTime.join(','):''
+            // siteId,queryName,mode,frequency,time,page
+            getList(siteId,this.keyword,way,fre,time,this.page).then(res=>{
+              console.log(res)
+              if(res.data){
+                  this.data = res.data.items
+                  this.total = res.data.total
+              }
+            })
+        },
         higherSearch() {
             this.searchShow = !this.searchShow
         },
         addHandle() {
             this.$router.push({
-                path:'/alarmManage/alarm/takeAdd'
+                path:'alarm/takeAdd'
             })
         },
         selectHandle() {
@@ -232,14 +251,25 @@ export default {
         checkHandle() {
             //查看
             this.$router.push({
-                path:'/alarmManage/alarm/takeCheck'
+                path:'alarm/takeCheck'
             })
         },
         editHandle() {
             //编辑
             this.$router.push({
-                path:'/alarmManage/alarm/takeEdit'
+                path:'alarm/takeEdit'
             })
+        },
+        search(){
+           this.getSubList()
+        },
+        reset(){
+            this.area = []
+            this.keyword = ""
+            this.acceptWay = []
+            this.pushFre = []
+            this.pushTime = []
+            this.page = 1
         }
     }
 }
@@ -253,8 +283,8 @@ export default {
             padding: 5px;
             height: 43px;
             .search-main {
-                height: 33px;
-                overflow: hidden;
+                // height: 33px;
+                // overflow: hidden;
                 .form-item {
                     min-height: 33px;
                     display: inline-block;

@@ -28,3 +28,13 @@ export function uploadFun(data) {
         data
     })
 }
+
+// 模板列表 
+export function mubanList(queryName,page) {
+    return request({
+        // url: loong/api/mpoint-data-imports?beginDT=2020-10-08T16:00:00.000Z&endDT=2020-10-16T15:59:59.000Z&pageSize=10&currentPage=1
+        url: 'loong/api/mpoints/dialog?queryName='+queryName+'&currentPage='+page+'&pageSize=10',
+        method: 'get'
+    })
+    
+}

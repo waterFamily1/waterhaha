@@ -30,7 +30,8 @@
                     文件上传
                 </Upload>
             </Button>
-            <button type="button" style="margin-left:10px" @click="templateDownload()">模版下载</button>
+            <Button type="text" style="margin-left:10px" @click="templateDownload()">模版下载</Button>
+            <!--  -->
          </div>
          <div class="table-wrapper" :style="{height: (height-45)+'px'}">
             <Table stripe size="small" :columns="siteTableList" :data="siteTableData">
@@ -38,16 +39,50 @@
                     <strong>{{ row.name }}</strong>
                 </template>
                 <template slot-scope="{ row, index }" slot="action">
-                    <a :href="row.templeDownload"  :download="row.templeDownload">下载文件</a>
+                    
+                    <Button type="text" style="color:rgb(75, 126, 254);font-size:13px" :to="ip+'/base/api/files/download?fileUrl='+row.templeDownload">下载文件</Button>
+                    <Button type="text" style="color:rgb(75, 126, 254);font-size:13px" >删除</Button>
                 </template>
             </Table>
                 <Page :total="total" show-elevator show-total class="page" @on-change="changeSize" />
         </div>
        </div>
+        <Modal v-model="modal" width="600" class="model-box"> 
+            <p slot="header" style="color:#1c2438;font-size:14px;border-left:7px solid #4b7efe;background:#f8f9fb;height:39px;line-height:39px">
+                <!-- <Icon type="ios-information-circle"></Icon> -->
+                <span class="rectangle"></span>
+                <span style="margin-left:8px">选择需要导入的测点</span>
+            </p>
+            <div>
+                <div>
+                    <input type="text" name="" id="" v-model="modelKey" placeholder="输入测点名称以检索" style="margin-right:8px;border:1px solid #eaeaea;outline:0;padding-left:10px">
+                     <Button type="primary" size="small" @click="search()">搜索</Button>
+                </div>
+                <div class="mg-select-table-tip">
+                        已选择<strong>{{selectedData.length}}</strong>个
+                        <a href="javascript:;" @click="handleClearSelect(false)">[清空]</a>
+                    </div>
+                     <div class="model-table">
+                    <Table size="small" ref="selection" :columns="modelColumns" :data="modelData"
+                        @on-select="handleSelect"
+                        @on-select-cancel="handleSelectCancel"
+                        @on-select-all="handleSelectAll"
+                        @on-select-all-cancel="handleSelectAllCancel">
+                    </Table>
+                    <Page :total="modelTotal" show-elevator size="small" class="page" style="text-align:right;margin-top:20px" @on-change="changeModalSize"  />
+                     <div class="btn-group">
+                        <span @click="abolish()">取消</span>
+                        <Button style="background: #4b7efe;min-width:130px;color:#fff;line-height:26px" @click="sure()" :to="ip+'/loong/api/mpoint-data-imports/templeDownload?mpointIds='+mIds">确定</Button>
+                     </div>
+                </div>
+            </div>
+            <div slot="footer" >
+            </div>
+        </Modal>
     </div>
 </template>
 <script>
-import { getTable,searchTable,uploadFun } from '@/api/dataManage/import'
+import { getTable,searchTable,uploadFun,mubanList } from '@/api/dataManage/import'
 import {formatTime} from '@/libs/public'
 export default {  
     name:'siteDataImport',  
@@ -120,18 +155,76 @@ export default {
                 return date && date.valueOf() < Date.now() - 8*86400000;
             }
         },
+        ip:'',
+        modelData:[],
+        modelColumns:[
+            {
+             type: 'selection',
+                        width: 70,
+                        align: 'center'
+            },
+                {
+                    title: '区域位置',
+                    key: 'siteName'
+                },
+                {
+                    title: '测点名称',
+                    key: 'mpointName'
+                },
+        ],
+        modal :false,
+        modelKey:'',
+        page:1,
+        selectedData:[],
+        modelTotal:0,
+        mIds:''
       }
     },
     mounted() {
+        
         this.height = document.body.clientHeight-80
         this.startTime=this.getBeforeDate(7)
         this.endTime = this.getBeforeDate(0)
         this.start = this.getBeforeDate(8)
         this.end = this.getBeforeDate(0)
         this.getData(1)
+        let cur = this.$route.path
+        let com = window.location.href
+        this.ip =  com.slice(0,com.indexOf(cur))
+        console.log(this.ip)
+        this.getList()
     },
    
     methods:{
+        abolish(){
+            this.modal = false
+        },
+        changeModalSize(size){
+            this.page = size
+            this.getList()
+        },
+        sure(){
+            this.modal = false
+            let arr = []
+            this.selectedData.map(ele=>{
+                arr.push(ele.id)
+            })
+            this.mIds = arr.join(",")
+          console.log(this.selectedData)
+        },
+        getList(){
+          mubanList(this.modelKey,this.page).then(res=>{
+              console.log(res)
+              this.modelData = res.data.items
+              this.modelTotal = res.data.total
+          })
+        },
+        downloadFile(row){
+           console.log()
+           downFile(row.templeDownload).then(res=>{
+               console.log(res)
+           })
+        },
         fileUpload(file){
             let formData = new FormData()
             formData.append('file', file)
@@ -146,7 +239,7 @@ export default {
             })       
         },
         templateDownload(){
-
+           this.modal = true
         },
         getBeforeDate(days){
             var now=new Date().getTime();
@@ -159,6 +252,38 @@ export default {
                 day=day<10? '0'+day:day;
                 var date=year+'-'+mon+'-'+day;
             return date;
+        },
+             // 清空所有已选项
+        handleClearSelect (status) {
+            this.selectedData = [];
+            this.$refs.selection.selectAll(status);
+        },
+        // 选中一项，将数据添加至已选项中
+        handleSelect (selection, row) {
+            this.selectedData.push(row);
+        },
+        // 取消选中一项，将取消的数据从已选项中删除
+        handleSelectCancel (selection, row) {
+            const index = this.selectedData.findIndex(item => item.name === row.name);
+            this.selectedData.splice(index, 1);
+        },
+        // 当前页全选时，判断已选数据是否存在，不存在则添加
+        handleSelectAll (selection) {
+            selection.forEach(item => {
+                if (this.selectedData.findIndex(i => i.name === item.name) < 0) {
+                    this.selectedData.push(item);
+                }
+            });
+        },
+        // 取消当前页全选时，将当前页的数据（即 modelData）从已选项中删除
+        handleSelectAllCancel () {
+            const selection = this.modelData;
+            selection.forEach(item => {
+                const index = this.selectedData.findIndex(i => i.name === item.name);
+                if (index >= 0) {
+                    this.selectedData.splice(index, 1);
+                }
+            });
         },
         getData(page){
             getTable(this.start,this.end,page).then(res=>{
@@ -317,4 +442,30 @@ export default {
 /deep/.ivu-btn > span{
     height: 13px;
 }
+.model-table{
+    margin-top: 20px;
+    .btn-group{
+        margin-top: 20px;
+        text-align:center;
+        Button,span{
+            display: inline-block;
+            min-width: 130px;
+            margin: 0 15px;
+            padding: 4px 12px;
+            font-size: 12px;
+            background: #c8c8c8;
+            color: #fff;
+            border-radius: 3px;
+        }
+    }
+}
+  .mg-select-table-tip {
+        text-align: right;
+        margin: 5px;
+        font-size: 13px;
+        a {
+            display: inline-block;
+            margin-left: 10px;
+        }
+    }
 </style>
