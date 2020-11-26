@@ -86,11 +86,13 @@ new Vue({
         '$route' (to, from) {
             let path = to.matched[to.matched.length - 1].path
             if (!Setting.dynamicSiderMenu) {
+                //获取本地menu
                 let headerName = getHeaderName(path, menuSider)
                 if (headerName === null) {
                     path = to.path;
                     headerName = getHeaderName(path, menuSider)
                 }
+
                 // 在 404 时，是没有 headerName 的
                 if (headerName !== null) {
                     this.$store.commit('admin/menu/setHeaderName', headerName)
@@ -103,6 +105,20 @@ new Vue({
                     const openNames = getSiderSubmenu(path, menuSider)
                     this.$store.commit('admin/menu/setOpenNames', openNames)
                 }
+            } else {
+                //从接口获取menu
+                let headerName = JSON.parse(localStorage.getItem('headerName'))
+                let menuSider = JSON.parse(localStorage.getItem('menuSider'))
+
+                this.$store.commit('admin/menu/setHeaderName', headerName)
+                this.$store.commit('admin/menu/setMenuSider', menuSider)
+
+                const filterMenuSider = getMenuSider(menuSider, headerName)
+                this.$store.commit('admin/menu/setSider', filterMenuSider)
+                this.$store.commit('admin/menu/setActivePath', to.path)
+
+                const openNames = getSiderSubmenu(path, menuSider)
+                this.$store.commit('admin/menu/setOpenNames', openNames)
             }
             this.appRouteChange(to, from)
         }

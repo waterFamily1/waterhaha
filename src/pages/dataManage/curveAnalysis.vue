@@ -99,6 +99,7 @@
                                 <a href="javascript:;">
                                     <Icon type="ios-more" style="font-size:25px;color:rgb(75, 126, 254)" />
                                 </a>
+<<<<<<< HEAD
                             
                             </div>
                             <a href="javascript:;" class="c-icon-export"></a>
@@ -106,8 +107,32 @@
                                 <Icon type="ios-sync" />
                             </a>
                             <a href="javascript:;" class="c-icon-table"></a>
+=======
+                               <DropdownMenu slot="list">
+                                    <DropdownItem>
+                                        <Checkbox >环比</Checkbox>
+                                    </DropdownItem>
+                                    <DropdownItem>
+                                        <Checkbox >年同比</Checkbox>
+                                    </DropdownItem>
+                                    <DropdownItem>
+                                        <Checkbox >单图显示</Checkbox>
+                                    </DropdownItem>
+                                    <DropdownItem>
+                                        <Checkbox >多Y轴</Checkbox>
+                                    </DropdownItem>
+                                </DropdownMenu>
+                            </Dropdown>
+                            <a href="javascript:;" @click="exportChart" class="c-icon-export" title="导出"></a>
+                            <a href="javascript:;" @click="refreshChart" title="刷新">
+                                <Icon type="ios-sync" />
+                            </a>
+                            <a href="javascript:;" class="c-icon-table" @click="openDrawer" title="表格数据"></a>
+>>>>>>> 2ab44650353153d4b1d15b7dc0d91054e7102449
                             <Dropdown>
-                               <a href="javascript:;" class="c-icon-dline"> </a>
+                                <a href="javascript:;">
+                                    <Icon type="md-trending-up" />   
+                                </a>
                                <DropdownMenu slot="list">
                                     <DropdownItem>
                                         <Checkbox @on-change="addLineAverage" v-model="lineRef.avg">显示平均线</Checkbox>
@@ -133,6 +158,7 @@
                     <Spin fix v-if="chartLoading"></Spin>
                     <div id="J_CHART" class="curves-chart-left"></div>
                     <div id="J_TABLE" class="curves-table ivu-table ivu-table-stripe"  style="margin-top:50px">
+<<<<<<< HEAD
                         <highcharts :options="chartOptions" ref="lineChart" v-if="show" style="height:294px"></highcharts>
                         <highcharts :options="chartOptionsSec" ref="lineChart" v-if="show" style="height:294px"></highcharts>
                     <div id="J_TABLE" class="curves-table">
@@ -163,6 +189,46 @@
                         <highcharts :options="chartOptions" ref="lineChart" v-if="show" style="height:294px"></highcharts>
                         <highcharts :options="chartOptionsSec" ref="lineChartSec" v-if="show" style="height:294px"></highcharts>
                     </div>    
+=======
+                        <highcharts 
+                            :options="chartOptions" 
+                            ref="lineChart" 
+                            v-if="show" 
+                            style="height:294px"
+                        ></highcharts>
+                        <highcharts 
+                            :options="chartOptionsSec" 
+                            ref="lineChartSec" 
+                            v-if="show" 
+                            style="height:294px"
+                        ></highcharts>
+                        <div id="J_TABLE" class="curves-table">
+                            <Drawer 
+                                :mask="false"
+                                :closable="false" 
+                                :width="370"
+                                v-model="drawerTable"
+                            >
+                                <table border="0" align="left" style="background: #fff;">
+                                    <thead style="position:fixed;z-index: 100;background: #fff;">
+                                        <tr>
+                                            <th width="160" align="left">时间</th>
+                                            <th width="94" align="left">{{ drawerColumns1 }}</th>
+                                            <th width="94" align="left">{{ drawerColumns2 }}</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="(item, index) in drawerData" :key="index">
+                                            <td width="170" align="left">{{ item.dataDate | formatDate }}</td>
+                                            <td width="94" align="left">{{ item.dataValue }}</td>
+                                            <td width="94" align="left">{{ drawerData2[index].dataValue }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </Drawer>
+                        </div>
+                    </div>
+>>>>>>> 2ab44650353153d4b1d15b7dc0d91054e7102449
                 </div>
             </div>
         </div>
@@ -248,6 +314,7 @@ import{ dataGroupMethod, singleDataMethod, searchMethod, changeCurverMethod, sur
 import createNameTree from '@/libs/log-util'
 import group from './curve/datagroup'
 import singledata from './curve/singleData'
+import util from '@/libs/public_js'
 
 var chartCache = [] , chartDataCache = [], 
     RTH_1 = 70, RTH_2 = 50, RTH = RTH_1+RTH_2, //lay层顶部二行的高度
@@ -472,7 +539,9 @@ export default {
                 max: false,
             },
             mpointIds:'',
-            allData:[]
+            allData:[],
+            chain: false,
+            YOY: false,
         }
     },
     filters: {
@@ -872,10 +941,14 @@ export default {
         dayBefore() {
             let time = this.getNextDate(this.beginDate,-1)+' '+'00:00:00'
             this.beginDate = time
+            let id = this.mpointIds
+            this.getcharts(id)
         },
         dayAfter() {
             let time = this.getNextDate(this.beginDate,1)+' '+'00:00:00'
             this.beginDate = time
+            let id = this.mpointIds
+            this.getcharts(id)
         },
         dayReset() {
             const myDate = new Date();
@@ -883,14 +956,14 @@ export default {
             const month = myDate.getMonth() + 1; // 获取当前月份(0-11,0代表1月所以要加1);
             const day = myDate.getDate(); // 获取当前日（1-31）
             this.beginDate = `${year}-${month}-${day} 00:00:00`;
+            let id = this.mpointIds
+            this.getcharts(id)
         },
         renderChart(data) {
             //渲染charts
 
         },
-        getcharts(id) {
-            console.log(id)
-           
+        getcharts(id) { 
             let ids = id
             let beginDate = this.$moment(this.beginDate).utc().format()
             chartMethod({
@@ -1088,6 +1161,45 @@ export default {
                 _self.$refs.lineChart.chart.yAxis[0].removePlotLine('line_min_1')
                 _self.$refs.lineChartSec.chart.yAxis[0].removePlotLine('line_min_2')
              }
+<<<<<<< HEAD
+=======
+        },
+        openDrawer() {
+            if(this.drawerTable == false) {
+                this.drawerTable = true 
+            } else {
+                this.drawerTable = false
+            }
+        },
+        exportChart() {
+            var params
+            let length = this.siteGroupList.length
+            if(length == 0) {
+                this.$Notice.info({
+                    title: '警告',
+                    desc: '当前没有测点，请先选择测点'
+                });
+            } else {
+                params = {
+                    ids: this.siteGroupList[0].id,
+                    beginDate: this.$moment(this.beginDate).utc().format(),
+                    cycle: this.timeValue,
+                    ring: this.chain ? 1 : 0,
+                    year: this.YOY ? 1 : 0
+                };
+                let exportChart = '/loong/api/curves/export'
+                util.download(exportChart, params);
+            }
+        },
+        refreshChart() {
+            let id = this.mpointIds
+            const myDate = new Date();
+            const year = myDate.getFullYear(); // 获取当前年份
+            const month = myDate.getMonth() + 1; // 获取当前月份(0-11,0代表1月所以要加1);
+            const day = myDate.getDate(); // 获取当前日（1-31）
+            this.beginDate = `${year}-${month}-${day} 00:00:00`;
+            this.getcharts(id)
+>>>>>>> 2ab44650353153d4b1d15b7dc0d91054e7102449
         }
     }
 }

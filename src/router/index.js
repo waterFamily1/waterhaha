@@ -43,9 +43,10 @@ router.beforeEach(async (to, from, next) => {
         if (token && token !== 'undefined') {
             // next();
             if(hasMenus) {
+                console.log('有menu')
                 next();
             } else {
-                // console.log('无menu')
+                console.log('无menu')
                 let routeList = []
                 const data = await getRouter()
                 var menu = data.data;
@@ -58,101 +59,116 @@ router.beforeEach(async (to, from, next) => {
                         menu[i].custom = menu[i].icon
                         menu[i].title = menu[i].name
                         menu[i].name = menu[i].key
+                        menu[i].header = menu[i].title
                     } else if (menu[i].name == '数据管理') {
                         menu[i].path = '/data'
                         menu[i].icon = 'icon iconfont i-icon-demo icon-wulumuqishigongandashujuguanlipingtai-ico-'
                         menu[i].custom = menu[i].icon
                         menu[i].title = menu[i].name
                         menu[i].name = menu[i].key
+                        menu[i].header = menu[i].title
                     } else if (menu[i].name == '数据质量') {
                         menu[i].path = '/data-quality'
                         menu[i].icon = 'icon iconfont i-icon-demo icon-zhiliang'
                         menu[i].custom = menu[i].icon
                         menu[i].title = menu[i].name
                         menu[i].name = menu[i].key
+                        menu[i].header = menu[i].title
                     } else if (menu[i].name == '生产报表') {
                         menu[i].path = '/reportR'
                         menu[i].icon = 'icon iconfont i-icon-demo icon-icon'
                         menu[i].custom = menu[i].icon
                         menu[i].title = menu[i].name
                         menu[i].name = menu[i].key
+                        menu[i].header = menu[i].title
                     } else if (menu[i].name == '视频管理') {
                         menu[i].path = '/monitor'
                         menu[i].icon = 'icon iconfont i-icon-demo icon-shipinzixun'
                         menu[i].custom = menu[i].icon
                         menu[i].title = menu[i].name
                         menu[i].name = menu[i].key
+                        menu[i].header = menu[i].title
                     } else if (menu[i].name == '报警管理') {
                         menu[i].path = '/alarm'
                         menu[i].icon = 'icon iconfont i-icon-demo icon-zuoyebaojing'
                         menu[i].custom = menu[i].icon
                         menu[i].title = menu[i].name
                         menu[i].name = menu[i].key
+                        menu[i].header = menu[i].title
                     } else if (menu[i].name == '设备管理') {
                         menu[i].path = '/equU'
                         menu[i].icon = 'icon iconfont i-icon-demo icon-shebeiguanli'
                         menu[i].custom = menu[i].icon
                         menu[i].title = menu[i].name
                         menu[i].name = menu[i].key
+                        menu[i].header = menu[i].title
                     } else if (menu[i].name == '巡检管理') {
                         menu[i].path = '/patrol'
                         menu[i].icon = 'icon iconfont i-icon-demo icon-ditu'
                         menu[i].custom = menu[i].icon
                         menu[i].title = menu[i].name
                         menu[i].name = menu[i].key
+                        menu[i].header = menu[i].title
                     } else if (menu[i].name == '缺陷管理') {
                         menu[i].path = '/faultD'
                         menu[i].icon = 'icon iconfont i-icon-demo icon-zhuyi'
                         menu[i].custom = menu[i].icon
                         menu[i].title = menu[i].name
                         menu[i].name = menu[i].key
+                        menu[i].header = menu[i].title
                     } else if (menu[i].name == '维修管理') {
                         menu[i].path = '/repaiR'
                         menu[i].icon = 'icon iconfont i-icon-demo icon-weixiu'
                         menu[i].custom = menu[i].icon
                         menu[i].title = menu[i].name
                         menu[i].name = menu[i].key
+                        menu[i].header = menu[i].title
                     } else if (menu[i].name == '保养管理') {
                         menu[i].path = '/maintain'
                         menu[i].icon = 'icon iconfont i-icon-demo icon-gongren'
                         menu[i].custom = menu[i].icon
                         menu[i].title = menu[i].name
                         menu[i].name = menu[i].key
+                        menu[i].header = menu[i].title
                     } else if (menu[i].name == '库存管理'){
                         menu[i].path = '/storage'
                         menu[i].icon = 'icon iconfont i-icon-demo icon-fangzi01-copy'
                         menu[i].custom = menu[i].icon
                         menu[i].title = menu[i].name
                         menu[i].name = menu[i].key
+                        menu[i].header = menu[i].title
                     } else if (menu[i].name == '知识管理') {
                         menu[i].path = '/knowledge'
                         menu[i].icon = 'icon iconfont i-icon-demo icon-zhishi'
                         menu[i].custom = menu[i].icon
                         menu[i].title = menu[i].name
                         menu[i].name = menu[i].key
+                        menu[i].header = menu[i].title
                     } else if (menu[i].name == '基础管理') {
                         menu[i].path = '/basic'
                         menu[i].icon = 'icon iconfont i-icon-demo icon-jichuxinxi'
                         menu[i].custom = menu[i].icon
                         menu[i].title = menu[i].name
                         menu[i].name = menu[i].key
+                        menu[i].header = menu[i].title
                     } else if (menu[i].name == '系统管理') {
                         menu[i].path = '/system'
                         menu[i].icon = 'icon iconfont i-icon-demo icon-xitong'
                         menu[i].custom = menu[i].icon
                         menu[i].title = menu[i].name
                         menu[i].name = menu[i].key
+                        menu[i].header = menu[i].title
                     } else {
                         menu[i].path = menu[i].url
                         menu[i].title = menu[i].name
                         menu[i].name = menu[i].key
+                        menu[i].header = menu[i].title
                     }
                     routeList.push(menu[i])
                 }
                 let routePush = createRoutes(routeList)
                 for(i = 0; i < routePush.length; i ++) {
                     menuSider.push(routePush[i])
-                    // console.log(JSON.stringify(routePush[i]))
                 }
 
                 let path = to.matched[to.matched.length - 1].path
@@ -162,15 +178,9 @@ router.beforeEach(async (to, from, next) => {
                     headerName = await getHeaderName(path, menuSider)
                 }
 
-                store.commit('admin/menu/setHeaderName', headerName)
-                store.commit('admin/menu/setMenuSider', menuSider)
+                localStorage.setItem('headerName', JSON.stringify(headerName))
+                localStorage.setItem('menuSider', JSON.stringify(menuSider))
 
-                const filterMenuSider = await getMenuSider(menuSider, headerName)
-                store.commit('admin/menu/setSider', filterMenuSider)
-                store.commit('admin/menu/setActivePath', to.path)
-
-                const openNames = await getSiderSubmenu(path, menuSider)
-                store.commit('admin/menu/setOpenNames', openNames)
                 next();
             }
         } else {

@@ -30,7 +30,7 @@
                 } else {
                     this.setDevice('Desktop');
                 }
-            }
+            },
         },
         mounted () {
             on(window, 'resize', this.handleWindowResize);
