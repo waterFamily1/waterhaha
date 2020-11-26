@@ -114,13 +114,15 @@
                                     </DropdownItem>
                                 </DropdownMenu>
                             </Dropdown>
-                            <a href="javascript:;" class="c-icon-export"></a>
-                            <a href="javascript:;">
+                            <a href="javascript:;" @click="exportChart" class="c-icon-export" title="导出"></a>
+                            <a href="javascript:;" @click="refreshChart" title="刷新">
                                 <Icon type="ios-sync" />
                             </a>
-                            <a href="javascript:;" class="c-icon-table" @click="openDrawer"></a>
+                            <a href="javascript:;" class="c-icon-table" @click="openDrawer" title="表格数据"></a>
                             <Dropdown>
-                               <a href="javascript:;" class="c-icon-dline"> </a>
+                                <a href="javascript:;">
+                                    <Icon type="md-trending-up" />   
+                                </a>
                                <DropdownMenu slot="list">
                                     <DropdownItem>
                                         <Checkbox @on-change="addLineAverage" v-model="lineRef.avg">显示平均线</Checkbox>
@@ -153,7 +155,7 @@
                         ></highcharts>
                         <highcharts 
                             :options="chartOptionsSec" 
-                            ref="lineChart" 
+                            ref="lineChartSec" 
                             v-if="show" 
                             style="height:294px"
                         ></highcharts>
@@ -266,6 +268,7 @@ import{ dataGroupMethod, singleDataMethod, searchMethod, changeCurverMethod, sur
 import createNameTree from '@/libs/log-util'
 import group from './curve/datagroup'
 import singledata from './curve/singleData'
+import util from '@/libs/public_js'
 
 var chartCache = [] , chartDataCache = [], 
     RTH_1 = 70, RTH_2 = 50, RTH = RTH_1+RTH_2, //lay层顶部二行的高度
@@ -490,7 +493,9 @@ export default {
                 max: false,
             },
             mpointIds:'',
-            allData:[]
+            allData:[],
+            chain: false,
+            YOY: false,
         }
     },
     filters: {
@@ -889,10 +894,14 @@ export default {
         dayBefore() {
             let time = this.getNextDate(this.beginDate,-1)+' '+'00:00:00'
             this.beginDate = time
+            let id = this.mpointIds
+            this.getcharts(id)
         },
         dayAfter() {
             let time = this.getNextDate(this.beginDate,1)+' '+'00:00:00'
             this.beginDate = time
+            let id = this.mpointIds
+            this.getcharts(id)
         },
         dayReset() {
             const myDate = new Date();
@@ -900,14 +909,14 @@ export default {
             const month = myDate.getMonth() + 1; // 获取当前月份(0-11,0代表1月所以要加1);
             const day = myDate.getDate(); // 获取当前日（1-31）
             this.beginDate = `${year}-${month}-${day} 00:00:00`;
+            let id = this.mpointIds
+            this.getcharts(id)
         },
         renderChart(data) {
             //渲染charts
 
         },
-        getcharts(id) {
-            console.log(id)
-           
+        getcharts(id) { 
             let ids = id
             let beginDate = this.$moment(this.beginDate).utc().format()
             chartMethod({
@@ -1112,6 +1121,35 @@ export default {
             } else {
                 this.drawerTable = false
             }
+        },
+        exportChart() {
+            var params
+            let length = this.siteGroupList.length
+            if(length == 0) {
+                this.$Notice.info({
+                    title: '警告',
+                    desc: '当前没有测点，请先选择测点'
+                });
+            } else {
+                params = {
+                    ids: this.siteGroupList[0].id,
+                    beginDate: this.$moment(this.beginDate).utc().format(),
+                    cycle: this.timeValue,
+                    ring: this.chain ? 1 : 0,
+                    year: this.YOY ? 1 : 0
+                };
+                let exportChart = '/loong/api/curves/export'
+                util.download(exportChart, params);
+            }
+        },
+        refreshChart() {
+            let id = this.mpointIds
+            const myDate = new Date();
+            const year = myDate.getFullYear(); // 获取当前年份
+            const month = myDate.getMonth() + 1; // 获取当前月份(0-11,0代表1月所以要加1);
+            const day = myDate.getDate(); // 获取当前日（1-31）
+            this.beginDate = `${year}-${month}-${day} 00:00:00`;
+            this.getcharts(id)
         }
     }
 }

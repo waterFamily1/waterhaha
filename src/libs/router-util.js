@@ -215,9 +215,7 @@ export default function createRoutes(item) {
                         parent[i].children.push(dataManage[j])
                     }
                 } else if(parent[i].title == '设备管理'){
-                    console.log(parent[i])
-                    for(let j = 0; j < deviceManage.length; j ++) {
-                        console.log(deviceManage[j])
+                    for(let j = 0; j < deviceManage.length; j ++) { 
                         parent[i].children.push(deviceManage[j])
                     }
                 }
