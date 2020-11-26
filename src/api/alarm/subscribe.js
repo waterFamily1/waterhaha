@@ -46,3 +46,25 @@ export function addSub(data) {
         data
     })
 }
+// 删除订阅 
+export function deleteSub(id) {
+    return request({
+        url: 'loong/api/alarm-subscriptions?ids='+id,
+        method: 'DELETE' 
+    })
+}
+// 查看订阅详情  
+export function subDetail(id) {
+    return request({
+        url: 'loong/api/alarm-subscriptions/'+id,
+        method: 'get'
+    })
+}
+// 编辑订阅 loong/api/alarm-subscriptions
+export function editSub(data) {
+    return request({
+        url: 'loong/api/alarm-subscriptions',
+        method: 'PUT',
+        data
+    })
+}
