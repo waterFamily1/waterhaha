@@ -49,7 +49,7 @@
                 <button type="button" @click="addSample()">添加样本</button>
             </div>
             <div class="table-wrapper">
-                <Table stripe size="small" :columns="tableList" :data="tableData">
+                <Table stripe :columns="tableList" :data="tableData">
                     <template slot-scope="{ row }" slot="name">
                         <strong>{{ row.name }}</strong>
                     </template>
