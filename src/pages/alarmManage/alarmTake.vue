@@ -75,13 +75,18 @@
                 <Button @click="addHandle()">新增</Button>
                 <Button @click="selectHandle()">删除</Button>
             </div>
-            <Table ref="selection" :columns="columns" :data="data" size="small"></Table>
+            <Table ref="selection" :columns="columns" :data="data" size="small"
+                        @on-select="handleSelect"
+                        @on-select-cancel="handleSelectCancel"
+                        @on-select-all="handleSelectAll"
+                        @on-select-all-cancel="handleSelectAllCancel"
+            ></Table>
             <Page :total="total" show-total show-elevator class="page" />
         </div>
     </div>
 </template>
 <script>
-import { getTree,getList } from '@/api/alarm/subscribe'
+import { getTree,getList ,deleteSub} from '@/api/alarm/subscribe'
 import createTree from '@/libs/public-util'
 import {formatTime} from '@/libs/public'
 export default {
@@ -116,7 +121,8 @@ export default {
                     title: '接收方式',
                     key: 'subscribeMode',
                      render: (h, params) => {
-                        const text = params.row.subscribeMode=='SysMsg'?'在线消息':'短信'
+                         let a = params.row.subscribeMode
+                        const text = a.indexOf(',')!=-1?'短信,在线消息':(a=='SysMsg'?'在线消息':'短信')
                         return h('span', {
                         }, text);
                     }
@@ -169,7 +175,7 @@ export default {
                                 },
                                 on: {
                                     click: () => { 
-                                        this.checkHandle()
+                                        this.checkHandle(params.row.id)
                                     }
                                 }
                             }, '查看'),
@@ -184,7 +190,7 @@ export default {
                                 },
                                 on: {
                                     click: () => { 
-                                        this.editHandle()
+                                        this.editHandle(params.row.id)
                                     }
                                 }
                             }, '编辑')
@@ -196,7 +202,8 @@ export default {
             page:1,
             total:0,
             freList:['5分钟','10分钟','15分钟','30分钟','1小时','2小时','12小时','24小时','仅推送1次'],
-            timeList :['5分钟','10分钟','15分钟','30分钟','1小时','2小时','12小时','24小时','立即推送','不推送']
+            timeList :['5分钟','10分钟','15分钟','30分钟','1小时','2小时','12小时','24小时','立即推送','不推送'],
+            selectedData:[]
         }
     },
     mounted() {
@@ -246,18 +253,38 @@ export default {
             })
         },
         selectHandle() {
-
+           if(this.selectedData.length==0){
+               this.$Message.warning('请选择');
+               return
+           }
+           let ids = []
+           this.selectedData.map(ele=>{
+               ids.push(ele.id)
+           })
+           deleteSub(ids.join(',')).then(res=>{
+               if(res.data.count){
+                   this.$Message.success('删除成功');
+                    this.getRegional()
+                    this.getSubList()
+               }
+           })
         },
-        checkHandle() {
+        checkHandle(id) {
             //查看
             this.$router.push({
-                path:'alarm/takeCheck'
+                path:'alarm/takeCheck',
+                query:{
+                    params : id
+                }
             })
         },
-        editHandle() {
+        editHandle(id) {
             //编辑
             this.$router.push({
-                path:'alarm/takeEdit'
+                path:'alarm/takeEdit',
+                query:{
+                    params : id
+                }
             })
         },
         search(){
@@ -270,7 +297,40 @@ export default {
             this.pushFre = []
             this.pushTime = []
             this.page = 1
-        }
+        },
+        // 清空所有已选项
+        handleClearSelect (status) {
+            this.selectedData = [];
+            this.$refs.selection.selectAll(status);
+        },
+        // 选中一项，将数据添加至已选项中
+        handleSelect (selection, row) {
+            this.selectedData.push(row);
+        },
+        // 取消选中一项，将取消的数据从已选项中删除
+        handleSelectCancel (selection, row) {
+            const index = this.selectedData.findIndex(item => item.userName === row.userName);
+            this.selectedData.splice(index, 1);
+        },
+        // 当前页全选时，判断已选数据是否存在，不存在则添加
+        handleSelectAll (selection) {
+            selection.forEach(item => {
+                if (this.selectedData.findIndex(i => i.userName === item.userName) < 0) {
+                    this.selectedData.push(item);
+                }
+            });
+            console.log(this.selectedData)
+        },
+        // 取消当前页全选时，将当前页的数据（即 modelData）从已选项中删除
+        handleSelectAllCancel () {
+            const selection = this.modelData;
+            selection.forEach(item => {
+                const index = this.selectedData.findIndex(i => i.userName === item.userName);
+                if (index >= 0) {
+                    this.selectedData.splice(index, 1);
+                }
+            });
+        },
     }
 }
 </script>

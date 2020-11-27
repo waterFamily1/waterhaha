@@ -19,7 +19,9 @@
                 </div>
                 <div class="c-form-row-1col">
                     <FormItem label="区域位置：">
-                        {{areaName}}
+                        <span v-if="!areaName">请选择</span>
+                        <span v-else>{{areaName}}</span>
+                        
                         <!-- <Input v-model="formValidate.name" placeholder="Enter your name"></Input> -->
                     </FormItem>
                 </div>
@@ -60,7 +62,7 @@
                     </div>
                     <div class="c-form-item">
                         <FormItem label="用户：">
-                            <Select v-model="formValidate.user" multiple placeholder="请选择用户" @on-select="selectUser" style="width:300px">
+                            <Select v-model="formValidate.user" multiple placeholder="请选择用户" @on-select="selectUser" style="width:300px" size="small">
                                <Option v-for="item in userList" :value="item.id" :key="item.id">{{ item.name }}</Option>
                             </Select>
                         </FormItem>
@@ -68,14 +70,17 @@
                 </div>
                 <div class="c-form-row-1col">
                     <FormItem label="已选接收对象：">
-                        <div v-for="(item,index) in receiveObj" :key="index" v-if="item.user.length!=0"  >
-                            <h3>{{item.org}}</h3>
-                            <div>
-                                <div class="obj-label" v-for="(ele,idx) in item.user">
-                                    <span>{{ele}}</span>
-                                    <Icon type="ios-close" style="font-size:15px " />
+                        <div v-for="(item,index) in receiveObj" :key="index"  >
+                            <div v-if="item.user.length!=0" >
+                                <h3>{{item.org}}</h3>
+                                <div>
+                                    <div class="obj-label" v-for="(ele,idx) in item.user" :key="idx">
+                                        <span>{{ele.label}}</span>
+                                        <Icon type="ios-close" style="font-size:15px " @click="deleteUser(ele.id)" />
+                                    </div>
                                 </div>
                             </div>
+                            
                         </div>
                        
                     </FormItem>
@@ -119,7 +124,7 @@
 </template>
 <script>
 // 
-import { alarmList ,getOrg ,getTree,getUsers} from '@/api/alarm/subscribe'
+import { alarmList ,getOrg ,getTree,getUsers,addSub} from '@/api/alarm/subscribe'
 import createTree from '@/libs/public-util'
 export default {
     name: 'takeAdd',
@@ -268,11 +273,33 @@ export default {
         this.getOrgination()
     },
     methods: {
+        deleteUser(id){
+          console.log(id)
+          this.formValidate.user= this.formValidate.user.filter(ele=>{
+              return id != ele
+          })
+          this.receiveObj.map((ele,idx)=>{
+              console.log(ele)
+              ele.user.map((item,index)=>{
+                  if(id == item.id){
+                    ele.user.splice(index,1)
+                  }
+              })
+              if(ele.user.length==0){
+                  this.receiveObj.splice(idx,1)
+              }
+          })
+          console.log(this.receiveObj)
+        },
         selectUser(user){
+            console.log(user)
             this.receiveObj.map(ele=>{
                 console.log
                 if(ele.org == this.siteName){
-                    ele.user.push(user.label)
+                    ele.user.push({
+                        id:user.value,
+                        label:user.label
+                    })
                 }
             })
         },
@@ -411,6 +438,9 @@ export default {
                 userIds: this.formValidate.user.length!=0?this.formValidate.user.join(','):''
             }
             console.log(data)
+            addSub(data).then(res=>{
+                this.$router.go(-1)
+            })
         }
     }
 }

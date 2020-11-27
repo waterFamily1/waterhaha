@@ -10,9 +10,8 @@
                             </FormItem>
                         </div>
                         <div class="form-item">
-                            <FormItem label="区域位置:">
-                                <TreeSelect v-model="definList.area" multiple show-checkbox :data="treeData" v-width="200" />
-                            </FormItem>
+                             <label style="display:inline-block;width:120px;text-align:right">区域位置：</label> 
+                             <TreeSelect size="small" v-model="definList.area" multiple :data="treeData" v-width="200" />
                         </div>
                         <div class="form-search-btn">
                             <a href="javascript:;" @click="higherSearch()">
@@ -30,9 +29,9 @@
                                 <FormItem label="确认方法:">
                                     <div class="cmp-tab">
                                         <TagSelect v-model="confirmWay">
-                                            <TagSelectOption name="tag1">自动</TagSelectOption>
-                                            <TagSelectOption name="tag2">自动或者人工</TagSelectOption>
-                                            <TagSelectOption name="tag3">人工</TagSelectOption>
+                                            <TagSelectOption name="Auto">自动</TagSelectOption>
+                                            <TagSelectOption name="AutoOrManual">自动或者人工</TagSelectOption>
+                                            <TagSelectOption name="Manual">人工</TagSelectOption>
                                         </TagSelect>
                                     </div>
                                 </FormItem>
@@ -41,9 +40,9 @@
                                 <FormItem label="报警等级:">
                                     <div class="cmp-tab">
                                         <TagSelect v-model="alarmLevel">
-                                            <TagSelectOption name="tag1">1级</TagSelectOption>
-                                            <TagSelectOption name="tag2">2级</TagSelectOption>
-                                            <TagSelectOption name="tag3">3级</TagSelectOption>
+                                            <TagSelectOption name="1">1级</TagSelectOption>
+                                            <TagSelectOption name="2">2级</TagSelectOption>
+                                            <TagSelectOption name="3">3级</TagSelectOption>
                                         </TagSelect>
                                     </div>
                                 </FormItem>
@@ -52,8 +51,8 @@
                                 <FormItem label="使用状态:">
                                     <div class="cmp-tab">
                                         <TagSelect v-model="useState">
-                                            <TagSelectOption name="tag1">启用</TagSelectOption>
-                                            <TagSelectOption name="tag2">停用</TagSelectOption>
+                                            <TagSelectOption name="ON">启用</TagSelectOption>
+                                            <TagSelectOption name="OFF">停用</TagSelectOption>
                                         </TagSelect>
                                     </div>
                                 </FormItem>
@@ -71,13 +70,13 @@
                 <Button @click="disableHandle()">停用</Button>
                 <Button @click="leadHandle()">导入</Button>
             </div>
-            <Table stripe :columns="tableList" :data="tableData">
+            <Table stripe :columns="tableList" :data="tableData" size="small">
                 <template slot-scope="{ row }" slot="name">
                     <strong>{{ row.name }}</strong>
                 </template>
                 <template slot-scope="{ row, index }" slot="action">
-                    <Button class="action" size="small" style="margin-right: 5px;">配置</Button>
-                    <Button class="action" size="small">测试</Button>
+                    <Button type="text" size="small" style="margin-right: 5px;color:rgb(75, 126, 254);font-size:12px" @click="checkHandle()">查看</Button>
+                    <Button type="text" size="small" style="color:rgb(75, 126, 254);font-size:12px" @click="editHandle()">编辑</Button>
                 </template>
             </Table>
             <Page :total="100" show-elevator show-total class="page" />
@@ -85,6 +84,8 @@
     </div>
 </template>
 <script>
+import { getTree,getList} from '@/api/alarm/definition'
+import createTree from '@/libs/public-util'
 export default {
     name: 'alarmDefinition',
     data() {
@@ -95,32 +96,7 @@ export default {
                 name: '',
                 area: []
             },
-            treeData: [
-                {
-                    title: 'parent1',
-                    expand: true,
-                    value: 'parent1',
-                    selected: false,
-                    checked: false,
-                    children: [
-                        {
-                            title: 'parent 1-1',
-                            expand: true,
-                            value: 'parent1-1',
-                            selected: false,
-                            checked: false,
-                            children: [
-                                {
-                                    title: 'leaf 1-1-1',
-                                    value: 'leaf1',
-                                    selected: false,
-                                    checked: false,
-                                }
-                            ]
-                        }
-                    ]
-                }
-            ],
+            treeData: [],
             confirmWay: [],
             alarmLevel: [],
             useState: [],
@@ -132,19 +108,37 @@ export default {
                 },
                 {
                     title: '报警名称',
-                    key: 'name'
+                    key: 'alarmName'
                 },
                 {
                     title: '确认方法',
-                    key: 'confirmWay'
+                    key: 'disarmMethod',
+                    render: (h, params) => {
+                        let a = params.row.disarmMethod
+                        const text = a == 'Auto'?'自动':(a=='AutoOrManual'?'自动或者人工':'人工')
+                        return h('span', {
+                        }, text);
+                    }
                 },
                 {
                     title: '报警等级',
-                    key: 'alarmLevel'
+                    key: 'alarmLevel',
+                     render: (h, params) => {
+                        let a = params.row.alarmLevel
+                       
+                        return h('span', {
+                        }, a+'级');
+                    }
                 },
                 {
                     title: '使用状态',
-                    key: 'useState'
+                    key: 'enabledStatus',
+                    render: (h, params) => {
+                        let a = params.row.enabledStatus
+                        const text = a == 'ON'?'启用':'停用'
+                        return h('span', {
+                        }, text);
+                    }
                 },
                 {
                     title: '最近报警时间',
@@ -152,7 +146,7 @@ export default {
                 },
                 {
                     title: '区域位置',
-                    key: 'area'
+                    key: 'siteName'
                 },
                 {
                     title: '操作',
@@ -161,19 +155,50 @@ export default {
                     align: 'center'
                 }
             ],
-            tableData: []
+            tableData: [],
+            page:1
         }
     },
     mounted() {
         this.height = document.body.clientHeight-80
+        this.getRegional()
+        this.getdefList()
     },
     methods: {
+         getRegional() {
+            getTree().then(res => {
+                console.log(res)
+                let treeItem = []
+                let trees = res.data
+                for(let i = 0; i < trees.length; i ++) {
+                    trees[i].title = trees[i].name
+                    trees[i].value = trees[i].id
+                    trees[i].expand = true
+                    treeItem.push(trees[i])
+                }
+                console.log(treeItem)
+                this.treeData = createTree(treeItem)
+            }).catch(err => {
+                // 异常情况
+            })
+        },
+        getdefList(){
+            console.log('getList')
+            let way = this.confirmWay.length!=0?this.confirmWay.join(','):''
+            let level = this.alarmLevel.length!=0?this.alarmLevel.join(','):''
+            let state = this.useState.length!=0?this.useState.join(','):''
+            let siteId = this.definList.area.length!=0?this.definList.area.join(','):''
+            getList(siteId,this.definList.name,state,way,level,this.page).then(res=>{
+                console.log(res)
+                this.tableData = res.data.items
+            })
+        },
         higherSearch() {
             this.searchShow = !this.searchShow
         },
         addHandle() {
             this.$router.push({
-                path:'/alarmManage/alarm/definAdd'
+                path:'alarm/definAdd'
             })
         },
         deleteHandle() {
@@ -196,13 +221,13 @@ export default {
         editHandle() {
             //编辑
             this.$router.push({
-                path:'/alarmManage/alarm/definEdit'
+                path:'alarm/definEdit'
             })
         },
         checkHandle() {
             //查看
             this.$router.push({
-                path:'/alarmManage/alarm/definCheck'
+                path:'alarm/definCheck'
             })
         }
     }

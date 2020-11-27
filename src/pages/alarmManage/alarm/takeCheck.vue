@@ -10,27 +10,27 @@
             <div class="c-form-row-1col">
                 <div class="c-form-item">
                     <label>报警名称：</label>
-                    <span>{{ name }}</span>
+                    <span>{{ receiveObj.defineName }}</span>
                 </div>
             </div>
             <div class="c-form-row-2col">
                 <div class="c-form-item">
                     <label>区域位置：</label>
-                    <span>{{ area }}</span>
+                    <span>{{ receiveObj.siteName }}</span>
                 </div>
                 <div class="c-form-item">
                     <label>推送方式：</label>
-                    <span>{{ pushWay }}</span>
+                    <span>{{ pushWay}}</span>
                 </div>
             </div>
             <div class="c-form-row-2col">
                 <div class="c-form-item">
                     <label>推送频率：</label>
-                    <span>{{ pushFre }}</span>
+                    <span>{{ pushFre}}</span>
                 </div>
                 <div class="c-form-item">
                     <label>延迟推送时间：</label>
-                    <span>{{ pushTime }}</span>
+                    <span>{{ delayTime }}</span>
                 </div>
             </div>
         </div>
@@ -42,29 +42,43 @@
             <div class="c-form-row-1col">
                 <div class="c-form-item" style="padding: 20px;">
                     <label style="font-weight: 400;">已选接收对象：</label>
-                    <Tag checkable color="primary">{{ acceptObj }}</Tag>
+                    <Tag checkable color="primary">{{ subscribeList.userName }}</Tag>
                 </div>
             </div>
         </div>
     </div>
 </template>
 <script>
+import {subDetail } from '@/api/alarm/subscribe'
 export default {
     name: 'takeCheck',
     data() {
         return {
             height: '',
-            name: '控制柜停机报警',
-            area: '工艺间',
-            pushWay: '在线消息',
-            pushFre: '仅推送1次',
-            pushTime: '立即推送',
-            acceptObj: 'deth',
-            single: true
+            receiveObj:{},
+            freList:['5分钟','10分钟','15分钟','30分钟','1小时','2小时','12小时','24小时','仅推送1次'],
+            timeList :['5分钟','10分钟','15分钟','30分钟','1小时','2小时','12小时','24小时','立即推送','不推送'],
+            subscribeList:{},
+            pushWay:'',
+            pushFre:'',
+            delayTime:'',
+            single:false
         }
     },
     mounted() {
         this.height = document.body.clientHeight-80
+        console.log()
+        subDetail(this.$route.query.params).then(res=>{
+            console.log(res)
+            this.receiveObj = res.data
+            let temp = res.data.subscribeList[0]
+            this.subscribeList = temp
+            this.pushWay = temp.subscribeMode == 'SMS'?'短信':'在线消息'
+            this.pushFre = this.freList[Number(temp.pushFrequency)-1]
+            this.delayTime = this.timeList[Number(temp.delayPushTime)-1]
+            console.log(temp.pushReleaseMessage)
+            this.single = temp.pushReleaseMessage=='Y'?true:false
+        })
     },
     methods: {
         goBack() {

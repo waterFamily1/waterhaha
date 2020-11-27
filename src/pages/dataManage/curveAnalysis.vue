@@ -99,10 +99,19 @@
                             <Option v-for="item in dateList" :value="item.value" :key="item.value">{{ item.name }}</Option>
                         </Select>
                         <div class="action-btn">
-                            <Dropdown>
-                               <a href="javascript:;">
+                            <div class="dropdown">
+                                <a href="javascript:;">
                                     <Icon type="ios-more" style="font-size:25px;color:rgb(75, 126, 254)" />
                                 </a>
+<<<<<<< HEAD
+                            
+                            </div>
+                            <a href="javascript:;" class="c-icon-export"></a>
+                            <a href="javascript:;">
+                                <Icon type="ios-sync" />
+                            </a>
+                            <a href="javascript:;" class="c-icon-table"></a>
+=======
                                <DropdownMenu slot="list">
                                     <DropdownItem>
                                         <Checkbox >环比</Checkbox>
@@ -123,6 +132,7 @@
                                 <Icon type="ios-sync" />
                             </a>
                             <a href="javascript:;" class="c-icon-table" @click="openDrawer" title="表格数据"></a>
+>>>>>>> 2ab44650353153d4b1d15b7dc0d91054e7102449
                             <Dropdown>
                                 <a href="javascript:;">
                                     <Icon type="md-trending-up" />   
@@ -150,7 +160,40 @@
                 </div>
                 <div class="curves-chart-container">
                     <Spin fix v-if="chartLoading"></Spin>
+                    <div id="J_CHART" class="curves-chart-left"></div>
                     <div id="J_TABLE" class="curves-table ivu-table ivu-table-stripe"  style="margin-top:50px">
+<<<<<<< HEAD
+                        <highcharts :options="chartOptions" ref="lineChart" v-if="show" style="height:294px"></highcharts>
+                        <highcharts :options="chartOptionsSec" ref="lineChart" v-if="show" style="height:294px"></highcharts>
+                    <div id="J_TABLE" class="curves-table">
+                        <Drawer 
+                            :mask="false"
+                            :closable="false" 
+                            :width="370"
+                            v-model="drawerTable"
+                        >
+                            <table border="0" align="left" style="background: #fff;">
+                                <thead style="position:fixed;z-index: 100;background: #fff;">
+                                    <tr>
+                                        <th width="160" align="left">时间</th>
+                                        <th width="94" align="left">{{ drawerColumns1 }}</th>
+                                        <th width="94" align="left">{{ drawerColumns2 }}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="(item, index) in drawerData" :key="index">
+                                        <td width="170" align="left">{{ item.dataDate | formatDate }}</td>
+                                        <td width="94" align="left">{{ item.dataValue }}</td>
+                                        <td width="94" align="left">{{ drawerData2[index].dataValue }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </Drawer>
+                    <div id="J_TABLE" class="curves-table ivu-table ivu-table-stripe"  style="margin-top:50px">
+                        <highcharts :options="chartOptions" ref="lineChart" v-if="show" style="height:294px"></highcharts>
+                        <highcharts :options="chartOptionsSec" ref="lineChartSec" v-if="show" style="height:294px"></highcharts>
+                    </div>    
+=======
                         <highcharts 
                             :options="chartOptions" 
                             ref="lineChart" 
@@ -189,6 +232,7 @@
                             </Drawer>
                         </div>
                     </div>
+>>>>>>> 2ab44650353153d4b1d15b7dc0d91054e7102449
                 </div>
             </div>
         </div>
@@ -266,6 +310,8 @@
             </div>
         </Modal>
     </div>
+        </div>
+    </div>
 </template>
 <script>
 import{ dataGroupMethod, singleDataMethod, searchMethod, changeCurverMethod, sureChangeCurveMethod, deleteChangeCurveMethod, saveCurveMethod, saveGroupMethod, chartMethod,getAlarm,addRemark } from '@/api/dataManage/curve'
@@ -338,7 +384,7 @@ export default {
             chartLoading: false,
             chartConHeight: '',
             chartConWidth: '',
-            drawerTable: false,
+            drawerTable: '',
             drawerColumns1: '', //table表头
             drawerColumns2: '', //table表头
             drawerData: [],
@@ -560,6 +606,7 @@ export default {
         });
     },
     methods: {
+        
         renderContent (h, { root, node, data }) {
             return h('span', {
                 style: {
@@ -1139,6 +1186,8 @@ export default {
                 _self.$refs.lineChart.chart.yAxis[0].removePlotLine('line_min_1')
                 _self.$refs.lineChartSec.chart.yAxis[0].removePlotLine('line_min_2')
              }
+<<<<<<< HEAD
+=======
         },
         openDrawer() {
             if(this.drawerTable == false) {
@@ -1175,15 +1224,16 @@ export default {
             const day = myDate.getDate(); // 获取当前日（1-31）
             this.beginDate = `${year}-${month}-${day} 00:00:00`;
             this.getcharts(id)
+>>>>>>> 2ab44650353153d4b1d15b7dc0d91054e7102449
         }
     }
 }
 </script>
 <style lang="less" scoped>
  /deep/.ivu-modal-header{
-    padding: 0;
-    border-bottom: 0;
-}
+        padding: 0;
+        border-bottom: 0;
+    }
     
 .tissue-box {
     margin-top: 5px;

@@ -86,7 +86,7 @@ export default {
                 title: '编辑报警订阅',
                 closable: false
             },
-            component: () => import('@/pages/alarmManage/alarm/takeAdd')
+            component: () => import('@/pages/alarmManage/alarm/takeEdit')
         }, {
             path: 'alarm/takeCheck',
             name: `${pre}alarm-takeCheck`,

@@ -12,7 +12,7 @@
                 <Row>
                     <Col span="12">
                         <FormItem label="区域位置：">
-                            <TreeSelect v-model="formValidate.area" multiple :data="areadData" v-width="250" />
+                            <TreeSelect v-model="formValidate.area" :data="areadData" v-width="250" />
                         </FormItem>
                         <FormItem label="确认方法：">
                             <Select v-model="formValidate.confirmWay" style="width:250px">
@@ -72,13 +72,15 @@
     </div>
 </template>
 <script>
+import {getUsers,getTree} from '@/api/alarm/subscribe'
+import createTree from '@/libs/public-util'
 export default {
     name: 'definAdd',
     data() {
         return {
             height: '',
             formValidate: {
-                area: [],
+                area: '',
                 name: '',
                 confirmWay: '',
                 time: '',
@@ -120,26 +122,26 @@ export default {
             ],
             wayList: [
                 {
-                    value: '0',
+                    value: 'Auto',
                     label: '自动'
                 }, {
-                    value: '1',
+                    value: 'AutoOrManual',
                     label: '自动或者人工'
                 }, {
-                    value: '2',
+                    value: 'Manual',
                     label: '人工'
                 }
             ],
             levelList: [
                 {
                     value: '1',
-                    label: '一级'
+                    label: '1级'
                 }, {
                     value: '2',
-                    label: '二级'
+                    label: '2级'
                 }, {
                     value: '3',
-                    label: '三级'
+                    label: '3级'
                 }
             ],
             timeList: [
@@ -244,8 +246,26 @@ export default {
     },
     mounted() {
         this.height = document.body.clientHeight-80
+        this.getRegional()
     },
     methods: {
+        getRegional() {
+            getTree().then(res => {
+                console.log(res)
+                let treeItem = []
+                let trees = res.data
+                for(let i = 0; i < trees.length; i ++) {
+                    trees[i].title = trees[i].name
+                    trees[i].value = trees[i].id
+                    trees[i].expand = true
+                    treeItem.push(trees[i])
+                }
+                console.log(treeItem)
+                this.areadData = createTree(treeItem)
+            }).catch(err => {
+                // 异常情况
+            })
+        },
         goBack() {
             this.$router.go(-1)
         },
