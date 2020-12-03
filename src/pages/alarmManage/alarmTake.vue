@@ -75,7 +75,7 @@
                 <Button @click="addHandle()">新增</Button>
                 <Button @click="selectHandle()">删除</Button>
             </div>
-            <Table ref="selection" :columns="columns" :data="data" size="small"
+            <Table ref="selection" :columns="columns" :data="data" 
                         @on-select="handleSelect"
                         @on-select-cancel="handleSelectCancel"
                         @on-select-all="handleSelectAll"

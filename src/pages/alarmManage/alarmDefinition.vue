@@ -19,8 +19,8 @@
                                 <Icon type="ios-arrow-up" v-else />
                                 高级搜索
                             </a>
-                            <button type="button">搜索</button>
-                            <button type="button" class="reset">重置</button>
+                            <Button type="primary" @click="search()">搜索</Button>
+                            <Button type="primary" class="reset" @click="reset()">重置</Button>
                         </div>
                     </div>
                     <div class="c-adv-search">
@@ -70,22 +70,27 @@
                 <Button @click="disableHandle()">停用</Button>
                 <Button @click="leadHandle()">导入</Button>
             </div>
-            <Table stripe :columns="tableList" :data="tableData" size="small">
+            <Table stripe :columns="tableList" :data="tableData"
+            @on-select="handleSelect"
+                        @on-select-cancel="handleSelectCancel"
+                        @on-select-all="handleSelectAll"
+                        @on-select-all-cancel="handleSelectAllCancel">
                 <template slot-scope="{ row }" slot="name">
                     <strong>{{ row.name }}</strong>
                 </template>
                 <template slot-scope="{ row, index }" slot="action">
-                    <Button type="text" size="small" style="margin-right: 5px;color:rgb(75, 126, 254);font-size:12px" @click="checkHandle()">查看</Button>
-                    <Button type="text" size="small" style="color:rgb(75, 126, 254);font-size:12px" @click="editHandle()">编辑</Button>
+                    <Button type="text" size="small" style="margin-right: 5px;color:rgb(75, 126, 254);font-size:12px" @click="checkHandle(row)">查看</Button>
+                    <Button type="text" size="small" style="color:rgb(75, 126, 254);font-size:12px" @click="editHandle(row)">编辑</Button>
                 </template>
             </Table>
-            <Page :total="100" show-elevator show-total class="page" />
+            <Page :total="total" show-elevator show-total class="page" />
         </div>
     </div>
 </template>
 <script>
-import { getTree,getList} from '@/api/alarm/definition'
+import { getTree,getList,deletDefine,changeState} from '@/api/alarm/definition'
 import createTree from '@/libs/public-util'
+import {formatTime} from '@/libs/public'
 export default {
     name: 'alarmDefinition',
     data() {
@@ -123,11 +128,16 @@ export default {
                 {
                     title: '报警等级',
                     key: 'alarmLevel',
+                    
                      render: (h, params) => {
                         let a = params.row.alarmLevel
-                       
+                        const color= a==1?'#F5423F':(a==2?'#F9A10F':'#739AFB')
                         return h('span', {
+                            style:{
+                                color:color
+                            }
                         }, a+'级');
+                        
                     }
                 },
                 {
@@ -142,7 +152,12 @@ export default {
                 },
                 {
                     title: '最近报警时间',
-                    key: 'time'
+                    key: 'alarmTriggerTime',
+                     render: (h, params) => {
+                        let that = this
+                        const text = params.row.alarmTriggerTime
+                        return h('span', {}, formatTime(text, 'HH:mm:ss yyyy-MM-dd'));
+                    }
                 },
                 {
                     title: '区域位置',
@@ -156,7 +171,9 @@ export default {
                 }
             ],
             tableData: [],
-            page:1
+            page:1,
+            total:0,
+            selectedData:[]
         }
     },
     mounted() {
@@ -191,6 +208,7 @@ export default {
             getList(siteId,this.definList.name,state,way,level,this.page).then(res=>{
                 console.log(res)
                 this.tableData = res.data.items
+                this.total = res.data.total
             })
         },
         higherSearch() {
@@ -202,13 +220,62 @@ export default {
             })
         },
         deleteHandle() {
-
+           console.log(this.selectedData)
+           if(this.selectedData.length==0){
+               this.$Message.warning('请选中后删除');
+               return
+           }
+           let arr = []
+           this.selectedData.map(ele=>{
+             arr.push(ele.id)
+           })
+           deletDefine(arr.join(',')).then(res=>{
+               console.log(res)
+               if(res.data){
+                   this.$Message.success('数据删除成功');
+                    this.getdefList()
+               }
+           })
         },
         startHandle() {
-
+            if(this.selectedData.length==0){
+               this.$Message.warning('请选中后启用');
+               return
+           }
+           let arr = []
+           this.selectedData.map(ele=>{
+             arr.push(ele.id)
+           })
+           let data = {
+               ids:arr,
+               status: "ON"
+           }
+           changeState(data).then(res=>{
+              if(res.data.count){
+                  this.$Message.success('操作成功');
+                    this.getdefList()
+              }
+           })
         },
         disableHandle() {
-
+              if(this.selectedData.length==0){
+               this.$Message.warning('请选中后停用');
+               return
+           }
+           let arr = []
+           this.selectedData.map(ele=>{
+             arr.push(ele.id)
+           })
+           let data = {
+               ids:arr,
+               status: "OFF"
+           }
+           changeState(data).then(res=>{
+              if(res.data.count){
+                  this.$Message.success('操作成功');
+                    this.getdefList()
+              }
+           })
         },
         leadHandle() {
             this.$router.push({
@@ -218,17 +285,70 @@ export default {
                 }
             })
         },
-        editHandle() {
+        editHandle(row) {
+            console.log("sff")
             //编辑
             this.$router.push({
-                path:'alarm/definEdit'
+                path:'alarm/definEdit',
+                query:{
+                    id : row.id
+                }
             })
         },
-        checkHandle() {
+        checkHandle(row) {
+
             //查看
             this.$router.push({
-                path:'alarm/definCheck'
+                path:'alarm/definCheck',
+                query:{
+                    id : row.id
+                }
             })
+        },
+              // 清空所有已选项
+        handleClearSelect (status) {
+            this.selectedData = [];
+            this.$refs.selection.selectAll(status);
+        },
+        // 选中一项，将数据添加至已选项中
+        handleSelect (selection, row) {
+            this.selectedData.push(row);
+        },
+        // 取消选中一项，将取消的数据从已选项中删除
+        handleSelectCancel (selection, row) {
+            const index = this.selectedData.findIndex(item => item.mpointId === row.mpointId);
+            this.selectedData.splice(index, 1);
+        },
+        // 当前页全选时，判断已选数据是否存在，不存在则添加
+        handleSelectAll (selection) {
+            // selection.forEach(item => {
+            //     if (this.selectedData.findIndex(i => i.mpointId === item.mpointId) < 0) {
+            //         this.selectedData.push(item);
+            //     }
+            // });
+            this.selectedData=selection
+        },
+        // 取消当前页全选时，将当前页的数据（即 modelData）从已选项中删除
+        handleSelectAllCancel () {
+            console.log("取消全选")
+            const selection = this.modelData;
+            selection.forEach(item => {
+                const index = this.selectedData.findIndex(i => i.mpointId === item.mpointId);
+                if (index >= 0) {
+                    this.selectedData.splice(index, 1);
+                }
+            });
+        },
+        search(){
+            this.getdefList()
+        },
+        reset(){
+            this.definList.name = ''
+            this.confirmWay = []
+            this.alarmLevel=[]
+            this.useState =[]
+            this.definList.area = []
+            this.getdefList()
         }
     }
 }

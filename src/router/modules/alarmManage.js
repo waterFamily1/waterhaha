@@ -59,7 +59,7 @@ export default {
                 title: '编辑报警定义',
                 closable: false
             },
-            component: () => import('@/pages/alarmManage/alarm/definAdd')
+            component: () => import('@/pages/alarmManage/alarm/definEdit')
         }, {
             path: 'subscribe',
             name: `${pre}subscribe`,

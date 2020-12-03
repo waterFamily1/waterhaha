@@ -238,7 +238,11 @@ export default {
                     key: 'alarmLevel',
                     render: (h, params) => {
                         const text = params.row.alarmLevel
+                        const color= text==1?'#F5423F':(text==2?'#F9A10F':'#739AFB')
                         return h('span', {
+                            style:{
+                                color:color
+                            }
                         }, text+'级');
                     }
                 }, {
@@ -246,7 +250,7 @@ export default {
                     width: 90,
                     key: 'enabledStatus',
                     render: (h, params) => {
-                        const text = params.row.enabledStatus == 'ON'?'启用':''
+                        const text = params.row.enabledStatus == 'ON'?'启用':'停用'
                         return h('span', {
                         }, text);
                     }
@@ -373,6 +377,7 @@ export default {
                arr2.push(ele.siteName)
             })
             this.alarmName = arr1.join(",")
+            console.log(this.alarmName)
             this.areaName = arr2.join(',')
             this.$Message.info('Clicked ok');
         },
@@ -401,13 +406,13 @@ export default {
         },
         // 取消选中一项，将取消的数据从已选项中删除
         handleSelectCancel (selection, row) {
-            const index = this.selectedData.findIndex(item => item.name === row.name);
+            const index = this.selectedData.findIndex(item => item.alarmName === row.alarmName);
             this.selectedData.splice(index, 1);
         },
         // 当前页全选时，判断已选数据是否存在，不存在则添加
         handleSelectAll (selection) {
             selection.forEach(item => {
-                if (this.selectedData.findIndex(i => i.name === item.name) < 0) {
+                if (this.selectedData.findIndex(i => i.alarmName === item.alarmName) < 0) {
                     this.selectedData.push(item);
                 }
             });
@@ -416,7 +421,7 @@ export default {
         handleSelectAllCancel () {
             const selection = this.modelData;
             selection.forEach(item => {
-                const index = this.selectedData.findIndex(i => i.name === item.name);
+                const index = this.selectedData.findIndex(i => i.alarmName === item.alarmName);
                 if (index >= 0) {
                     this.selectedData.splice(index, 1);
                 }
@@ -439,6 +444,7 @@ export default {
             }
             console.log(data)
             addSub(data).then(res=>{
+                this.$Message.success('数据保存成功');
                 this.$router.go(-1)
             })
         }

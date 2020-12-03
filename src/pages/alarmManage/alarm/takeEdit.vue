@@ -1,7 +1,7 @@
 <template>
     <div class="takeadd-wrap" :style="{height: height+'px'}">
         <div class="c-left-border-blue">
-            <h3>报警订阅dsd</h3> 
+            <h3>报警订阅</h3> 
             <div class="c-btns-right">
                 <Button type="primary" @click="saveHandle()">保存</Button>
                 <Button type="primary" class="c-btn-back" @click="goBack()">取消</Button>
@@ -241,7 +241,11 @@ export default {
                     key: 'alarmLevel',
                     render: (h, params) => {
                         const text = params.row.alarmLevel
+                        const color= text==1?'#F5423F':(text==2?'#F9A10F':'#739AFB')
                         return h('span', {
+                            style:{
+                                color:color
+                            }
                         }, text+'级');
                     }
                 }, {
@@ -249,7 +253,7 @@ export default {
                     width: 90,
                     key: 'enabledStatus',
                     render: (h, params) => {
-                        const text = params.row.enabledStatus == 'ON'?'启用':''
+                        const text = params.row.enabledStatus == 'ON'?'启用':'停用'
                         return h('span', {
                         }, text);
                     }

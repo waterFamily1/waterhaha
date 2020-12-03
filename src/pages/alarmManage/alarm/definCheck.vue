@@ -11,7 +11,7 @@
                 <Col span="12">
                     <div class="item-form">
                         <label>区域位置：</label>
-                        <span>{{ area }}</span>
+                        <span>{{ receiveObj.siteName }}</span>
                     </div>
                     <div class="item-form">
                         <label>触发时间：</label>
@@ -19,11 +19,11 @@
                     </div>
                     <div class="item-form">
                         <label>报警等级：</label>
-                        <span>{{ level }}</span>
+                        <span>{{ receiveObj.alarmLevel }}</span>
                     </div>
                     <div class="item-form">
                         <label>报警条件：</label>
-                        <span>{{ condition }}</span>
+                        <span>{{ conditionList[Number(receiveObj.alarmCondition)-1] }}</span>
                     </div>
                 </Col>
                 <Col span="12">
@@ -33,11 +33,11 @@
                     </div>
                     <div class="item-form">
                         <label>报警名称：</label>
-                        <span>{{ name }}</span>
+                        <span>{{ receiveObj.alarmName }}</span>
                     </div>
                     <div class="item-form">
                         <label>使用状态：</label>
-                        <span>{{ state }}</span>
+                        <span>{{ receiveObj.enabledStatus=='ON'?'启用':'停用' }}</span>
                     </div>
                 </Col>
             </Row>
@@ -61,51 +61,66 @@
     </div>
 </template>
 <script>
+// 
+import { getDetail} from '@/api/alarm/definition'
 export default {
     name: 'definCheck',
     data() {
         return {
             height: '',
-            area: '西湖村站点1-1',
-            touchTime: '立即触发',
-            level: '1级',
-            condition: '满足其中一条规则触发',
-            method: '自动或者人工',
+            touchTime: '',
+            method: '',
             name: '控制柜停机报警',
             state: '启用',
             single: true,
             columns1: [
                 {
                     title: '测点名称',
-                    key: 'name'
+                    key: 'mpointName'
                 }, {
                     title: '条件',
-                    key: 'name'
+                    key: 'symbol'
                 }, {
                     title: '阈值',
-                    key: 'name'
+                    key: 'threshold'
                 }, {
                     title: '单位',
-                    key: 'name'
+                    key: 'unit'
                 }, {
                     title: '所属设备',
-                    key: 'name'
+                    key: 'equipmentName'
                 }
             ],
             data1: [],
             columns2: [
                 {
                     title: '接收对象',
-                    key: 'name'
+                    key: 'userName'
                 }, {
                     title: '接收方式',
-                    key: 'name'
+                    key: 'subscribeMode',
+                    render: (h, params) => {
+                         let a = params.row.subscribeMode
+                        const text = a.indexOf(',')!=-1?'短信,在线消息':(a=='SysMsg'?'在线消息':'短信')
+                        return h('span', {
+                        }, text);
+                    }
                 }, {
                     title: '推送频率',
-                    key: 'name'
+                    key: 'pushFrequency',
+                     render: (h, params) => {
+                        let that = this
+                        const text = Number(params.row.pushFrequency)-1
+                        return h('span', {}, that.freList[text]);
+                    }
                 }, {
                     title: '延迟推送时间',
-                    key: 'name'
+                    key: 'delayPushTime',
+                     render: (h, params) => {
+                        let that = this
+                        const text = Number(params.row.delayPushTime)-1
+                        return h('span', {}, that.delayList[text]);
+                    }
                 }
             ],
             data2: [],
@@ -115,10 +130,13 @@ export default {
                     key: 'name',
                     width: 800,
                     render: (h, params) => {
+                        let that = this
                         return h('div', [
                             h('Input', {
                                 props: {
                                     type: 'textarea',
+                                    readonly:true,
+                                    value: that.data3[0].processingPlan
                                 }
                             })
                         ]);
@@ -127,25 +145,63 @@ export default {
                     title: '联系人',
                     key: 'name',
                     render: (h, params) => {
-                        return h('div', [
-                            h('Select', {
-                                // props: {
-                                //     type: 'textarea',
-                                // }
-                            })
-                        ]);
+                        let that = this
+                        return h('div',{},that.data3[0].contactPersonName);
                     }
                 }
             ],
-            data3: []
+            data3: [],
+            receiveObj:{},
+            conditionList: ['满足其中一条触发规则','满足所有规则后触发'],
+            timeList: [
+                {
+                    value: '0',
+                    label: '立即触发'
+                }, {
+                    value: '1',
+                    label: '延迟1分钟触发'
+                }, {
+                    value: '5',
+                    label: '延迟5分钟触发'
+                }, {
+                    value: '10',
+                    label: '延迟10分钟触发'
+                }
+            ],
+            freList:['5分钟','10分钟','15分钟','30分钟','1小时','2小时','12小时','24小时','仅推送1次'],
+            delayList :['5分钟','10分钟','15分钟','30分钟','1小时','2小时','12小时','24小时','仅推送1次','不推送'],
         }
     },
     mounted() {
         this.height = document.body.clientHeight-80
+        this.geDefDetail()
     },
     methods: {
         goBack() {
             this.$router.go(-1)
+        },
+        geDefDetail(){
+            getDetail(this.$route.query.id).then(res=>{
+                console.log(res)
+                if(res.data){
+                    let temp = res.data
+                    this.receiveObj = res.data
+                    this.method = temp.disarmMethod == 'AutoOrManual'?'自动或者人工':(temp.disarmMethod == 'Manual'?'人工':'自动')
+                    this.data1 = temp.conditions
+                    this.data2 = temp.subscribeList
+                    this.data3 = [{
+                        processingPlan:temp.processingPlan,
+                        contactPersonName:temp.contactPersonName
+                    }]
+                    this.single = temp.subscribeList[0].pushReleaseMessage == 'Y'?true:false
+                    this.timeList.map(item=>{
+                        if(item.value == res.data.alarmWaitTime){
+                            this.touchTime = item.label
+                        }
+                    })
+                }
+
+            })
         }
     }
 }
