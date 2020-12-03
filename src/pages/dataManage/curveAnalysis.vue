@@ -8,8 +8,12 @@
                         filterable
                         placeholder="输入组合/测点名称以检索"
                         :remote-method="remoteMethod"
+                        @on-change="keyNameChange"
+                        :label-in-value="true"
                         :loading="keyLoading">
-                        <Option v-for="(option, index) in options" :value="option.mpointName" :key="index">{{option.mpointName}}</Option>
+                        <Option v-for="(option, index) in options" :value="option.mpointName" :key="index">
+                            {{option.mpointName}}
+                        </Option>
                     </Select>
                     <Dropdown style="margin-left: 10px;display:inline-block" trigger="click"  @on-click="changeItem">
                         <a href="javascript:void(0)">
@@ -782,6 +786,25 @@ export default {
                 this.options = []
             }
         },
+        keyNameChange(val) {
+            console.log(JSON.stringify(val))
+            this.siteGroupList = []
+            this.siteTitle = '您选择的组合测点：'
+            this.siteShow = '2'
+            let name = val.value
+            let data = {
+                name: '',
+                id: ''
+            }
+            this.groupList.map(item=> {
+                if(item.combineName == name) {
+                    data.name = name
+                    data.id = item.mpointIds
+                }
+            })
+            this.siteGroupList.push(data)
+            this.getcharts(data.id)
+        },
         getDatagroup() {
             dataGroupMethod().then(res=> {
                 // console.log(JSON.stringify(res.data.items))
@@ -832,7 +855,7 @@ export default {
             }
         },
         parentGroup(data) {
-            console.log(data)
+            console.log(JSON.stringify(data))
             this.mpointIds = data[0].id
             this.siteGroupList = data
             this.siteShow = '2'
@@ -954,7 +977,9 @@ export default {
 
             })
         },
-        add0(m){return m<10?'0'+m:m },
+        add0(m){
+            return m<10?'0'+m:m 
+        },
         timeFormat(timestamp){
             //timestamp是整数，否则要parseInt转换,不会出现少个0的情况
             var time = new Date(timestamp);
@@ -1239,7 +1264,6 @@ export default {
                     /deep/.ivu-form-item {
                         margin-bottom: 14px;
                     }
-                    
                 }
                 .form-box {
                     .form-title {

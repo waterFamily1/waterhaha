@@ -7,7 +7,7 @@
                 <button type="button" @click="recoverDefault()">默认恢复</button>
             </div>
             <div class="table-wrapper">
-                <Table stripe size="small" :columns="tableList" :data="tableData">
+                <Table stripe :columns="tableList" :data="tableData">
                     <!-- <template slot-scope="{ row, index }" slot="level">
                         <Input type="text" v-model="editName" v-if="editIndex === index" />
                         <InputNumber :max="10" :min="1" v-model="value1"></InputNumber>

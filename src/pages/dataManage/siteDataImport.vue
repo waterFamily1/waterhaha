@@ -34,7 +34,7 @@
             <!--  -->
          </div>
          <div class="table-wrapper" :style="{height: (height-45)+'px'}">
-            <Table stripe size="small" :columns="siteTableList" :data="siteTableData">
+            <Table stripe :columns="siteTableList" :data="siteTableData">
                 <template slot-scope="{ row }" slot="name">
                     <strong>{{ row.name }}</strong>
                 </template>

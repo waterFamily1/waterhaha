@@ -51,7 +51,7 @@
                  <button type="button" @click="deleteNew()" style="margin-left:10px">删除</button>
             </div>
             <div class="table-wrapper" :style="{height: (height-45)+'px'}">
-                <Table stripe :columns="tableList" :data="tableData" size="small" 
+                <Table stripe :columns="tableList" :data="tableData"
                         @on-select="handleSelect"
                         @on-select-cancel="handleSelectCancel"
                         @on-select-all="handleSelectAll"
