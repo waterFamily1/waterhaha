@@ -8,9 +8,7 @@
                 </div>
                 <div class="form-item">
                     <label>所属组织：</label>
-                    <Select v-model="searchList.organize" style="width:200px">
-                        <Option v-for="item in organizeList" :value="item.value" :key="item.value">{{ item.label }}</Option>
-                    </Select>
+                    <TreeSelect v-model="searchList.organize" multiple :data="orgData" v-width="200" />
                 </div>
                 <div class="form-search-btn">
                     <a href="javascript:;" @click="higherSearch()">
@@ -18,27 +16,27 @@
                         <Icon type="ios-arrow-up" v-else />
                         高级搜索
                     </a>
-                    <button type="button">搜索</button>
-                    <button type="button" class="reset">重置</button>
+                    <button type="button" @click="search()">搜索</button>
+                    <button type="button" class="reset" @click="reset()">重置</button>
                 </div>
             </div>
             <div class="c-adv-search">
                 <div class="c-adv-search-row">
                     <div class="form-item">
                         <label>创建时间：</label>
-                        <DatePicker type="daterange" split-panels placeholder="请选择时间范围" style="width: 300px">
-                        </DatePicker>
+                        <DatePicker type="date"  placement="bottom-end"  @on-change="startTimeChange" :options="startDate" format="yyyy-MM-dd"  v-model="startTime" placeholder="开始日期" style="width: 190px"></DatePicker> -
+                        <DatePicker type="date"  placement="bottom-end"  @on-change="endTimeChange" :options="endDate" format="yyyy-MM-dd"  v-model="endTime" placeholder="结束日期" style="width: 190px"></DatePicker>
                     </div>
                     <div class="form-item">
                         <label>状态：</label>
                         <div class="cmp-tab">
                             <TagSelect v-model="state">
-                                <TagSelectOption name="tag1">待处理</TagSelectOption>
-                                <TagSelectOption name="tag2">处理中</TagSelectOption>
-                                <TagSelectOption name="tag3">挂起</TagSelectOption>
-                                <TagSelectOption name="tag4">关闭</TagSelectOption>
-                                <TagSelectOption name="tag5">完成</TagSelectOption>
-                                <TagSelectOption name="tag6">未分配</TagSelectOption>
+                                <TagSelectOption name="0">待处理</TagSelectOption>
+                                <TagSelectOption name="1">处理中</TagSelectOption>
+                                <TagSelectOption name="2">挂起</TagSelectOption>
+                                <TagSelectOption name="3">关闭</TagSelectOption>
+                                <TagSelectOption name="4">完成</TagSelectOption>
+                                <TagSelectOption name="5">未分配</TagSelectOption>
                             </TagSelect>
                         </div>
                     </div>
@@ -46,10 +44,10 @@
                         <label>缺陷类型：</label>
                         <div class="cmp-tab">
                             <TagSelect v-model="defectType">
-                                <TagSelectOption name="tag1">工艺缺陷</TagSelectOption>
-                                <TagSelectOption name="tag2">设备缺陷</TagSelectOption>
-                                <TagSelectOption name="tag3">管理缺陷</TagSelectOption>
-                                <TagSelectOption name="tag4">其他缺陷</TagSelectOption>
+                                <TagSelectOption name="1">工艺缺陷</TagSelectOption>
+                                <TagSelectOption name="2">设备缺陷</TagSelectOption>
+                                <TagSelectOption name="3">管理缺陷</TagSelectOption>
+                                <TagSelectOption name="4">其他缺陷</TagSelectOption>
                             </TagSelect>
                         </div>
                     </div>
@@ -57,9 +55,9 @@
                         <label>级别：</label>
                         <div class="cmp-tab">
                             <TagSelect v-model="level">
-                                <TagSelectOption name="tag1">严重</TagSelectOption>
-                                <TagSelectOption name="tag2">一般</TagSelectOption>
-                                <TagSelectOption name="tag3">轻微</TagSelectOption>
+                                <TagSelectOption name="1">严重</TagSelectOption>
+                                <TagSelectOption name="2">一般</TagSelectOption>
+                                <TagSelectOption name="3">轻微</TagSelectOption>
                             </TagSelect>
                         </div>
                     </div>
@@ -72,14 +70,17 @@
             </div>
             <Table stripe :columns="columns" :data="data">
                 <template slot-scope="{ row, index }" slot="action">
-                    <a class="check-btn" src="javascript:;" @click="checkHandle(index)">查看</a>
+                    <a class="check-btn" src="javascript:;" @click="checkHandle(row)">查看</a>
                 </template>
             </Table>
-            <Page :total="100" show-elevator show-total class="page" />
+            <Page :total="total" show-elevator show-total class="page" @on-change="changeSize" />
         </div>
     </div>
 </template>
 <script>
+import { getOrg,defectList} from '@api/defect/task';
+import createTree from '@/libs/public-util'
+import {formatTime} from '@/libs/public'
 export default {
     name: 'absentTask',
     data() {
@@ -88,7 +89,7 @@ export default {
             searchShow: false,
             searchList: {
                 name: '',
-                organize: ''
+                organize: []
             },
             organizeList: [
                 {
@@ -102,34 +103,39 @@ export default {
             columns: [
                 {
                     title: '缺陷类型',
-                    key: 'name'
+                    key: 'faultTypeName'
                 }, {
                     title: '缺陷编号',
-                    key: 'name'
+                    key: 'faultNumber'
                 }, {
                     title: '相关设备',
-                    key: 'name'
+                    key: 'equName'
                 }, {
                     title: '级别',
-                    key: 'name'
+                    key: 'severityTypeName'
                 }, {
                     title: '创建人',
-                    key: 'name'
+                    key: 'createUser'
                 }, {
                     title: '创建时间',
-                    key: 'name'
+                    key: 'createDate',
+                     render: (h, params) => {
+                        let that = this
+                        const text = params.row.createDate
+                        return h('span', {}, formatTime(text, 'HH:mm:ss yyyy-MM-dd '));
+                    }
                 }, {
                     title: '关闭时间',
                     key: 'name'
                 }, {
                     title: '所属组织',
-                    key: 'name'
+                    key: 'orgName'
                 }, {
                     title: '当前状态',
-                    key: 'name'
+                    key: 'stateName'
                 }, {
                     title: '处理人',
-                    key: 'name'
+                    key: 'processingPersonName'
                 }, {
                     title: '操作',
                     slot: 'action',
@@ -137,17 +143,78 @@ export default {
                     align: 'center'
                 }
             ],
-            data: [
-                {
-                    name: '1'
-                }
-            ]
+            data: [],
+            total:0,
+            orgData:[],
+            startDate: {
+                // disabledDate (date) {
+                //     return date && date.valueOf() >= Date.now();
+                // }
+            },
+            endDate: {
+                // disabledDate (date) {
+                //     return date && date.valueOf() <= Date.now()- 86400000
+                // }
+            },
+            startTime:'',
+            start:'',
+            endTime:'',
+            end:'',
+            page:1
         }
     },
     mounted() {
         this.height = document.body.clientHeight-80
+        this.getOrganizations()
+        this.getList()
     },
     methods: {
+        getOrganizations(){
+            getOrg().then(res=>{
+                console.log(res)
+                let treeItem = []
+                let trees = res.data
+                for(let i = 0; i < trees.length; i ++) {
+                    trees[i].title = trees[i].name
+                    trees[i].value = trees[i].id
+                    treeItem.push(trees[i])
+                }
+                this.orgData = createTree(treeItem)
+             })
+        },
+        getList(){
+            let ids = this.searchList.organize.length!=0?this.searchList.organize.join(','):''
+            let states = this.state.length!=0?this.state.join(','):''
+            let faultTypes = this.defectType.length!=0?this.defectType.join(','):''
+            let types = this.level.length!=0?this.level.join(','):''
+            let begin =this.start?this.$moment(this.start).utc().format():''
+            let end  = this.end?this.$moment(this.end).utc().format():''
+            // queryName,orgIds,faultTypes,states,start,end,severityTypes,page
+           defectList(this.searchList.name,ids,faultTypes,states,begin,end,types,this.page).then(res=>{
+               console.log(res)
+               this.data = res.data.items
+               this.total = res.data.total
+           })
+        },
+        reset(){
+            this.searchList.name = ""
+            this.searchList.organize = []
+            this.state = []
+            this.defectType=[]
+            this.level = []
+            this.start =""
+            this.end = ""
+            this.startTime = ""
+            this.endTime = ""
+            this.page = 1
+        },
+        search(){
+            this.getList()
+        },
+        changeSize(size){
+            this.page = size
+            this.getList()
+        },
         higherSearch() {
             this.searchShow = !this.searchShow
         },
@@ -156,11 +223,25 @@ export default {
                 path:'defect/declare'
             })
         },
-        checkHandle() {
+        checkHandle(row) {
             this.$router.push({
-                path:'defect/detail'
+                path:'defect/detail',
+                query:{
+                    id:row.id
+                }
             })
-        }
+        },
+        endTimeChange(day){
+          this.end = day
+        },
+        startTimeChange(day){
+            this.start = day
+            this.endDate = {
+                disabledDate (date) {
+                    return date && date.valueOf() <=new Date(day).getTime()- 86400000;
+                }
+            }
+        },
     }
 }
 </script>

@@ -45,7 +45,6 @@
 <script>
 import { getUser,deleteUser,searchUser,getOrganizations } from '@api/basic/user';
 import createTree from '@/libs/public-util'
-import selectTree from 'iview-select-tree'
     export default {
         data () {
             return {
@@ -101,9 +100,6 @@ import selectTree from 'iview-select-tree'
                 data4: [],
                 show:false
             }
-        },
-        components: {
-            selectTree
         },
         mounted() {
             this.height = document.body.clientHeight-80
