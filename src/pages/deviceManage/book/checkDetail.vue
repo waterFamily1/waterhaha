@@ -8,8 +8,8 @@
                 <a href="javascript:;" v-if="equipment.concerned"  @click="cancelAttention">取消关注</a>
             </h3>
             <div class="c-btns-right">
-                <Button @click="goToEdit">保存</Button>
-                <Button class="cancel" @click="back">取消</Button>
+                <Button @click="goToEdit">编辑</Button>
+                <Button class="cancel" @click="back">返回</Button>
             </div>
         </div>
         <div class="c-top-border-gray">
@@ -71,7 +71,7 @@
             <div class="equ-tab">
                 <Tabs :animated="false" @on-click="tabClick" :value="activeTab">
                     <TabPane label="附属信息" name="info">
-                        <attach-info v-bind="equipment" :isEdit="isEdit"></attach-info>
+                        <attach-info v-bind="equipment"></attach-info>
                     </TabPane>
                     <TabPane label="原厂附件" name="attach">
                         <equ-attach :attachData="equAttachs" :isView="true"></equ-attach>
@@ -161,11 +161,9 @@ export default {
             this.$router.back();
         },
         goToEdit() {
-            // this.$router.push({
-            //     name: "equ-edit",
-            //     params: { id: this.$route.params.id },
-            //     query: {tab: this.activeTab}
-            // });
+            this.$router.push({
+                path: '/editDetail'
+            });
         },
         getDetail() {
             let id =  this.concernId
@@ -315,7 +313,7 @@ export default {
                 display: block;
                 width: 30px;
                 height: 30px;
-                background: url(http://chaoying.tjdeht.cn:8801/images/4f4536043163820f2e978206a632a176.png) no-repeat 0 0;
+                background: url('../../../assets/images/AR.png') no-repeat 0 0;
                 margin: 30px;
             }
         }

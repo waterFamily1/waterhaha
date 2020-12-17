@@ -8,15 +8,24 @@
                 </div>
                 <div class="form-item">
                     <label>区域位置：</label> 
-                    <Select style="width:200px" v-model="location">
-                        <Option v-for="item in cityList" :value="item.value" :key="item.value">{{ item.label }}</Option>
-                    </Select>
+                    <TreeSelect 
+                        v-model="areaSite" 
+                        :data="processList"
+                        :multiple="true"
+                        :max-tag-count="1"
+                        v-width="240" 
+                    />
                 </div>
                 <div class="form-item">
                     <label>设备类型：</label> 
-                    <Select  style="width:200px">
-                        <Option v-for="item in genreList " :value="item.id" :key="item.id">{{ item.label }}</Option>
-                    </Select>
+                    <TreeSelect 
+                        v-model="genre" 
+                        multiple 
+                        :data="genreList" 
+                        show-checkbox 
+                        :max-tag-count="2" 
+                        v-width="240" 
+                    />
                 </div>
                 <div class="form-search-btn">
                     <a href="javascript:;" @click="higherSearch()">
@@ -24,8 +33,8 @@
                         <Icon type="ios-arrow-up" v-else />
                         高级搜索
                     </a>
-                    <button type="button">搜索</button>
-                    <button type="button" class="reset">重置</button>
+                    <Button @click="getTable()">搜索</Button>
+                    <Button class="reset" @click="resetHandle()">重置</Button>
                 </div>
             </div>
             <div class="c-adv-search">
@@ -33,10 +42,10 @@
                     <div class="form-item">
                         <label>运行状态：</label>
                         <div class="cmp-tab">
-                            <a href="javascript:;" @click="typeCheckAll()" :class="{checked:typeCheckedAll}">全部</a>
-                            <a href="javascript:;" v-for="(item, index) in stateList" 
-                            :key="index" @click="typeCheck(item.id)" 
-                            :class="{checked:typeBox.includes(item.id)}">{{ item.label }}</a>
+                            <TagSelect v-model="runType">
+                                <TagSelectOption name="0">正常</TagSelectOption>
+                                <TagSelectOption name="1">维修中</TagSelectOption>
+                            </TagSelect>
                         </div>
                     </div>
                 </div>
@@ -44,10 +53,11 @@
                     <div class="form-item">
                         <label>ABC类：</label>
                         <div class="cmp-tab">
-                            <a href="javascript:;" @click="typeCheckAll()" :class="{checked:typeCheckedAll}">全部</a>
-                            <a href="javascript:;" v-for="(item, index) in typeList" 
-                            :key="index" @click="typeCheck(item.id)" 
-                            :class="{checked:typeBox.includes(item.id)}">{{ item.label }}</a>
+                            <TagSelect v-model="abc">
+                                <TagSelectOption name="1">A</TagSelectOption>
+                                <TagSelectOption name="2">B</TagSelectOption>
+                                <TagSelectOption name="3">C</TagSelectOption>
+                            </TagSelect>
                         </div>
                     </div>
                 </div>
@@ -56,148 +66,234 @@
         <div class="index-content">
             <div class="c-table-top-btns">
                 <div style="display:inline-block">
-                    <Dropdown>
-                        <button type="button" style="margin-left:10px" @click="batchsetting()">
+                    <Dropdown @on-click="importCode">
+                        <Button style="margin-left:10px">
                             导出二维码<Icon type="md-arrow-dropdown" />
-                        </button>
+                        </Button>
                         <DropdownMenu slot="list">
-                            <DropdownItem>全部设备</DropdownItem>
-                            <DropdownItem>选中设备</DropdownItem>
+                            <DropdownItem name="true">全部设备</DropdownItem>
+                            <DropdownItem name="false">选中设备</DropdownItem>
                         </DropdownMenu>
                     </Dropdown>
                 </div>
             </div>
             <div class="table-wrapper" :style="{height: (height-45)+'px'}">
-                <Table stripe :columns="tableList" >
-                    <template slot-scope="{ row }" slot="name">
-                        <strong>{{ row.name }}</strong>
-                    </template>
+                <Table stripe :columns="tableList" :data="tableDate" @on-selection-change="getSelect">
                     <template slot-scope="{ row, index }" slot="action">
-                        <!-- <Button class="action" size="small" style="margin-right: 5px;">配置</Button> -->
-                        <Button class="action" size="small">查看</Button>
+                        <Button class="action" size="small" @click="detailHandle(row.id)">查看</Button>
                     </template>
                 </Table>
-                 <Page :total="100" show-elevator class="page" />
+                <Page :total="allTotal" @on-change="changePage" show-elevator show-total class="page" />
             </div>
         </div>
     </div>
 </template>
 <script>
+import { tableMethod, regionalCon, typeMethod } from '@/api/deviceManage/device'
+import createTree from '@/libs/public-util'
+import { typeTreeMethod1 } from '@/libs/public'
+
 export default {
     name: 'deviceState',
     data() {
         return {
             height: '',
             keyword: '',
-            cityList: [
-                {
-                    value: 'New York',
-                    label: 'New York'
-                },
-                {
-                    value: 'London',
-                    label: 'London'
-                },
-                {
-                    value: 'Sydney',
-                    label: 'Sydney'
-                },
-            ],
+            processList: [],
+            areaSite: [],
             model1: '',
             searchShow: false,
-            typeCheckedAll: false,
-            typeBox: [],
-            location:'',
-            genreList: [
-                {label: '在线仪表',id: 1},
-                {label: '泵',id: 2},
-                {label: '阀门',id: 3},
-                {label: '控制柜',id: 4},
-                {label: '浮球',id: 5}
-            ],
-            typeList: [
-                {label: 'A',id: 1},
-                {label: 'B',id: 2},
-                {label: 'C',id: 3},
-            ],
-             stateList: [
-                {label: '正常',id: 1},
-                {label: '维修中',id: 2}
-            ],
+            runType: [],
+            abc: [],
+            genreList: [],
+            genre: [],
             tableList: [
                 {
                     type: 'selection',
-                    width: 50,
+                    width: 55,
                     align: 'center'
                 },
                 {
                     title: '设备名称',
-                    key: 'name'
+                    key: 'name',
+                    ellipsis: true
                 },
                 {
                     title: '设备编号',
-                    key: 'number'
+                    key: 'code',
+                    ellipsis: true
                 },
                 {
                     title: '设备类型',
-                    key: 'type'
+                    key: 'typeName',
+                    ellipsis: true
                 },
                 {
                     title: '型号',
-                    key: 'Version'
+                    key: 'model',
+                    ellipsis: true
                 },
                 {
                     title: '所属组织',
-                    key: 'tissue'
+                    key: 'orgName',
+                    ellipsis: true
                 },
                 {
                     title: 'ABC类',
-                    key: 'tissue'
+                    key: 'abc'
                 },
                  {
                     title: '区域位置',
-                    key: 'location'
+                    key: 'processName',
+                    ellipsis: true
                 },
                 {
                     title: '运行状态',
-                    key: 'runningState'
+                    key: 'maintainState',
+                    width: 100
                 },
                 {
                     title: '资产状态',
-                    key: 'assetState'
+                    key: 'state',
+                    width: 100
                 },
                 {
                     title: '操作',
                     slot: 'action',
-                    width: 150,
+                    width: 70,
                     align: 'center'
                 }
-            ]
+            ],
+            tableDate: [],
+            allTotal: 0,
+            pageNum: '1',
+            selectList: [],
+            showCodeProgress: false,//二维码生成进度
+            codeProgressId: 0,//二维码生成进度 id
+            codeProgress: 0,//二维码生成进度 值
+            codeTimer: null,//二维码生成进度 定时器
         }
     },
     mounted() {
-        this.height = document.body.clientHeight-130
+        this.height = document.body.clientHeight-80
+        this.getTable()
+        this.getRegional()
+        this.getType()
     },
     methods: {
+        getTable() {
+            let typeIds = this.genre
+            let queryName = this.keyword
+            let processIds = this.areaSite
+            let maintainState = this.runType
+            let abcs = this.abc
+            let currentPage = this.pageNum
+            tableMethod({
+                typeIds,
+                queryName,
+                processIds,
+                maintainState,
+                abcs,
+                currentPage
+            }).then(res=> {
+                // console.log(res)
+                let arr = res.data.items
+                arr.map(item=> {
+                    if(item.abc == 1) {
+                        item.abc = 'A'
+                    } else if(item.abc == 2) {
+                        item.abc = 'B'
+                    } else if(item.abc == 3) {
+                        item.abc = 'C'
+                    }
+
+                    if(item.state == 1) {
+                        item.state = '启用'
+                    } else if(item.state == 2) {
+                        item.state = '封存'
+                    } else if(item.state == 3) {
+                        item.state = '报废'
+                    }
+                    
+                    if(item.maintainState == 0) {
+                        item.maintainState = '正常'
+                    } else if(item.maintainState == 1) {
+                        item.maintainState = '维修中'
+                    }
+                })
+                this.tableDate = arr
+                this.allTotal = res.data.total
+            }).catch(err=> {
+
+            })
+        },
+        changePage(index) {
+            this.pageNum = index
+            this.getTable()
+        },
+        getRegional() {
+            regionalCon().then(res => {
+                // console.log(res)
+                let treeItem = []
+                let trees = res.data
+                for(let i = 0; i < trees.length; i ++) {
+                    trees[i].title = trees[i].name
+                    trees[i].value = trees[i].id
+                    trees[i].checked = false
+                    treeItem.push(trees[i])
+                }
+                this.processList = createTree(treeItem)
+            }).catch(err => {
+                // 异常情况
+            })
+        },
+        getType() {
+            typeMethod().then(res=> {
+                // console.log(res)
+                let treeItem = []
+                let trees = res.data.items
+                for(let i = 0; i < trees.length; i ++) {
+                    trees[i].title = trees[i].name
+                    trees[i].value = trees[i].id
+                    trees[i].checked = true
+                    treeItem.push(trees[i])
+                }
+                this.genreList = typeTreeMethod1(treeItem, '0')
+            }).catch(err=> {
+
+            })
+        },
+        resetHandle() {
+            this.keyword = ''
+            this.areaSite = []
+            this.genre = []
+            this.runType = []
+            this.abc = []
+        },
         higherSearch() {
             this.searchShow = !this.searchShow
         },
-        typeCheckAll() {
-            this.typeBox = []
-            this.typeCheckedAll = true
+        getSelect(list){
+            this.selectList = list
         },
-        typeCheck(i) {
-            this.typeCheckedAll = false
-            if(this.typeBox.includes(i)) {
-                this.typeBox = this.typeBox.filter((ele) => {
-                    return ele != i
-                });
-            } else {
-                this.typeBox.push(i);
+        importCode(isAll){
+            if( isAll != 'true' && this.selectList.length == 0) {
+                this.$Message.warning('请选择导出设备！')
+                return false
             }
+            //清空
+            this.showCodeProgress = true
+            this.codeProgressId = 0
+            this.codeProgress = 0
+            clearInterval(this.codeTimer)
         },
-        addNew() {
-             this.$router.push({path:'/dataManage/analyze/bulletinAdd'})
+        detailHandle(id) {
+            this.$router.push({
+                path: '/editStateDetail',
+                query: {
+                    id: id
+                }
+            })
         }
     }
 }
@@ -230,7 +326,8 @@ export default {
                     color: #576374;
                     font-size: 12px;
                 }
-                button{
+                .ivu-btn {
+                    height: auto;
                     background: #4b7efe;
                     font-size: 12px;
                     padding: 4px 12px;
@@ -251,10 +348,9 @@ export default {
             .c-adv-search-row {
                 margin: 5px 0;
                 .form-item {
-                    display: inline-block;
+                    display: flex;
                     height: 33px;
                     label {
-                        display: inline-block;
                         width: 100px;
                         line-height: 35px;
                         text-align: right;
@@ -262,13 +358,9 @@ export default {
                     }
                 }
                 .cmp-tab {
-                    display: inline-block;
-                    a {
-                        margin-right: 20px;
-                        color: #576374;
-                    }
-                    .checked {
-                        color: #4B7EFE;
+                    margin-left: 10px;
+                    /deep/.ivu-tag-text {
+                        font-size: 14px;
                     }
                 }
             }
@@ -290,7 +382,8 @@ export default {
         .c-table-top-btns {
             height: 36px;
             border-bottom: 1px solid #EEE;
-            button{
+            .ivu-btn {
+                height: auto;
                 min-width: 50px;
                 background: #576374;
                 font-size: 12px;

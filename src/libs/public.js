@@ -36,3 +36,35 @@ export function isAllEqual(array) {
         return true;
     }
 }
+
+//设备类型tree
+
+export function typeTreeMethod(data, busId) {
+    const tree = []
+    let temp
+    data.forEach((item, i) => {
+        if (item.parentId == busId) {
+            tree.push(item)
+            const copy = data.slice()
+            copy.splice(i, 1)
+            item.children = typeTreeMethod(copy, item.id)
+        }
+    })
+    return tree
+}
+
+//设备状态=>设备类型
+
+export function typeTreeMethod1(data, parentId) {
+    const tree = []
+    let temp
+    data.forEach((item, i) => {
+        if (item.parentId == parentId) {
+            tree.push(item)
+            const copy = data.slice()
+            copy.splice(i, 1)
+            item.children = typeTreeMethod1(copy, item.id)
+        }
+    })
+    return tree
+}

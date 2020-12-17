@@ -13,7 +13,7 @@ const VUEINS = new Vue();
 const service = axios.create({
     // baseURL: Setting.apiBaseURL,
     baseURL: '/api',
-    timeout: 1000,
+    timeout: 5000,
     withCredentials: true
 });
 

@@ -260,6 +260,14 @@ export default [
                 path: `/checkBook`,
                 title: '设备详情',
                 auth: ['hidden']
+            }, {
+                path: `/editDetail`,
+                title: '设备详情',
+                auth: ['hidden']
+            }, {
+                path: `/editStateDetail`,
+                title: '设备状态详情',
+                auth: ['hidden']
             }
         ]
     }, {

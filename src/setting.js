@@ -11,7 +11,7 @@ const Setting = {
     // 网页标题的后缀
     titleSuffix: '潮南智慧水务',
     // 路由模式，可选值为 history 或 hash
-    routerMode: 'history',
+    routerMode: 'hash',
     // 应用的基路径
     routerBase: '/',
     // 页面切换时，是否显示模拟的进度条
