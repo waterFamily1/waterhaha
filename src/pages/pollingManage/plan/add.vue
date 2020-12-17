@@ -4,7 +4,7 @@
             <h3>巡检计划</h3>
             <div class="map-type-icon" v-if="type=='map'"></div>
             <div class="c-btns-right">
-                <button>保存</button>
+                <button @click="save()">保存</button>
                 <button class="cancel">取消</button>
             </div>
         </div>
@@ -346,8 +346,38 @@ export default {
                 const index = this.selectedData.findIndex(i => i.name === item.name);
                 if (index >= 0) {
                     this.selectedData.splice(index, 1);
-                }
+                } 
             });
+        },
+        save(){
+            let data = {
+                executorId: 14,
+                holidayDisabled: 0,
+                id: "",
+                name: "map1",
+                orgId: "10",
+                period: 27,
+                periodMonth: null,
+                periodRank: null,
+                periodRankValue: null,
+                periodType: "Daily",
+                periodUnit: "Hour",
+                periodValue: 1,
+                planEnd: "2020-12-16T21:00:00.000Z",
+                planStart: "2020-12-15T18:00:00.000Z",
+                remindAdvance: 10,
+                status: "New",
+                type: "Outside",
+                pointsList:[{
+                    description: null,
+                    id: 6,
+                    no: "00538",
+                    orgName: null,
+                    patrolPoint: "1",
+                    relatedProcessNames: "龙溪澄清池",
+                    stepCount: 2
+                }]
+            }
         }
     }
 }

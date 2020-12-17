@@ -4,52 +4,61 @@
             <div class="search-main">
                 <div class="form-item">
                     <label>关键词：</label>
-                    <Input v-model="keyword" placeholder="名称" style="width: 200px" size="small" />
+                    <Input v-model="keyword" placeholder="巡检点名称" style="width: 200px" size="small" />
                 </div>
                 <div class="form-item">
                     <label>所属组织：</label> 
-                    <Select v-model="model1" style="width:200px" size="small">
-                        <Option v-for="item in cityList" :value="item.value" :key="item.value">{{ item.label }}</Option>
-                    </Select>
+                     <TreeSelect v-model="areaSite" multiple :data="processList"  v-width="200" size="small"  />
                 </div>
                 
                   <div class="form-search-btn">
-                    <button type="button">搜索</button>
-                    <button type="button" class="reset">重置</button>
+                    <button type="button" @click="search()">搜索</button>
+                    <button type="button" class="reset" @click="reset()"> 重置</button>
                 </div>
             </div>
         </div>
         <div class="map-content" :style="{height: (height-45)+'px'}">
              <div class="c-table-top-btns">
                  <div style="display:inline-block">
-                    <Dropdown>
-                        <button type="button" style="margin-right:10px" @click="qrCOde()">
+                    <Dropdown @on-click="changeItem">
+                        <Button type="primary" style="margin-right:10px" >
                             导出二维码<Icon type="md-arrow-dropdown" />
-                        </button>
+                        </Button>
                         <DropdownMenu slot="list">
-                            <DropdownItem>全部巡检点</DropdownItem>
-                            <DropdownItem>选中巡检点</DropdownItem> 
+                            <DropdownItem name="all">
+                                <Button  :to='url' type="text" style="background:none;color:#495060">全部巡检点</Button>
+                            </DropdownItem>
+                            <DropdownItem name="check">
+                                <Button  :to='path' type="text" style="background:none;color:#495060">选中巡检点</Button>
+                            </DropdownItem> 
                         </DropdownMenu>
                     </Dropdown>
                 </div>
-                <button type="button" @click="add()">新增</button>
-                <button type="button" @click="cancel()" style="margin-left:10px">删除</button>
-                <button type="button" @click="upload()" style="margin-left:10px">导入</button>
+                <Button type="primary" @click="add()">新增</Button>
+                <Button type="primary" @click="cancel()" style="margin-left:10px">删除</Button>
+                <Button type="primary" @click="upload()" style="margin-left:10px">导入</Button>
                 
             </div>
-                <Table stripe :columns="tableList" size="small">
+                <Table stripe :columns="tableList" size="small" :data="data"
+                        @on-select="handleSelect"
+                        @on-select-cancel="handleSelectCancel"
+                        @on-select-all="handleSelectAll"
+                        @on-select-all-cancel="handleSelectAllCancel">
                     <template slot-scope="{ row }" slot="name">
                         <strong>{{ row.name }}</strong>
                     </template>
                     <template slot-scope="{ row, index }" slot="action">
                         <!-- <Button class="action" size="small" style="margin-right: 5px;">配置</Button> -->
-                        <Button class="action" size="small">查看</Button>
+                        <Button class="action" size="small" type="text" style="font-size:13px;color:rgb(75, 126, 254)" @click="checkDetail(row.id)">查看</Button>
                     </template>
                 </Table>
+                 <Page :total="total" show-elevator show-total class="page" @on-change="changeSize" />
         </div>
     </div>
 </template>
 <script>
+import {regionalCon,manageList,deletePoint } from '@/api/pollingManage/manage'
+import createTree from '@/libs/public-util'
 export default {
     name:'pollingManage',
     data () {
@@ -58,29 +67,29 @@ export default {
             tableList: [
                 {
                     type: 'selection',
-                    width: 50,
+                    width: 70,
                     align: 'center'
                 },
                  {
                     title: '巡检点',
-                    key: 'point'
+                    key: 'patrolPoint'
                 },
                 {
                     title: '描述',
-                    key: 'describe'
+                    key: 'description'
                 },
                 {
                     title: '巡检步骤',
-                    key: 'steps'
+                    key: 'stepCount'
                 },
                 {
                     title: '区域位置',
-                    key: 'location'
+                    key: 'relatedProcessNames'
                 },
                
                 {
                     title: '编号',
-                    key: 'number'
+                    key: 'no'
                 },
                 {
                     title: '操作',
@@ -89,25 +98,156 @@ export default {
                     align: 'center'
                 }
             ],
-            model1:'',
+            areaSite:[],
             keyword:'',
-            cityList: [
-                {
-                    value: 'New York',
-                    label: 'New York'
-                }
-            ],
+            processList:[],
+            page:1,
+            baseData:[],
+            data:[],
+            total:0,
+            selectedData:[],
+            ip:'',url:'',
+            path:''
         }
     },
     methods: {
-        qrCOde(){
-            
+        checkDetail(id){
+            this.$router.push({
+                path:'/pointDetail',
+                query: {
+                    id: id
+                }
+            })
+        },
+         // 清空所有已选项
+        handleClearSelect (status) {
+            this.selectedData = [];
+            this.$refs.selection.selectAll(status);
+        },
+        // 选中一项，将数据添加至已选项中
+        handleSelect (selection, row) {
+            this.selectedData.push(row);
+        },
+        // 取消选中一项，将取消的数据从已选项中删除
+        handleSelectCancel (selection, row) {
+            const index = this.selectedData.findIndex(item => item.id === row.id);
+            this.selectedData.splice(index, 1);
+        },
+        // 当前页全选时，判断已选数据是否存在，不存在则添加
+        handleSelectAll (selection) {
+            selection.forEach(item => {
+                if (this.selectedData.findIndex(i => i.id === item.id) < 0) {
+                    this.selectedData.push(item);
+                }
+            });
+        },
+        // 取消当前页全选时，将当前页的数据（即 modelData）从已选项中删除
+        handleSelectAllCancel () {
+            const selection = this.modelData;
+            selection.forEach(item => {
+                const index = this.selectedData.findIndex(i => i.id === item.id);
+                if (index >= 0) {
+                    this.selectedData.splice(index, 1);
+                }
+            });
+        },
+        changeSize(size){
+           this.page = size
+           this.getList()
+        },
+        search(){
+          this.getList()
+        },
+        reset(){
+            this.areaSite=[]
+            this.keyword = ""
+            this.page = 1
+        },
+        getList(){
+            // queryName,ids,page,names
+            let ids = this.areaSite.length!=0?this.areaSite.join(','):''
+            let arr = []
+            this.areaSite.map(item=>{
+                this.baseData.map(ele=>{
+                    if(item == ele.id){
+                       arr.push(ele.name)
+                    }
+                })
+            })
+            let names = this.areaSite.length!=0?arr.join(','):''
+            manageList(this.keyword,ids,this.page,names).then(res=>{
+                console.log(res)
+                if(res.data.items){
+                    this.data = res.data.items
+                    this.total = res.data.total
+                }
+            })
+        },
+        getRegional() {
+            regionalCon().then(res => {
+                let treeItem = []
+                let trees = res.data
+                for(let i = 0; i < trees.length; i ++) {
+                    trees[i].title = trees[i].name
+                    trees[i].value = trees[i].id
+                    trees[i].checked = false
+                    treeItem.push(trees[i])
+                }
+                this.baseData = trees
+                console.log(trees)
+                this.processList = createTree(treeItem)
+            }).catch(err => {
+                // 异常情况
+            })
+        },
+        changeItem(name){
+            this.url =""
+            let ids = []
+            this.selectedData.map(ele=>{
+                ids.push(ele.id)
+            })
+            let id = ids.length!=0?ids.join(','):''
+            let proIds = this.areaSite.length!=0?this.areaSite.join(','):''
+            if(name == 'all'){
+                this.url = this.ip+"/patrol/api/points/qrcode-export?ids="+id+"&getAll=true&queryName="+this.keyword+"&processIds="+proIds
+            }else{
+                console.log(this.selectedData)
+                if(this.selectedData.length==0){
+                    this.$Message.warning('请选择导出巡检点!');
+                    return
+                }else{
+                    this.path = this.ip+"/patrol/api/points/qrcode-export?ids="+id+"&getAll=&queryName="+this.keyword+"&processIds="+proIds
+                }
+                
+                
+            }
         },
         add(){
-            this.$router.push({path:'/pollingManage/addPoint'})
+            this.$router.push({path:'/addPoint'})
         },
         cancel(){
-
+            if(this.selectedData.length==0){
+                this.$Message.warning('请删除后选中');
+                return
+            }
+            let arr = []
+            this.selectedData.map(ele=>{
+                arr.push(ele.id)
+            })
+            this.$Modal.confirm({
+                title: '您确定要删除吗?',
+                width: '300',
+                onOk: () => {
+                    deletePoint(arr.join(',')).then(res=>{
+                        if(res.data.count){
+                            qis.getList()
+                        }
+                    })
+                },
+                onCancel: () => {
+                    // this.$Message.info('Clicked cancel');
+                }
+            });
         },
         upload(){
             this.$router.push({
@@ -120,6 +260,11 @@ export default {
     },
     mounted() {
         this.height = document.body.clientHeight-75
+        this.getRegional()
+        this.getList()
+        let cur = this.$route.path
+        let com = window.location.href
+        this.ip =  com.slice(0,com.indexOf(cur))
     }
 }
 </script>
@@ -160,6 +305,7 @@ export default {
                     border: 0;
                     border-radius: 3px;
                     margin: 0 5px;
+                    
                 }
                 .reset{
                     background: #495566;
@@ -181,8 +327,13 @@ export default {
                 color: #fff;
                 border: 0;
                 border-radius: 3px;
+                height: 26px;
             }
         }
+    }
+     .page{
+        text-align: right;
+        margin-top: 10px;
     }
 }
 </style>

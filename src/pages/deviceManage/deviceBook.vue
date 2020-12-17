@@ -46,7 +46,7 @@
                         <TagSelect v-model="ABCtype">
                             <TagSelectOption name="1">A</TagSelectOption>
                             <TagSelectOption name="2">B</TagSelectOption>
-                            <TagSelectOption name="3">C</TagSelectOption>
+                            <TagSelectOption name="3">C</TagSelectOption> 
                         </TagSelect>
                     </div>
                 </div>
@@ -344,6 +344,16 @@ export default {
                     line-height: 35px;
                     text-align: right;
                     color: #576374;
+                }
+                .cmp-tab {
+                    display: inline-block;
+                    margin-left: 10px;
+                    /deep/.ivu-tag-text {
+                        font-size: 14px;
+                    }
+                }
+                /deep/.ivu-form-item {
+                    margin-bottom: 5px;
                 }
             }
             .form-search-btn {

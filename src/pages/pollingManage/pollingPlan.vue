@@ -8,9 +8,7 @@
                 </div>
                 <div class="form-item">
                     <label>所属组织：</label> 
-                    <Select v-model="model1" style="width:200px" size="small">
-                        <Option v-for="item in cityList" :value="item.value" :key="item.value">{{ item.label }}</Option>
-                    </Select>
+                 <TreeSelect v-model="area"  :data="processList"  v-width="200"  />
                 </div>
                 <div class="form-search-btn">
                     <a href="javascript:;" @click="higherSearch()">
@@ -18,8 +16,8 @@
                         <Icon type="ios-arrow-up" v-else />
                         高级搜索
                     </a>
-                    <button type="button">搜索</button>
-                    <button type="button" class="reset">重置</button>
+                    <button type="button" @click="search()">搜索</button>
+                    <button type="button" class="reset" @click="reset()">重置</button>
                 </div>
             </div>
             <div class="c-adv-search">
@@ -27,19 +25,18 @@
                     <div class="form-item">
                         <label>创建时间：</label>
                         <div class="cmp-tab">
-                           <DatePicker type="date" placeholder="开始日期" style="width: 200px" size="small"></DatePicker> - 
-                           <DatePicker type="date" placeholder="结束日期" style="width: 200px" size="small"></DatePicker>
+                          <DatePicker type="date"  placement="bottom-end"  @on-change="startTimeChange" :options="startDate" format="yyyy-MM-dd"  v-model="startTime" placeholder="开始日期" style="width: 190px"></DatePicker> -
+                    <DatePicker type="date"  placement="bottom-end"  @on-change="endTimeChange" :options="endDate" format="yyyy-MM-dd"  v-model="endTime" placeholder="结束日期" style="width: 190px"></DatePicker>
                         </div>
                     </div>
                 </div>
                 <div class="c-adv-search-row">
-                    <div class="form-item">
+                    <div class="form-item" style="display:flex;margin-top:20px">
                         <label>巡检状态：</label>
                         <div class="cmp-tab">
-                            <a href="javascript:;" @click="typeCheckAll()" :class="{checked:typeCheckedAll}">全部</a>
-                            <a href="javascript:;" v-for="(item, index) in stateList" 
-                            :key="index" @click="typeCheck(item.id)" 
-                            :class="{checked:typeBox.includes(item.id)}">{{ item.label }}</a>
+                            <TagSelect v-model="state">
+                                <TagSelectOption :name="item.id" v-for="(item, index) in stateList" :key="index">{{ item.label }}</TagSelectOption>
+                            </TagSelect>
                         </div>
                     </div>
                 </div>
@@ -51,20 +48,20 @@
                <div>
                     <h3 class="plan-title">地图巡检</h3>
                     <div class="plan-cards">
-                        <Card v-for="(item , index) in cardList" class="plan-card">
-                            <h5 slot="title">
-                                {{ item.title }}
+                        <Card v-for="(item , index) in mapList" class="plan-card" :key="index">
+                            <h5 slot="title" :class="{'gray':item.status=='Interrupt'||item.status=='Finish'}">
+                                {{ item.name }}
                             </h5>
                             <a href="javascript:;" slot="extra" class="icon">
-                            <Icon type="ios-trash-outline"  style="margin-right:8px"/>
+                            <Icon type="ios-trash-outline"  style="margin-right:8px" v-if="item.status=='New'||item.status=='Ing'" />
                             <Icon type="ios-copy-outline" />
                             </a>
                             <div class="plan-card-info">
-                                <p>状态：新建</p> 
-                                <p title="联泰潮英智慧水务" class="ell">所属组织：{{ item.tissue }}</p>
-                                <p>起止日期：{{ item.date }}</p>
-                                <p title="每1天" class="ell">巡检周期：{{ item.duration }}</p> 
-                                <p>创建时间：{{ item.createTime }}</p>
+                                <p>状态：{{item.state}}</p> 
+                                <p class="ell">所属组织：{{ item.org }}</p>
+                                <p>起止日期：{{ item.planStart }} - {{item.planEnd}}</p>
+                                <p class="ell">巡检周期：{{ item.periodValue }}</p> 
+                                <p>创建时间：{{ item.createDate }}</p>
                             </div>
                         </Card>
                     </div>
@@ -72,22 +69,22 @@
                 <div>
                     <h3 class="plan-title">普通巡检</h3>
                     <div class="plan-cards">
-                            <Card class="plan-card">
-                                <h5 slot="title">
-                                    测试两英镇
-                                </h5>
-                                <a href="javascript:;" slot="extra" class="icon">
-                                <Icon type="ios-trash-outline"  style="margin-right:8px"/>
-                                <Icon type="ios-copy-outline" />
-                                </a>
-                                <div class="plan-card-info">
-                                    <p>状态：执行中</p> 
-                                    <p title="联泰潮英智慧水务" class="ell">所属组织：联泰潮英智慧水务</p> 
-                                    <p>起止日期：2020-08-08 - 2020-08-30</p> 
-                                    <p title="每1天" class="ell">巡检周期：每1天</p> 
-                                    <p>创建时间：2020-08-08 14:53</p>
-                                </div>
-                            </Card>
+                        <Card v-for="(item , index) in customList" class="plan-card" :key="index">
+                           <h5 slot="title" :class="{'gray':item.status=='Interrupt'||item.status=='Finish'}">
+                                {{ item.name }}
+                            </h5>
+                            <a href="javascript:;" slot="extra" class="icon">
+                            <Icon type="ios-trash-outline"  style="margin-right:8px" v-if="item.status=='New'||item.status=='Ing'"/>
+                            <Icon type="ios-copy-outline" />
+                            </a>
+                            <div class="plan-card-info">
+                                <p>状态：{{item.state}}</p> 
+                                <p class="ell">所属组织：{{ item.org }}</p>
+                                <p>起止日期：{{ item.planStart }} - {{item.planEnd}}</p>
+                                <p class="ell">巡检周期：{{ item.periodValue }}</p> 
+                                <p>创建时间：{{ item.createDate }}</p>
+                            </div>
+                        </Card>
                     </div>
                 </div>
               
@@ -118,76 +115,114 @@
     </div>
 </template>
 <script>
+import { getOrganizations,planList } from '@api/pollingManage/plan';
+import createTree from '@/libs/public-util'
+import {formatTime} from '@/libs/public'
 export default {
     name:"pollingPlan",
     data(){
         return {
             searchShow: false,
             height:"",
-            cityList: [
-                {
-                    value: 'New York',
-                    label: 'New York'
-                }
-            ],
+            processList:[],
             stateList: [
-                {label: '新建',id: 1},
-                {label: '执行中',id: 2},
-                {label: '已终止',id: 3},
-                {label: '已完成',id: 4}
+                {label: '新建',id: 'New'},
+                {label: '执行中',id: 'Ing'},
+                {label: '已终止',id: 'Interrupt'},
+                {label: '已完成',id: 'Finish'}
             ],
-            typeCheckedAll: false,
-            typeBox: [],
             cardList:[
-                {
-                    title:'7777',
-                    tissue:'联泰潮英智慧水务',
-                    date:'2020-08-19 - 2020-08-30',
-                    duration:'每1天',
-                    createTime:'2020-08-19 15:31'
-                },
-                {
-                    title:'7777',
-                    tissue:'联泰潮英智慧水务',
-                    date:'2020-08-19 - 2020-08-30',
-                    duration:'每1天',
-                    createTime:'2020-08-19 15:31'
-                },
-                {
-                    title:'7777',
-                    tissue:'联泰潮英智慧水务',
-                    date:'2020-08-19 - 2020-08-30',
-                    duration:'每1天',
-                    createTime:'2020-08-19 15:31'
-                },
-                {
-                    title:'7777',
-                    tissue:'联泰潮英智慧水务',
-                    date:'2020-08-19 - 2020-08-30',
-                    duration:'每1天',
-                    createTime:'2020-08-19 15:31'
-                },
-                {
-                    title:'7777',
-                    tissue:'联泰潮英智慧水务',
-                    date:'2020-08-19 - 2020-08-30',
-                    duration:'每1天',
-                    createTime:'2020-08-19 15:31'
-                },
-                {
-                    title:'7777',
-                    tissue:'联泰潮英智慧水务',
-                    date:'2020-08-19 - 2020-08-30',
-                    duration:'每1天',
-                    createTime:'2020-08-19 15:31'
-                }
+               
             ],
             modal:false,
             keyword:'',
-            model1:''
+            area:'',
+            startDate: {
+                disabledDate (date) {
+                    return date && date.valueOf() >= Date.now();
+                }
+            },
+            endDate: {
+                disabledDate (date) {
+                    return date && date.valueOf() <= Date.now()- 86400000
+                }
+            },
+            startTime:'',
+            start:'',
+            endTime:'',
+            end:'',
+            state :['New','Ing'],
+            page:1,
+            mapList:[],
+            customList:[]
         }
     },
     methods :{
+        endTimeChange(day){
+          this.end = day
+            this.startDate = {
+                disabledDate (date) {
+                    return date && date.valueOf() >new Date(day).getTime();
+                }
+           }
+        },
+        startTimeChange(day){
+            this.start = day
+            this.endDate = {
+                disabledDate (date) {
+                    return date && date.valueOf() <=new Date(day).getTime()- 86400000;
+                }
+            }
+        },
+        getOrg(){
+            getOrganizations().then(res=>{
+                console.log(res)
+                let treeItem = []
+                let trees = res.data
+                for(let i = 0; i < trees.length; i ++) {
+                    trees[i].title = trees[i].name
+                    trees[i].value = trees[i].id
+                    treeItem.push(trees[i])
+                }
+                this.processList = createTree(treeItem)
+             })
+        },
+        search(){
+            this.getList()
+        },
+        reset(){
+            this.keyword = ''
+            this.area = ''
+            this.start = ""
+            this.end =""
+            this.state = ""
+            this.getList()
+        },
+        getList(){
+            this.customList=[]
+            this.mapList = []
+            // queryName,orgId,start,end,status,page
+            let start = this.start?this.$moment(this.start).utc().format():''
+            let end = this.end?this.$moment(this.end).utc().format():''
+            let status = this.state.length?this.state.join(','):''
+            planList(this.keyword,this.area,start,end,status,this.page).then(res=>{
+                console.log(res)
+                if(res.data.items){
+                    let temp  = res.data.items
+                    temp.map(ele=>{
+                        ele.createDate = formatTime(ele.createDate, 'yyyy-MM-dd HH:mm ')
+                        ele.planStart = formatTime(ele.planStart, 'yyyy-MM-dd')
+                        ele.planEnd = formatTime(ele.planEnd, 'yyyy-MM-dd')
+                        ele.state = ele.status == 'New'?'新建':(ele.status=='Ing'?'执行中':(ele.status=='Interrupt')?'已终止':'已完成')
+                        if(ele.type == 'Inside'){
+                            this.customList.push(ele)
+                        }else{
+                            this.mapList.push(ele)
+                        }
+                    })
+                }
+            })
+        },
         higherSearch() {
             this.searchShow = !this.searchShow
         },
@@ -211,7 +246,7 @@ export default {
         mapClick(){
             console.log("1111")
             this.$router.push({
-                path:'/pollingManage/plan/add',
+                path:'/plan/add',
                 query: {
                     type: 'map'
                 }
@@ -219,7 +254,7 @@ export default {
         },
         customClick(){
             this.$router.push({
-                path:'/pollingManage/plan/add',
+                path:'/plan/add',
                 query: {
                     type: 'normal'
                 }
@@ -228,6 +263,8 @@ export default {
     },
     mounted() {
         this.height = document.body.clientHeight-130
+        this.getOrg()
+        this.getList()
     }
 }
 </script>
@@ -294,15 +331,15 @@ export default {
                         color: #576374;
                     }
                 }
-                .cmp-tab {
+                 .cmp-tab {
                     display: inline-block;
-                    a {
-                        margin-right: 20px;
-                        color: #576374;
+                    margin-left: 10px;
+                    /deep/.ivu-tag-text {
+                        font-size: 14px;
                     }
-                    .checked {
-                        color: #4B7EFE;
-                    }
+                }
+                /deep/.ivu-form-item {
+                    margin-bottom: 5px;
                 }
             }
         }
@@ -363,6 +400,10 @@ export default {
                     background-color: #4b7efe;
                     color: #fff;
                     text-indent: 10px;
+                }
+                .gray{
+                    background-color: #e6e6e6 !important;
+                    color: #333 !important;
                 }
                 .icon{
                     font-size: 20px;

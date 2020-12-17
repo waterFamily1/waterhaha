@@ -78,6 +78,24 @@ export default {
                 closable: false
             },
             component: () => import('@/pages/pollingManage/addPoint')
+        }, {
+            path: '/pointDetail',
+            name: `${pre}pointDetail`,
+            meta: {
+                ...meta,
+                title: '巡检点详情',
+                closable: false
+            },
+            component: () => import('@/pages/pollingManage/pointDetail')
+        },{
+            path: '/pointEdit',
+            name: `${pre}pointEdit`,
+            meta: {
+                ...meta,
+                title: '巡检点编辑',
+                closable: false
+            },
+            component: () => import('@/pages/pollingManage/pointEdit')
         }
     ]
 }

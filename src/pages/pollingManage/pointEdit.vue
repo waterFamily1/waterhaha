@@ -4,8 +4,8 @@
             <div class="search-main">
                 <h3>巡检点</h3>
                 <div class="form-search-btn">
-                    <button type="button" @click="save('formItem')">保存</button>
-                    <button type="button" class="reset" @click="reset()">重置</button>
+                    <button  @click="save('formItem')">保存</button>
+                    <button  class="reset" @click="reset()">取消</button>
                 </div>
             </div>
         </div>
@@ -19,7 +19,7 @@
                     </Col>
                     <Col span="12">
                        <FormItem label="区域位置："  prop="location">
-                           <TreeSelect v-model="formItem.location"  :data="processList"  v-width="200" size="small"  />
+                           <TreeSelect v-model="formItem.location"  :data="processList"  v-width="200"  />
                         </FormItem>
                     </Col>
                 </Row>
@@ -62,7 +62,7 @@
     </div>
 </template>
 <script>
-import {regionalCon,siteList,addPoint } from '@/api/pollingManage/manage'
+import {regionalCon,siteList,editPoint,pointDetail } from '@/api/pollingManage/manage'
 import createTree from '@/libs/public-util'
 export default {
     data () {
@@ -97,7 +97,7 @@ export default {
                         let that = this;
                         return h('Input',{
                             props: {
-                                value:'',
+                                value: that.data6[params.index].step,
                                 size:'small',
                                 placeholder:'步骤名称'
                             },
@@ -114,6 +114,7 @@ export default {
                     key: 'resultType',
                     render: (h, params) => {
                         let that = this;
+                        console.log(that.data6[params.index].resultType)
                         return h('Select',{
                             props:{
                                 size: 'small',
@@ -146,7 +147,7 @@ export default {
                     width :400,
                     render: (h, params) => {
                         let  that = this;
-                        let text = that.mpointName?that.mpointName:'未选择'
+                        let text = this.data6[params.index].mpointName?this.data6[params.index].mpointName:'未选择'
                         if(this.data6[params.index].resultType==1){
                             return h('div', {},'--');
                         }else{
@@ -178,7 +179,8 @@ export default {
                                     },
                                     on: {
                                         'click':(event) => {
-                                            that.mpointName = ""
+                                            this.data6[params.index].mpointName=""
+                                            this.data6[params.index].mpointId=""
                                         }
                                     },
                                 }, '[清除]'),
@@ -228,11 +230,11 @@ export default {
             ],
             resultList:[
                 {
-                    value:'1',
+                    value:1,
                     name:'状态'
                 },
                 {
-                    value:'2',
+                    value:2,
                     name:'数据'
                 }
             ],
@@ -261,15 +263,32 @@ export default {
             peoModal:false,
             mpointName:'',
             siteNode:'',
-            curIdx:0
+            curIdx:0,
+            dataObj:{}
        }
     },
     mounted() {
         this.height = document.body.clientHeight-75
+        this.id = this.$route.query.id
         this.getRegional()
+        this.detail()
         this.pointList()
     },
     methods:{  
+         detail(){
+            pointDetail(this.id).then(res=>{
+                console.log(res)
+                if(res.data){
+                    this.formItem= {
+                        name: res.data.patrolPoint,
+                        location: Number(res.data.relatedProcess),
+                        describe:res.data.description
+                    }
+                    this.data6 = res.data.patrolSteps
+                    this.dataObj = res.data
+                }
+            })
+        },
         checkSite(row){
            console.log(row)
            this.data6[this.curIdx].mpointId= row.id
@@ -279,24 +298,24 @@ export default {
            this.peoModal = false
         },
         save(name){
+            console.log("ddd")
             this.$refs[name].validate((valid) => {
                 if (valid) {
                     let bool = this.data6.every(ele=>{
                         return ele.step
                     })
+                    console.log(bool)
                     if(!bool){
                       this.$Message.warning('请填写步骤');
                     }else{
-                        let data = {
-                            description: this.formItem.describe,
-                            id: null,
-                            patrolPoint: this.formItem.name,
-                            pointProcesses: this.formItem.location,
-                            relatedProcess: this.formItem.location,
-                            patrolSteps:this.data6
-                        }
-                        addPoint(data).then(res=>{
-                            if(res.data.id){
+                        this.dataObj.description = this.formItem.describe
+                        this.dataObj.patrolPoint = this.formItem.name
+                        this.dataObj.relatedProcess = this.formItem.location
+                        this.dataObj.pointProcesses = this.formItem.location
+                        this.dataObj.patrolSteps = this.data6
+                        console.log(this.dataObj)
+                        editPoint(this.dataObj).then(res=>{
+                            if(res.data.count){
                                 this.$Message.success('数据保存成功');
                                 this.$router.go(-1)
                             }
@@ -310,7 +329,7 @@ export default {
            
         },
         reset(){
-
+           this.$router.go(-1)
         },
         pointList(){
             siteList(this.peoName,this.page,this.formItem.location).then(res=>{

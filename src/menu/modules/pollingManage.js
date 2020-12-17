@@ -31,6 +31,16 @@ export default {
             path: `/addPoint`,
             title: '巡检点新增',
             auth: ['hidden']
+        },
+        {
+            path: `/pointDetail`,
+            title: '巡检点详情',
+            auth: ['hidden']
+        },
+        {
+            path: `/pointEdit`,
+            title: '巡检点编辑',
+            auth: ['hidden']
         }
     ]
 }

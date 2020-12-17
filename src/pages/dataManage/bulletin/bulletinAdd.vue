@@ -101,7 +101,7 @@
     </div>
 </template>
 <script>
-import { regionalCon,dialog,addBulletin} from '@api/dataManage/bulletin';
+import { regionalCon,dialog,addBulletin } from '@api/dataManage/bulletin';
 import createTree from '@/libs/public-util'
   export default {
       name:'bulletinAdd',

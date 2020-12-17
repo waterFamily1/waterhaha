@@ -8,9 +8,8 @@
                 </div>
                 <div class="form-item">
                     <label>起止日期：</label>
-                    <DatePicker v-model="planList.time" type="daterange" placement="bottom-end" placeholder="请选择起止日期" 
-                        style="width: 200px">
-                    </DatePicker>
+                    <DatePicker type="date"  placement="bottom-end"  @on-change="startTimeChange" :options="startDate" format="yyyy-MM-dd"  v-model="startTime" placeholder="开始日期" style="width: 190px"></DatePicker> -
+                    <DatePicker type="date"  placement="bottom-end"  @on-change="endTimeChange" :options="endDate" format="yyyy-MM-dd"  v-model="endTime" placeholder="结束日期" style="width: 190px"></DatePicker>
                 </div>
                 <div class="form-search-btn">
                     <a href="javascript:;" @click="higherSearch()">
@@ -18,8 +17,8 @@
                         <Icon type="ios-arrow-up" v-else />
                         高级搜索
                     </a>
-                    <button type="button">搜索</button>
-                    <button type="button" class="reset">重置</button>
+                    <button type="button" @click="search()">搜索</button>
+                    <button type="button" class="reset" @click="reset()">重置</button>
                 </div>
             </div>
             <div class="c-adv-search">
@@ -28,13 +27,7 @@
                         <label>状态：</label>
                         <div class="cmp-tab">
                             <TagSelect v-model="confirmWay">
-                                <TagSelectOption name="tag1">未分配</TagSelectOption>
-                                <TagSelectOption name="tag2">已分配</TagSelectOption>
-                                <TagSelectOption name="tag3">已下达</TagSelectOption>
-                                <TagSelectOption name="tag4">转派</TagSelectOption>
-                                <TagSelectOption name="tag5">逾期</TagSelectOption>
-                                <TagSelectOption name="tag6">终止</TagSelectOption>
-                                <TagSelectOption name="tag7">完成</TagSelectOption>
+                                <TagSelectOption :name="index+1" v-for="(item,index) in stateList" :key="index">{{item}}</TagSelectOption>
                             </TagSelect>
                         </div>
                     </div>
@@ -48,11 +41,11 @@
             </div>
             <Table ref="selection" :columns="columns" :data="data">
                 <template slot-scope="{ row, index }" slot="action">
-                    <Button class="action" size="small" style="margin-right: 5px;">查看</Button>
-                    <Button class="action" size="small">复制</Button>
+                    <Button class="action" type="text" size="small" style="margin-right: 5px;color:rgb(75, 126, 254)">查看</Button>
+                    <Button class="action" type="text" size="small" style="color:rgb(75, 126, 254)">复制</Button>
                 </template>
             </Table>
-            <Page :total="100" show-elevator show-total class="page" />
+            <Page :total="total" show-elevator show-total class="page" @on-change="changeSize" />
         </div>
         <!-- 新增弹出框 -->
         <Modal
@@ -77,6 +70,10 @@
     </div>
 </template>
 <script>
+// planList
+import { planList } from '@api/upkeep/plan';
+import createTree from '@/libs/public-util'
+import {formatTime} from '@/libs/public'
 export default {
     name: 'upkeerPlan',
     data() {
@@ -91,51 +88,53 @@ export default {
             columns: [
                 {
                     type: 'selection',
-                    width: 40,
+                    width: 60,
                     align: 'center'
                 }, {   
                     title: '序号',
+                      width: 70,
                     type: 'index',
-                    width: 80
                 }, {
                     title: '开始日期',
-                    key: 'name',
-                    width: 100
+                    key: 'startDate',
+                     width:120,
                 }, {
                     title: '结束日期',
-                    key: 'name',
-                    width: 100
+                    key: 'endDate',
+                     width:120,
                 }, {
                     title: '计划名称',
-                    key: 'name',
-                    width: 440
+                    key: 'planName',
                 }, {
                     title: '状态',
-                    key: 'name'
+                    key: 'state',
+                    width:100,
+                    render: (h, params) => {
+                        let a = Number(params.row.state)
+                        let text = this.stateList[a-1]
+                        return h('span', {
+                        }, text);
+                    }
                 }, {
                     title: '保养持续时间',
-                    key: 'name',
-                    width: 130
+                    key: 'planDuration',
+                     width:120,
                 }, {
                     title: '保养内容项',
-                    key: 'name',
-                    width: 120
+                    key: 'contentsItems',
+                     width:120,
                 }, {
+                    width:105,
                     title: '创建时间',
-                    key: 'name',
-                    width: 100
+                    key: 'createDate',
                 }, {
                     title: '操作',
                     slot: 'action',
-                    width: 150,
-                    align: 'center'
+                    align: 'center',
+                     width:140,
                 }
             ],
-            data: [
-                {
-                    name: '1'
-                }
-            ],
+            data: [],
             addModal: false,
             treeData: [
                 {
@@ -166,13 +165,78 @@ export default {
             addForm: {
                 value: [],
                 type: ''
-            }
+            },
+            startDate: {
+                disabledDate (date) {
+                    return date && date.valueOf() >= Date.now();
+                }
+            },
+            endDate: {
+                disabledDate (date) {
+                    return date && date.valueOf() <= Date.now()- 86400000
+                }
+            },
+            startTime:'',
+            start:'',
+            endTime:'',
+            end:'',
+            page:1,
+            total:0,
+            stateList:['未分配','已分配','已下达','转派','逾期','终止','完成']
         }
     },
     mounted() {
         this.height = document.body.clientHeight-80
+        this.getList()
     },
     methods: {
+        search(){
+           this.getList()
+        },
+        endTimeChange(day){
+          this.end = day
+            this.startDate = {
+                disabledDate (date) {
+                    return date && date.valueOf() >new Date(day).getTime();
+                }
+           }
+        },
+        startTimeChange(day){
+            this.start = day
+            this.endDate = {
+                disabledDate (date) {
+                    return date && date.valueOf() <=new Date(day).getTime()- 86400000;
+                }
+            }
+        },
+        changeSize(size){
+            this.page = size
+            this.getList()
+        },
+        getList(){
+        // planName,dateRange,start,end,state,page
+            let begin = this.start?this.$moment(this.start).utc().format():''
+            let end  = this.end?this.$moment(this.end).utc().format():''
+            let range = {"start":begin,"end":end}
+            let state = this.confirmWay.length!=0?this.confirmWay.join(','):''
+            planList(this.planList.name,range,begin,end,state,this.page).then(res=>{
+              console.log(res)
+              if(res.data.items){
+                  let temp = res.data.items
+                  temp.map(ele=>{
+                      ele.startDate = formatTime(ele.startDate, 'yyyy-MM-dd')
+                      ele.endDate = formatTime(ele.endDate, 'yyyy-MM-dd')
+                      ele.createDate = formatTime(ele.createDate, 'HH:mm:ss yyyy-MM-dd')
+                      if(ele.state == 3){
+                          ele. _disabled= true
+                      }
+                  })
+                  this.data = temp
+                  this.total = res.data.total
+
+              }
+            })
+        },
         higherSearch() {
             this.searchShow = !this.searchShow
         },

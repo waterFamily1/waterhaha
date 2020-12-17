@@ -189,8 +189,13 @@ export default {
             let end  = this.$moment(next).utc().format()
              this.url= this.ip+'/equipment/api/faults/statistics-export?severityTypes=&processIds=&orgIds=&faultTypes=&states=&startDate='+begin+'&endDate='+end+'&pageSize=10&currentPage=1'
         },
-        endTimeChange(){
-         
+        endTimeChange(day){
+          this.end = day
+            this.startDate = {
+                disabledDate (date) {
+                    return date && date.valueOf() >new Date(day).getTime();
+                }
+           }
         },
         startTimeChange(day){
             this.start = day
