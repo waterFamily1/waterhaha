@@ -43,10 +43,8 @@ router.beforeEach(async (to, from, next) => {
         if (token && token !== 'undefined') {
             // next();
             if(hasMenus) {
-                console.log('有menu')
                 next();
             } else {
-                console.log('无menu')
                 let routeList = []
                 const data = await getRouter()
                 var menu = data.data;

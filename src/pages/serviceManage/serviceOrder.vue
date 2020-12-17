@@ -4,13 +4,17 @@
             <div class="search-main">
                 <div class="form-item">
                     <label>关键词：</label>
-                    <Input v-model="keyword" placeholder="故障设备" style="width: 250px" size="small" />
+                    <Input v-model="keyword" placeholder="故障设备" style="width: 250px" />
                 </div>
-                <div class="form-item">
+                <div class="form-item form-tag">
                     <label>区域位置：</label> 
-                    <Select v-model="tissue" style="width:150px" size="small">
-                        <Option v-for="item in cityList" :value="item.value" :key="item.value">{{ item.label }}</Option>
-                    </Select>
+                    <TreeSelect 
+                        v-model="area" 
+                        multiple 
+                        :data="areaData" 
+                        v-width="350" 
+                        :max-tag-count="2"
+                    />
                 </div>
                 <div class="form-search-btn">
                     <a href="javascript:;" @click="higherSearch()">
@@ -18,8 +22,8 @@
                         <Icon type="ios-arrow-up" v-else />
                         高级搜索
                     </a>
-                    <button type="button">搜索</button>
-                    <button type="button" class="reset">重置</button>
+                    <Button @click="getTable()">搜索</Button>
+                    <Button class="reset">重置</Button>
                 </div>
             </div>
             <div class="c-adv-search">
@@ -27,8 +31,20 @@
                     <div class="form-item">
                         <label>报修时间：</label>
                         <div class="cmp-tab">
-                           <DatePicker type="date" placeholder="Select date" style="width: 120px"></DatePicker> - 
-                           <DatePicker type="date" placeholder="Select date" style="width: 120px"></DatePicker>
+                            <DatePicker 
+                                type="date" v-model="startTime" :editable="false"
+                                 placeholder="开始日期"
+                                format="yyyy-MM-dd" 
+                                @on-change="handleChange" style="width: 200px">
+                            </DatePicker> 
+                            -
+                            <DatePicker 
+                                type="date" v-model="endTime" :editable="false" 
+                                :options="endDate" placeholder="结束日期"
+                                format="yyyy-MM-dd"
+                                @on-change="endTimeChange" style="width: 200px"
+                            >
+                            </DatePicker>
                         </div>
                     </div>
                 </div>
@@ -36,150 +52,164 @@
                     <div class="form-item">
                         <label>巡检状态：</label>
                         <div class="cmp-tab">
-                            <a href="javascript:;" @click="typeCheckAll()" :class="{checked:typeCheckedAll}">全部</a>
-                            <a href="javascript:;" v-for="(item, index) in stateList" 
-                            :key="index" @click="typeCheck(item.id)" 
-                            :class="{checked:typeBox.includes(item.id)}">{{ item.label }}</a>
+                            <TagSelect v-model="states">
+                                <TagSelectOption name="tag1">选项一</TagSelectOption>
+                                <TagSelectOption name="tag2">选项二</TagSelectOption>
+                                <TagSelectOption name="tag3">选项三</TagSelectOption>
+                                <TagSelectOption name="tag4">选项四</TagSelectOption>
+                                <TagSelectOption name="tag5">选项五</TagSelectOption>
+                                <TagSelectOption name="tag6">选项六</TagSelectOption>
+                            </TagSelect>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
         <div class="task-content">
-             <Table stripe :columns="tableList" :data="tableData">
-                <template slot-scope="{ row }" slot="name">
-                    <strong>{{ row.name }}</strong>
-                </template>
+             <Table 
+                stripe 
+                :columns="tableList" 
+                :data="tableData"
+            >
                 <template slot-scope="{ row, index }" slot="action">
-                    <!-- <Button class="action" size="small" style="margin-right: 5px;">配置</Button> -->
                     <Button class="action" size="small">查看</Button>
                 </template>
             </Table>
-            <Page :total="100" show-elevator size="small" class="page" style="text-align:right;margin-top:20px"  />
+            <Page 
+                :total="allTotal" 
+                @on-change="changePage"
+                show-elevator 
+                show-total
+                class="page" 
+                style="text-align: right;margin-top: 20px" 
+            />
         </div>
     </div>
 </template>
 <script>
+import { tableMethod, regionalCon } from '@/api/service/order'
+import createTree from '@/libs/public-util'
+import util from '@/libs/public_js'
+
 export default {
-    name:"serviceOrder",
+    name: 'serviceOrder',
     data(){
         return {
             searchShow: false,
-            height:"",
-            cityList: [
-                {
-                    value: 'New York',
-                    label: 'New York'
-                }
-            ],
-            stateList: [
-                {label: '待处理',id: 1},
-                {label: '处理中',id: 2},
-                {label: '挂起',id: 3},
-                {label: '关闭',id: 4},
-                {label: '完成',id: 5},
-                {label: '未分配',id: 6}
-            ],
-            typeCheckedAll: false,
-            typeBox: [],
-            tissue:'',
-            modal:false,
-            keyword:'',
+            height: '',
+            area: [],
+            areaData: [],
+            endDate: {},
+            startTime: '',
+            endTime: '',
+            modal: false,
+            keyword: '',
+            states: [],
             tableList: [
                 {
                     title: '故障设备',
-                    key: 'failureEquipment'
-                },
-                {
+                    key: 'equName'
+                }, {
                     title: '维修编号',
-                    key: 'number'
-                },
-                {
+                    key: 'repairNumber'
+                }, {
                     title: '报修人',
-                    key: 'person'
-                },
-                {
+                    key: 'createUserName'
+                }, {
                     title: '报修时间',
-                    key: 'date'
-                },
-                
-                {
+                    key: 'createDate',
+                    render(h, data) {
+                	    return util.tableDatetime(h, data.row.createDate)
+                    } 
+                }, {
                     title: '完成时间',
-                    key: 'finishDate'
-                },
-                {
+                    key: 'finishTime',
+                    render(h, data) {
+                	    return util.tableDatetime(h, data.row.finishTime)
+                    } 
+                }, {
                     title: '区域位置',
-                    key: 'location'
-                },
-                {
+                    key: 'processName'
+                }, {
                     title: '当前状态',
-                    key: 'currentState'
-                },
-                {
+                    key: 'stateName'
+                }, {
                     title: '当前处理人',
-                    key: 'conductor'
-                },
-                {
+                    key: 'processingPersonName'
+                }, {
                     title: '操作',
-                    key: 'action',
-                    width: 150,
+                    width: 80,
                     align: 'center',
-                    render: (h, params) => {
-                        return h('div', [
-                            h('Button', {
-                                props: {
-                                    type: 'default',
-                                    size: 'small'
-                                },
-                                style: {
-                                    color:'rgb(75, 126, 254)',
-                                    border:'0'
-                                },
-                                on: {
-                                    click: () => {
-                                        this.$router.push({path:'/serviceManage/serviceDetail'})
-                                    }
-                                }
-                            }, '查看')
-                        ]);
-                    }
+                    slot: 'action'
                 }
             ],
-            tableData:[
-                {
-                   failureEquipment:'测试3' ,
-                   number:'R20200807001',
-                   person:'xxx',
-                   date:'08:54:25 2020-08-07',
-                   finishDate:'',
-                   location:'沙陂村150吨巡检点',
-                   currentState:'待处理',
-                   conductor:'xxxx',
-
-                }
-            ]
+            tableData:[],
+            allTotal: 0,
+            pageNum: '1'
         }
     },
+    mounted() {
+        this.height = document.body.clientHeight - 75
+        this.getTable()
+        this.getRegional()
+    },
     methods :{
+        getTable() {
+            let queryName = this.keyword
+            let processIds = this.area
+            let startDate = this.$moment(this.startTime).utc().format()
+            let endDate = this.$moment(this.endTime).utc().format()
+            let currentPage = this.pageNum
+            tableMethod({
+                queryName,
+                processIds,
+                startDate,
+                endDate,
+                currentPage
+            }).then(res=> {
+                console.log(res)
+                this.tableData = res.data.items
+                this.allTotal = res.data.total
+            }).catch(err=> {
+
+            })
+        },
+        changePage(index) {
+            this.pageNum = index
+            this.getTable()
+        },
+        getRegional() {
+            regionalCon().then(res => {
+                let treeItem = []
+                let trees = res.data
+                for(let i = 0; i < trees.length; i ++) {
+                    trees[i].title = trees[i].name
+                    trees[i].expand = true
+                    trees[i].value = trees[i].id
+                    treeItem.push(trees[i])
+                }
+                this.areaData= createTree(treeItem)
+            }).catch(err => {
+                // 异常情况
+            })
+        },
+        handleChange(date) {
+            let startValue = this.startTime
+            startValue = new Date(date).getTime()
+            this.endDate = {
+                disabledDate(date) {
+                    return date && date.valueOf() < startValue - 86400000
+                }
+            }
+        },
+        endTimeChange(date) {
+            this.endTime = date
+        },  
         higherSearch() {
             this.searchShow = !this.searchShow
         },
          higherSearch() {
             this.searchShow = !this.searchShow
-        },
-        typeCheckAll() {
-            this.typeBox = []
-            this.typeCheckedAll = true
-        },
-        typeCheck(i) {
-            this.typeCheckedAll = false
-            if(this.typeBox.includes(i)) {
-                this.typeBox = this.typeBox.filter((ele) => {
-                    return ele != i
-                });
-            } else {
-                this.typeBox.push(i);
-            }
         },
         mapClick(){
             console.log("1111")
@@ -198,9 +228,6 @@ export default {
                 }
             })
         }
-    },
-    mounted() {
-        this.height = document.body.clientHeight-130
     }
 }
 </script>
@@ -236,7 +263,8 @@ export default {
                     color: #576374;
                     font-size: 12px;
                 }
-                button{
+                .ivu-btn {
+                    height: auto;
                     background: #4b7efe;
                     font-size: 12px;
                     padding: 4px 12px;
@@ -269,13 +297,6 @@ export default {
                 }
                 .cmp-tab {
                     display: inline-block;
-                    a {
-                        margin-right: 20px;
-                        color: #576374;
-                    }
-                    .checked {
-                        color: #4B7EFE;
-                    }
                 }
             }
         }
@@ -307,5 +328,12 @@ export default {
             }
        }
    }
+}
+.form-tag {
+    /deep/.ivu-tag {
+        span:not(.ivu-select-max-tag) {
+            margin-right: 0!important;
+        }
+    }
 }
 </style>

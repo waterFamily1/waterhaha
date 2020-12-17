@@ -312,7 +312,7 @@ export default {
         },
         addDevice() {
             this.$router.push({
-                path:'/deviceManage/addBook'
+                path:'/editDetail'
             })
         },
         msgUpload(){

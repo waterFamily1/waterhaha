@@ -51,6 +51,24 @@ export default {
                 closable: false
             },
             component: () => import('@/pages/deviceManage/book/checkDetail')
+        }, {
+            path: '/editDetail',
+            name: `${pre}editDetail`,
+            meta: {
+                ...meta,
+                title: '设备详情',
+                closable: false
+            },
+            component: () => import('@/pages/deviceManage/book/editDetail')
+        }, {
+            path: '/editStateDetail',
+            name: `${pre}editStateDetail`,
+            meta: {
+                ...meta,
+                title: '设备状态详情',
+                closable: false
+            },
+            component: () => import('@/pages/deviceManage/state/editStateDetail')
         }
     ]
 }
