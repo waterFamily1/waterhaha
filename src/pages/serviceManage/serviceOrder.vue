@@ -51,14 +51,14 @@
                 <div class="c-adv-search-row">
                     <div class="form-item">
                         <label>巡检状态：</label>
-                        <div class="cmp-tab">
+                        <div class="cmp-tab" style="margin-left: 10px">
                             <TagSelect v-model="states">
-                                <TagSelectOption name="tag1">选项一</TagSelectOption>
-                                <TagSelectOption name="tag2">选项二</TagSelectOption>
-                                <TagSelectOption name="tag3">选项三</TagSelectOption>
-                                <TagSelectOption name="tag4">选项四</TagSelectOption>
-                                <TagSelectOption name="tag5">选项五</TagSelectOption>
-                                <TagSelectOption name="tag6">选项六</TagSelectOption>
+                                <TagSelectOption name="0">待处理</TagSelectOption>
+                                <TagSelectOption name="1">处理中</TagSelectOption>
+                                <TagSelectOption name="2">挂起</TagSelectOption>
+                                <TagSelectOption name="3">关闭</TagSelectOption>
+                                <TagSelectOption name="4">完成</TagSelectOption>
+                                <TagSelectOption name="5">未分配</TagSelectOption>
                             </TagSelect>
                         </div>
                     </div>
@@ -72,7 +72,7 @@
                 :data="tableData"
             >
                 <template slot-scope="{ row, index }" slot="action">
-                    <Button class="action" size="small">查看</Button>
+                    <a href="javascript:;" style="color: rgb(75, 126, 254)" @click="detailHandle(row.id)">查看</a>
                 </template>
             </Table>
             <Page 
@@ -104,7 +104,7 @@ export default {
             endTime: '',
             modal: false,
             keyword: '',
-            states: [],
+            states: [0,1,2,5],
             tableList: [
                 {
                     title: '故障设备',
@@ -129,7 +129,8 @@ export default {
                     } 
                 }, {
                     title: '区域位置',
-                    key: 'processName'
+                    key: 'processName',
+                    ellipsis: true
                 }, {
                     title: '当前状态',
                     key: 'stateName'
@@ -157,8 +158,20 @@ export default {
         getTable() {
             let queryName = this.keyword
             let processIds = this.area
-            let startDate = this.$moment(this.startTime).utc().format()
-            let endDate = this.$moment(this.endTime).utc().format()
+
+            let startDate 
+            let endDate
+            if(this.startTime == '') {
+                startDate = ''
+            } else {
+                startDate = this.$moment(this.startTime).utc().format()
+            }
+            if(this.endDate == '') {
+                endDate = ''
+            } else {
+                endDate = this.$moment(this.endDate).utc().format()
+            }
+            
             let currentPage = this.pageNum
             tableMethod({
                 queryName,
@@ -167,7 +180,7 @@ export default {
                 endDate,
                 currentPage
             }).then(res=> {
-                console.log(res)
+                // console.log(res)
                 this.tableData = res.data.items
                 this.allTotal = res.data.total
             }).catch(err=> {
@@ -208,23 +221,11 @@ export default {
         higherSearch() {
             this.searchShow = !this.searchShow
         },
-         higherSearch() {
-            this.searchShow = !this.searchShow
-        },
-        mapClick(){
-            console.log("1111")
+        detailHandle(id) {
             this.$router.push({
-                path:'/pollingManage/plan/add',
+                path: '/serviceDetail',
                 query: {
-                    type: 'map'
-                }
-            })
-        },
-        customClick(){
-            this.$router.push({
-                path:'/pollingManage/plan/add',
-                query: {
-                    type: 'normal'
+                    id: id
                 }
             })
         }
@@ -283,9 +284,9 @@ export default {
             padding-top: 5px;
             border-top: 1px solid #ececec;
             .c-adv-search-row {
-                margin: 5px 0;
+                margin: 10px 0;
                 .form-item {
-                    display: inline-block;
+                    display: flex;
                     height: 33px;
                     label {
                         display: inline-block;
@@ -293,6 +294,9 @@ export default {
                         line-height: 35px;
                         text-align: right;
                         color: #576374;
+                    }
+                    /deep/.ivu-tag-text {
+                        font-size: 14px;
                     }
                 }
                 .cmp-tab {
@@ -302,7 +306,7 @@ export default {
         }
     }
     .searchTrans {
-        height: 140px;
+        height: 150px;
         overflow: hidden;
         transition: 0.5s height;
     }
@@ -326,8 +330,12 @@ export default {
                 border-radius: 3px;
                 margin: 0 5px;
             }
-       }
-   }
+        }
+    }
+    .action {
+        border: none;
+        background: transparent;
+    }
 }
 .form-tag {
     /deep/.ivu-tag {

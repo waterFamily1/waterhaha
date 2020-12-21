@@ -196,6 +196,14 @@ let deviceManage = [
     }
 ]
 
+let serviceManage = [
+    {
+        path: `/serviceDetail`,
+        title: '维修详情',
+        auth: ['hidden']
+    }
+]
+
 export default function createRoutes(item) {
     let arr = item
     const parent = arr.filter(item => item.parentId == 0)
@@ -225,6 +233,10 @@ export default function createRoutes(item) {
                 } else if(parent[i].title == '设备管理'){
                     for(let j = 0; j < deviceManage.length; j ++) { 
                         parent[i].children.push(deviceManage[j])
+                    }
+                } else if(parent[i].title == '维修管理'){
+                    for(let j = 0; j < serviceManage.length; j ++) { 
+                        parent[i].children.push(serviceManage[j])
                     }
                 }
                 break

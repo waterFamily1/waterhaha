@@ -1,17 +1,21 @@
 <template>
     <div class="plan-box" :style="{height: height+'px'}">
-        <div class="index-search" :class="{searchTrans:searchShow, searchPack:!searchShow}">
+        <!-- <div class="index-search" :class="{searchTrans:searchShow, searchPack:!searchShow}">
             <div class="search-main">
                 <div class="form-item">
                     <label>起止时间：</label>
-                    <DatePicker type="date" placeholder="Select date" style="width: 120px"></DatePicker> - 
-                    <DatePicker type="date" placeholder="Select date" style="width: 120px"></DatePicker>
+                    <DatePicker type="date"  placement="bottom-end"  @on-change="startTimeChange" :options="startDate" format="yyyy-MM-dd"  v-model="startTime" placeholder="开始日期" style="width: 190px"></DatePicker> - 
+                    <DatePicker type="date"  placement="bottom-end"  @on-change="endTimeChange" :options="endDate" format="yyyy-MM-dd"  v-model="endTime" placeholder="结束日期" style="width: 190px"></DatePicker>
                 </div>
                 <div class="form-item">
                     <label>区域位置：</label> 
-                    <Select v-model="tissue" style="width:150px" size="small">
-                        <Option v-for="item in cityList" :value="item.value" :key="item.value">{{ item.label }}</Option>
-                    </Select>
+                    <TreeSelect 
+                        v-model="area" 
+                        multiple 
+                        :data="areaData" 
+                        v-width="350" 
+                        :max-tag-count="2"
+                    />
                 </div>
                 <div class="form-search-btn">
                     <a href="javascript:;" @click="higherSearch()">
@@ -36,37 +40,53 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div> -->
         <div class="task-content"> 
             <div class="title">
                 <button>导出表格</button>
             </div>
-             <Table stripe :columns="tableList" >
-                <template slot-scope="{ row }" slot="name">
-                    <strong>{{ row.name }}</strong>
-                </template>
-                <template slot-scope="{ row, index }" slot="action">
-                    <!-- <Button class="action" size="small" style="margin-right: 5px;">配置</Button> -->
-                    <Button class="action" size="small">查看</Button>
-                </template>
+            <!-- <Table stripe :columns="tableList" :data="tableData" :loading="loading" >
             </Table>
-            <Page :total="100" show-elevator size="small" class="page" style="text-align:right;margin-top:20px"  />
+            <Page 
+                :total="total" 
+                :page-size="searchParams.pageSize" 
+                :current="searchParams.currentPage" 
+                show-total 
+                show-elevator 
+                @on-change="pageChange"
+                style="text-align: right;margin-top: 20px;"
+            ></Page> -->
         </div>
     </div>
 </template>
 <script>
+import { mapState } from 'vuex'
+
+import { tableMethod, regionalCon } from '@/api/service/state'
+// import util from '@/libs/public_js'
+// import createTree from '@/libs/public-util'
+
 export default {
-    name:"serviceStat",
     data(){
         return {
             searchShow: false,
-            height:"",
-            cityList: [
-                {
-                    value: 'New York',
-                    label: 'New York'
+            height: '',
+            startDate: {
+                disabledDate (date) {
+                    return date && date.valueOf() >= Date.now();
                 }
-            ],
+            },
+            endDate: {
+                disabledDate (date) {
+                    return date && date.valueOf() <= Date.now()- 86400000
+                }
+            },
+            startTime: '',
+            start: '',
+            endTime: '',
+            end: '',
+            area: [],
+            areaData: [],
             stateList: [
                 {label: '待处理',id: 1},
                 {label: '处理中',id: 2},
@@ -77,54 +97,141 @@ export default {
             ],
             typeCheckedAll: false,
             typeBox: [],
-            tissue:'',
             modal:false,
             keyword:'',
             tableList: [
                 {
                     title: '序号',
-                    key: 'number'
-                },
-                {
+                    key: 'index',
+                    width: 70,
+                    align: 'center'
+                }, {
                     title: '故障设备',
-                    key: 'failureEquipment'
-                },
-                {
+                    key: 'equName'
+                }, {
                     title: '保修日期',
-                    key: 'date'
-                },
-                {
-                    title: '保修人',
-                    key: 'person'
-                },
-                {
+                    key: 'createDate',
+                    render (h, data) {
+                        return h('span', [util.transDateFromServer(data.row.createDate)])
+                    }
+                }, {
+                    title: '报修人',
+                    key: 'createUserName',
+                    width: 120
+                }, {
                     title: '状态',
-                    key: 'state'
-                },
-                {
+                    key: 'stateName',
+                    width: 90
+                }, {
                     title: '当前处理人',
-                    key: 'conductor'
-                },
-                {
+                    key: 'processingPersonName',
+                     width: 120
+                }, {
                     title: '紧急程度',
-                    key: 'emergencyDegree'
-                },
-                {
+                    key: 'severityName',
+                    width: 90
+                }, {
                     title: '区域位置',
-                    key: 'location'
-                },
-                {
+                    key: 'processName'
+                }, {
                     title: '故障原因',
-                    key: 'reason'
+                    key: 'faultReason'
                 }
             ],
+            tableData: [],
+            loading: false,
+            total: 0,
+            searchParams: {
+                processIds: '',
+                states: '',
+                startDate: '',
+                endDate: '',
+                pageSize: 10,
+                currentPage: 1
+            },
         }
     },
-    methods :{
-        higherSearch() {
-            this.searchShow = !this.searchShow
+    // computed : mapState({
+    //     maintainState : (state) => state.map.maintain.state
+    // }),
+    mounted() {
+        console.log(33333333333333333333333)
+        // this.getData()
+        // this.getRegional()
+        // this.getTime()
+    },
+    methods: {
+        getData() {
+            console.log(4333252)
+            this.loading = true
+            tableMethod().then(res=> {
+                this.listData = res.data.items
+                this.total = res.data.total
+                this.loading = false
+            }).catch(err=> {
+
+            })
+            this.$http.get(api.getRepairStatistics, this.searchParams).then((res) => {
+                this.listData = res.items;
+                this.total = res.total;
+                this.loading = false;
+            })
         },
-         higherSearch() {
+        pageChange (num) {
+            this.searchParams.currentPage = num
+            this.getData()
+        },
+        getRegional() {
+            console.log(333)
+            regionalCon().then(res => {
+                console.log(1111111)
+                let treeItem = []
+                let trees = res.data
+                for(let i = 0; i < trees.length; i ++) {
+                    trees[i].title = trees[i].name
+                    trees[i].expand = true
+                    trees[i].value = trees[i].id
+                    treeItem.push(trees[i])
+                }
+                this.areaData= createTree(treeItem)
+            }).catch(err => {
+                // 异常情况
+            })
+        },
+        getTime() {
+            let now  = new Date()
+            let year = now.getFullYear()
+            let month = now.getMonth()+1
+            month = month<10?'0'+month:month
+            let day = now.getDate()
+            day = day<10?'0'+day:day
+            let today = year+"-"+month+"-"+day
+            let dayPre = now.getDate()-1
+            let dayNext = now.getDate()+1
+            dayPre = dayPre<10?'0'+ dayPre:dayPre
+            dayNext = dayNext<10?'0'+ dayNext:dayNext
+            let pre = year+"-"+month+"-"+dayPre
+            let next = year+"-"+month+"-"+dayNext
+            this.startTime = today
+            this.endTime = today
+            this.start = today
+            this.end = next
+            let begin = this.$moment(today).utc().format()
+            let end  = this.$moment(next).utc().format()
+            //  this.url= this.ip+'/equipment/api/faults/statistics-export?severityTypes=&processIds=&orgIds=&faultTypes=&states=&startDate='+begin+'&endDate='+end+'&pageSize=10&currentPage=1'
+        },
+        endTimeChange(){
+         
+        },
+        startTimeChange(day){
+            // this.start = day
+            // this.endDate = {
+            //     disabledDate (date) {
+            //         return date && date.valueOf() <=new Date(day).getTime()- 86400000;
+            //     }
+            // }
+        },
+        higherSearch() {
             this.searchShow = !this.searchShow
         },
         typeCheckAll() {
