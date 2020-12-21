@@ -1,6 +1,6 @@
 <template>
     <div class="plan-box" :style="{height: height+'px'}">
-        <!-- <div class="index-search" :class="{searchTrans:searchShow, searchPack:!searchShow}">
+        <div class="index-search" :class="{searchTrans:searchShow, searchPack:!searchShow}">
             <div class="search-main">
                 <div class="form-item">
                     <label>起止时间：</label>
@@ -40,12 +40,12 @@
                     </div>
                 </div>
             </div>
-        </div> -->
+        </div>
         <div class="task-content"> 
             <div class="title">
                 <button>导出表格</button>
             </div>
-            <!-- <Table stripe :columns="tableList" :data="tableData" :loading="loading" >
+            <Table stripe :columns="tableList" :data="tableData" :loading="loading" >
             </Table>
             <Page 
                 :total="total" 
@@ -55,7 +55,7 @@
                 show-elevator 
                 @on-change="pageChange"
                 style="text-align: right;margin-top: 20px;"
-            ></Page> -->
+            ></Page>
         </div>
     </div>
 </template>
@@ -63,8 +63,8 @@
 import { mapState } from 'vuex'
 
 import { tableMethod, regionalCon } from '@/api/service/state'
-// import util from '@/libs/public_js'
-// import createTree from '@/libs/public-util'
+import util from '@/libs/public_js'
+import createTree from '@/libs/public-util'
 
 export default {
     data(){
@@ -151,14 +151,14 @@ export default {
             },
         }
     },
-    // computed : mapState({
-    //     maintainState : (state) => state.map.maintain.state
-    // }),
+    computed : mapState({
+        maintainState : (state) => state.map.maintain.state
+    }),
     mounted() {
         console.log(33333333333333333333333)
-        // this.getData()
-        // this.getRegional()
-        // this.getTime()
+        this.getData()
+        this.getRegional()
+        this.getTime()
     },
     methods: {
         getData() {
