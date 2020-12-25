@@ -204,6 +204,18 @@ let serviceManage = [
     }
 ]
 
+let storeManage = [
+    {
+        path: `/childPage/adjustAdd`,
+        title: '库存调整新增',
+        auth: ['hidden']
+    }, {          
+        path: `/childPage/adjustDetail`,
+        title: '库存调整信息',
+        auth: ['hidden']
+    }
+]
+
 export default function createRoutes(item) {
     let arr = item
     const parent = arr.filter(item => item.parentId == 0)
@@ -237,6 +249,10 @@ export default function createRoutes(item) {
                 } else if(parent[i].title == '维修管理'){
                     for(let j = 0; j < serviceManage.length; j ++) { 
                         parent[i].children.push(serviceManage[j])
+                    }
+                } else if(parent[i].title == '库存管理') {
+                    for(let j = 0; j < storeManage.length; j ++) { 
+                        parent[i].children.push(storeManage[j])
                     }
                 }
                 break

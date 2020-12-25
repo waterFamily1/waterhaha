@@ -4,13 +4,13 @@
             <div class="search-main">
                 <div class="form-item">
                     <label>起止时间：</label>
-                    <DatePicker type="date"  placement="bottom-end"  @on-change="startTimeChange" :options="startDate" format="yyyy-MM-dd"  v-model="startTime" placeholder="开始日期" style="width: 190px"></DatePicker> - 
-                    <DatePicker type="date"  placement="bottom-end"  @on-change="endTimeChange" :options="endDate" format="yyyy-MM-dd"  v-model="endTime" placeholder="结束日期" style="width: 190px"></DatePicker>
+                    <DatePicker type="date" placement="bottom-end" @on-change="startTimeChange" :options="startDate" format="yyyy-MM-dd" v-model="startTime" placeholder="开始日期" style="width: 190px"></DatePicker> - 
+                    <DatePicker type="date" placement="bottom-end" @on-change="endTimeChange" :options="endDate" format="yyyy-MM-dd" v-model="endTime" placeholder="结束日期" style="width: 190px"></DatePicker>
                 </div>
                 <div class="form-item">
                     <label>区域位置：</label> 
                     <TreeSelect 
-                        v-model="area" 
+                        v-model="searchParams.processIds" 
                         multiple 
                         :data="areaData" 
                         v-width="350" 
@@ -23,19 +23,23 @@
                         <Icon type="ios-arrow-up" v-else />
                         高级搜索
                     </a>
-                    <button type="button">搜索</button>
-                    <button type="button" class="reset">重置</button>
+                    <Button @click="getData">搜索</Button>
+                    <Button class="reset" @click="searchParamsClean">重置</Button>
                 </div>
             </div>
             <div class="c-adv-search">
                 <div class="c-adv-search-row">
-                    <div class="form-item">
+                    <div class="form-item" style="display: flex;">
                         <label>巡检状态：</label>
                         <div class="cmp-tab">
-                            <a href="javascript:;" @click="typeCheckAll()" :class="{checked:typeCheckedAll}">全部</a>
-                            <a href="javascript:;" v-for="(item, index) in stateList" 
-                            :key="index" @click="typeCheck(item.id)" 
-                            :class="{checked:typeBox.includes(item.id)}">{{ item.label }}</a>
+                            <TagSelect v-model="searchParams.states">
+                                <TagSelectOption name="0">待处理</TagSelectOption>
+                                <TagSelectOption name="1">处理中</TagSelectOption>
+                                <TagSelectOption name="2">挂起</TagSelectOption>
+                                <TagSelectOption name="3">关闭</TagSelectOption>
+                                <TagSelectOption name="4">完成</TagSelectOption>
+                                <TagSelectOption name="5">未分配</TagSelectOption>
+                            </TagSelect>
                         </div>
                     </div>
                 </div>
@@ -43,7 +47,7 @@
         </div>
         <div class="task-content"> 
             <div class="title">
-                <button>导出表格</button>
+                <Button @click="exportTable">导出表格</Button>
             </div>
             <Table stripe :columns="tableList" :data="tableData" :loading="loading" >
             </Table>
@@ -60,8 +64,6 @@
     </div>
 </template>
 <script>
-import { mapState } from 'vuex'
-
 import { tableMethod, regionalCon } from '@/api/service/state'
 import util from '@/libs/public_js'
 import createTree from '@/libs/public-util'
@@ -85,18 +87,7 @@ export default {
             start: '',
             endTime: '',
             end: '',
-            area: [],
             areaData: [],
-            stateList: [
-                {label: '待处理',id: 1},
-                {label: '处理中',id: 2},
-                {label: '挂起',id: 3},
-                {label: '关闭',id: 4},
-                {label: '完成',id: 5},
-                {label: '未分配',id: 6}
-            ],
-            typeCheckedAll: false,
-            typeBox: [],
             modal:false,
             keyword:'',
             tableList: [
@@ -142,8 +133,8 @@ export default {
             loading: false,
             total: 0,
             searchParams: {
-                processIds: '',
-                states: '',
+                processIds: [],
+                states: [],
                 startDate: '',
                 endDate: '',
                 pageSize: 10,
@@ -151,30 +142,39 @@ export default {
             },
         }
     },
-    computed : mapState({
-        maintainState : (state) => state.map.maintain.state
-    }),
     mounted() {
+<<<<<<< HEAD
         console.log('33333333333333333333333')
+=======
+        this.height = document.body.clientHeight-70
+        this.getTime()
+>>>>>>> e4cf21fbd0c36e75cae0af4ef0e3933567b904a5
         this.getData()
         this.getRegional()
-        this.getTime()
     },
     methods: {
         getData() {
-            console.log(4333252)
             this.loading = true
-            tableMethod().then(res=> {
+            let processIds = this.searchParams.processIds
+            let states = this.searchParams.states
+            let startDate = this.$moment(this.startTime).utc().format()
+            let endDate = this.$moment(this.endTime).utc().format()
+            let currentPage = this.searchParams.currentPage
+            this.searchParams.startDate = startDate
+            this.searchParams.endDate = endDate
+            // console.log(this.startTime)
+            tableMethod({
+                processIds,
+                states,
+                startDate,
+                endDate,
+                currentPage
+            }).then(res=> {
                 this.listData = res.data.items
                 this.total = res.data.total
                 this.loading = false
             }).catch(err=> {
 
-            })
-            this.$http.get(api.getRepairStatistics, this.searchParams).then((res) => {
-                this.listData = res.items;
-                this.total = res.total;
-                this.loading = false;
             })
         },
         pageChange (num) {
@@ -182,14 +182,12 @@ export default {
             this.getData()
         },
         getRegional() {
-            console.log(333)
             regionalCon().then(res => {
-                console.log(1111111)
                 let treeItem = []
                 let trees = res.data
                 for(let i = 0; i < trees.length; i ++) {
                     trees[i].title = trees[i].name
-                    trees[i].expand = true
+                    trees[i].expand = false
                     trees[i].value = trees[i].id
                     treeItem.push(trees[i])
                 }
@@ -218,56 +216,44 @@ export default {
             this.end = next
             let begin = this.$moment(today).utc().format()
             let end  = this.$moment(next).utc().format()
-            //  this.url= this.ip+'/equipment/api/faults/statistics-export?severityTypes=&processIds=&orgIds=&faultTypes=&states=&startDate='+begin+'&endDate='+end+'&pageSize=10&currentPage=1'
         },
-        endTimeChange(){
-         
+        endTimeChange(day) {
+            this.end = day
+            this.startDate = {
+                disabledDate (date) {
+                    return date && date.valueOf() >=new Date(day)
+                }
+            }
         },
         startTimeChange(day){
-            // this.start = day
-            // this.endDate = {
-            //     disabledDate (date) {
-            //         return date && date.valueOf() <=new Date(day).getTime()- 86400000;
-            //     }
-            // }
+            this.start = day
+            this.endDate = {
+                disabledDate (date) {
+                    return date && date.valueOf() <=new Date(day).getTime()- 86400000
+                }
+            }
         },
         higherSearch() {
             this.searchShow = !this.searchShow
         },
-        typeCheckAll() {
-            this.typeBox = []
-            this.typeCheckedAll = true
+        searchParamsClean () {
+            this.startTime = util.transDateFromLocale(util.formatDateTime(new Date(),'yyyy-MM-dd')+' 00:00:00')
+            this.endTime = util.transDateFromLocale(util.formatDateTime(new Date(),'yyyy-MM-dd')+' 23:59:59') 
+            let startDate = this.$moment(this.startTime).utc().format()
+            let endDate = this.$moment(this.endTime).utc().format()
+            const defaultParams = {
+                processIds: '',
+                states: '',
+                startDate: startDate,
+                endDate: endDate,
+                pageSize: 10,
+                currentPage: 1
+            };
+            this.searchParams = Object.assign({}, this.searchParams, defaultParams);
         },
-        typeCheck(i) {
-            this.typeCheckedAll = false
-            if(this.typeBox.includes(i)) {
-                this.typeBox = this.typeBox.filter((ele) => {
-                    return ele != i
-                });
-            } else {
-                this.typeBox.push(i);
-            }
-        },
-        mapClick(){
-            console.log("1111")
-            this.$router.push({
-                path:'/pollingManage/plan/add',
-                query: {
-                    type: 'map'
-                }
-            })
-        },
-        customClick(){
-            this.$router.push({
-                path:'/pollingManage/plan/add',
-                query: {
-                    type: 'normal'
-                }
-            })
+        exportTable () {
+            util.download( '/equipment/api/repairs/statistics-export', this.searchParams)
         }
-    },
-    mounted() {
-        this.height = document.body.clientHeight-130
     }
 }
 </script>
@@ -303,7 +289,8 @@ export default {
                     color: #576374;
                     font-size: 12px;
                 }
-                button{
+                .ivu-btn {
+                    height: auto;
                     background: #4b7efe;
                     font-size: 12px;
                     padding: 4px 12px;
@@ -312,7 +299,7 @@ export default {
                     border-radius: 3px;
                     margin: 0 5px;
                 }
-                .reset{
+                .reset {
                     background: #495566;
                 }
             }
@@ -335,13 +322,8 @@ export default {
                     }
                 }
                 .cmp-tab {
-                    display: inline-block;
-                    a {
-                        margin-right: 20px;
-                        color: #576374;
-                    }
-                    .checked {
-                        color: #4B7EFE;
+                    /deep/.ivu-tag-text {
+                        font-size: 14px;
                     }
                 }
             }
@@ -357,13 +339,14 @@ export default {
         overflow: hidden;
         transition: 0.5s height;
     }
-   .task-content{
+   .task-content {
        border-top: 5px solid #f0f0f0;
        padding: 10px;
-       .title{
+       .title {
             height: 36px;
             border-bottom: 1px solid #EEE;
-            button{
+            .ivu-btn {
+                height: auto;
                 background: #576374;
                 font-size: 12px;
                 padding: 4px 12px;

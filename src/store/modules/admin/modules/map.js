@@ -131,6 +131,12 @@ const state = {
             "8": "消防已审核"
         }
     },
+    storage: {
+		inventory: {
+			auditState: [ {label: '已审核', value: 1}, {label: '未审核', value: 0} ],
+			auditStateText: {'1': '已审核', '0': '未审核'}
+		}
+	},
 }
 
 export default {

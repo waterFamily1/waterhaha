@@ -2,9 +2,8 @@ import request from '@/plugins/request'
 
 //列表
 export function tableMethod(data) {
-    console.log('lksdjk')
-    return requset({
-        url: '/equipment/api/repairs/statistics?processIds=&states=&startDate=2020-12-20T16:00:00.000Z&endDate=2020-12-21T15:59:59.000Z&pageSize=10&currentPage=1',
+    return request({
+        url: '/equipment/api/repairs/statistics?processIds='+data.processIds+'&states='+data.states+'&startDate='+data.startDate+'&endDate='+data.endDate+'&pageSize=10&currentPage='+data.currentPage+'',
         method: 'get'
     })
 }
