@@ -44,7 +44,7 @@
         </div>
         <div class="c-table-top">
             <div class="c-table-top-btns">
-                <Button  :to='url' >导出</Button>
+                <Button  @click="exportTable()">导出</Button>
             </div>
             <Table ref="selection" :columns="columns" :data="data">
                 <template slot-scope="{ row, index }" slot="action">
@@ -62,6 +62,7 @@
 import { statList,getOrg,getUsers } from '@api/upkeep/stat';
 import createTree from '@/libs/public-util'
 import {formatTime} from '@/libs/public'
+import util from '@/libs/public_js'
 export default {
     name: 'upkeerPlan',
     data() {
@@ -140,8 +141,6 @@ export default {
             genreList:[],
             handlerList:[],
             personId:"",
-            url:'',
-            ip:'',
         }
     },
     mounted() {
@@ -153,9 +152,6 @@ export default {
         this.getList()
         this.getRegional()
         this.userList()
-        let cur = this.$route.path
-        let com = window.location.href
-        this.ip =  com.slice(0,com.indexOf(cur))
         
     },
     methods: {
@@ -227,7 +223,6 @@ export default {
             let end  = this.end?this.$moment(this.end).utc().format():''
             let state = this.confirmWay.length!=0?this.confirmWay.join(','):''
             let orgId = this.area.length!=0?this.area.join(','):''
-            this.url= this.ip+'/equipment/api/maintains/statistics?startDate='+begin+'&endDate='+end+'&state='+state+'&executeUserId='+this.personId+'&orgId='+orgId+'&currentPage='+this.page+'&pageSize=10'
             statList(begin,end,state,this.personId,orgId,this.page).then(res=>{
               console.log(res)
               if(res.data.items){
@@ -248,6 +243,22 @@ export default {
         },
         higherSearch() {
             this.searchShow = !this.searchShow
+        },
+        exportTable () {
+             let begin = this.start?this.$moment(this.start).utc().format():''
+            let end  = this.end?this.$moment(this.end).utc().format():''
+            let state = this.confirmWay.length!=0?this.confirmWay.join(','):''
+            let orgId = this.area.length!=0?this.area.join(','):''
+            const defaultParams = {
+                executeUserId: this.personId,
+                state: state,
+                startDate: begin,
+                endDate: end,
+                orgId: orgId,
+                 pageSize: 10,
+                currentPage: this.page
+            };
+            util.download( '/equipment/api/maintains/statistics-excel-export', defaultParams)
         }
     }
 }

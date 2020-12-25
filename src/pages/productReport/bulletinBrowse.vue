@@ -39,7 +39,7 @@
                 </div>
                 <div class="c-top-border-gray">
                     <div class="table-top-btns">
-                        <Button  :to='url'>导出</Button>
+                        <Button  @click="exportTable()">导出</Button>
                     </div>
                     <div style="padding:10px" class="app-content">
 
@@ -74,6 +74,7 @@
 // 
 import { getTree,getDetail,exportTable,getTable} from '@api/productReport/bulletin';
 import { formatTime } from '@/libs/public'
+import util from '@/libs/public_js'
 export default {
     name: 'bulletinBrowse',
     data() {
@@ -114,8 +115,6 @@ export default {
             currentRecord:{},
             currentDate:'',
             preDay:"",
-            url:'',
-            ip:'',
             endTimeOptions :{
                 disabledDate(date){
                     let myDate = new Date(date).getDay();
@@ -137,11 +136,16 @@ export default {
         console.log(this.getTime())
         this.currentDate = this.getTime().split(',')[1]
         this.preDay = this.getTime().split(',')[0]
-        let cur = this.$route.path
-        let com = window.location.href
-        this.ip =  com.slice(0,com.indexOf(cur))
     },
     methods: {
+         exportTable(){
+            const defaultParams = {
+                formId: this.currentRecord.id,
+                recordDate: this.preDay+'T16:00:00.000Z',
+                cycleId: this.currentRecord.cycleId
+            };
+            util.download( '/api/loong/api/datainput-reports/export', defaultParams)
+        },
         handleSearch (value) {
             this.formData = !value ? [] : [
                 value,
@@ -213,7 +217,7 @@ export default {
             getDetail(this.id).then(res=>{
                  this.currentRecord = res.data
                  this.currentRecord.time = formatTime(res.data.formLatestdate, 'yyyy-MM-dd')
-                 this.url = this.ip+'/api/loong/api/datainput-reports/export?formId='+res.data.id+'&recordDate='+this.preDay+'T16:00:00.000Z&cycleId='+res.data.cycleId
+                 
                  this.getTablebyTime()
             })
         },

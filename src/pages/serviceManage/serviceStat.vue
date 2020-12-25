@@ -143,12 +143,8 @@ export default {
         }
     },
     mounted() {
-<<<<<<< HEAD
-        console.log('33333333333333333333333')
-=======
         this.height = document.body.clientHeight-70
         this.getTime()
->>>>>>> e4cf21fbd0c36e75cae0af4ef0e3933567b904a5
         this.getData()
         this.getRegional()
     },

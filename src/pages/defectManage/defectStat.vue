@@ -67,7 +67,7 @@
         <div class="c-top-border-gray">
             <div class="c-table-top-btns">
                 <!-- <button @click="exportHandle()"></button> -->
-                 <Button  :to='url' type="primary">导出表格</Button>  
+                  <Button  @click="exportTable()">导出表格</Button>  
             </div>
             <Table stripe :columns="columns" :data="data"></Table>
             <Page :total="total" show-elevator show-total class="page" @on-change="changeSize" />
@@ -78,6 +78,7 @@
 import { getOrg,regionalCon,statList} from '@api/defect/stat';
 import createTree from '@/libs/public-util'
 import {formatTime} from '@/libs/public'
+import util from '@/libs/public_js'
 export default {
     name: 'defectStat',
     data() {
@@ -144,15 +145,10 @@ export default {
             start:'',
             endTime:'',
             end:'',
-            url:'',
-            ip:'',
         }
     },
     mounted() {
         this.height = document.body.clientHeight-80
-        let cur = this.$route.path
-        let com = window.location.href
-        this.ip =  com.slice(0,com.indexOf(cur))
         this.getTime()
         this.getOrganizations()
         this.getRegional()
@@ -187,7 +183,23 @@ export default {
             this.end = next
             let begin = this.$moment(today).utc().format()
             let end  = this.$moment(next).utc().format()
-             this.url= this.ip+'/equipment/api/faults/statistics-export?severityTypes=&processIds=&orgIds=&faultTypes=&states=&startDate='+begin+'&endDate='+end+'&pageSize=10&currentPage=1'
+           
+        },
+        exportTable () {
+             let begin = this.start?this.$moment(this.start).utc().format():''
+            let end  = this.end?this.$moment(this.end).utc().format():''
+            const defaultParams = {
+                processIds: '',
+                states:'',
+                severityTypes: '',
+                startDate: begin,
+                endDate: end,
+                orgIds: '',
+                faultTypes:'',
+                pageSize: 10,
+                currentPage: this.page
+            };
+            util.download( '/equipment/api/faults/statistics-export', defaultParams)
         },
         endTimeChange(day){
           this.end = day
