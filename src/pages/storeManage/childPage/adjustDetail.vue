@@ -128,7 +128,6 @@ export default {
                     key: 'afterAmount',
                     render(h, data) {
                         if(_self.status == 'info') {
-                            console.log(111)
                             data.row.afterAmount = data.row.afterAmountCache
                             return h('span', data.row.afterAmount)
                         } else if(_self.status == 'edit') {

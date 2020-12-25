@@ -11,9 +11,9 @@
              <Form ref="formValidate" :model="formValidate" :rules="ruleValidate" :label-width="100">
                 <Row>
                     <Col span="12">
-                        <FormItem label="组织信息：" prop="tissue">
+                        <FormItem label="组织信息：" prop="orgId">
                             <TreeSelect 
-                                v-model="formValidate.tissue" 
+                                v-model="formValidate.orgId" 
                                 :data="tissueData" 
                                 v-width="300" 
                                 @on-change="tissueChange"
@@ -21,8 +21,8 @@
                         </FormItem>
                     </Col>
                     <Col span="12">
-                        <FormItem label="创建人员：" prop="person">
-                            <Select v-model="formValidate.person" placeholder='请选择' style="width:300px">
+                        <FormItem label="创建人员：" prop="userId">
+                            <Select v-model="formValidate.userId" placeholder='请选择' style="width:300px">
                                 <Option v-for="item in personList" :value="item.id" :key="item.id">{{ item.name }}</Option>
                             </Select>
                         </FormItem>
@@ -30,9 +30,9 @@
                 </Row>
                 <Row>
                     <Col span="12">
-                        <FormItem label="调整仓库：" prop="warehouse">
+                        <FormItem label="调整仓库：" prop="warehouseId">
                             <Select 
-                                v-model="formValidate.warehouse" 
+                                v-model="formValidate.warehouseId" 
                                 placeholder="请选择" 
                                 @on-change="warehouseChange"
                                 style="width:300px"
@@ -106,21 +106,22 @@ export default {
         return {
             height:'',
             formValidate:{
-               person:'',
-               tissue:'',
-               warehouse:'',
+               orgId: '',
+               orgName: '',
+               userId:'',
+               warehouseId:'',
                remark:'',
-               datails: []
+               details: []
             },
             ruleValidate:{
-                tissue: [
-                    { required: true, message: '请选择组织信息', trigger: 'change', type: 'number' }
+                orgId: [
+                    { required: true, message: '请选择组织', trigger: 'change' }
                 ],
-                 person: [
-                    { required: true, message: '请选择组织信息', trigger: 'change', type: 'number' }
+                userId: [
+                    { required: true, message: '请选择人员', trigger: 'change', type: 'number' }
                 ],
-                 warehouse: [
-                    { required: true, message: '请选择组织信息', trigger: 'change', type: 'number' }
+                warehouseId: [
+                    { required: true, message: '请选择仓库', trigger: 'change', type: 'number' }
                 ]
             },
             tissueData: [],
@@ -164,6 +165,7 @@ export default {
                     title: '调后数量',
                     key: '',
                     render(h, data) {
+                        let that = this
                         return h('input', {
                             style: {width: '50px'},
                             attrs: {
@@ -175,7 +177,7 @@ export default {
                                 value: data.row.afterAmount || 0
                             },
                             on: {
-                                input: function(event) {
+                                input(event) {
                                     var v = event.target.value
                                     if(isNaN(v)) v = event.target.value = 0
                                     data.row.afterAmount = v
@@ -221,7 +223,8 @@ export default {
             modalTotal:0,
             page: 1,
             modalName: '',
-            submitLoading: false
+            submitLoading: false,
+            trees: []
         }
     },
     mounted() {
@@ -233,9 +236,10 @@ export default {
             orgMethod().then(res=> {
                 let treeItem = []
                 let trees = res.data
+                this.trees =res.data
                 for(let i = 0; i < trees.length; i ++) {
                     trees[i].title = trees[i].name
-                    trees[i].value = trees[i].id
+                    trees[i].value = trees[i].id.toString()
                     treeItem.push(trees[i])
                 }
                 this.tissueData = createTree(treeItem)
@@ -245,6 +249,11 @@ export default {
         },
         tissueChange(id) {
             //创建人员
+            this.trees.some(item=> {
+                if(item.id == id) {
+                    this.formValidate.orgName = item.name
+                }
+            })
             personMethod(id).then(res=> {
                 this.personList = res.data.items
             }).catch(err=> {    
@@ -258,7 +267,7 @@ export default {
             })
         },
         addHandle() {
-            if(this.formValidate.warehouse == '') {
+            if(this.formValidate.warehouseId == '') {
                 this.$Notice.warning({
                     title: '请先选择调整仓库'
                 });
@@ -282,7 +291,7 @@ export default {
             }
         },
         getAddList() {
-            let warehouseId = this.formValidate.warehouse
+            let warehouseId = this.formValidate.warehouseId
             let queryName = this.modalName
             let currentPage = this.page
             addMethod({
@@ -313,7 +322,7 @@ export default {
             this.selectedData.map(item=> {
                 id.push(item.id)
             })
-            let warehouseId = this.formValidate.warehouse
+            let warehouseId = this.formValidate.warehouseId
             let materielIds = id
             addMethod1({
                 materielIds,
@@ -362,8 +371,10 @@ export default {
         },
         checkAmount() {
             var datas = this.tableData
+            console.log(this.tableData)
             var valid = true
             datas.forEach((item)=>{
+                console.log(item)
                 if(item.afterAmount === "") valid = false
             })
             return valid
@@ -485,3 +496,4 @@ export default {
     margin: 10px 0 0;
 }
 </style>
+
