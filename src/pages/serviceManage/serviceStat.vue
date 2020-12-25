@@ -155,7 +155,7 @@ export default {
         maintainState : (state) => state.map.maintain.state
     }),
     mounted() {
-        console.log(33333333333333333333333)
+        console.log('33333333333333333333333')
         this.getData()
         this.getRegional()
         this.getTime()

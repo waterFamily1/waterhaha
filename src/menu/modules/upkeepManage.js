@@ -23,6 +23,14 @@ export default {
         }, {
             path: `/maintain/statistics`,
             title: '保养统计'
-        }
+        }, {
+            path: `/upkeep/planEdit`,
+            title: '保养计划详情编辑',
+            auth: ['hidden']
+        },  {
+            path: `/upkeep/taskDetail`,
+            title: '保养任务详情',
+            auth: ['hidden']
+        }, 
     ]
 }

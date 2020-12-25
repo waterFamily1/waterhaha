@@ -39,10 +39,14 @@
                 <Button @click="addModal = true">新增</Button>
                 <Button @click="deleteHandle()">删除</Button>
             </div>
-            <Table ref="selection" :columns="columns" :data="data">
+            <Table ref="selection" :columns="columns" :data="data"
+             @on-select="handleSelect"
+                        @on-select-cancel="handleSelectCancel"
+                        @on-select-all="handleSelectAll"
+                        @on-select-all-cancel="handleSelectAllCancel">
                 <template slot-scope="{ row, index }" slot="action">
-                    <Button class="action" type="text" size="small" style="margin-right: 5px;color:rgb(75, 126, 254)">查看</Button>
-                    <Button class="action" type="text" size="small" style="color:rgb(75, 126, 254)">复制</Button>
+                    <Button class="action" type="text" size="small" style="margin-right: 5px;color:rgb(75, 126, 254)" @click="check(row.id)">查看</Button>
+                    <Button class="action" type="text" size="small" style="color:rgb(75, 126, 254)" @click="copy(row.id)">复制</Button>
                 </template>
             </Table>
             <Page :total="total" show-elevator show-total class="page" @on-change="changeSize" />
@@ -57,13 +61,16 @@
             ok-text="生成保养项目">
             <Form :model="addForm" :label-width="100">
                 <FormItem label="区域位置： ">
-                    <TreeSelect v-model="addForm.value" multiple :data="treeData" />
+                    <TreeSelect v-model="addForm.value" multiple :data="treeData" v-width="240"  />
+                    
                 </FormItem>
                 <FormItem label="设备类型： " >
-                    <Select v-model="addForm.type">
-                        <Option value="0">站点设备</Option>
-                        <Option value="1">泵站设备</Option>
-                    </Select>
+                    <TreeSelect 
+                        v-model="addForm.type" 
+                        multiple 
+                        :data="genreList" 
+                        v-width="240" 
+                    />
                 </FormItem>
             </Form>
         </Modal>
@@ -71,9 +78,10 @@
 </template>
 <script>
 // planList
-import { planList } from '@api/upkeep/plan';
+import { planList,typeMethod,regionalCon,deletePlan } from '@api/upkeep/plan';
 import createTree from '@/libs/public-util'
 import {formatTime} from '@/libs/public'
+import { typeTreeMethod1 } from '@/libs/public'
 export default {
     name: 'upkeerPlan',
     data() {
@@ -136,35 +144,10 @@ export default {
             ],
             data: [],
             addModal: false,
-            treeData: [
-                {
-                    title: 'parent1',
-                    expand: true,
-                    value: 'parent1',
-                    selected: false,
-                    checked: false,
-                    children: [
-                        {
-                            title: 'parent 1-1',
-                            expand: true,
-                            value: 'parent1-1',
-                            selected: false,
-                            checked: false,
-                            children: [
-                                {
-                                    title: 'leaf 1-1-1',
-                                    value: 'leaf1',
-                                    selected: false,
-                                    checked: false,
-                                }
-                            ]
-                        }
-                    ]
-                }
-            ],
+            treeData: [],
             addForm: {
                 value: [],
-                type: ''
+                type: []
             },
             startDate: {
                 disabledDate (date) {
@@ -182,14 +165,124 @@ export default {
             end:'',
             page:1,
             total:0,
-            stateList:['未分配','已分配','已下达','转派','逾期','终止','完成']
+            stateList:['未分配','已分配','已下达','转派','逾期','终止','完成'],
+            genreList:[],
+            selectedData:[]
         }
     },
     mounted() {
         this.height = document.body.clientHeight-80
         this.getList()
+        this.getRegional()
+        this.getType()
     },
     methods: {
+        deleteHandle(){
+            if(this.selectedData.length==0){
+                // 
+                this.$Message.warning('请选择删除的计划');
+                return
+            }
+            this.$Modal.confirm({
+                title: '提示',
+                content: '<p>你确定要删除吗？</p>',
+                onOk: () => {
+                    let arr = []
+                    this.selectedData.map(ele=>{
+                        arr.push(ele.id)
+                    })
+                    let ids = arr.join(',')
+                    deletePlan(ids).then(res=>{
+                        if(res.data.count){
+                            this.$Message.success('删除成功');
+                            this.getList()
+                        }
+                    })
+                },
+                onCancel: () => {
+                    
+                }
+            });
+            
+            
+        },
+        check(id){
+            console.log(id)
+            this.$router.push({
+                path: '/upkeep/planAllot',
+                query:{
+                   id:id 
+                }
+            })
+        },
+        copy(id){
+            this.$router.push({
+                path: '/upkeep/planDetail',
+                query:{
+                    id:id
+                }
+            })
+        },
+        // 清空所有已选项
+        handleClearSelect (status) {
+            this.selectedData = [];
+            this.$refs.selection.selectAll(status);
+        },
+        // 选中一项，将数据添加至已选项中
+        handleSelect (selection, row) {
+            this.selectedData.push(row);
+        },
+        // 取消选中一项，将取消的数据从已选项中删除
+        handleSelectCancel (selection, row) {
+            const index = this.selectedData.findIndex(item => item.id === row.id);
+            this.selectedData.splice(index, 1);
+        },
+        // 当前页全选时，判断已选数据是否存在，不存在则添加
+        handleSelectAll (selection) {
+            this.selectedData=selection
+        },
+        // 取消当前页全选时，将当前页的数据（即 modelData）从已选项中删除
+        handleSelectAllCancel () {
+            const selection = this.modelData;
+            selection.forEach(item => {
+                const index = this.selectedData.findIndex(i => i.id === item.id);
+                if (index >= 0) {
+                    this.selectedData.splice(index, 1);
+                }
+            });
+        },
+         getRegional() {
+            regionalCon().then(res => {
+                // console.log(res)
+                let treeItem = []
+                let trees = res.data
+                for(let i = 0; i < trees.length; i ++) {
+                    trees[i].title = trees[i].name
+                    trees[i].value = trees[i].id
+                    trees[i].checked = false
+                    treeItem.push(trees[i])
+                }
+                this.treeData = createTree(treeItem)
+            }).catch(err => {
+                // 异常情况
+            })
+        },
+         getType() {
+            typeMethod().then(res=> {
+                // console.log(res)
+                let treeItem = []
+                let trees = res.data.items
+                for(let i = 0; i < trees.length; i ++) {
+                    trees[i].title = trees[i].name
+                    trees[i].value = trees[i].id
+                    trees[i].checked = true
+                    treeItem.push(trees[i])
+                }
+                this.genreList = typeTreeMethod1(treeItem, '0')
+            }).catch(err=> {
+
+            })
+        },
         search(){
            this.getList()
         },
@@ -218,6 +311,7 @@ export default {
             let begin = this.start?this.$moment(this.start).utc().format():''
             let end  = this.end?this.$moment(this.end).utc().format():''
             let range = {"start":begin,"end":end}
+            console.log(range)
             let state = this.confirmWay.length!=0?this.confirmWay.join(','):''
             planList(this.planList.name,range,begin,end,state,this.page).then(res=>{
               console.log(res)
@@ -228,7 +322,7 @@ export default {
                       ele.endDate = formatTime(ele.endDate, 'yyyy-MM-dd')
                       ele.createDate = formatTime(ele.createDate, 'HH:mm:ss yyyy-MM-dd')
                       if(ele.state == 3){
-                          ele. _disabled= true
+                          ele._disabled= true
                       }
                   })
                   this.data = temp
@@ -241,8 +335,15 @@ export default {
             this.searchShow = !this.searchShow
         },
         ok() {
+            console.log(this.addForm)
+            let equIds = this.addForm.length!=0?this.addForm.type.join(','):''
+            let areaIds =this.addForm.value.length!=0?this.addForm.value.join(','):''
             this.$router.push({
-                path: 'upkeep/planDetail'
+                path: '/upkeep/planDetail',
+                query:{
+                    equipmentTypeId:equIds,
+                    areaId:areaIds
+                }
             })
         },
         cancel() {

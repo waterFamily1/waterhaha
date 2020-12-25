@@ -60,6 +60,24 @@ export default {
                 closable: false
             },
             component: () => import('@/pages/upkeepManage/upkeepStat')
-        }
+        },{
+            path: '/upkeep/planEdit',
+            name: `${pre}upkeep-planEdit`,
+            meta: {
+                ...meta,
+                title: '保养计划详情编辑',
+                closable: false
+            },
+            component: () => import('@/pages/upkeepManage/upkeep/planEdit')
+        },{
+            path: '/upkeep/taskDetail',
+            name: `${pre}upkeep-taskDetail`,
+            meta: {
+                ...meta,
+                title: '保养任务详情',
+                closable: false
+            },
+            component: () => import('@/pages/upkeepManage/upkeep/taskDetail')
+        },
     ]
 }
