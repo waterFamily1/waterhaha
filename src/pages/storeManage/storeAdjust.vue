@@ -4,13 +4,17 @@
             <div class="search-main">
                 <div class="form-item">
                     <label>关键字：</label>
-                    <Input v-model="keyword" placeholder="库存调整单号" style="width: 200px" />
+                    <Input v-model="searchParams.queryName" placeholder="库存调整单号" style="width: 300px" />
                 </div>
                 <div class="form-item">
                     <label>所属组织：</label> 
-                    <Select v-model="model1" style="width:200px">
-                        <Option v-for="item in cityList" :value="item.value" :key="item.value">{{ item.label }}</Option>
-                    </Select>
+                    <TreeSelect 
+                        v-model="searchParams.orgId" 
+                        multiple 
+                        :data="orgList" 
+                        :max-tag-count="2"
+                        v-width="240" 
+                    />
                 </div>
                 <div class="form-search-btn">
                     <a href="javascript:;" @click="higherSearch()">
@@ -18,207 +22,438 @@
                         <Icon type="ios-arrow-up" v-else />
                         高级搜索
                     </a>
-                    <button type="button">搜索</button>
-                    <button type="button" class="reset">重置</button>
+                    <Button @click="getTable">搜索</Button>
+                    <Button class="reset" @click="resstHandle">重置</Button>
                 </div>
             </div>
             <div class="c-adv-search">
                 <div class="c-adv-search-row">
-                    <div class="form-item">
+                    <div class="form-item" style="display: flex;">
                         <label>审核状态：</label>
                         <div class="cmp-tab">
-                            <a href="javascript:;" @click="typeCheckAll()" :class="{checked:typeCheckedAll}">全部</a>
-                            <a href="javascript:;" v-for="(item, index) in typeList" 
-                            :key="index" @click="typeCheck(item.id)" 
-                            :class="{checked:typeBox.includes(item.id)}">{{ item.label }}</a>
+                            <TagSelect v-model="searchParams.auditedFlag">
+                                <TagSelectOption name="1">已审核</TagSelectOption>
+                                <TagSelectOption name="2">未审核</TagSelectOption>
+                            </TagSelect>
                         </div>
                     </div>
                 </div>
                  <div class="c-adv-search-row">
                     <div class="form-item">
                         <label>调整仓库：</label>
-                        <Select v-model="model1" style="width:200px" size="small">
-                            <Option v-for="item in cityList" :value="item.value" :key="item.value">{{ item.label }}</Option>
+                        <Select v-model="searchParams.warehouseId" style="width:200px">
+                            <Option v-for="item in warehouseList" :value="item.id" :key="item.id">{{ item.warehouseName }} - {{ item.warehouseNo }}</Option>
                         </Select>
                     </div>
                 </div>
                 <div class="c-adv-search-row">
                     <div class="form-item">
                         <label>创建时间：</label>
-                        <DatePicker type="date" placeholder="Select date" style="width: 200px" size="small"></DatePicker> - 
-                        <DatePicker type="date" placeholder="Select date" style="width: 200px" size="small" ></DatePicker>
+                        <DatePicker 
+                            type="date" 
+                            placeholder="开始日期" 
+                            style="width: 200px"
+                            :options="startDate"
+                            v-model="startTime"
+                            format="yyyy-MM-dd"
+                            @on-change="startTimeChange"
+                        ></DatePicker> - 
+                        <DatePicker 
+                            type="date" 
+                            placeholder="结束日期" 
+                            style="width: 200px"
+                            @on-change="endTimeChange" 
+                            v-model="endTime"
+                            format="yyyy-MM-dd"
+                            :options="endDate"
+                        ></DatePicker>
                     </div>
                 </div>
             </div>
         </div>
         <div class="index-content">
             <div class="c-table-top-btns">
-                <button type="button" @click="add()">库存调整新增</button>
-                <button type="button" @click="adjust()">库存物料移库</button>
-                <button type="button" @click="addDevice()">导出库存记录</button>
+                <Button @click="linkToAdd()">库存调整新增</Button>
+                <Button @click="modal = true">库存物料移库</Button>
+                <Button @click="exportData()">导出库存记录</Button>
             </div> 
             <div class="table-wrapper" :style="{height: (height-45)+'px'}">
-                <Table stripe :columns="tableList" >
-                    <template slot-scope="{ row }" slot="name">
-                        <strong>{{ row.name }}</strong>
-                    </template>
+                <Table stripe :columns="tableList" :data="tableData">
                     <template slot-scope="{ row, index }" slot="action">
-                        <!-- <Button class="action" size="small" style="margin-right: 5px;">配置</Button> -->
-                        <Button class="action" size="small">查看</Button>
+                        <Button class="action" size="small" @click="detailHandle(row.id)">查看</Button>
                     </template>
                 </Table>
-                 <Page :total="100" show-elevator class="page" />
+                <Page 
+                    :total="total" 
+                    show-total 
+                    show-elevator 
+                    @on-change="pageChange" 
+                    class="page" 
+                />
             </div>
         </div>
-         <Modal v-model="modal" width="450" class="model-box"> 
-            <p slot="header" style="color:#1c2438;font-size:14px;border-left:7px solid #4b7efe;background:#f8f9fb;height:39px;line-height:39px">
-                <!-- <Icon type="ios-information-circle"></Icon> -->
-                <span class="rectangle"></span>
-                <span style="margin-left:8px">物料移库</span>
-            </p>
-            <div>
-                <div class="model-table">
-                    <div style="border-bottom:1px solid transparent">
-                        <div class="form-line">
-                            <label for="">关键字：</label>
-                            <Input v-model="keyword" placeholder="物料名称或物料编号" style="width: 200px" size="small" />
-                        </div>
-                        <div class="form-line">
-                            <label for="">当前仓库：</label>
-                            <Select v-model="model1" style="width:200px" size="small">
-                                <Option v-for="item in cityList" :value="item.value" :key="item.value">{{ item.label }}</Option>
-                            </Select>
-                        </div>
-                         <div class="form-line">
-                            <label for="">当前库位：</label>
-                            <Select v-model="model1" style="width:200px" size="small">
-                                <Option v-for="item in cityList" :value="item.value" :key="item.value">{{ item.label }}</Option>
-                            </Select>
-                        </div>
-                        <div class="form-line">
-                            <label for="">目标库位：</label>
-                            <Input v-model="keyword"  style="width: 200px" size="small" />
-                        </div>
-                    </div>
-                   
-                     <div class="btn-group">
-                        <span>取消</span>
-                        <span style="background: #4b7efe;">确定</span>
-                     </div>
-                </div>
-            </div>
+
+        <Modal
+            v-model="modal"
+            width="450" 
+            title="物料移库"
+            >
+            <Form ref="formItem" :model="formItem" :rules="ruleFormItem" :show-message="false" :label-width="100">
+                <FormItem label="关键字：" prop="queryName">
+                    <Select
+                        v-model="formItem.queryName"
+                        placeholder="物料名称或物料编号"
+                        filterable
+                        :remote-method="remoteMethod"
+                        :loading="loading"
+                        @on-change="queryChange"
+                        style="width: 220px"
+                    >
+                        <Option v-for="(option, index) in options" :value="option.id" :key="index">{{option.materielName}}</Option>
+                    </Select>
+                </FormItem>
+                <FormItem label="当前仓库：" prop="warehouse">
+                    <Select 
+                        v-model="formItem.warehouse" 
+                        palceholder="请选择" 
+                        style="width: 220px"
+                        @on-change="wareChange"
+                    >
+                        <Option v-for="item in wareList" :value="item.id" :key="item.id">{{ item.name }}</Option>
+                    </Select>
+                </FormItem>
+                <FormItem label="当前库位：" prop="location">
+                    <Select 
+                        v-model="formItem.location" 
+                        palceholder="请选择" 
+                        style="width: 220px"
+                    >
+                        <Option v-for="item in locationList" :value="item.id" :key="item.id">{{ item.locationNo }}</Option>
+                    </Select>
+                </FormItem>
+                <FormItem label="目标库位：" prop="targetLocation">
+                    <Select
+                        v-model="formItem.targetLocation"
+                        placeholder="目标库位"
+                        filterable
+                        :remote-method="remoteMethod1"
+                        :loading="loading1"
+                        style="width: 220px"
+                    >
+                        <Option v-for="(option, index) in options1" :value="option.id" :key="index">{{option.locationNo}}</Option>
+                    </Select>
+                </FormItem>
+            </Form>
             <div slot="footer" >
-                <!-- <Button type="primary"  long  @click="save" style="font-size:12px">保存为新模版</Button> -->
+                <Button @click="cancleModal('formItem')">取消</Button>
+                <Button type="primary" @click="sureModal('formItem')">确定</Button>
             </div>
         </Modal>
     </div>
 </template>
 <script>
+import { tableMethod, orgMethod, wareMethod, keywordMethod, wareMethod1, locatMethod, targetMethod, inventMethod } from '@/api/store/adjust'
+import createTree from '@/libs/public-util'
+import util from '@/libs/public_js'
+
 export default {
     name: 'storeAdjust',
     data() {
         return {
             height: '',
-            keyword: '',
-            cityList: [
-                {
-                    value: 'New York',
-                    label: 'New York' 
-                }
-            ],
-            model1: '',
+            searchParams: {
+                queryName: '',
+                orgId: [],
+                auditedFlag: [],
+                warehouseId: '',
+                startDate: '',
+                endDate: '',
+                pageSize: 10,
+                currentPage: 1
+            },
+            orgList: [],
+            warehouseList: [],
+            startTime: '',
+            startDate: {},
+            start: '',
+            endTime: '',
+            endDate: {},
+            end: '',
             searchShow: false, 
-            typeCheckedAll: false,
-            typeBox: [],
-            genreList: [
-                {label: '在线仪表',id: 1},
-                {label: '泵',id: 2},
-                {label: '阀门',id: 3},
-                {label: '控制柜',id: 4},
-                {label: '浮球',id: 5}
-            ],
-            typeList: [
-                {label: '已审核',id: 1},
-                {label: '未审核',id: 2}
-            ],
             tableList: [
                 {
                     title: '库存调整单',
-                    key: 'order'
-                },
-                {
+                    key: 'storeAdjustmentNumber',
+                    ellipsis: true
+                }, {
                     title: '所属组织',
-                    key: 'tissue'
-                },
-                {
+                    key: 'orgName',
+                    ellipsis: true
+                }, {
                     title: '调整仓库',
-                    key: 'adjustHouse'
-                },
-                
-                {
+                    key: 'warehouseName',
+                    ellipsis: true
+                }, {
                     title: '操作人员',
-                    key: 'operater'
-                },
-                {
+                    key: 'userName',
+                    ellipsis: true
+                }, {
                     title: '创建时间',
-                    key: 'createTime'
-                },
-                {
+                    key: 'createDate',
+                    render(h, data) {
+                	    return util.tableDatetime(h, data.row.createDate)
+                    } 
+                }, {
                     title: '审核状态',
-                    key: 'status'
-                },
-                {
+                    key: 'auditedFlag',
+                    ellipsis: true
+                }, {
                     title: '备注',
-                    key: 'remark'
-                },
-               
-                {
-                    title: '仓库',
-                    key: 'warehouse'
-                },
-                {
-                    title: '库存',
-                    key: 'repertory'
-                },
-                {
+                    key: 'remark',
+                    ellipsis: true
+                }, {
                     title: '操作',
                     slot: 'action',
                     width: 150,
                     align: 'center'
                 }
             ],
-            single:false,
-            modal:false
+            tableData: [],
+            total: 0,
+
+            modal: false,
+            formItem: {
+                queryName: '',
+                warehouse: '',
+                location: '',
+                targetLocation: ''
+            },
+            ruleFormItem: {
+                queryName: [
+                    { required: true, trigger: 'blur', type: 'number' }
+                ],
+                warehouse: [
+                    { required: true, trigger: 'blur', type: 'number' }
+                ],
+                location: [
+                    { required: true, trigger: 'blur', type: 'number' }
+                ],
+                targetLocation: [
+                    { required: true, trigger: 'blur', type: 'number' }
+                ]
+            },
+            loading: false,
+            options: [],
+            wareList: [],
+            locationList: [],
+            loading1: false,
+            options1: []
         }
     },
     mounted() {
         this.height = document.body.clientHeight-130
+        this.getTable()
+        this.getOrg()
+        this.getWare()
     },
     methods: {
+        getTable() {
+            let queryName = this.searchParams.queryName
+            let orgId = this.searchParams.orgId
+            let auditedFlag = this.searchParams.auditedFlag
+            let warehouseId = this.searchParams.warehouseId
+            let currentPage = this.searchParams.currentPage
+            let startDate
+            let endDate
+            if(this.startTime == '') {
+                startDate = ''
+            } else {
+                startDate = this.$moment(this.startTime).utc().format()
+            }
+            if(this.endTime == '') {
+                endDate = ''
+            } else {
+                endDate = this.$moment(this.endTime).utc().format()
+            }
+            this.searchParams.startDate = startDate
+            this.searchParams.endDate = endDate
+            tableMethod({
+                queryName,
+                orgId,
+                auditedFlag,
+                warehouseId,
+                startDate,
+                endDate,
+                currentPage
+            }).then(res=> {  
+                this.tableData = res.data.items
+                this.total = res.data.total
+            }).catch(err=> {
+
+            })
+        },
+        pageChange(index) {
+            this.searchParams.currentPage = index
+            this.getTable()
+        },
+        getOrg() {
+            orgMethod().then(res=> {
+                let treeItem = []
+                let trees = res.data
+                for(let i = 0; i < trees.length; i ++) {
+                    trees[i].title = trees[i].name
+                    trees[i].value = trees[i].id
+                    treeItem.push(trees[i])
+                }
+                this.orgList = createTree(treeItem)
+            }).catch(err=> {
+
+            })
+        },
+        getWare() {
+            wareMethod().then(res=> {
+                this.warehouseList = res.data
+            }).catch(err=> {
+
+            })
+        },
+        startTimeChange(day) {
+            this.start = day
+            this.endDate = {
+                disabledDate (date) {
+                    return date && date.valueOf() <=new Date(day).getTime()- 86400000
+                }
+            }
+        },
+        endTimeChange(day) {
+            this.end = day
+            this.startDate = {
+                disabledDate (date) {
+                    return date && date.valueOf() >=new Date(day)
+                }
+            }
+        },
         higherSearch() {
             this.searchShow = !this.searchShow
         },
-        typeCheckAll() {
-            this.typeBox = []
-            this.typeCheckedAll = true
-        },
-        typeCheck(i) {
-            this.typeCheckedAll = false
-            if(this.typeBox.includes(i)) {
-                this.typeBox = this.typeBox.filter((ele) => {
-                    return ele != i
-                });
-            } else {
-                this.typeBox.push(i);
+        resstHandle() {
+            this.orgList = []
+            this.warehouseList = []
+            this.startTime = ''
+            this.startDate = {}
+            this.start = ''
+            this.endTime = ''
+            this.endDate = {}
+            this.end = ''
+            const defaultParams = {
+                queryName: '',
+                orgId: [],
+                auditedFlag: [],
+                warehouseId: '',
+                startDate: '',
+                endDate: '',
+                pageSize: 10,
+                currentPage: 1
             }
+            this.searchParams = Object.assign({}, this.searchParams, defaultParams)
         },
-        add() {
+        linkToAdd() {
             this.$router.push({
-                path:'/storeManage/childPage/adjustAdd'
+                path:'/childPage/adjustAdd'
             })
         },
-        adjust(){
-            this.modal=true
+        exportData() {
+            util.download('/inventory/api/store-adjustment/export')
+        },
+        remoteMethod(query) {
+            if (query !== '') {
+                this.loading = true
+                keywordMethod(query).then(res=> {
+                    // console.log(res)
+                    if(res.status == 200) {
+                        this.loading = false
+                        this.options = res.data
+                    }
+                }).catch(err=> {
+
+                })
+            } else {
+                this.options = []
+            }
+        },
+        queryChange(id) {
+            wareMethod1(id).then(res=> {
+                this.wareList = res.data
+            }).catch(err=> {
+
+            })
+        },
+        wareChange(id) {
+            let materielId = this.formItem.queryName
+            let warehouseId = id
+            locatMethod({
+                materielId,
+                warehouseId
+            }).then(res=> {
+                this.locationList = res.data
+            }).catch(err=> {
+
+            })
+        },
+        remoteMethod1(query) {
+            if (query !== '') {
+                this.loading1 = true
+                let queryName = query
+                let warehouseId = this.formItem.warehouse
+                let warehousePositionId = this.formItem.location
+                targetMethod({
+                    queryName,
+                    warehouseId,
+                    warehousePositionId
+                }).then(res=> {
+                    // console.log(res)
+                    if(res.status == 200) {
+                        this.loading1 = false
+                        this.options1 = res.data
+                    }
+                }).catch(err=> {
+
+                })
+            } else {
+                this.options1 = []
+            }
+        },
+        cancleModal(name) {
+            this.$refs[name].resetFields();
+        },
+        sureModal(name) {
+            this.$refs[name].validate((valid) => {
+                if (valid) {
+                    inventMethod({
+                        currentWarehousePositionId: this.formItem.location,
+                        materielId: this.formItem.queryName,
+                        targetWarehousePositionId: this.formItem.targetLocation,
+                        warehouseId: this.formItem.warehouse,
+                    }).then(res=> {
+                        if(res.status == 200) {
+                            this.modal = false
+                            this.$Notice.success({
+                                title: '移库成功！'
+                            });
+                        }
+                    }).catch(err=> {
+
+                    })
+                }
+            })
+        },
+        detailHandle(id) {
+            this.$router.push({
+                path: '/childPage/adjustDetail',
+                query: {
+                    id: id
+                }
+            })
         }
     }
 }
@@ -251,7 +486,8 @@ export default {
                     color: #576374;
                     font-size: 12px;
                 }
-                button{
+                .ivu-btn {
+                    height: auto;
                     background: #4b7efe;
                     font-size: 12px;
                     padding: 4px 12px;
@@ -271,7 +507,7 @@ export default {
             padding-top: 5px;
             border-top: 1px solid #ececec;
             .c-adv-search-row {
-                margin: 5px 0;
+                margin: 10px 0;
                 .form-item {
                     display: inline-block;
                     height: 33px;
@@ -285,19 +521,15 @@ export default {
                 }
                 .cmp-tab {
                     display: inline-block;
-                    a {
-                        margin-right: 20px;
-                        color: #576374;
-                    }
-                    .checked {
-                        color: #4B7EFE;
+                    /deep/.ivu-tag-text {
+                        font-size: 14px;
                     }
                 }
             }
         }
     }
     .searchTrans {
-        height: 180px;
+        height: 200px;
         overflow: hidden;
         transition: 0.5s height;
     }
@@ -312,7 +544,8 @@ export default {
         .c-table-top-btns {
             height: 36px;
             border-bottom: 1px solid #EEE;
-            button{
+            .ivu-btn {
+                height: auto;
                 min-width: 50px;
                 background: #576374;
                 font-size: 12px;
@@ -337,34 +570,12 @@ export default {
         }
     }
 }
-/deep/.ivu-modal-header{
-    padding: 0;
-    border-bottom: 0;
-}
-.model-table{
-    margin-top: 20px;
-    .form-line{
-        margin-bottom: 30px;
-        label{
-            display: inline-block;
-            width:100px;
-            text-align: right;
-            font-size: 12px;
-        }
+/deep/.ivu-tag {
+    .ivu-tag-text {
+        margin-right: 0;
     }
-    .btn-group{
-        margin-top: 20px;
-        text-align:center;
-        span{
-            display: inline-block;
-            min-width: 130px;
-            margin: 0 15px;
-            padding: 4px 12px;
-            font-size: 12px;
-            background: #c8c8c8;
-            color: #fff;
-            border-radius: 3px;
-        }
+    .ivu-icon {
+        display: none;
     }
 }
 </style>

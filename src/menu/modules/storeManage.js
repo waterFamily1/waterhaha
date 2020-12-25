@@ -46,6 +46,10 @@ export default {
             path: `/childPage/adjustAdd`,
             title: '库存调整新增',
             auth: ['hidden']
+        },{          
+            path: `/childPage/adjustDetail`,
+            title: '库存调整信息',
+            auth: ['hidden']
         },{
             path: `/childPage/putAdd`,
             title: '入库新增',

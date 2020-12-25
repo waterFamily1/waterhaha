@@ -125,7 +125,7 @@ export default {
             component: () => import('@/pages/storeManage/checkPLForm')
         },
         {          
-            path: 'childPage/adjustAdd',
+            path: '/childPage/adjustAdd',
             name: `${pre}childPage-adjustAdd`,
             meta: {
                 ...meta,
@@ -133,6 +133,16 @@ export default {
                 closable: false
             },
             component: () => import('@/pages/storeManage/childPage/adjustAdd')
+        },
+        {          
+            path: '/childPage/adjustDetail',
+            name: `${pre}childPage-adjustDetail`,
+            meta: {
+                ...meta,
+                title: '库存调整信息',
+                closable: false
+            },
+            component: () => import('@/pages/storeManage/childPage/adjustDetail')
         },
         {          
             path: '/childPage/putAdd',
