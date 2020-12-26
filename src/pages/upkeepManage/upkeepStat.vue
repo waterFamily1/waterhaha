@@ -145,10 +145,10 @@ export default {
     },
     mounted() {
         this.height = document.body.clientHeight-80
-        this.start = this.getTime().split(',')[0]
-         this.end = this.getTime().split(',')[1]
-         this.startTime = this.getTime().split(',')[0]
-         this.endTime = this.getTime().split(',')[0]
+        this.start = this.getTime().split(',')[1]
+         this.end = this.getTime().split(',')[0]
+         this.startTime = this.getTime().split(',')[1]
+         this.endTime = this.getTime().split(',')[1]
         this.getList()
         this.getRegional()
         this.userList()
@@ -170,7 +170,7 @@ export default {
             let month = now.getMonth()+1
             month=month<10?'0'+month:month
             let day = now.getDate()
-            let dayPre = now.getDate()-1
+            let dayPre = now.getDate()+1
             day = day<10?'0'+day:day
             dayPre = dayPre<10?'0'+ dayPre:dayPre
             let pre = year+"-"+month+"-"+dayPre
