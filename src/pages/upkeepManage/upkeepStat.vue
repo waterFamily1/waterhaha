@@ -245,7 +245,7 @@ export default {
             this.searchShow = !this.searchShow
         },
         exportTable () {
-             let begin = this.start?this.$moment(this.start).utc().format():''
+            let begin = this.start?this.$moment(this.start).utc().format():''
             let end  = this.end?this.$moment(this.end).utc().format():''
             let state = this.confirmWay.length!=0?this.confirmWay.join(','):''
             let orgId = this.area.length!=0?this.area.join(','):''
