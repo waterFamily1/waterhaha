@@ -26,10 +26,10 @@
                         </Button>
                         <DropdownMenu slot="list">
                             <DropdownItem name="all">
-                                <Button  :to='url' type="text" style="background:none;color:#495060">全部巡检点</Button>
+                                <Button  type="text" style="background:none;color:#495060">全部巡检点</Button>
                             </DropdownItem>
                             <DropdownItem name="check">
-                                <Button  :to='path' type="text" style="background:none;color:#495060">选中巡检点</Button>
+                                <Button   type="text" style="background:none;color:#495060">选中巡检点</Button>
                             </DropdownItem> 
                         </DropdownMenu>
                     </Dropdown>
@@ -59,6 +59,7 @@
 <script>
 import {regionalCon,manageList,deletePoint } from '@/api/pollingManage/manage'
 import createTree from '@/libs/public-util'
+import util from '@/libs/public_js'
 export default {
     name:'pollingManage',
     data () {
@@ -105,9 +106,7 @@ export default {
             baseData:[],
             data:[],
             total:0,
-            selectedData:[],
-            ip:'',url:'',
-            path:''
+            selectedData:[]
         }
     },
     methods: {
@@ -201,7 +200,6 @@ export default {
             })
         },
         changeItem(name){
-            this.url =""
             let ids = []
             this.selectedData.map(ele=>{
                 ids.push(ele.id)
@@ -209,14 +207,26 @@ export default {
             let id = ids.length!=0?ids.join(','):''
             let proIds = this.areaSite.length!=0?this.areaSite.join(','):''
             if(name == 'all'){
-                this.url = this.ip+"/patrol/api/points/qrcode-export?ids="+id+"&getAll=true&queryName="+this.keyword+"&processIds="+proIds
+                const defaultParams = {
+                    ids: id,
+                    getAll: true,
+                    queryName: this.keyword,
+                    processIds: proIds,
+                };
+                util.download( '/patrol/api/points/qrcode-export', defaultParams)
             }else{
                 console.log(this.selectedData)
                 if(this.selectedData.length==0){
                     this.$Message.warning('请选择导出巡检点!');
                     return
                 }else{
-                    this.path = this.ip+"/patrol/api/points/qrcode-export?ids="+id+"&getAll=&queryName="+this.keyword+"&processIds="+proIds
+                    const defaultParams = {
+                        ids: id,
+                        getAll: '',
+                        queryName: this.keyword,
+                        processIds: proIds,
+                    };
+                util.download( '/patrol/api/points/qrcode-export', defaultParams)
                 }
                 
                 
@@ -262,9 +272,6 @@ export default {
         this.height = document.body.clientHeight-75
         this.getRegional()
         this.getList()
-        let cur = this.$route.path
-        let com = window.location.href
-        this.ip =  com.slice(0,com.indexOf(cur))
     }
 }
 </script>

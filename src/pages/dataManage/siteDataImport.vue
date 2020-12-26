@@ -40,7 +40,7 @@
                 </template>
                 <template slot-scope="{ row, index }" slot="action">
                     
-                    <Button type="text" style="color:rgb(75, 126, 254);font-size:13px" :to="ip+'/base/api/files/download?fileUrl='+row.templeDownload">下载文件</Button>
+                    <Button type="text" style="color:rgb(75, 126, 254);font-size:13px" @click="downFile(row.templeDownload)">下载文件</Button>
                     <Button type="text" style="color:rgb(75, 126, 254);font-size:13px" >删除</Button>
                 </template>
             </Table>
@@ -72,7 +72,7 @@
                     <Page :total="modelTotal" show-elevator size="small" class="page" style="text-align:right;margin-top:20px" @on-change="changeModalSize"  />
                      <div class="btn-group">
                         <span @click="abolish()">取消</span>
-                        <Button style="background: #4b7efe;min-width:130px;color:#fff;line-height:26px" @click="sure()" :to="ip+'/loong/api/mpoint-data-imports/templeDownload?mpointIds='+mIds">确定</Button>
+                        <Button style="background: #4b7efe;min-width:130px;color:#fff;line-height:26px" @click="sure()">确定</Button>
                      </div>
                 </div>
             </div>
@@ -84,6 +84,7 @@
 <script>
 import { getTable,searchTable,uploadFun,mubanList } from '@/api/dataManage/import'
 import {formatTime} from '@/libs/public'
+import util from '@/libs/public_js'
 export default {  
     name:'siteDataImport',  
     data(){
@@ -155,7 +156,6 @@ export default {
                 return date && date.valueOf() < Date.now() - 8*86400000;
             }
         },
-        ip:'',
         modelData:[],
         modelColumns:[
             {
@@ -188,14 +188,16 @@ export default {
         this.start = this.getBeforeDate(8)
         this.end = this.getBeforeDate(0)
         this.getData(1)
-        let cur = this.$route.path
-        let com = window.location.href
-        this.ip =  com.slice(0,com.indexOf(cur))
-        console.log(this.ip)
         this.getList()
     },
    
     methods:{
+        downFile(file){
+            const defaultParams = {
+                fileUrl: file
+            };
+            util.download( '/base/api/files/download', defaultParams)
+        },
         abolish(){
             this.modal = false
         },
@@ -210,7 +212,10 @@ export default {
                 arr.push(ele.id)
             })
             this.mIds = arr.join(",")
-          console.log(this.selectedData)
+            const defaultParams = {
+                mpointIds: arr.join(",")
+            };
+            util.download( '/loong/api/mpoint-data-imports/templeDownload', defaultParams)
         },
         getList(){
           mubanList(this.modelKey,this.page).then(res=>{

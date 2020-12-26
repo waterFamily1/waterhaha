@@ -166,7 +166,7 @@ export default {
                     key: '',
                     render(h, data) {
                         let that = this
-                        return h('Input', {
+                        return h('input', {
                             style: {width: '50px'},
                             attrs: {
                                 type: 'text',
@@ -178,10 +178,9 @@ export default {
                             },
                             on: {
                                 input(event) {
-                                    // var v = event.target.value
-                                    // if(isNaN(v)) v = event.target.value = 0
-                                    data.row.afterAmount = event
-                                    console.log( data.row.afterAmount)
+                                    var v = event.target.value
+                                    if(isNaN(v)) v = event.target.value = 0
+                                    data.row.afterAmount = v
                                 }
                             }
                         })
