@@ -81,6 +81,14 @@ export function wareMethod2(data) {
     })
 }
 
+//删除
+export function cancleMethod(data) {
+    return request({
+        url: '/inventory/api/store-adjustment/adjusment?id='+data,
+        method: 'DELETE'
+    })
+}
+
 //库存调整增加
 export function addMethod(data) {
     return request({
@@ -117,7 +125,24 @@ export function detailMethod(data) {
 //查看详情表格
 export function detailTableMethod(data) {
     return request({
-        url: '/inventory/api/store-adjustment/detail/list?id=4&queryName=&pageSize=10&currentPage=1',
+        url: '/inventory/api/store-adjustment/detail/list?id='+data.id+'&queryName='+data.queryName+'&pageSize=10&currentPage='+data.currentPage+'',
+        method: 'get'
+    })
+}
+
+//修改
+export function editMethod(data) {
+    return request({
+        url: '/inventory/api/store-adjustment/adjusment',
+        method: 'put',
+        data
+    })
+}
+
+//审核
+export function auditMethod(data) {
+    return request({
+        url: '/inventory/api/store-adjustment/audited?id='+data,
         method: 'get'
     })
 }

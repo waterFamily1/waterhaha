@@ -11,7 +11,7 @@ export function regionalCon () {
 //导出二维码
 export function exportcode1 () {
     return request({
-        url: '/uaa/api/processes/qrcode-export/generate',
+        url: '/uaa/api/process/qrcode-export',
         method: 'get'
     })
 }

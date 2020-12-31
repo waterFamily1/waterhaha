@@ -237,10 +237,10 @@ export default {
                 let trees = res.data
                 for(let i = 0; i < trees.length; i ++) {
                     trees[i].title = trees[i].name
-                    trees[i].expand = true
+                    trees[i].expand = false
                     treeItem.push(trees[i])
                 }
-                this.baseData[0].children = createTree(treeItem)
+                this.baseData[0].children = createTree(treeItem, 0)
             }).catch(err => {
                 // 异常情况
             })
@@ -315,13 +315,14 @@ export default {
             ]);
         },
         exportQRcode() {
-            exportcode1().then(res => {
-                console.log(res.data.key)
-                let key = res.data.key
-                this.export2(key)
-            }).catch(err => {
-                // 异常情况
-            })
+            // exportcode1().then(res => {
+            //     console.log(res.data.key)
+            //     let key = res.data.key
+            //     this.export2(key)
+            // }).catch(err => {
+            //     // 异常情况
+            // })
+            util.download('/uaa/api/process/qrcode-export')
         },
         export2(key) {
             exportcode2(key).then(res => {
