@@ -4,19 +4,17 @@
             <div class="search-main">
                 <div class="form-item">
                     <label>起止日期：</label>
-                    <DatePicker type="date" placeholder="Select date" style="width: 120px"></DatePicker> - 
-                    <DatePicker type="date" placeholder="Select date" style="width: 120px"></DatePicker>
+                     <DatePicker type="date"  placement="bottom-end"  @on-change="startTimeChange" :options="startDate" format="yyyy-MM-dd"  v-model="startTime" placeholder="开始日期" style="width: 120px"></DatePicker> -
+                    <DatePicker type="date"  placement="bottom-end"  @on-change="endTimeChange" :options="endDate" format="yyyy-MM-dd"  v-model="endTime" placeholder="结束日期" style="width: 120px"></DatePicker>
                 </div>
                 <div class="form-item">
                     <label>所属组织：</label> 
-                    <Select v-model="tissue" style="width:150px" size="small">
-                        <Option v-for="item in cityList" :value="item.value" :key="item.value">{{ item.label }}</Option>
-                    </Select>
+                    <TreeSelect v-model="area"  :data="processList"  v-width="200" @on-change="changeArea"  />
                 </div>
                 <div class="form-item">
                     <label>执行人员：</label> 
-                    <Select v-model="tissue" style="width:150px" size="small">
-                        <Option v-for="item in cityList" :value="item.value" :key="item.value">{{ item.label }}</Option>
+                    <Select v-model="personId" style="width:150px" size="small">
+                        <Option v-for="item in userList" :value="item.value" :key="item.value">{{ item.label }}</Option>
                     </Select>
                 </div>
                 <div class="form-search-btn">
@@ -25,8 +23,8 @@
                         <Icon type="ios-arrow-up" v-else />
                         高级搜索
                     </a>
-                    <button type="button">搜索</button>
-                    <button type="button" class="reset">重置</button>
+                    <button type="button" @click="search()">搜索</button>
+                    <button type="button" class="reset" @click="reset()">重置</button>
                 </div>
             </div>
             <div class="c-adv-search">
@@ -34,10 +32,9 @@
                     <div class="form-item">
                         <label>巡检状态：</label>
                         <div class="cmp-tab">
-                            <a href="javascript:;" @click="typeCheckAll()" :class="{checked:typeCheckedAll}">全部</a>
-                            <a href="javascript:;" v-for="(item, index) in stateList" 
-                            :key="index" @click="typeCheck(item.id)" 
-                            :class="{checked:typeBox.includes(item.id)}">{{ item.label }}</a>
+                            <TagSelect v-model="status" >
+                                <TagSelectOption :name="item.id" v-for="(item, index) in stateList"  :key="index">{{ item.label }}</TagSelectOption>
+                            </TagSelect>
                         </div>
                     </div>
                 </div>
@@ -45,9 +42,9 @@
         </div>
         <div class="task-content">
             <div class="title">
-                <button>导出表格</button>
+                <button @click="exportTable()">导出表格</button>
             </div>
-             <Table stripe :columns="tableList" >
+             <Table stripe :columns="tableList" :data="tableData">
                 <template slot-scope="{ row }" slot="name">
                     <strong>{{ row.name }}</strong>
                 </template>
@@ -56,11 +53,15 @@
                     <Button class="action" size="small">查看</Button>
                 </template>
             </Table>
-            <Page :total="100" show-elevator size="small" class="page" style="text-align:right;margin-top:20px"  />
+            <Page :total="total" show-elevator size="small" class="page" style="text-align:right;margin-top:20px" @on-change="changeSize" />
         </div>
     </div>
 </template>
 <script>
+import { getOrganizations,getList,getUsers } from '@api/pollingManage/stat';
+import createTree from '@/libs/public-util'
+import {formatTime} from '@/libs/public'
+import util from '@/libs/public_js'
 export default {
     name:"pollingStat",
     data(){
@@ -74,42 +75,60 @@ export default {
                 }
             ],
             stateList: [
-                {label: '未分配',id: 1},
-                {label: '待执行',id: 2},
-                {label: '执行中',id: 3},
-                {label: '已完成',id: 4},
-                {label: '异常',id: 5},
-                {label: '已终止',id: 6}
+                {label: '未分配',id: 'unallocated'},
+                {label: '待执行',id: 'toBeExecuted'},
+                {label: '执行中',id: 'executing'},
+                {label: '已完成',id: 'finished'},
+                {label: '异常',id: 'abnormal'},
+                {label: '已终止',id: 'interrupt'}
             ],
-            typeCheckedAll: false,
-            typeBox: [],
-            tissue:'',
+            status: [],
+            area:'',
             modal:false,
             keyword:'',
             tableList: [
                 {
                     title: '巡检任务名称',
-                    key: 'name'
+                    key: 'name',
+                    width:160
                 },
                 {
                     title: '状态',
-                    key: 'state'
+                    key: 'executeStatus',
+                    render: (h, params) => {
+                        let text = params.row.executeStatus
+                        text=text=='unallocated'?'未分配':(text=='toBeExecuted'?'待执行':(text=='executing'?'执行中':(text=='finished'?'已完成':(text=='abnormal'?'异常':'已终止'))))
+                        return h('span', {
+                        }, text);
+                    }
                 },
                 {
                     title: '执行人',
-                    key: 'operator'
+                    key: 'executorName'
                 },
                 {
                     title: '开始时间',
-                    key: 'startTime'
+                    key: 'startTime',
+                    width:110,
+                    render: (h, params) => {
+                        return h('span', {
+                        }, formatTime(params.row.startTime, 'yyyy-MM-dd HH:mm:ss'));
+                    }
                 },
                 {
                     title: '结束时间',
-                    key: 'endTime'
+                    key: 'endTime',
+                    width:110,
+                     render: (h, params) => {
+                        return h('span', {
+                        }, formatTime(params.row.endTime, 'yyyy-MM-dd HH:mm:ss'));
+                    }
                 },
                 {
                     title: '所属组织',
-                    key: 'tissue'
+                    key: 'orgName',
+                    width:110,
+                    ellipsis: true
                 },
                 {
                     title: '巡检点',
@@ -121,7 +140,7 @@ export default {
                 },
                 {
                     title: '缺陷申报',
-                    key: 'defect'
+                    key: 'faultCount'
                 },
                 {
                     title: '计划距离',
@@ -134,36 +153,143 @@ export default {
                 {
                     title: '巡检耗时',
                     key: 'elapsedTime'
-                },
-                {
-                    title: '操作',
-                    slot: 'action',
-                    width: 150,
-                    align: 'center'
                 }
             ],
+            personId:'',
+            userList:[],
+            processList:[],
+            startTime:'',
+            start:'',
+            endTime:'',
+            end:'',
+            startDate: {
+                disabledDate (date) {
+                    return date && date.valueOf() >= Date.now();
+                }
+            },
+            endDate: {
+                disabledDate (date) {
+                    return date && date.valueOf() <= Date.now()- 86400000
+                }
+            },
+            page:1,
+            baseData:[],
+            tableData:[],
+            total:0
         }
     },
     methods :{
+        exportTable(){
+            let begin = this.start?this.$moment(this.start).utc().format():''
+            let end  = this.end?this.$moment(this.end).utc().format():''
+            let state = this.status.length!=0?this.status.join(','):''
+            const defaultParams = {
+                orgId: this.area,
+                queryName: '',
+                executorId: this.personId,
+                executeDateStart: begin,
+                executeDateEnd:end,
+                executeStatus:state,
+                pageSize:10,
+                currentPage:this.page
+            };
+            util.download( '/patrol/api/tasks/statistics-export', defaultParams)
+           
+        },
+        search(){
+            this.getStatList()
+        },
+        changeSize(size){
+            this.page = size
+            this.getStatList()
+        },
+        reset(){
+            this.status=[]
+            this.area =""
+            this.personId=""
+            this.page = 1
+            this.start = this.getTime().split(',')[1]
+            this.end = this.getTime().split(',')[0]
+            this.startTime = this.getTime().split(',')[1]
+            this.endTime = this.getTime().split(',')[1]
+            this.getStatList()
+        },
+        getTime(){
+            let now  = new Date()
+            let year = now.getFullYear()
+            let month = now.getMonth()+1
+            month=month<10?'0'+month:month
+            let day = now.getDate()
+            let dayPre = now.getDate()+1
+            day = day<10?'0'+day:day
+            dayPre = dayPre<10?'0'+ dayPre:dayPre
+            let pre = year+"-"+month+"-"+dayPre
+            let today = year+"-"+month+"-"+day
+            return  pre+","+today
+        },
+         endTimeChange(day){
+          this.end = day
+            this.startDate = {
+                disabledDate (date) {
+                    return date && date.valueOf() >new Date(day).getTime();
+                }
+           }
+        },
+        startTimeChange(day){
+            this.start = day
+            this.endDate = {
+                disabledDate (date) {
+                    return date && date.valueOf() <=new Date(day).getTime()- 86400000;
+                }
+            }
+        },
+         getOrg(){
+            getOrganizations().then(res=>{
+                console.log(res)
+                let treeItem = []
+                let trees = res.data
+                for(let i = 0; i < trees.length; i ++) {
+                    trees[i].title = trees[i].name
+                    trees[i].value = trees[i].id
+                    treeItem.push(trees[i])
+                }
+                this.baseData = treeItem
+                this.processList = createTree(treeItem)
+             })
+        },
+        getStatList(){
+            let begin = this.start?this.$moment(this.start).utc().format():''
+            let end  = this.end?this.$moment(this.end).utc().format():''
+            let state = this.status.length!=0?this.status.join(','):''
+            let orgName=""
+            this.baseData.map(item=>{
+                if(item.id == this.area){
+                    orgName = item.name
+                }
+            })
+            // orgId,executorId,executeDateStart,executeDateEnd,executeStatus,page,orgName
+            getList(this.area,this.personId,begin,end,state,this.page,orgName).then(res=>{
+                console.log(res)
+                if(res.data.items){
+                    this.tableData = res.data.items
+                    this.total = res.data.total
+                }
+            })
+        },
+        changeArea(){
+            this.getUserList()
+        },
+        getUserList(){
+            getUsers(this.area).then(res=>{
+                console.log(res)
+                this.userList = res.data
+            })
+        },
         higherSearch() {
             this.searchShow = !this.searchShow
         },
          higherSearch() {
             this.searchShow = !this.searchShow
-        },
-        typeCheckAll() {
-            this.typeBox = []
-            this.typeCheckedAll = true
-        },
-        typeCheck(i) {
-            this.typeCheckedAll = false
-            if(this.typeBox.includes(i)) {
-                this.typeBox = this.typeBox.filter((ele) => {
-                    return ele != i
-                });
-            } else {
-                this.typeBox.push(i);
-            }
         },
         mapClick(){
             console.log("1111")
@@ -185,6 +311,12 @@ export default {
     },
     mounted() {
         this.height = document.body.clientHeight-130
+        this.getOrg()
+        this.start = this.getTime().split(',')[1]
+         this.end = this.getTime().split(',')[0]
+         this.startTime = this.getTime().split(',')[1]
+         this.endTime = this.getTime().split(',')[1]
+         this.getStatList()
     }
 }
 </script>
@@ -253,13 +385,8 @@ export default {
                 }
                 .cmp-tab {
                     display: inline-block;
-                    a {
-                        margin-right: 20px;
-                        color: #576374;
-                    }
-                    .checked {
-                        color: #4B7EFE;
-                    }
+                    vertical-align: top;
+                    margin-left: 10px;
                 }
             }
         }

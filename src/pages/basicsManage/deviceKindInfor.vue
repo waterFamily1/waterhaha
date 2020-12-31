@@ -114,7 +114,8 @@ export default {
             orgBaseData:[],
             equBaseData:[],
             imgPath:'',
-            isCancel:false
+            isCancel:false,
+            levelObj:{}
         }
     },
     mounted() {
@@ -330,6 +331,7 @@ export default {
                         },
                         on: {
                             click: (e) => { 
+                                console.log("新建设备")
                                  e.stopPropagation()
                                 this.create(root, node, data) 
                             }
@@ -439,10 +441,13 @@ export default {
            this.imgPath=""
         },
         create(data){
+            console.log(this.currentEqu)
             this.appear= false
             this.isChooseequ = false
             this.currentEqu={}
             this.imgPath=""
+            this.tissueList.devicename = ''
+            this.tissueList.remark = ''
         },
         save(name){
              this.$refs[name].validate((valid) => {
@@ -450,7 +455,7 @@ export default {
                     if(this.isChooseequ){
                        this.saveEqu()
                     }else{
-                       this.createEqu()
+                       this.createEquipment()
                     }  
                 }
             })
@@ -470,16 +475,18 @@ export default {
                 }
             })
         },
-        createEqu(){
+        createEquipment(){
+            console.log(this.currentEqu)
             let data={
                 id: "",
                 imageUrl: this.imageUrl,
                 name: this.tissueList.devicename ,
                 orgId: this.currentOrg.id,
                 orgName: this.currentOrg.name,
-                parentId: 0,
+                parentId: this.currentEqu.id,
                 remarks: this.tissueList.remark
             }
+            console.log(data)
             createEqu(data).then(res=>{
                 if(res.data.id){
                     this.$Message.success('编辑成功');

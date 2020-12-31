@@ -53,7 +53,7 @@
                                 {{ item.name }}
                             </h5>
                             <a href="javascript:;" slot="extra" class="icon">
-                            <Icon type="ios-trash-outline"  style="margin-right:8px" v-if="item.status=='New'||item.status=='Ing'" />
+                            <Icon type="ios-trash-outline"  style="margin-right:8px" v-if="item.status=='New'||item.status=='Ing'" @click="deleteHandle(item.id)" />
                             <Icon type="ios-copy-outline" />
                             </a>
                             <div class="plan-card-info">
@@ -74,7 +74,7 @@
                                 {{ item.name }}
                             </h5>
                             <a href="javascript:;" slot="extra" class="icon">
-                            <Icon type="ios-trash-outline"  style="margin-right:8px" v-if="item.status=='New'||item.status=='Ing'"/>
+                            <Icon type="ios-trash-outline"  style="margin-right:8px" v-if="item.status=='New'||item.status=='Ing'"  @click="deleteHandle(item.id)" />
                             <Icon type="ios-copy-outline" />
                             </a>
                             <div class="plan-card-info">
@@ -115,7 +115,7 @@
     </div>
 </template>
 <script>
-import { getOrganizations,planList } from '@api/pollingManage/plan';
+import { getOrganizations,planList,deletePlan } from '@api/pollingManage/plan';
 import createTree from '@/libs/public-util'
 import {formatTime} from '@/libs/public'
 export default {
@@ -158,6 +158,14 @@ export default {
         }
     },
     methods :{
+        deleteHandle(id){
+           deletePlan(id).then(res=>{
+               if(res.data.count){
+                   this.$Message.success('数据删除成功！');
+                   this.getList()
+               }
+           })
+        },
         endTimeChange(day){
           this.end = day
             this.startDate = {

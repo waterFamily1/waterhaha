@@ -12,11 +12,12 @@
                 <FormItem label="用户姓名：" prop="name">
                     <Input v-model="formInline.name" placeholder="请输入用户姓名" value="123" style="width:350px"></Input>
                 </FormItem>
-                <FormItem label="所属组织：" prop="orgId">
-                    <Select v-model="formInline.orgId" placeholder="请选择"  style="width:350px">
-                        <Option v-for="item in cityList" :value="item.value" :key="item.value">{{ item.label }}</Option>
-                    </Select>
-                </FormItem>
+                <FormItem label="所属组织：" prop="orgId" >
+                     <TreeSelect 
+                    v-model="formInline.orgId" 
+                    :data="data4"
+                    v-width="350" 
+                /></FormItem>
                 <FormItem label="手机号：" prop="tel">
                     <Input v-model="formInline.tel" placeholder="请输入手机号" value="123" style="width:350px"></Input>
                     <Tooltip max-width="250"  placement="right" >
@@ -37,7 +38,8 @@
     </div>
 </template>
 <script>
-import { putUser,getUser } from '@api/basic/user';
+import { putUser,getUser,getOrganizations} from '@api/basic/user';
+import createTree from '@/libs/public-util'
   export default {
       name:'addUserInfor',
       data(){
@@ -53,44 +55,21 @@ import { putUser,getUser } from '@api/basic/user';
                     { required: true, message: '请输入姓名', trigger: 'blur' }
                 ],
                 orgId: [
-                    { required: true, message: '请选择组织', trigger: 'change' }
+                    { required: true, message: '请选择组织', trigger: 'change',type:'number' }
                 ],
                 tel: [
                     { required: true, message: '请输入手机号', trigger: 'blur' }
                 ],
              },
             height:0,
-            cityList: [
-                    {
-                        value: 'New York',
-                        label: 'New York'
-                    },
-                    {
-                        value: 'London',
-                        label: 'London'
-                    },
-                    {
-                        value: 'Sydney',
-                        label: 'Sydney'
-                    },
-                    {
-                        value: 'Ottawa',
-                        label: 'Ottawa'
-                    },
-                    {
-                        value: 'Paris',
-                        label: 'Paris'
-                    },
-                    {
-                        value: 'Canberra',
-                        label: 'Canberra'
-                    }
-                ],
-                model1: '',
+            model1: '',
+            data4: [],
+            baseData:[]
         }
       },
       mounted() {
         this.height = document.body.clientHeight-70
+        this.getOrg()
         putUser(this.$route.query.id).then(res=>{
             console.log(res)
             this.userDetail = res.data
@@ -103,15 +82,44 @@ import { putUser,getUser } from '@api/basic/user';
         })
     },
     methods: {
-       save(){
-         this.userDetail.name= this.formInline.name
-         getUser('put',this.userDetail).then(res=>{
-            console.log(res)
-            if(res.data.count==1){
-                this.$Message.success('数据保存成功');
-                this.$router.go(-1);
-            }
-         })
+        getOrg(){
+            getOrganizations().then(res=>{
+                console.log(res)
+                let treeItem = []
+                let trees = res.data
+                for(let i = 0; i < trees.length; i ++) {
+                    trees[i].title = trees[i].name
+                    trees[i].value = trees[i].id
+                    treeItem.push(trees[i])
+                }
+                this.baseData = treeItem
+                this.show=true
+                this.data4 = createTree(treeItem)
+            })
+        },
+        save(){
+            let orgName = ""
+            this.baseData.map(ele=>{
+                if(ele.id == this.userDetail.orgId ){
+                    orgName = ele.name
+                }
+            })
+            this.userDetail.name= this.formInline.name
+            this.userDetail.email = this.formInline.email
+            this.userDetail.orgId = this.formInline.orgId
+            this.userDetail.tel = this.formInline.tel
+            this.userDetail.orgName = orgName
+            console.log(this.userDetail)
+            getUser('put',this.userDetail).then(res=>{
+                console.log(res)
+                if(res.data.count==1){
+                    this.$Message.success('数据保存成功');
+                    this.$router.go(-1);
+                }
+            })
+        },
+       cancel(){
+           this.$router.go(-1)
        }
     }
   }

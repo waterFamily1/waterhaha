@@ -16,7 +16,7 @@
             </div>
             <div class="c-adv-search-btn">
                  <button type="button" @click="search()">搜索</button>
-                  <button type="button" class="reset">重置</button>
+                  <button type="button" class="reset" @click="reset()">重置</button>
             </div>
         </div>  
         <div class="c-top-border-gray">
@@ -121,6 +121,11 @@ import createTree from '@/libs/public-util'
              })
         },
         methods: {
+            reset(){
+               this.kWord=""
+               this.orgId=""
+               this.getUserList(this.kWord,this.orgId,1)
+            },
             remove(id) {
                let that=this;
                that.modal=true

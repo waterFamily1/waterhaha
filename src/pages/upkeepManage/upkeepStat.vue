@@ -83,7 +83,7 @@ export default {
                 }, {
                     title: '保养任务名称',
                     key: 'taskName',
-                    width:160,
+                    ellipsis: true
                 }, {
                     title: '执行日期',
                     key: 'endDate',
@@ -103,6 +103,7 @@ export default {
                 {
                     title: '区域位置',
                     key: 'areaName',
+                    ellipsis: true
                 }, {
                     title: '保养内容项',
                     key: 'contentsItems',
