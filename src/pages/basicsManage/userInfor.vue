@@ -64,11 +64,24 @@ import createTree from '@/libs/public-util'
                     },
                     {
                         title: '部门',
-                        key: 'department'
+                        key: 'orgchain',
+                        render: (h,params) => {
+                            let that = this;
+                            let arr = params.row.orgChain
+                            let text = ''
+                            arr.map(ele=>{
+                               if(ele.type == 3){
+                                   console.log(ele)
+                                  text = ele.name
+                               }
+                            })
+                            return h('span', {
+                            }, text);
+                        }
                     },
                     {
                         title: '所属组织',
-                        key: 'orgName'
+                        key: 'orgName',
                     },
                     {
                         title: '手机号',
@@ -76,12 +89,22 @@ import createTree from '@/libs/public-util'
                     },
                     {
                         title: '邮箱地址',
-                        key: 'email',
-                        // width: 170,
+                        key: 'email'
                     },
                     {
                         title: '权限角色',
-                        key: 'role'
+                        key: 'roleMap',
+                        ellipsis: true,
+                        render: (h,params) => {
+                            let that = this;
+                            let arr = params.row.roleMap
+                            let text = []
+                            arr.map(ele=>{
+                                text.push(ele.roleName)
+                            })
+                            return h('span', {
+                            }, text.join(','));
+                        }
                     },
                     {
                         title: '操作',
