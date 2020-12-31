@@ -103,6 +103,7 @@ import util from '@/libs/public_js'
 
 export default {
     data (){
+        var that = this
         return {
             height:'',
             formValidate:{
@@ -163,9 +164,8 @@ export default {
                     }
                 }, {
                     title: '调后数量',
-                    key: '',
+                    key: 'afterAmount',
                     render(h, data) {
-                        let that = this
                         return h('input', {
                             style: {width: '50px'},
                             attrs: {
@@ -178,9 +178,11 @@ export default {
                             },
                             on: {
                                 input(event) {
+                                    console.log(that.tableData)
                                     var v = event.target.value
                                     if(isNaN(v)) v = event.target.value = 0
-                                    data.row.afterAmount = v
+                                    // data.row.afterAmount = v
+                                    that.tableData[data.index].afterAmount = v
                                 }
                             }
                         })
@@ -363,7 +365,7 @@ export default {
         handleSelectAllCancel () {
             const selection = this.modelData;
             selection.forEach(item => {
-                const index = this.selectedData.findIndex(i => i.alarmName === item.alarmName);
+                const index = this.selectedData.findIndex(i => i.id === item.id);
                 if (index >= 0) {
                     this.selectedData.splice(index, 1);
                 }

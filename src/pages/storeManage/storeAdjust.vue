@@ -81,6 +81,7 @@
                 <Table stripe :columns="tableList" :data="tableData">
                     <template slot-scope="{ row, index }" slot="action">
                         <Button class="action" size="small" @click="detailHandle(row.id)">查看</Button>
+                        <Button class="action" size="small" v-if="row.auditedFlag == 0" @click="cancleHandle(row.id)">删除</Button>
                     </template>
                 </Table>
                 <Page 
@@ -152,7 +153,7 @@
     </div>
 </template>
 <script>
-import { tableMethod, orgMethod, wareMethod, keywordMethod, wareMethod1, locatMethod, targetMethod, inventMethod } from '@/api/store/adjust'
+import { tableMethod, orgMethod, wareMethod, keywordMethod, wareMethod1, locatMethod, targetMethod, inventMethod, cancleMethod } from '@/api/store/adjust'
 import createTree from '@/libs/public-util'
 import util from '@/libs/public_js'
 
@@ -452,6 +453,22 @@ export default {
                 path: '/childPage/adjustDetail',
                 query: {
                     id: id
+                }
+            })
+        },
+        cancleHandle(id) {
+            this.$Modal.confirm({
+                title: '删除',
+                content: '确定要删除吗？',
+                onOk: () => {
+                    cancleMethod(id).then(res=> {
+                        this.$Notice.success({
+                            title: '删除成功'
+                        })
+                        this.getTable()
+                    }).catch(err=> {
+
+                    })
                 }
             })
         }

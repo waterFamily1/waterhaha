@@ -4,8 +4,8 @@
             <div class="c-left-border-blue">
                 <h3>库存调整信息</h3>
                 <div class="c-btns-right">
-                    <Button @click="audit" :loading="auditLoading" v-if="info.auditedFlag == 0">审核</Button>
-                    <Button class="c-btn-back" @click="back" v-if="info.auditedFlag == 0">取消</Button>
+                    <Button style="background: #2d8cf0;" @click="audit" :loading="auditLoading" v-if="info.auditedFlag == 0">审核</Button>
+                    <Button @click="back" v-if="info.auditedFlag == 0">取消</Button>
                     <Button v-if="info.auditedFlag == 1" @click="back">返回</Button>
                 </div>
             </div>
@@ -49,9 +49,9 @@
                 <div class="c-plain-bg-h">
                     <h3>库存调整明细</h3>
                     <div class="c-btns-right" v-if="info.auditedFlag == 0">
-                        <Button size="small" class="c-btn-add" @click="editTable" v-show="status == 'info'">编辑</Button>
-                        <Button size="small" class="c-btn-add" :loading="updateLoading" @click="updateTable" v-show="status == 'edit'">提交</Button>
-                        <Button size="small" class="c-btn-back" @click="cancelEditTable" v-show="status == 'edit'">取消</Button>
+                        <Button class="c-btn-add" @click="editTable" v-show="status == 'info'">编辑</Button>
+                        <Button class="c-btn-add" :loading="updateLoading" @click="updateTable" v-show="status == 'edit'">提交</Button>
+                        <Button class="cancle-btn" @click="cancelEditTable" v-show="status == 'edit'">取消</Button>
                     </div>
                 </div>
                 <div style="padding: 10px 0;">
@@ -74,7 +74,7 @@
 </template>
 
 <script>
-import { detailMethod, detailTableMethod } from '@/api/store/adjust'
+import { detailMethod, detailTableMethod, editMethod, auditMethod } from '@/api/store/adjust'
 import createTree from '@/libs/public-util'
 import util from '@/libs/public_js'
 import { formatTime } from '@/libs/public'
@@ -190,7 +190,14 @@ export default {
         },
         getItems() {
             this.loading = true
-            detailTableMethod(this.searchParams).then(res=> {
+            let id = this.searchParams.id
+            let queryName = this.searchParams.queryName
+            let currentPage = this.searchParams.currentPage
+            detailTableMethod({
+                id,
+                queryName,
+                currentPage
+            }).then(res=> {
                 res.data.items.forEach((item)=>{
                     item.afterAmountCache = item.afterAmount
                 })
@@ -207,19 +214,65 @@ export default {
             this.getItems()
         },
         editTable() {
-
+            this.status = 'edit'
         },
+        checkAmount() {
+            var datas = this.tableDatas
+            var valid = true
+            datas.forEach((item)=>{
+                if(item.afterAmount === "") valid = false
+            })
+            return valid
+        },  
         updateTable() {
-
+            var datas = this.tableDatas
+            datas.forEach((item)=>{
+                item.afterAmount = document.querySelector('#storage_invertory_item_'+item.id).value;
+            })
+            if(!this.checkAmount()) {
+                this.$Notice.warning({
+                    title: '您有库存数量为空'
+                })
+                return
+            }
+            this.updateLoading = true
+            editMethod({
+                id: this.$route.query.id,
+                details: this.tableDatas
+            }).then(res=> {
+                this.updateLoading = false
+                this.$Notice.success({
+                    title: '修改成功'
+                })
+                this.getItems()
+            }).catch(err=> {
+                this.updateLoading = false
+            })
         },
         cancelEditTable() {
-
+            this.status = 'info'
         },
         search() {
             this.getItems()
         },
         audit() {
-
+            var id = this.$route.query.id
+            if(!id) return
+            if(this.tableDatas.length ==0) {
+                this.$Notice.warning({
+                    title: '请先添加库存调整明细'
+                })
+                return
+            }
+            this.auditLoading = true
+            auditMethod(id).then(res=> {
+                this.$Notice.success({
+                    title: '审核成功'
+                });
+                this.getData()
+            }).catch(err=> {
+                this.auditLoading = false
+            })
         },
         back() {
             this.$router.back()
@@ -280,6 +333,20 @@ export default {
                 padding: 10px 0 5px 10px;
                 display: flex;
                 justify-content: space-between;
+                .c-btns-right {
+                    .ivu-btn {
+                        height: auto;
+                        min-width: 70px;
+                        padding: 4px 12px;
+                        margin-right: 10px;
+                    }
+                    .cancle-btn {
+                        background: #d8d5d5;
+                        color: #fff;
+                        border: none;
+                        font-size: 13px;
+                    }
+                }
             }
             .c-btn-add {
                 background-color: #576374;

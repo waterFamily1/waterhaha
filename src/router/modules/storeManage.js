@@ -155,6 +155,16 @@ export default {
             component: () => import('@/pages/storeManage/childPage/putAdd')
         },
         {          
+            path: '/childPage/putDetail',
+            name: `${pre}childPage-putDetail`,
+            meta: {
+                ...meta,
+                title: '入库详细',
+                closable: false
+            },
+            component: () => import('@/pages/storeManage/childPage/putDetail')
+        },
+        {          
             path: '/childPage/outAdd',
             name: `${pre}childPage-outAdd`,
             meta: {

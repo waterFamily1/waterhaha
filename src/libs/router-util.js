@@ -213,6 +213,14 @@ let storeManage = [
         path: `/childPage/adjustDetail`,
         title: '库存调整信息',
         auth: ['hidden']
+    }, {
+        path: `/childPage/putAdd`,
+        title: '入库新增',
+        auth: ['hidden']
+    }, {
+        path: `/childPage/putDetail`,
+        title: '入库详细',
+        auth: ['hidden']
     }
 ]
 

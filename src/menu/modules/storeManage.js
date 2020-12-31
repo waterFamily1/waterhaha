@@ -55,6 +55,10 @@ export default {
             title: '入库新增',
             auth: ['hidden']
         },{
+            path: `/childPage/putDetail`,
+            title: '入库详细',
+            auth: ['hidden']
+        }, {
             path: `/childPage/outAdd`,
             title: '出库新增',
             auth: ['hidden']
