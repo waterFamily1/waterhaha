@@ -117,7 +117,7 @@ import createTree from '@/libs/public-util'
                     treeItem.push(trees[i])
                 }
                 this.show=true
-                this.data4 = createTree(treeItem)
+                this.data4 = createTree(treeItem,0)
              })
         },
         methods: {

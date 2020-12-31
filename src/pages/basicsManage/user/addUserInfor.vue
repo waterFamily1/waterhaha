@@ -109,7 +109,7 @@ import selectTree from 'iview-select-tree'
                     treeItem.push(trees[i])
                 }
                 this.show=true
-                this.data4 = createTree(treeItem)
+                this.data4 = createTree(treeItem,0)
             })
         },
         save(name){

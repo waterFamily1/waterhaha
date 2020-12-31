@@ -340,7 +340,7 @@ export default {
                 }
                 console.log(treeItem)
                 this.baseData = treeItem
-                this.organizeList = createTree(treeItem)
+                this.organizeList = createTree(treeItem,0)
             })
         },
         getRegional() {

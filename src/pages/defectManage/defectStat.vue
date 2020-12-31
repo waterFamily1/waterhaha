@@ -230,7 +230,7 @@ export default {
                     trees[i].value = trees[i].id
                     treeItem.push(trees[i])
                 }
-                this.orgData = createTree(treeItem)
+                this.orgData = createTree(treeItem,0)
              })
         },
         getRegional() {
@@ -244,7 +244,7 @@ export default {
                     trees[i].value = trees[i].id
                     treeItem.push(trees[i])
                 }
-                this.areaData = createTree(treeItem)
+                this.areaData = createTree(treeItem,0)
             }).catch(err => {
                 // 异常情况
             })

@@ -203,7 +203,7 @@ export default {
                     trees[i].checked = false
                     treeItem.push(trees[i])
                 }
-                this.orgData = createTree(treeItem)
+                this.orgData = createTree(treeItem,0)
             }).catch(err => {
                 // 异常情况
             })

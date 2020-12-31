@@ -115,6 +115,7 @@ export default {
             equBaseData:[],
             imgPath:'',
             isCancel:false,
+            equNew:false,
             levelObj:{}
         }
     },
@@ -141,7 +142,7 @@ export default {
                     treeItem.push(trees[i])
                 }
                 this.orgBaseData=treeItem
-                this.baseData= createTree(treeItem)
+                this.baseData= createTree(treeItem,0)
            })
         },
         search(e){
@@ -385,13 +386,16 @@ export default {
             this.currentEqu={}
             this.appear= true
             this.imgPath=""
-
+            this.tissueList.devicename = ''
+            this.tissueList.remark = ''
         },
         selectEquNode(node){
            this.isChooseequ=true
            this.currentEqu = node[0]
            this.appear= true
            this.imgPath=""
+           this.levelObj = node[0]
+           this.equNew = true
         },
         append (data) {
             const children = data.children || [];
@@ -441,7 +445,7 @@ export default {
            this.imgPath=""
         },
         create(data){
-            console.log(this.currentEqu)
+            this.equNew = true
             this.appear= false
             this.isChooseequ = false
             this.currentEqu={}
@@ -476,14 +480,16 @@ export default {
             })
         },
         createEquipment(){
-            console.log(this.currentEqu)
+            console.log("新建新建======")
+            console.log(this.levelObj)
+            
             let data={
                 id: "",
                 imageUrl: this.imageUrl,
                 name: this.tissueList.devicename ,
                 orgId: this.currentOrg.id,
                 orgName: this.currentOrg.name,
-                parentId: this.currentEqu.id,
+                parentId: this.equNew?this.levelObj.id:0,
                 remarks: this.tissueList.remark
             }
             console.log(data)

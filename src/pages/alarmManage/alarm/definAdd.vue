@@ -673,7 +673,7 @@ export default {
                     treeItem.push(trees[i])
                 }
                 // console.log(treeItem)
-                this.areadData = createTree(treeItem)
+                this.areadData = createTree(treeItem,0)
             }).catch(err => {
                 // 异常情况
             })

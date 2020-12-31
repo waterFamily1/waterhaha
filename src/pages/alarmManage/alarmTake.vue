@@ -224,7 +224,7 @@ export default {
                     treeItem.push(trees[i])
                 }
                 console.log(treeItem)
-                this.treeData = createTree(treeItem)
+                this.treeData = createTree(treeItem,0)
             }).catch(err => {
                 // 异常情况
             })

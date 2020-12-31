@@ -662,6 +662,7 @@ export default {
                 if(res.data){
                     let temp = res.data
                     // this.receiveObj = res.data
+                    console.log( temp.alarmName)
                      this.formValidate= {
                         area: temp.siteId,
                         name: temp.alarmName,
@@ -670,8 +671,11 @@ export default {
                         alarmLevel: temp.alarmLevel,
                         condition: temp.alarmCondition,
                         state: temp.enabledStatus,
-                        single: temp.subscribeList[0].pushReleaseMessage=='Y'?true:false
+                       
                         
+                    }
+                    if(temp.subscribeList.length!=0){
+                        this.formValidate. single = temp.subscribeList[0].pushReleaseMessage=='Y'?true:false
                     }
                     this.nameNumber = temp.nameNumber
                     this.id = temp.id
@@ -724,7 +728,7 @@ export default {
                     treeItem.push(trees[i])
                 }
                 // console.log(treeItem)
-                this.areadData = createTree(treeItem)
+                this.areadData = createTree(treeItem,0)
             }).catch(err => {
                 // 异常情况
             })

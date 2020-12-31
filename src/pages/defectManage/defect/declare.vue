@@ -229,7 +229,7 @@ export default {
                     trees[i].value = trees[i].id
                     treeItem.push(trees[i])
                 }
-                this.orgData = createTree(treeItem)
+                this.orgData = createTree(treeItem,0)
                 this.parentNode = this.orgData[0]
                 this.formValidate.handler = this.parentNode.id
                 this.orgId = this.parentNode.id
@@ -247,7 +247,7 @@ export default {
                     trees[i].value = trees[i].id
                     treeItem.push(trees[i])
                 }
-                this.areaData = createTree(treeItem)
+                this.areaData = createTree(treeItem,0)
             }).catch(err => {
                 // 异常情况
             })

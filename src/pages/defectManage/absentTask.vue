@@ -179,7 +179,7 @@ export default {
                     trees[i].value = trees[i].id
                     treeItem.push(trees[i])
                 }
-                this.orgData = createTree(treeItem)
+                this.orgData = createTree(treeItem,0)
              })
         },
         getList(){

@@ -158,7 +158,7 @@ export default {
                     trees[i].expand = true
                     treeItem.push(trees[i])
                 }
-                this.baseData = createTree(treeItem)
+                this.baseData = createTree(treeItem,0)
                 // console.log(this.baseData)
             }).catch(err => {
                 // 异常情况
