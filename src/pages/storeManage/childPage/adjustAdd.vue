@@ -244,7 +244,7 @@ export default {
                     trees[i].value = trees[i].id.toString()
                     treeItem.push(trees[i])
                 }
-                this.tissueData = createTree(treeItem)
+                this.tissueData = createTree(treeItem, 0)
             }).catch(err=> {
 
             })

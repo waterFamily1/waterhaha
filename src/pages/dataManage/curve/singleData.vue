@@ -256,6 +256,7 @@ export default {
             this.getlist()
         },
         getRegional() {
+            console.log(222222)
             regionalCon().then(res => {
                 let treeItem = []
                 let trees = res.data
@@ -265,7 +266,7 @@ export default {
                     trees[i].checked = false
                     treeItem.push(trees[i])
                 }
-                this.tissueList = createTree(treeItem)
+                this.tissueList = createTree(treeItem, 0)
             }).catch(err => {
                 // 异常情况
             })

@@ -276,7 +276,7 @@ export default {
                     trees[i].value = trees[i].id
                     treeItem.push(trees[i])
                 }
-                this.orgList = createTree(treeItem)
+                this.orgList = createTree(treeItem, 0)
             }).catch(err=> {
 
             })

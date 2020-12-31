@@ -248,7 +248,7 @@ export default {
                         treeItem.push(trees[i])
                     }
                     this.show=true
-                    this.data4 = createTree(treeItem)
+                    this.data4 = createTree(treeItem, 0)
                 }
             })
         },

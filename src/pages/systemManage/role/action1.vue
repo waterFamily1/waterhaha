@@ -63,7 +63,7 @@ export default {
                         
                     }
                     sessionStorage.setItem('processDTOValue',processIds.join(','))
-                    this.processTree = createTree(processDTOs)
+                    this.processTree = createTree(processDTOs, 0)
                     // console.log(this.processTree)
                     // 仓库
                     let warehouseDTOs = data.warehouseDTOs

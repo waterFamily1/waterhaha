@@ -176,7 +176,7 @@ export default {
                     trees[i].checked = false
                     treeItem.push(trees[i])
                 }
-                this.tissueList = createTree(treeItem)
+                this.tissueList = createTree(treeItem, 0)
             }).catch(err => {
                 // 异常情况
             })
@@ -272,6 +272,7 @@ export default {
             // console.log(JSON.stringify(item.list))
             this.keyword = item.combineName
             this.addDataGroup()
+            this.getRegional()
             this.modal = true
             this.selectedData = item.list
             this.edit = '1'

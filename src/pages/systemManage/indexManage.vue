@@ -212,7 +212,7 @@ export default {
                     trees[i].checked = false
                     treeItem.push(trees[i])
                 }
-                this.cityList = createTree(treeItem)
+                this.cityList = createTree(treeItem, 0)
             }).catch(err=> {
 
             })

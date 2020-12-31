@@ -395,7 +395,7 @@ export default {
                     trees[i].checked = false
                     treeItem.push(trees[i])
                 }
-                this.processList = createTree(treeItem)
+                this.processList = createTree(treeItem, 0)
             }).catch(err => {
                 // 异常情况
             })

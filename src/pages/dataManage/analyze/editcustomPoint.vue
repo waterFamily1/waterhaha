@@ -533,7 +533,7 @@ export default {
                     trees[i].expand = true
                     treeItem.push(trees[i])
                 }
-                this.areaTree = createTree(treeItem)
+                this.areaTree = createTree(treeItem, 0)
             }).catch(err => {
                 // 异常情况
             })

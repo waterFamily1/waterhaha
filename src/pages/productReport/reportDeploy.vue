@@ -335,7 +335,7 @@ export default {
                     treeItem.push(trees[i])
                 }
                 this.baseData = treeItem
-                this.areaData= createTree(treeItem)
+                this.areaData= createTree(treeItem, 0)
             }).catch(err => {
                 // 异常情况
             })
