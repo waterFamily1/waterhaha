@@ -192,7 +192,7 @@ export default {
                     trees[i].value = trees[i].id
                     treeItem.push(trees[i])
                 }
-                this.processList = createTree(treeItem)
+                this.processList = createTree(treeItem,0)
              })
         },
         search(){

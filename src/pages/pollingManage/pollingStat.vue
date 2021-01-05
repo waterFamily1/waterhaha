@@ -254,7 +254,7 @@ export default {
                     treeItem.push(trees[i])
                 }
                 this.baseData = treeItem
-                this.processList = createTree(treeItem)
+                this.processList = createTree(treeItem,0)
              })
         },
         getStatList(){

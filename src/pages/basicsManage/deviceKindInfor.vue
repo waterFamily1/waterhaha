@@ -388,6 +388,7 @@ export default {
             this.imgPath=""
             this.tissueList.devicename = ''
             this.tissueList.remark = ''
+            this.equNew = false
         },
         selectEquNode(node){
            this.isChooseequ=true

@@ -194,7 +194,7 @@ export default {
                 }
                 this.baseData = trees
                 console.log(trees)
-                this.processList = createTree(treeItem)
+                this.processList = createTree(treeItem,0)
             }).catch(err => {
                 // 异常情况
             })
