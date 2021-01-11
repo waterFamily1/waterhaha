@@ -41,6 +41,11 @@ export default {
             path: `/pointEdit`,
             title: '巡检点编辑',
             auth: ['hidden']
-        }
+        },
+        {
+            path: `/task/detail`,
+            title: '巡检任务详情',
+            auth: ['hidden']
+        },
     ]
 }

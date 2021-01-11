@@ -96,6 +96,15 @@ export default {
                 closable: false
             },
             component: () => import('@/pages/pollingManage/pointEdit')
-        }
+        },{
+            path: '/task/detail',
+            name: `${pre}task-detail`,
+            meta: {
+                ...meta,
+                title: '巡检任务详情',
+                closable: false
+            },
+            component: () => import('@/pages/pollingManage/task/detail')
+        },
     ]
 }

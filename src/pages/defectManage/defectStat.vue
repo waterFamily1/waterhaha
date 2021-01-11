@@ -67,9 +67,9 @@
         <div class="c-top-border-gray">
             <div class="c-table-top-btns">
                 <!-- <button @click="exportHandle()"></button> -->
-                  <Button  @click="exportTable()">导出表格</Button>  
+                  <Button type="primary" style="height:26px" @click="exportTable()">导出表格</Button>  
             </div>
-            <Table stripe :columns="columns" :data="data"></Table>
+            <Table stripe :columns="columns " :data="data"></Table>
             <Page :total="total" show-elevator show-total class="page" @on-change="changeSize" />
         </div>
     </div>

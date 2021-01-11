@@ -132,11 +132,21 @@ export default {
                 },
                 {
                     title: '巡检点',
-                    key: 'point'
+                    key: 'point',
+                    render:(h,params)=>{
+                        // 
+                        let text = params.row.inspectedCount+"/"+ params.row.patrolPointCount
+                        return h('span',{},text)
+                    }
                 },
                 {
                     title: '巡检项',
-                    key: 'point'
+                    key: 'point',
+                    render:(h,params)=>{
+                        let text =params.row.hasResultCount +"/"+ params.row.stepCount
+                        return h('span',{},text)
+                    }
+                    // 
                 },
                 {
                     title: '缺陷申报',
@@ -188,7 +198,7 @@ export default {
                 queryName: '',
                 executorId: this.personId,
                 executeDateStart: begin,
-                executeDateEnd:end,
+                executeDateEnd:this.end?this.start+"T15:59:59.000Z":'',
                 executeStatus:state,
                 pageSize:10,
                 currentPage:this.page
@@ -243,7 +253,7 @@ export default {
                 }
             }
         },
-         getOrg(){
+        getOrg(){
             getOrganizations().then(res=>{
                 console.log(res)
                 let treeItem = []
@@ -259,7 +269,7 @@ export default {
         },
         getStatList(){
             let begin = this.start?this.$moment(this.start).utc().format():''
-            let end  = this.end?this.$moment(this.end).utc().format():''
+            let end  = this.end?this.start+"T15:59:59.000Z":''
             let state = this.status.length!=0?this.status.join(','):''
             let orgName=""
             this.baseData.map(item=>{
@@ -387,6 +397,9 @@ export default {
                     display: inline-block;
                     vertical-align: top;
                     margin-left: 10px;
+                    /deep/.ivu-tag{
+                        font-size: 14px;
+                    }
                 }
             }
         }
