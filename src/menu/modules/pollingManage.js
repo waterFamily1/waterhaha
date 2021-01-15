@@ -21,13 +21,20 @@ export default {
         }, {
             path: `/patrol/point`,
             title: '巡检点管理'
+        }, {
+            path: `/plan/edit`,
+            title: '巡检计划编辑',
+            auth: ['hidden']
         },
         {
             path: `/plan/add`,
             title: '巡检计划新增',
             auth: ['hidden']
-        },
-        {
+        },{
+            path: `/plan/detail`,
+            title: '巡检计划详情',
+            auth: ['hidden']
+        },{
             path: `/addPoint`,
             title: '巡检点新增',
             auth: ['hidden']

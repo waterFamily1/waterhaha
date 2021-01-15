@@ -45,3 +45,42 @@ export function getUsers (id) {
         method:'get'
     })
 }
+
+// 计划详情 
+export function planDetail (id) {
+    return request({
+        url: 'patrol/api/plans/'+id,
+        method:'get'
+    })
+}
+// 终止计划  
+export function endPlan (id) {
+    return request({
+        url: 'patrol/api/plans/interrupt/'+id,
+        method:'PUT'
+    })
+}
+// 下达任务 patrol/api/plans/release/26
+export function  releasePlan(id) {
+    return request({
+        url: 'patrol/api/plans/release/'+id,
+        method:'PUT'
+    })
+}
+
+// 新增计划 
+export function  addPlan(data) {
+    return request({
+        url: 'patrol/api/plans',
+        method:'post',
+        data
+    })
+}
+// 编辑计划 patrol/api/plans
+export function  editPlan(data) {
+    return request({
+        url: 'patrol/api/plans',
+        method:'put',
+        data
+    })
+}

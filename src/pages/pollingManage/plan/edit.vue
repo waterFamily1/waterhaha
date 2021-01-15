@@ -1,7 +1,7 @@
 <template>
     <div class="plan-box" :style="{height: height+'px'}">
         <div class="c-left-border-blue">
-            <h3>巡检计划</h3>
+            <h3>巡检计划编辑</h3>
             <div class="map-type-icon" v-if="type=='map'"></div>
             <div class="c-btns-right">
                 <button @click="save('formValidate')">保存</button>
@@ -84,7 +84,7 @@
         <div class="c-top-border-gray">
             <div class="patrol-points-title">
                 <h3>巡检点信息</h3>
-                <div class="c-btns-right" @click="modal = true"><button>添加巡检点</button></div>
+                <div class="c-btns-right" @click="openModal()"><button>添加巡检点</button></div>
             </div>
             <Table stripe :columns="tableList" :data="tableData">
                 <template slot-scope="{ row }" slot="name">
@@ -119,7 +119,7 @@
                 </div>
                 <div class="tabel-num">
                         已选择<strong>{{ selectedData.length }}</strong>个
-                        <a href="" @click="handleClearSelect(false)" style="color:#5c51fd">[清空]</a>
+                        <a href="javascript:;" @click="handleClearSelect(false)" style="color:#5c51fd">[清空]</a>
                     </div>
                      <div class="model-table">
                     <Table size="small" ref="selection" :columns="modelColumns" :data="modelData"
@@ -307,7 +307,7 @@
     </div>
 </template>
 <script>
-import { getOrganizations,getTree,siteList,getUsers,addPlan } from '@api/pollingManage/plan';
+import { planDetail,getOrganizations,getTree,siteList,getUsers,addPlan } from '@api/pollingManage/plan';
 import createTree from '@/libs/public-util'
 import {formatTime} from '@/libs/public'
 export default {
@@ -331,7 +331,7 @@ export default {
                      { required: true, message: '请输入数值', trigger: 'blur',type:'number' }
                 ],
                 tissue: [
-                    { required: true, message: '请选择组织', trigger: 'change' ,type:'number'}
+                    { required: true, message: '请选择组织', trigger: 'change',type:'number' }
                 ],
             },
             options3: {
@@ -498,7 +498,8 @@ export default {
             yType:'',
             ymData:'',
             unit:'',
-            millionValue:0
+            millionValue:0,
+            id:''
         }
     },
     created() {
@@ -506,11 +507,13 @@ export default {
     },
     mounted() {
         this.height = document.body.clientHeight-80
+        this.id = this.$route.query.id
         this.getModel()
         this.getOrg()
         this.getRegional()
         this.geCurrent()
         this.calTime()
+        this.defectDetail()
     },
     watch: {
         data(format) {
@@ -518,6 +521,20 @@ export default {
         }
     },
     methods: {
+        openModal(){
+            this.modal = true
+            console.log(this.tableData)
+            console.log(this.modelData)
+            this.tableData.map(ele=>{
+                this.modelData.map((item,index)=>{
+                    if(ele.id == item.id){
+                         this.$refs.selection.toggleSelect(index)
+                        // this.handleSelect(item)
+                        item._checked = true
+                    }
+                })
+            }) 
+        },
         add0(m){return m<10?'0'+m:m },
         format(shijianchuo){
             //shijianchuo是整数，否则要parseInt转换
@@ -744,17 +761,14 @@ export default {
                       
                     }else if(this.moduleTime == 'Weekly'){
                         periodRank = this.weekArr.join(',')
-                        periodValue = this.periodValue
                     }else if(this.moduleTime == 'Yearly'){
                         if(this.yearFre=='时间'){
                             periodRank = this.yData 
-                            monthValue = this.monthValue       
-                            periodValue = this.periodValue 
+                            monthValue = this.monthValue        
                         }else{
                             periodRank = this.orderData
                             periodRankValue= this.yType
                             monthValue = this.ymData
-                            periodValue = this.periodValue
                         }
                         
                     }else{
@@ -762,11 +776,11 @@ export default {
                         periodRank = null
                         periodRankValue = null
                     }
-                    
                     let data = {
                         executorId: this.personId,
+                        executor:null,
                         holidayDisabled: Number(this.setting),
-                        id: "",
+                        id: this.id,
                         name: this.formValidate.name,
                         orgId: this.formValidate.tissue,
                         period: this.period,
@@ -782,12 +796,18 @@ export default {
                         status: "New",
                         type: this.type=='map'?"Outside":'Inside',
                         pointsList:this.tableData,
-                        repeatCount:this.repeat=='重复'?this.repeatCount:null
+                        repeatCount:this.repeat=='重复'?this.repeatCount:null,
+                        updateDate:null,
+                        workDays:null,
+                        startTime:null,
+                        endTime:null,
+                        description:null,
+                        pathList:[]
                     }
                     console.log(data)
-                    addPlan(data).then(res=>{
+                    edit(data).then(res=>{
                         if(res.data.id){
-                            this.$Message.success('数据保存成功!');
+                            this.$Message.success('编辑成功!');
                             this.$router.go(-1)
                         }
                     })
@@ -797,7 +817,72 @@ export default {
             })
             // 巡检计划的开始日期不可大于或等于结束日期
             
-        }
+        },
+         defectDetail(){
+            planDetail(this.id).then(res=>{
+                console.log(res)
+                if(res.data){
+                    let result = res.data
+                     if(result.periodType == 'Weekly'){
+                        this.weekArr= result.periodRank
+                        this.periodValue = result.periodValue
+                    }else if(result.periodType == 'Monthly'){
+                        if(result.periodRankValue){
+                            this.mData = result.periodRank 
+                            this.typeDate = result.periodRankValue
+                            this.mValue = result.periodValue
+                            this.monthFre = ''
+                        }else{
+                            this.periodRank = result.periodRank
+                            this.monthFre = '每'
+                            this.periodValue = result.periodValue
+                        }
+                    }else if(result.periodType == 'Yearly'){
+                        if(result.periodRankValue){
+                            console.log(result.periodMonth)
+                            this.periodValue = result.periodValue
+                            this.orderData = result.periodRank
+                            this.yType = result.periodRankValue
+                            this.ymData = String(result.periodMonth)
+                            this.yearFre = ""
+                        }else{
+                            this.yData = Number(result.periodRank )
+                            this.monthValue = String(result.periodMonth)
+                            this.yearFre = "时间"
+                            this.periodValue = result.periodValue
+                        }
+                    }else{
+                        this.periodValue = result.periodValue
+                    }
+                    this.formValidate.name = result.name
+                    this.formValidate.tissue = result.orgId
+                    console.log(typeof(this.formValidate.tissue))
+                    this.formValidate.time = result.remindAdvance
+                    result.planStart = formatTime(result.planStart, 'yyyy-MM-dd HH:mm')
+                    this.start = result.planStart.slice(0,11)
+                    this.startTime = result.planStart.slice(0,11)
+                    this.value1 = result.planStart.slice(12,)
+                    result.planEnd=formatTime(result.planEnd, 'yyyy-MM-dd HH:mm')
+                    this.end = result.planEnd.slice(0,11)
+                    this.endTime = result.planEnd.slice(0,11)
+                    this.value2 = result.planEnd.slice(12,)
+                    this.personId = result.executorId
+                    this.setting  = String(result.holidayDisabled)
+                    this.faultDto = result
+                    this.tableData = result.pointsList
+                    this.moduleTime = result.periodType
+                    if(result.repeatCount){
+                        this.repeat = "重复"
+                        this.repeatCount = result.repeatCount
+                        // result.planEnd=null
+                    }else{
+                        this.repeat =""
+                        this.repeatCount = null
+                        
+                    }
+                }
+            })
+        } ,    
     }
 }
 </script>

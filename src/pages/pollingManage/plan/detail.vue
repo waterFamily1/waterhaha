@@ -2,13 +2,15 @@
     <div class="detail-wrap" :style="{height: height+'px'}">
         <div class="c-left-border-blue">
             <div>
-                <h3>巡检任务</h3>
-                <a href="javascript:;" v-if="attention" @click="cancelAttention()">取消关注</a>
-                 <a href="javascript:;" v-else @click="addAttention()">添加关注</a>
+                <h3>巡检计划</h3>
             </div>
-            <div class="c-btns-right">
-                <Button type="primary" @click="allocation=true">任务分派</Button>
-                 <Button type="primary" style="background:#8790ff" @click="terminationT()">终止任务</Button>
+            <div class="c-btns-right" v-if="faultDto.status=='Ing'">
+                <Button type="primary" @click="terminationT()">终止</Button>
+                <Button type="primary" style="background:#c8c8c8" @click="cancel()">返回</Button>
+            </div>
+            <div class="c-btns-right" v-if="faultDto.status=='New'">
+                <Button type="primary" @click="assign()">下达</Button>
+                <Button type="primary" @click="edit()">编辑</Button>
                 <Button type="primary" style="background:#c8c8c8" @click="cancel()">返回</Button>
             </div>
         </div>
@@ -21,31 +23,75 @@
                     </div>
                     <div class="item-form">
                         <label>所属组织：</label>
-                        <span>{{ faultDto.orgName }}</span>
+                        <span>{{ faultDto.org }}</span>
                     </div>
                     <div class="item-form">
                         <label>执行人员：</label>
-                        <span>{{ faultDto.executorName }}</span>
+                        <span>{{ faultDto.executor }}</span>
                     </div>
                     <div class="item-form">
-                        <label>保养持续时间：</label>
-                        <span>{{ faultDto.period }}小时</span>
+                        <label>计划状态：</label>
+                        <span>{{ faultDto.status=="New"?'新建':'' }}</span>
+                    </div>
+                    <div class="item-form">
+                        <label>节假日设置：</label>
+                        <span>{{ faultDto.holidayDisabled==1?'不执行':'执行' }}</span>
                     </div>
                 </Col>
                 <Col span="12">
                     <div class="item-form">
-                        <label>任务状态：</label>
-                        <span>{{ faultDto.executeStatus }}</span>
+                        <label>提前通知时间：</label>
+                        <span>{{ faultDto.remindAdvance }}分钟</span>
                     </div>
                     <div class="item-form">
-                        <label>执行开始日期：</label>
-                        <span>{{ faultDto.startTime }} - {{ faultDto.endTime }}</span>
+                        <label>开始时间：</label>
+                        <span>{{ faultDto.planStart }}  </span>
                     </div>
                     <div class="item-form">
-                        <label>实际耗时：</label>
-                        <span></span>
+                        <label>结束时间：</label>
+                        <span>{{ faultDto.planEnd }}</span>
                     </div>
-
+                    <div class="item-form"> 
+                        <label>持续时间：</label>
+                        <span>{{ faultDto.period}}</span>
+                        <span>{{faultDto.periodUnit=='Hour'?'小时':(faultDto.periodUnit=='Day'?'天':'分钟')}}</span>
+                    </div>
+                    <div class="item-form"> 
+                        <label>周期：</label>
+                        <div style="display:inline-block;width:488px;vertical-align:top">
+                            <span v-if="faultDto.periodType=='Hourly'">
+                                每{{ faultDto.periodValue }}小时
+                                <span v-if="faultDto.repeatCount">从({{faultDto.planStart}}开始重复{{faultDto.repeatCount}}次)</span>
+                                <span v-else>({{faultDto.planStart}} 至 {{faultDto.planEnd}})</span>
+                            </span>
+                            <span v-if="faultDto.periodType=='Daily'">每{{ faultDto.periodValue }}天
+                                <span v-if="faultDto.repeatCount">从({{faultDto.planStart}}开始重复{{faultDto.repeatCount}}次)</span>
+                                <span v-else>({{faultDto.planStart}} 至 {{faultDto.planEnd}})</span>
+                            </span>
+                            <span v-if="faultDto.periodType=='Weekly'">每{{faultDto.periodValue}}周后的{{faultDto.weekText}}
+                            <span v-if="faultDto.repeatCount">从({{faultDto.planStart}}开始重复{{faultDto.repeatCount}}次)</span>
+                                <span v-else>({{faultDto.planStart}} 至 {{faultDto.planEnd}})</span>
+                            </span>
+                            <span v-if="faultDto.periodType=='Monthly'">
+                                <span v-if="faultDto.periodRankValue">
+                                    每{{faultDto.periodValue}}月的{{faultDto.order}}{{faultDto.day}}
+                                </span>
+                                <span v-else>每{{faultDto.periodValue}}月的第{{faultDto.periodRank}}天</span>
+                                <span v-if="faultDto.repeatCount">从({{faultDto.planStart}}开始重复{{faultDto.repeatCount}}次)</span>
+                                <span v-else>({{faultDto.planStart}} 至 {{faultDto.planEnd}})</span>
+                            </span>
+                            <span v-if="faultDto.periodType=='Yearly'">
+                                    每{{faultDto.periodValue}}年后的
+                                <span v-if="faultDto.periodRankValue">
+                                    {{faultDto.periodMonth}}月{{faultDto.order}}{{faultDto.day}}
+                                </span>
+                                <span v-else>{{faultDto.periodMonth}}月{{faultDto.periodRank}}日</span>
+                                <span v-if="faultDto.repeatCount">从({{faultDto.planStart}}开始重复{{faultDto.repeatCount}}次)</span>
+                                <span v-else>({{faultDto.planStart}} 至 {{faultDto.planEnd}})</span>
+                            </span>
+                        </div>
+                        
+                    </div>
                 </Col>
             </Row>
         </div>
@@ -53,9 +99,6 @@
             <Tabs value="name1">
                 <TabPane label="巡检点信息" name="name1">
                     <Table ref="selection" :columns="applyColumns" :data="tableData" >
-                        <template slot-scope="{ row, index }" slot="action">
-                            <Button class="action" type="text" size="small" style="margin-right: 5px;color:rgb(75, 126, 254)" @click="check(index)">查看</Button>
-                        </template>
                     </Table>
                 </TabPane>
             </Tabs>
@@ -119,7 +162,7 @@
     </div>
 </template>
 <script>
-import { taskDetail,addCon,cancelCon,getUsers,assign,suspend} from '@api/pollingManage/task';
+import { planDetail,endPlan,releasePlan} from '@api/pollingManage/plan';
 import createTree from '@/libs/public-util'
 import {formatTime} from '@/libs/public'
 export default {
@@ -150,25 +193,14 @@ export default {
                     key: 'description',
                 }, {
                     title: '巡检步骤',
-                    key: 'stepCount',
-                    render: (h,params) => {
-                        let that = this;
-                        let text = params.row.recordCount+"/"+params.row.stepCount
-                        return h('span', {
-                        }, text);
-                    }
-                }, {
-                    title: '发现缺陷',
-                    key: 'faultCount'
-                }, {
+                    key: 'stepCount'
+                },  {
                     title: '区域位置',
                     key: 'relatedProcessNames'
-                },  {
-                    title: '操作',
-                    slot: 'action',
-                    width: 150,
-                    align: 'center'
-                }
+                }, {
+                    title: '编号',
+                    key: 'no'
+                }, 
             ],
             applyData: [],
             id:'',
@@ -222,16 +254,20 @@ export default {
         this.userList()
     },
     methods:{
+        edit(){
+            this.$router.push({
+                path:'/plan/edit',
+                query: {
+                    id:this.id
+                }
+            })
+        },
         terminationT(){
             this.$Modal.confirm({
-                title: '是否要终止当前任务？',
+                title: '是否要终止当前计划？',
                 width: '300',
                 onOk: () => {
-                    let data = {
-                        isInterupted: "1",
-                        taskId: this.id
-                    }
-                    suspend(data).then(res=>{
+                    endPlan(this.id).then(res=>{
                         if(res.data.count){
                             //  
                             this.$Message.success('终止成功!');
@@ -248,7 +284,6 @@ export default {
             this.$router.go(-1)
         },
         cancelAttention(){
-            console.log("dddd")
             this.$Modal.confirm({
                 title: '是否要取消关注此条数据?',
                 width: '300',
@@ -289,9 +324,9 @@ export default {
           this.detailData = detail.patrolTaskPointSteps
         },
         userList(){
-           getUsers(this.orgId).then(res=>{
-               this.handlerList = res.data
-           })
+        //    getUsers(this.orgId).then(res=>{
+        //        this.handlerList = res.data
+        //    })
         },
         getRegional() {
             getOrg().then(res => {
@@ -321,18 +356,22 @@ export default {
         //        }
         //    })
         },
-        alloacte(){
-            let data = {
-                executorId:this.personId,taskId:this.id
-            }
-          assign(data).then(res=>{
-              console.log(res)
-              if(res.data.count){
-                   this.$Message.success('数据保存成功!');
-                    this.defectDetail()
-                    this.allocation = false
-              }
-          })
+        assign(){
+            releasePlan(this.id).then(res=>{
+                console.log(res)
+                if(res.data.count){
+                    this.$router.go(-1)
+                    this.$Message.success({
+                        render: h => {
+                            return h('span', [
+                                '计划下达成功!',
+                                h('div', {},'已下达'+res.data.count+"个待执行巡检任务")
+                            ])
+                        }
+                    });
+                    
+                }
+            })
         },
         changeItem(name){
           console.log(name)
@@ -348,18 +387,43 @@ export default {
         },
         
         defectDetail(){
-            taskDetail(this.id).then(res=>{
+            planDetail(this.id).then(res=>{
                 console.log(res)
                 if(res.data){
-                    res.data.startTime = formatTime(res.data.startTime, 'yyyy-MM-dd HH:mm:ss')
-                   res.data.endTime=formatTime(res.data.endTime, 'yyyy-MM-dd HH:mm:ss')
-                   let text = res.data.executeStatus 
-                   let a =text=='unallocated'?'未分配':(text=='toBeExecuted'?'待执行':(text=='executing'?'执行中':(text=='finished'?'已完成':(text=='abnormal'?'异常':'已终止'))))
-                   res.data.executeStatus = a
-                    this.faultDto = res.data
-                    this.tableData = res.data.patrolPointDetailDTOs
-                     this.attention = res.data.concerned
-                     this.personId = res.data.executorId
+                    let result = res.data
+                    result.planStart = formatTime(result.planStart, 'yyyy-MM-dd HH:mm')
+                    result.planEnd=formatTime(result.planEnd, 'yyyy-MM-dd HH:mm')
+                   let text = result.periodType
+                   text=='Hourly'?'小时':(text=='Daily'?'天':'分钟')
+                    this.faultDto = result
+                    this.tableData = result.pointsList
+                    if(result.periodType == 'Weekly'){
+                        let week = result.periodRank.split(',')
+                        let weekText= [],matter="";
+                        week.map(item=>{
+                            console.log(item)
+                            matter = item==1?'星期日':(item==2?'星期一':(item == 3?'星期二':(item==4?'星期三':(item=5?'星期四':(item==6?'星期五':(item==7?'星期六':''))))))
+                            weekText.push(matter)
+                            console.log(weekText)
+                        })
+                        result.weekText = weekText.join(',')
+                    }else if((result.periodType == 'Monthly')||(result.periodType == 'Yearly')){
+                        let order,day;
+                        if(result.periodRankValue){
+                            order = result.periodRank=='First'?'第一个':(result.periodRank=='Second'?'第二个':(result.periodRank=='Third'?'第三个':(result.periodRank=='Fourth'?'第四个':'最后一个')))
+                            day = result.periodRankValue =='Day'?'日子':
+                            (result.periodRankValue=='Weekday'?'工作日':
+                            (result.periodRankValue=='Weekend Day'?'周末':
+                            (result.periodRankValue=='Sunday'?'星期日':
+                            (result.periodRankValue=='Monday'?'星期一':
+                            (result.periodRankValue=='Tuesday'?'星期二':
+                            (result.periodRankValue=='Wednesday'?'星期三':
+                            (result.periodRankValue=='Thursday'?'星期四':
+                            (result.periodRankValue=='Friday'?'星期五':'星期六'))))))))
+                            result.order = order
+                            result.day = day
+                        }
+                    }
                 }
             })
         } ,       

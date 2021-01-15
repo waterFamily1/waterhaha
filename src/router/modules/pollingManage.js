@@ -34,6 +34,24 @@ export default {
             },
             component: () => import('@/pages/pollingManage/plan/add')
         }, {
+            path: '/plan/edit',
+            name: `${pre}plan-edit`,
+            meta: {
+                ...meta,
+                title: '巡检计划编辑',
+                closable: false
+            },
+            component: () => import('@/pages/pollingManage/plan/edit')
+        },{
+            path: '/plan/detail',
+            name: `${pre}plan-detail`,
+            meta: {
+                ...meta,
+                title: '巡检计划详情',
+                closable: false
+            },
+            component: () => import('@/pages/pollingManage/plan/detail')
+        }, {
             path: '/patrol/task',
             name: `${pre}patrol-task`,
             meta: {

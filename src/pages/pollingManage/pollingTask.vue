@@ -8,7 +8,7 @@
                 </div>
                 <div class="form-item">
                     <label>所属组织：</label> 
-                    <TreeSelect v-model="area"  :data="processList"  v-width="200" @on-change="changeArea"  />
+                    <TreeSelect v-model="area"  :data="processList"  v-width="200"  />
                 </div>
                 <div class="form-search-btn">
                     <a href="javascript:;" @click="higherSearch()">
@@ -60,7 +60,7 @@
                 <template slot-scope="{ row, index }" slot="action">
                     <!-- <Button class="action" size="small" style="margin-right: 5px;">配置</Button> -->
                     <Button class="action" size="small" type="text" style="color:rgb(75, 126, 254);font-size:13px" @click="check(row.id)">查看</Button>
-                    <Button class="action" size="small" type="text" style="color:rgb(75, 126, 254);font-size:13px" @click="cancelT(row.id)">删除</Button>
+                    <Button class="action" size="small" type="text" style="color:rgb(75, 126, 254);font-size:13px" @click="cancelT(row.id)" v-if="row.executeStatus=='unallocated'||row.executeStatus=='toBeExecuted'">删除</Button>
                 </template>
             </Table>
             <Page :total="total" show-elevator size="small" class="page" style="text-align:right;margin-top:20px" @on-change="changeSize" />
@@ -158,8 +158,7 @@ export default {
                 {
                     title: '操作',
                     slot: 'action',
-                    width: 150,
-                    align: 'center'
+                    width: 150
                 }
             ],
             processList:[],

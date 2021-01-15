@@ -50,7 +50,7 @@
                         @on-select-all-cancel="handleSelectAllCancel">
                 <template slot-scope="{ row, index }" slot="action">
                     <Button class="action" type="text" size="small" style="margin-right: 5px;color:rgb(75, 126, 254)" @click="check(row.id)">查看</Button>
-                    <Button class="action" type="text" size="small" style="color:rgb(75, 126, 254)" @click="deleteItem(row.id)" v-if="row.state==1">删除</Button>
+                    <Button class="action" type="text" size="small" style="color:rgb(75, 126, 254)" @click="deleteItem(row.id)" v-if="row.executeStatus==1">删除</Button>
                 </template>
             </Table>
             <Page :total="total" show-elevator show-total class="page" @on-change="changeSize" />

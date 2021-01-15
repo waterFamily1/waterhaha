@@ -48,19 +48,45 @@
                <div>
                     <h3 class="plan-title">地图巡检</h3>
                     <div class="plan-cards">
-                        <Card v-for="(item , index) in mapList" class="plan-card" :key="index">
+                        <Card v-for="(item , index) in mapList" class="plan-card" :key="index" :to="{path: '/plan/detail', query: {id:item.id}}">
                             <h5 slot="title" :class="{'gray':item.status=='Interrupt'||item.status=='Finish'}">
                                 {{ item.name }}
                             </h5>
                             <a href="javascript:;" slot="extra" class="icon">
-                            <Icon type="ios-trash-outline"  style="margin-right:8px" v-if="item.status=='New'||item.status=='Ing'" @click="deleteHandle(item.id)" />
+                            <Icon type="ios-trash-outline"  style="margin-right:8px" v-if="item.status=='New'||item.status=='Ing'" @click.stop="deleteHandle(item.id)" />
                             <Icon type="ios-copy-outline" />
                             </a>
                             <div class="plan-card-info">
                                 <p>状态：{{item.state}}</p> 
                                 <p class="ell">所属组织：{{ item.org }}</p>
                                 <p>起止日期：{{ item.planStart }} - {{item.planEnd}}</p>
-                                <p class="ell">巡检周期：{{ item.periodValue }}</p> 
+                                <p class="ell duration">巡检周期：
+                                     <span v-if="item.periodType=='Hourly'">
+                                        每{{ item.periodValue }}小时
+                                        <span v-if="item.repeatCount">(重复{{item.repeatCount}}次)</span>
+                                    </span>
+                                    <span v-if="item.periodType=='Daily'">每{{ item.periodValue }}天
+                                         <span v-if="item.repeatCount">(重复{{item.repeatCount}}次)</span>
+                                    </span>
+                                    <span v-if="item.periodType=='Weekly'">每{{item.periodValue}}周后的{{item.weekText}}
+                                        <span v-if="item.repeatCount">(重复{{item.repeatCount}}次)</span>
+                                    </span>
+                                    <span v-if="item.periodType=='Monthly'">
+                                        <span v-if="item.periodRankValue">
+                                            每{{item.periodValue}}月的{{item.order}}{{item.day}}
+                                        </span>
+                                        <span v-else>每{{item.periodValue}}月的第{{item.periodRank}}天</span>
+                                        <span v-if="item.repeatCount">(重复{{item.repeatCount}}次)</span>
+                                    </span>
+                                    <span v-if="item.periodType=='Yearly'">
+                                         每{{item.periodValue}}年后的
+                                        <span v-if="item.periodRankValue">
+                                           {{item.periodMonth}}月{{item.order}}{{item.day}}
+                                        </span>
+                                        <span v-else>{{item.periodMonth}}月{{item.periodRank}}日</span>
+                                        <span v-if="item.repeatCount">(重复{{item.repeatCount}}次)</span>
+                                    </span>
+                                </p>
                                 <p>创建时间：{{ item.createDate }}</p>
                             </div>
                         </Card>
@@ -69,19 +95,45 @@
                 <div>
                     <h3 class="plan-title">普通巡检</h3>
                     <div class="plan-cards">
-                        <Card v-for="(item , index) in customList" class="plan-card" :key="index">
+                        <Card v-for="(item , index) in customList" class="plan-card" :key="index"  :to="{path: '/plan/detail', query: {id:item.id}}">
                            <h5 slot="title" :class="{'gray':item.status=='Interrupt'||item.status=='Finish'}">
                                 {{ item.name }}
                             </h5>
                             <a href="javascript:;" slot="extra" class="icon">
-                            <Icon type="ios-trash-outline"  style="margin-right:8px" v-if="item.status=='New'||item.status=='Ing'"  @click="deleteHandle(item.id)" />
+                            <Icon type="ios-trash-outline"  style="margin-right:8px" v-if="item.status=='New'"  @click.stop="deleteHandle(item.id)" />
                             <Icon type="ios-copy-outline" />
                             </a>
                             <div class="plan-card-info">
                                 <p>状态：{{item.state}}</p> 
                                 <p class="ell">所属组织：{{ item.org }}</p>
-                                <p>起止日期：{{ item.planStart }} - {{item.planEnd}}</p>
-                                <p class="ell">巡检周期：{{ item.periodValue }}</p> 
+                                <p>起止日期：{{ item.planStart }} - {{item.planEnd?item.planEnd:''}}</p>
+                                <p class="ell duration">巡检周期：
+                                    <span v-if="item.periodType=='Hourly'">
+                                        每{{ item.periodValue }}小时
+                                        <span v-if="item.repeatCount">(重复{{item.repeatCount}}次)</span>
+                                    </span>
+                                    <span v-if="item.periodType=='Daily'">每{{ item.periodValue }}天
+                                         <span v-if="item.repeatCount">(重复{{item.repeatCount}}次)</span>
+                                    </span>
+                                    <span v-if="item.periodType=='Weekly'">每{{item.periodValue}}周后的{{item.weekText}}
+                                        <span v-if="item.repeatCount">(重复{{item.repeatCount}}次)</span>
+                                    </span>
+                                    <span v-if="item.periodType=='Monthly'">
+                                        <span v-if="item.periodRankValue">
+                                            每{{item.periodValue}}月的{{item.order}}{{item.day}}
+                                        </span>
+                                        <span v-else>每{{item.periodValue}}月的第{{item.periodRank}}天</span>
+                                        <span v-if="item.repeatCount">(重复{{item.repeatCount}}次)</span>
+                                    </span>
+                                    <span v-if="item.periodType=='Yearly'">
+                                         每{{item.periodValue}}年后的
+                                        <span v-if="item.periodRankValue">
+                                           {{item.periodMonth}}月{{item.order}}{{item.day}}
+                                        </span>
+                                        <span v-else>{{item.periodMonth}}月{{item.periodRank}}日</span>
+                                        <span v-if="item.repeatCount">(重复{{item.repeatCount}}次)</span>
+                                    </span>
+                                </p> 
                                 <p>创建时间：{{ item.createDate }}</p>
                             </div>
                         </Card>
@@ -158,6 +210,15 @@ export default {
         }
     },
     methods :{
+        checkDetail(id){
+            console.log(id)
+          this.$router.push({
+                path:'/plan/detail',
+                query: {
+                    id:id
+                }
+            })
+        },
         deleteHandle(id){
            deletePlan(id).then(res=>{
                if(res.data.count){
@@ -220,12 +281,39 @@ export default {
                     temp.map(ele=>{
                         ele.createDate = formatTime(ele.createDate, 'yyyy-MM-dd HH:mm ')
                         ele.planStart = formatTime(ele.planStart, 'yyyy-MM-dd')
-                        ele.planEnd = formatTime(ele.planEnd, 'yyyy-MM-dd')
+                        ele.planEnd =  ele.planEnd?formatTime(ele.planEnd, 'yyyy-MM-dd'):''
                         ele.state = ele.status == 'New'?'新建':(ele.status=='Ing'?'执行中':(ele.status=='Interrupt')?'已终止':'已完成')
                         if(ele.type == 'Inside'){
                             this.customList.push(ele)
                         }else{
                             this.mapList.push(ele)
+                        }
+                        if(ele.periodType == 'Weekly'){
+                            let week = ele.periodRank.split(',')
+                            let weekText= [],matter="";
+                            week.map(item=>{
+                                console.log(item)
+                                matter = item==1?'星期日':(item==2?'星期一':(item == 3?'星期二':(item==4?'星期三':(item=5?'星期四':(item==6?'星期五':(item==7?'星期六':''))))))
+                                weekText.push(matter)
+                                console.log(weekText)
+                            })
+                            ele.weekText = weekText.join(',')
+                        }else if((ele.periodType == 'Monthly')||(ele.periodType == 'Yearly')){
+                            let order,day;
+                            if(ele.periodRankValue){
+                               order = ele.periodRank=='First'?'第一个':(ele.periodRank=='Second'?'第二个':(ele.periodRank=='Third'?'第三个':(ele.periodRank=='Fourth'?'第四个':'最后一个')))
+                               day = ele.periodRankValue =='Day'?'日子':
+                               (ele.periodRankValue=='Weekday'?'工作日':
+                               (ele.periodRankValue=='Weekend Day'?'周末':
+                               (ele.periodRankValue=='Sunday'?'星期日':
+                               (ele.periodRankValue=='Monday'?'星期一':
+                               (ele.periodRankValue=='Tuesday'?'星期二':
+                               (ele.periodRankValue=='Wednesday'?'星期三':
+                               (ele.periodRankValue=='Thursday'?'星期四':
+                               (ele.periodRankValue=='Friday'?'星期五':'星期六'))))))))
+                               ele.order = order
+                               ele.day = day
+                            }
                         }
                     })
                 }
@@ -252,7 +340,6 @@ export default {
             }
         },
         mapClick(){
-            console.log("1111")
             this.$router.push({
                 path:'/plan/add',
                 query: {
@@ -428,5 +515,10 @@ export default {
             }
         }
     }
+}
+.duration{
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 </style>
