@@ -96,13 +96,13 @@
             </Row>
         </div>
         <div class="c-top-border-gray">
-            <Tabs value="name1">
-                <TabPane label="巡检点信息" name="name1">
-                    <Table ref="selection" :columns="applyColumns" :data="tableData" >
-                    </Table>
-                </TabPane>
-            </Tabs>
-            
+            <div class="patrol-points-title">
+                <h3 style="display:inline-block;font-size:13px">巡检点信息</h3>
+                <a href="javascript:;" @click="jumpMap()"  v-if="faultDto.type=='Outside'">
+                    <Icon type="md-pin"  style="font-size:16px;padding-bottom:10px;color:#e03e3e"/>查看线路
+                </a>
+            </div>
+            <Table ref="selection" :columns="applyColumns" :data="tableData" ></Table>
         </div>
         <!-- 任务分派 -->
         <Modal
@@ -254,6 +254,14 @@ export default {
         this.userList()
     },
     methods:{
+        jumpMap(){
+            this.$router.push({
+                path:'/plan/editMap',
+                query: {
+                    id:this.id
+                }
+            })
+        },
         edit(){
             this.$router.push({
                 path:'/plan/edit',
@@ -392,7 +400,12 @@ export default {
                 if(res.data){
                     let result = res.data
                     result.planStart = formatTime(result.planStart, 'yyyy-MM-dd HH:mm')
-                    result.planEnd=formatTime(result.planEnd, 'yyyy-MM-dd HH:mm')
+                    // result.planEnd=formatTime(result.planEnd, 'yyyy-MM-dd HH:mm')
+                     if(result.planEnd){
+                        result.planEnd=formatTime(result.planEnd, 'yyyy-MM-dd HH:mm')
+                    }else{
+                        result.planEnd=formatTime(result.planStart, 'yyyy-MM-dd '+'08:30')
+                    }
                    let text = result.periodType
                    text=='Hourly'?'小时':(text=='Daily'?'天':'分钟')
                     this.faultDto = result

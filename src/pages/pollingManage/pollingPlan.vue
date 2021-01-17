@@ -4,7 +4,7 @@
             <div class="search-main">
                 <div class="form-item">
                     <label>关键字：</label>
-                    <Input v-model="keyword" placeholder="名称" style="width: 200px" size="small" />
+                    <Input v-model="keyword" placeholder="名称" style="width: 200px" />
                 </div>
                 <div class="form-item">
                     <label>所属组织：</label> 
@@ -54,7 +54,7 @@
                             </h5>
                             <a href="javascript:;" slot="extra" class="icon">
                             <Icon type="ios-trash-outline"  style="margin-right:8px" v-if="item.status=='New'||item.status=='Ing'" @click.stop="deleteHandle(item.id)" />
-                            <Icon type="ios-copy-outline" />
+                            <Icon type="ios-copy-outline" @click.stop="copyHandle(item.id)" />
                             </a>
                             <div class="plan-card-info">
                                 <p>状态：{{item.state}}</p> 
@@ -101,7 +101,7 @@
                             </h5>
                             <a href="javascript:;" slot="extra" class="icon">
                             <Icon type="ios-trash-outline"  style="margin-right:8px" v-if="item.status=='New'"  @click.stop="deleteHandle(item.id)" />
-                            <Icon type="ios-copy-outline" />
+                            <Icon type="ios-copy-outline" @click.stop="copyHandle(item.id)" />
                             </a>
                             <div class="plan-card-info">
                                 <p>状态：{{item.state}}</p> 
@@ -147,7 +147,7 @@
                 <Row>
                     <Col span="12" style="border:solid 2px #eee;padding:10px;margin-right:20px;width:195px" > 
                        <div @click="mapClick()">
-                            <Icon type="ios-copy-outline"  style="font-size:50px;padding-bottom:10px"/>
+                            <Icon type="md-pin"  style="font-size:50px;padding-bottom:10px;color:#e03e3e"/>
                             <p style="font-size:12px">使用GPS地图功能巡检</p>
                             <p style="font-size:12px">对巡检过程轨迹进行记录和跟踪 </p>
                             <h2 style="font-size:16px;margin-top:15px">地图巡检</h2>
@@ -155,7 +155,7 @@
                     </Col>
                     <Col span="12" style="border:solid 2px #eee;padding:10px;">
                        <div  @click="customClick()">
-                            <Icon type="ios-copy-outline" style="font-size:50px;padding-bottom:10px;width:195px" />
+                            <Icon type="md-copy" style="font-size:50px;padding-bottom:10px;width:195px;color:#4b7efe" />
                             <p style="font-size:12px">不记录GPS定位信息，只要求对巡检点考察进行记录</p>
                             <h2 style="font-size:16px;margin-top:15px">普通巡检</h2>
                        </div>
@@ -210,6 +210,14 @@ export default {
         }
     },
     methods :{
+        copyHandle(id){
+            this.$router.push({
+                path:'/plan/copy',
+                query: {
+                    id:id
+                }
+            })
+        },
         checkDetail(id){
             console.log(id)
           this.$router.push({

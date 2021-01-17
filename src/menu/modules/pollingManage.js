@@ -54,5 +54,10 @@ export default {
             title: '巡检任务详情',
             auth: ['hidden']
         },
+        {
+            path: `/plan/editMap`,
+            title: '编辑巡检计划地图',
+            auth: ['hidden']
+        },
     ]
 }

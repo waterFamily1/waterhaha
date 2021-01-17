@@ -320,7 +320,8 @@ export default {
                 location:'',
                 name:"",
                 category:"",
-                time:5
+                time:5,
+                tissue:''
 
             },
             ruleValidate: {
@@ -788,7 +789,13 @@ export default {
                     addPlan(data).then(res=>{
                         if(res.data.id){
                             this.$Message.success('数据保存成功!');
-                            this.$router.go(-1)
+                            // this.$router.go(-1)
+                            this.$router.push({
+                                path:'/plan/editMap',
+                                query: {
+                                    id:res.data.id
+                                }
+                            })
                         }
                     })
                 } else {

@@ -43,6 +43,24 @@ export default {
             },
             component: () => import('@/pages/pollingManage/plan/edit')
         },{
+            path: '/plan/copy',
+            name: `${pre}plan-copy`,
+            meta: {
+                ...meta,
+                title: '巡检计划复制',
+                closable: false
+            },
+            component: () => import('@/pages/pollingManage/plan/copy')
+        },{
+            path: '/plan/editMap',
+            name: `${pre}plan-editMap`,
+            meta: {
+                ...meta,
+                title: '编辑巡检计划地图',
+                closable: false
+            },
+            component: () => import('@/pages/pollingManage/plan/editMap')
+        },{
             path: '/plan/detail',
             name: `${pre}plan-detail`,
             meta: {

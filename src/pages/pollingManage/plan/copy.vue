@@ -1,7 +1,7 @@
 <template>
     <div class="plan-box" :style="{height: height+'px'}">
         <div class="c-left-border-blue">
-            <h3>巡检计划编辑</h3>
+            <h3>巡检计划复制</h3>
             <div class="map-type-icon" v-if="type=='Outside'"></div>
             <div class="c-btns-right">
                 <button @click="save('formValidate')">保存</button>
@@ -83,13 +83,7 @@
         </Form>
         <div class="c-top-border-gray">
             <div class="patrol-points-title">
-                <div style="display:inline-block">
-                    <h3>巡检点信息</h3>
-                    <a href="javascript:;" @click="jumpMap()" v-if="type=='Outside'">
-                        <Icon type="md-pin"  style="font-size:16px;padding-bottom:10px;color:#e03e3e"/>编辑线路
-                    </a>
-                </div>
-                
+                <h3>巡检点信息</h3>
                 <div class="c-btns-right" @click="openModal()"><button>添加巡检点</button></div>
             </div>
             <Table stripe :columns="tableList" :data="tableData">
@@ -141,9 +135,7 @@
                      </div> 
                 </div>
             </div>
-            <div slot="footer" >
-                <!-- <Button type="primary"  long  @click="save" style="font-size:12px">保存为新模版</Button> -->
-            </div>
+            <div slot="footer" ></div>
         </Modal>
          <Modal v-model="durationModal" width="620" class="model-box"> 
             <p slot="header" style="color:#1c2438;font-size:14px;border-left:7px solid #4b7efe;background:#f8f9fb;height:39px;line-height:39px">
@@ -306,14 +298,12 @@
                     <span style="background: #4b7efe;" @click="durationSure()">确定</span>
                 </div> 
             </div>
-            <div slot="footer" >
-                <!-- <Button type="primary"  long  @click="save" style="font-size:12px">保存为新模版</Button> -->
-            </div>
+            <div slot="footer" ></div>
         </Modal>
     </div>
 </template>
 <script>
-import { planDetail,getOrganizations,getTree,siteList,getUsers,editPlan } from '@api/pollingManage/plan';
+import { planDetail,getOrganizations,getTree,siteList,getUsers,addPlan } from '@api/pollingManage/plan';
 import createTree from '@/libs/public-util'
 import {formatTime} from '@/libs/public'
 export default {
@@ -328,7 +318,6 @@ export default {
                 category:"",
                 time:5,
                 tissue:''
-
             },
             ruleValidate: {
                 name: [
@@ -530,14 +519,6 @@ export default {
         }
     },
     methods: {
-         jumpMap(){
-            this.$router.push({
-                path:'/plan/editMap',
-                query: {
-                    id:this.id
-                }
-            })
-        },
         openModal(){
             this.modal = true
             console.log(this.tableData)
@@ -760,7 +741,9 @@ export default {
             });
         },
         save(name){
+            console.log(name)
             this.$refs[name].validate((valid) => {
+                console.log(valid)
                 if (valid) {
                     if(this.tableData.length==0){
                         this.$Message.warning('请添加巡检点信息!');
@@ -797,7 +780,7 @@ export default {
                         executorId: this.personId,
                         executor:null,
                         holidayDisabled: Number(this.setting),
-                        id: this.id,
+                        id: '',
                         name: this.formValidate.name,
                         orgId: this.formValidate.tissue,
                         period: this.period,
@@ -806,7 +789,7 @@ export default {
                         periodRankValue: periodRankValue,
                         periodType: this.moduleTime,
                         periodUnit: this.unit,
-                        periodValue: Number(periodValue),
+                        periodValue: Number(this.periodValue),
                         planEnd: this.repeat=='重复'?null:this.$moment(this.end+" "+this.value2).utc().format(),
                         planStart: this.$moment(this.start+" "+this.value1).utc().format(),
                         remindAdvance: this.formValidate.time,
@@ -822,10 +805,15 @@ export default {
                         pathList:[]
                     }
                     console.log(data)
-                    editPlan(data).then(res=>{
-                        if(res.data.count){
-                            this.$Message.success('编辑成功!');
-                            this.$router.go(-1)
+                    addPlan(data).then(res=>{
+                        if(res.data.id){
+                            this.$Message.success('复制成功!');
+                             this.$router.push({
+                                path:'/plan/editMap',
+                                query: {
+                                    id:res.data.id
+                                }
+                            })
                         }
                     })
                 } else {
@@ -891,6 +879,7 @@ export default {
                         this.endTime = result.planStart.slice(0,11)
                         this.value2 = '08:30'
                     }
+                    
                     this.personId = result.executorId
                     this.setting  = String(result.holidayDisabled)
                     this.faultDto = result

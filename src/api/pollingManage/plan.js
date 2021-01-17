@@ -84,3 +84,11 @@ export function  editPlan(data) {
         data
     })
 }
+
+// 获取路线 
+export function  getPath(id) {
+    return request({
+        url: 'patrol/api/plan-path?planId='+id,
+        method:'get'
+    })
+}
