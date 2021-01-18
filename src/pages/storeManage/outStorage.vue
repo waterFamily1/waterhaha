@@ -4,13 +4,17 @@
             <div class="search-main">
                 <div class="form-item">
                     <label>关键字：</label>
-                    <Input v-model="keyword" placeholder="库存调整单号" style="width: 300px" />
+                    <Input v-model="searchParams.queryName" placeholder="出库单号" style="width: 300px" />
                 </div>
                 <div class="form-item">
                     <label>所属组织：</label> 
-                    <Select v-model="model1" style="width:300px">
-                        <Option v-for="item in cityList" :value="item.value" :key="item.value">{{ item.label }}</Option>
-                    </Select>
+                    <TreeSelect 
+                        v-model="searchParams.orgIds" 
+                        multiple 
+                        :data="orgList" 
+                        :max-tag-count="2"
+                        v-width="300" 
+                    />
                 </div>
                 <div class="form-search-btn">
                     <a href="javascript:;" @click="higherSearch()">
@@ -18,143 +22,286 @@
                         <Icon type="ios-arrow-up" v-else />
                         高级搜索
                     </a>
-                    <button type="button">搜索</button>
-                    <button type="button" class="reset">重置</button>
+                    <Button @click="getTabel()">搜索</Button>
+                    <Button class="reset" @click="resetHandle()">重置</Button>
                 </div>
             </div>
             <div class="c-adv-search">
                 <div class="c-adv-search-row">
-                    <div class="form-item">
+                    <div class="form-item" style="display: flex">
                         <label>审核状态：</label>
                         <div class="cmp-tab">
-                            <a href="javascript:;" @click="typeCheckAll()" :class="{checked:typeCheckedAll}">全部</a>
-                            <a href="javascript:;" v-for="(item, index) in typeList" 
-                            :key="index" @click="typeCheck(item.id)" 
-                            :class="{checked:typeBox.includes(item.id)}">{{ item.label }}</a>
+                            <TagSelect v-model="searchParams.audited">
+                                <TagSelectOption name="1">已审核</TagSelectOption>
+                                <TagSelectOption name="2">未审核</TagSelectOption>
+                            </TagSelect>
                         </div>
                     </div>
                 </div>
                  <div class="c-adv-search-row">
                     <div class="form-item">
                         <label>出库仓库：</label>
-                        <Select v-model="model1" style="width:200px" size="small">
-                            <Option v-for="item in cityList" :value="item.value" :key="item.value">{{ item.label }}</Option>
-                        </Select>
+                        <Select v-model="searchParams.warehouseNo" style="width:200px">
+							<Option v-for="item in warehouseCombo" :value="item.warehouseNo" :key="item.warehouseNo">{{ item.warehouseName }}</Option>
+						</Select>
                     </div>
                 </div>
                 <div class="c-adv-search-row">
                     <div class="form-item">
                         <label>出库时间：</label>
-                        <DatePicker type="date" placeholder="Select date" style="width: 200px" size="small"></DatePicker> - 
-                        <DatePicker type="date" placeholder="Select date" style="width: 200px" size="small" ></DatePicker>
+                        <DatePicker 
+                            type="date" 
+                            placeholder="开始日期" 
+                            style="width: 200px"
+                            :options="startDate"
+                            v-model="startTime"
+                            format="yyyy-MM-dd"
+                            @on-change="startTimeChange"
+                        ></DatePicker> - 
+                        <DatePicker 
+                            type="date" 
+                            placeholder="结束日期" 
+                            style="width: 200px"
+                            @on-change="endTimeChange" 
+                            v-model="endTime"
+                            format="yyyy-MM-dd"
+                            :options="endDate"
+                        ></DatePicker>
                     </div>
                 </div>
             </div>
         </div>
         <div class="index-content">
             <div class="c-table-top-btns">
-                <button type="button" @click="add()">出库新增</button>
+                <Button @click="add()">出库新增</Button>
             </div> 
             <div class="table-wrapper" :style="{height: (height-45)+'px'}">
-                <Table stripe :columns="tableList" >
-                    <template slot-scope="{ row }" slot="name">
-                        <strong>{{ row.name }}</strong>
-                    </template>
+                <Table stripe :columns="tableList" :data="tableData" :loading="loading">
                     <template slot-scope="{ row, index }" slot="action">
-                        <!-- <Button class="action" size="small" style="margin-right: 5px;">配置</Button> -->
-                        <Button class="action" size="small">查看</Button>
+                        <Button class="action" size="small" @click="detailHandle(row.id)">查看</Button>
+                        <Button class="action" size="small" v-if="row.auditedFlag == 0" @click="cancleHandle(row.id)">删除</Button>
                     </template>
                 </Table>
-                 <Page :total="100" show-elevator class="page" />
+                <Page 
+                    :total="total" 
+                    show-total 
+                    show-elevator 
+                    @on-change="pageChange" 
+                    class="page" 
+                />
             </div>
         </div>
     </div>
 </template>
 <script>
+import { tableMethod, orgMethod, wareMethod, cancleMethod } from '@/api/store/out'
+import createTree from '@/libs/public-util'
+import util from '@/libs/public_js'
+import { mapState } from 'vuex'
+
 export default {
     name: 'outStorage',
     data() {
+        var _self = this
         return {
             height: '',
-            keyword: '',
-            cityList: [
-                {
-                    value: 'New York',
-                    label: 'New York'
-                }
-            ],
-            model1: '',
+            searchParams: {
+                queryName: '',
+                orgIds: [],
+                warehouseNo: '',
+                audited: [],
+                startDate: '',
+                endDate: '',
+                pageSize: 10,
+                currentPage: 1
+            },
+            orgList: [],
+            warehouseCombo: [],
+            startTime: '',
+            startDate: {},
+            start: '',
+            endTime: '',
+            endDate: {},
+            end: '',
             searchShow: false, 
-            typeCheckedAll: false,
-            typeBox: [],
-            genreList: [
-                {label: '在线仪表',id: 1},
-                {label: '泵',id: 2},
-                {label: '阀门',id: 3},
-                {label: '控制柜',id: 4},
-                {label: '浮球',id: 5}
-            ],
-            typeList: [
-                {label: '已审核',id: 1},
-                {label: '未审核',id: 2}
-            ],
             tableList: [
                 {
                     title: '出库单号',
-                    key: 'number'
-                },
-                {
+                    key: 'no',
+                    ellipsis: true
+                }, {
                     title: '所属组织',
-                    key: 'tissue'
-                },
-                {
+                    key: 'orgName',
+                    ellipsis: true
+                }, {
                     title: '出库时间',
-                    key: 'createTime'
-                },
-                
-                {
+                    key: 'outPutDate',
+                    width:110,
+                    render (h, data) {
+                        return util.tableDatetime(h, data.row.outPutDate)
+                    }
+                }, {
                     title: '出库仓库',
-                    key: 'warehouse'
-                },
-                {
+                    key: 'warehouseName',
+                    ellipsis: true
+                }, {
                     title: '审核状态',
-                    key: 'status'
-                },
-                {
+                    key: 'auditedFlag',
+                    render(h,data) {
+                        return h('span', _self.auditStateText[data.row.auditedFlag])
+                    }
+                }, {
                     title: '操作',
                     slot: 'action',
                     width: 150,
                     align: 'center'
                 }
             ],
+            tableData: [],
+            loading: false,
+            total: 0,
             single:false,
             modal:false
         }
     },
+    computed: mapState({
+        auditState: state => state.map.storage.inventory.auditState,
+        auditStateText: state => state.map.storage.inventory.auditStateText,
+    }),
     mounted() {
         this.height = document.body.clientHeight-130
+        this.getTabel()
+        this.getOrg()
+        this.getWare()
     },
     methods: {
+        getTabel() {
+            this.loading = true
+            let queryName = this.searchParams.queryName
+            let orgIds = this.searchParams.orgIds
+            let warehouseNo = this.searchParams.warehouseNo
+            let audited = this.searchParams.audited
+            let currentPage = this.searchParams.currentPage
+            let startDate
+            let endDate
+            if(this.startTime == '') {
+                startDate = ''
+            } else {
+                startDate = this.$moment(this.startTime).utc().format()
+            }
+            if(this.endTime == '') {
+                endDate = ''
+            } else {
+                endDate = this.$moment(this.endTime).utc().format()
+            }
+            this.searchParams.startDate = startDate
+            this.searchParams.endDate = endDate
+            tableMethod({
+                queryName,
+                orgIds,
+                warehouseNo,
+                audited,
+                startDate,
+                endDate,
+                currentPage
+            }).then(res=> {
+                this.loading = false
+                this.tableData = res.data.items
+                this.total = res.data.total
+            }).catch(err=> {
+
+            })
+        },
+        pageChange(index) {
+            this.searchParams.currentPage = index
+            this.getTable()
+        },
+        getOrg() {
+            orgMethod().then(res=> {
+                let treeItem = []
+                let trees = res.data
+                for(let i = 0; i < trees.length; i ++) {
+                    trees[i].title = trees[i].name
+                    trees[i].value = trees[i].id
+                    treeItem.push(trees[i])
+                }
+                this.orgList = createTree(treeItem, 0)
+            }).catch(err=> {
+
+            })
+        },
+        getWare() {
+            wareMethod().then(res=> {
+                this.warehouseCombo = res.data
+            }).catch(err=> {
+
+            })
+        },
+        startTimeChange(day) {
+            this.start = day
+            this.endDate = {
+                disabledDate (date) {
+                    return date && date.valueOf() <=new Date(day).getTime()- 86400000
+                }
+            }
+        },
+        endTimeChange(day) {
+            this.end = day
+            this.startDate = {
+                disabledDate (date) {
+                    return date && date.valueOf() >=new Date(day)
+                }
+            }
+        },
+        resetHandle() {
+            this.orgList = []
+            this.warehouseCombo = []
+            this.startTime = ''
+            this.startDate = {}
+            this.start = ''
+            this.endTime = ''
+            this.endDate = {}
+            this.end = ''
+            const defaultParams = {
+                queryName: '',
+                orgIds: [],
+                auditedFlag: [],
+                warehouseNo: '',
+                startDate: '',
+                endDate: '',
+                currentPage: 1
+            }
+            this.searchParams = Object.assign({}, this.searchParams, defaultParams)
+        },
+        detailHandle(id) {
+            this.$router.push({
+                path: '/childPage/outDetail',
+                query: { id: id }
+            })
+        },
+        cancleHandle(id) {
+            this.$Modal.confirm({
+                title:'确认删除',
+                content:'是否确认删除出库信息',
+                onOk:()=>{
+                    cancleMethod(id).then(res=> {
+                        this.$Notice.success({
+                            title: '成功',
+                            desc: '删除出库信息成功！'
+                        })
+                        this.getTabel()
+                    }).catch(err=> {
+
+                    })
+                }
+            })
+        },
         higherSearch() {
             this.searchShow = !this.searchShow
         },
-        typeCheckAll() {
-            this.typeBox = []
-            this.typeCheckedAll = true
-        },
-        typeCheck(i) {
-            this.typeCheckedAll = false
-            if(this.typeBox.includes(i)) {
-                this.typeBox = this.typeBox.filter((ele) => {
-                    return ele != i
-                });
-            } else {
-                this.typeBox.push(i);
-            }
-        },
         add() {
             this.$router.push({
-                path:'/storeManage/childPage/outAdd'
+                path:'/childPage/outAdd'
             })
         },
     }
@@ -188,7 +335,8 @@ export default {
                     color: #576374;
                     font-size: 12px;
                 }
-                button{
+                .ivu-btn {
+                    height: auto;
                     background: #4b7efe;
                     font-size: 12px;
                     padding: 4px 12px;
@@ -208,7 +356,7 @@ export default {
             padding-top: 5px;
             border-top: 1px solid #ececec;
             .c-adv-search-row {
-                margin: 5px 0;
+                margin: 10px 0;
                 .form-item {
                     display: inline-block;
                     height: 33px;
@@ -222,19 +370,15 @@ export default {
                 }
                 .cmp-tab {
                     display: inline-block;
-                    a {
-                        margin-right: 20px;
-                        color: #576374;
-                    }
-                    .checked {
-                        color: #4B7EFE;
+                    /deep/.ivu-tag-text {
+                        font-size: 14px;
                     }
                 }
             }
         }
     }
     .searchTrans {
-        height: 180px;
+        height: 200px;
         overflow: hidden;
         transition: 0.5s height;
     }
@@ -249,7 +393,8 @@ export default {
         .c-table-top-btns {
             height: 36px;
             border-bottom: 1px solid #EEE;
-            button{
+            .ivu-btn {
+                height: auto;
                 min-width: 50px;
                 background: #576374;
                 font-size: 12px;
@@ -303,5 +448,11 @@ export default {
             border-radius: 3px;
         }
     }
+}
+/deep/.ivu-tag .ivu-icon-ios-close {
+    display: none;
+}
+.ivu-tag-text {
+    margin: 0;
 }
 </style>

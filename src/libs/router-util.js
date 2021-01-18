@@ -221,6 +221,58 @@ let storeManage = [
         path: `/childPage/putDetail`,
         title: '入库详细',
         auth: ['hidden']
+    }, {
+        path: `/childPage/outDetail`,
+        title: '出库详细',
+        auth: ['hidden']
+    }, {
+        path: `/childPage/allotAdd`,
+        title: '调拨新增',
+        auth: ['hidden']
+    }, {
+        path: `/childPage/allotDetail`,
+        title: '调拨详细',
+        auth: ['hidden']
+    }, {
+        path: `/childPage/checkAdd`,
+        title: '盘点新增',
+        auth: ['hidden']
+    }, {
+        path: `/childPage/checkDetail`,
+        title: '盘点信息',
+        auth: ['hidden']
+    }, {
+        path: `/childPage/warehouseAdd`,
+        title: '仓库新增',
+        auth: ['hidden']
+    }, {
+        path: `/childPage/warehouseDetail`,
+        title: '仓库详细',
+        auth: ['hidden']
+    }, {
+        path: `/childPage/warehousrEdit`,
+        title: '仓库编辑',
+        auth: ['hidden']
+    }, {
+        path: `/childPage/warehouseImport`,
+        title: '库位导入',
+        auth: ['hidden']
+    }
+]
+
+let videoManage = [
+    {
+        path: `/videoD/addVideo`,
+        title: '视频添加',
+        auth: ['hidden']
+    }, {
+        path: `/videoD/editVideo`,
+        title: '视频编辑',
+        auth: ['hidden']
+    }, {
+        path: `/videoD/checkVideo`,
+        title: '视频详情',
+        auth: ['hidden']
     }
 ]
 
@@ -261,6 +313,10 @@ export default function createRoutes(item) {
                 } else if(parent[i].title == '库存管理') {
                     for(let j = 0; j < storeManage.length; j ++) { 
                         parent[i].children.push(storeManage[j])
+                    }
+                } else if(parent[i].title == '视频管理') {
+                    for(let j = 0; j < videoManage.length; j ++) {
+                        parent[i].children.push(videoManage[j])
                     }
                 }
                 break

@@ -175,6 +175,16 @@ export default {
             component: () => import('@/pages/storeManage/childPage/outAdd')
         },
         {          
+            path: '/childPage/outDetail',
+            name: `${pre}childPage-outDetail`,
+            meta: {
+                ...meta,
+                title: '出库详细',
+                closable: false
+            },
+            component: () => import('@/pages/storeManage/childPage/outDetail')
+        },
+        {          
             path: '/childPage/allotAdd',
             name: `${pre}childPage-allotAdd`,
             meta: {
@@ -185,14 +195,34 @@ export default {
             component: () => import('@/pages/storeManage/childPage/allotAdd')
         },
         {          
+            path: '/childPage/allotDetail',
+            name: `${pre}childPage-allotDetail`,
+            meta: {
+                ...meta,
+                title: '调拨详细',
+                closable: false
+            },
+            component: () => import('@/pages/storeManage/childPage/allotDetail')
+        },
+        {          
             path: '/childPage/checkAdd',
             name: `${pre}childPage-checkAdd`,
             meta: {
                 ...meta,
-                title: '调拨新增',
+                title: '盘点新增',
                 closable: false
             },
             component: () => import('@/pages/storeManage/childPage/checkAdd')
+        },
+        {          
+            path: '/childPage/checkDetail',
+            name: `${pre}childPage-checkDetail`,
+            meta: {
+                ...meta,
+                title: '盘点信息',
+                closable: false
+            },
+            component: () => import('@/pages/storeManage/childPage/checkDetail')
         },
         {          
             path: '/childPage/warehouseAdd',
@@ -203,6 +233,36 @@ export default {
                 closable: false
             },
             component: () => import('@/pages/storeManage/childPage/warehouseAdd')
+        },
+        {          
+            path: '/childPage/warehouseDetail',
+            name: `${pre}childPage-warehouseDetail`,
+            meta: {
+                ...meta,
+                title: '仓库详细',
+                closable: false
+            },
+            component: () => import('@/pages/storeManage/childPage/warehouseDetail')
+        },
+        {          
+            path: '/childPage/warehousrEdit',
+            name: `${pre}childPage-warehousrEdit`,
+            meta: {
+                ...meta,
+                title: '仓库编辑',
+                closable: false
+            },
+            component: () => import('@/pages/storeManage/childPage/warehousrEdit')
+        },
+        {          
+            path: '/childPage/warehouseImport',
+            name: `${pre}childPage-warehouseImport`,
+            meta: {
+                ...meta,
+                title: '库位导入',
+                closable: false
+            },
+            component: () => import('@/pages/storeManage/childPage/warehouseImport')
         },
         {          
             path: '/childPage/materialAdd',

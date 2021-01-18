@@ -443,4 +443,10 @@ export default {
         }
     }
 }
+/deep/.ivu-tag .ivu-icon-ios-close {
+    display: none;
+}
+.ivu-tag-text {
+    margin: 0;
+}
 </style>

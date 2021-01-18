@@ -26,7 +26,7 @@
                 <transition name="fade-quick">
                     <i-tabs v-if="tabs" v-show="showHeader" @on-reload="handleReload" />
                 </transition>
-                <div class="i-layout-content-main">
+                <div class="i-layout-content-main lay">
                     <keep-alive :include="keepAlive">
                         <router-view v-if="loadRouter" />
                     </keep-alive>

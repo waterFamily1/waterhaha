@@ -10,62 +10,86 @@
             <div class="c-form-row-2">
                 <div class="c-form-item">
                     <label>区域位置：</label>
-                    新寮门月地80吨站点
+                    {{ video.processName }}
                 </div>
                 <div class="c-form-item">
                     <label>视频名称：</label>
-                    
+                    {{ video.name }}
                 </div>
             </div>
             <div class="c-form-row-2">
                 <div class="c-form-item">
                     <label>定时抓拍：</label>
-
+                    {{ video.takeThumb ? '是' : '否' }}
                 </div>
                 <div class="c-form-item">
                     <label>抓拍频率：</label>
-                    
+                    <span v-if="video.takeThumb">{{ video.takeThumbCycle }}分钟</span><span v-else>无定时抓拍</span>
                 </div>
             </div>
             <div class="c-form-row-2">
                 <div class="c-form-item">
                     <label>触发报警：</label>
-
+                    {{ video.alarmName }}
                 </div>
                 <div class="c-form-item">
                     <label>触发间隔：</label>
-                    
+                    {{ video.alarmThumbInterval }}{{ video.alarmThumbInterval ? '分钟' : '' }}
                 </div>
             </div>
             <div class="c-form-row">
                 <div class="c-form-item">
                     <label>URL地址：</label>
-
+                    {{ video.url }}
                 </div>
             </div>
             <div class="c-form-row">
                 <div class="c-form-item">
                     <label>触发抓拍频率：</label>
-
+                    <div style="display: inline-block;vertical-align: text-top;">
+                        <div class="video-alarm-item">
+                            每一秒抓拍</span>{{video.alarmThumbSec}}张
+                        </div>
+                        <div class="video-alarm-item">
+                            每一分抓拍</span>{{video.alarmThumbMin}}张
+                        </div>
+                        <div class="video-alarm-item">
+                            每10分抓拍</span>{{video.alarmThumbTenMin}}张
+                        </div>
+                    </div>
                 </div>
             </div> 
         </div>
     </div>
 </template>
 <script>
+import { detailMethod } from '@/api/videoM/deploy'
+import createTree from '@/libs/public-util'
+import util from '@/libs/public_js'
+
 export default {
     name: 'checkVideo',
     data() {
         return {
-            height: ''
+            height: '',
+            id: '',
+            video: {}
         }
     },
     mounted() {
         this.height = document.body.clientHeight-80
+        this.id = this.$route.query.id
+        this.getDetail()
     },
     methods: {
+        getDetail() {
+            detailMethod(this.$route.query.id).then(res=> {
+                this.video = res.data
+                this.video.takeThumb = res.data.takeThumb == 'Y' ? true : false
+            })
+        },
         goBack() {
-            this.$router.go(-1)
+            this.$router.back()
         }
     }
 }
@@ -86,7 +110,9 @@ export default {
         .c-btns-right {
             float: right;
             margin-top: 2px;
-            button {
+            .ivu-btn {
+                height: auto;
+                padding: 4px 12px;
                 min-width: 70px;
                 margin: 0 5px;
                 border: none;
@@ -125,6 +151,9 @@ export default {
             padding-top: 9px;
             position: relative;
         }
+    }
+    .video-alarm-item {
+        height: 40px;
     }
 }
 </style>

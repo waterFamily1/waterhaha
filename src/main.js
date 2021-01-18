@@ -51,6 +51,9 @@ Vue.use(BaiduMap, {
 import HighchartsVue from 'highcharts-vue'
 Vue.use(HighchartsVue)
 
+import vueEventCalendar from 'vue-event-calendar'
+Vue.use(vueEventCalendar, { className: 'selected-customer' })
+
 import moment from 'moment'
 Vue.prototype.$moment = moment
 

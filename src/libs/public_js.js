@@ -80,6 +80,26 @@ const util = {
 		}
 		return localeDate.toISOString();
 	},
+	transDataToTree : function transDataToTree(list, parentId='parentId',title='name') {
+		var map = {}, node, roots = [], i;
+		for (i = 0; i < list.length; i += 1) {
+			map[list[i].id] = i; // initialize the map
+			list[i].children = []; // initialize the children
+		}
+		for (i = 0; i < list.length; i += 1) {
+			node = list[i];
+			node.title = node[title];
+			node.isRole = node.checked;
+			var pid = parentId ? node[parentId] : node.pid;
+			if (list[map[pid]]) {
+				// if you have dangling branches check that map[node.parentId] exists
+				list[map[pid]].children.push(node);
+			} else {
+				roots.push(node);
+			}
+		}
+		return roots;
+	},
 }
 
 export default util;

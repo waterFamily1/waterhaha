@@ -4,125 +4,177 @@
             <div class="search-main">
                 <div class="form-item">
                     <label>关键字：</label>
-                    <Input v-model="keyword" placeholder="仓库名称或仓库编号" style="width: 300px" />
+                    <Input v-model="searchParams.queryName" placeholder="仓库名称或仓库编号" style="width: 300px" />
                 </div>
                 <div class="form-item">
                     <label>所属组织：</label> 
-                    <Select v-model="model1" style="width:300px">
-                        <Option v-for="item in cityList" :value="item.value" :key="item.value">{{ item.label }}</Option>
-                    </Select>
+                    <TreeSelect 
+                        v-model="searchParams.orgIds" 
+                        multiple 
+                        :data="orgList" 
+                        :max-tag-count="2"
+                        v-width="300" 
+                    />
                 </div>
                 <div class="form-search-btn">
-                    <button type="button">搜索</button>
-                    <button type="button" class="reset">重置</button>
+                    <Button @click="search">搜索</Button>
+                    <Button class="reset" @click="searchParamsClean">重置</Button>
                 </div>
             </div>
         </div>
         <div class="index-content">
             <div class="c-table-top-btns">
-                <button type="button" @click="add()">仓库新增</button>
-                <button type="button" @click="msgExport()">信息导出</button>
+                <Button @click="add()">仓库新增</Button>
+                <Button @click="msgExport()">信息导出</Button>
             </div> 
             <div class="table-wrapper" :style="{height: (height-45)+'px'}">
-                <Table stripe :columns="tableList" >
+                <Table stripe :columns="tableList" :data="listData" :loading="loading">
                     <template slot-scope="{ row }" slot="name">
                         <strong>{{ row.name }}</strong>
                     </template>
                     <template slot-scope="{ row, index }" slot="action">
-                        <!-- <Button class="action" size="small" style="margin-right: 5px;">配置</Button> -->
-                        <Button class="action" size="small">查看</Button>
+                        <Button class="action" size="small" @click="detailHandle(row.id)">查看</Button>
+                        <Button class="action" size="small" @click="cancleHandle(row.id)">删除</Button>
                     </template>
                 </Table>
-                 <Page :total="100" show-elevator class="page" />
+                <Page :total="total" :page-size="searchParams.pageSize" :current="searchParams.currentPage" class="page" show-total show-elevator @on-change="pageChange"></Page>
             </div>
         </div>
          
     </div>
 </template>
 <script>
+import { tableMethod, orgMethod, deleteMethod } from '@/api/store/ware'
+import createTree from '@/libs/public-util'
+import util from '@/libs/public_js'
+import { mapState } from 'vuex'
+
 export default {
     name: 'warehouseInfor',
     data() {
         return {
             height: '',
-            keyword: '',
-            cityList: [
-                {
-                    value: 'New York',
-                    label: 'New York'
-                }
-            ],
-            model1: '',
-            typeCheckedAll: false,
-            typeBox: [],
-            genreList: [
-                {label: '在线仪表',id: 1},
-                {label: '泵',id: 2},
-                {label: '阀门',id: 3},
-                {label: '控制柜',id: 4},
-                {label: '浮球',id: 5}
-            ],
-            typeList: [
-                {label: '已审核',id: 1},
-                {label: '未审核',id: 2}
-            ],
+            searchParams: {
+                queryName: '',
+                orgIds: '',
+                pageSize: 10,
+                currentPage: 1
+            },
+            orgList: [],
             tableList: [
                 {
                     title: '仓库编号',
-                    key: 'number'
-                },
-                {
+                    key: 'no',
+                    ellipsis: true
+                }, {
                     title: '所属组织',
-                    key: 'tissue'
-                },
-                {
+                    key: 'orgName',
+                    ellipsis: true
+                }, {
                     title: '仓库名称',
-                    key: 'warehouse'
-                },
-                {
+                    key: 'name',
+                    ellipsis: true
+                }, {
                     title: '仓库地址',
-                    key: 'location'
-                },
-                {
+                    key: 'address',
+                    ellipsis: true
+                }, {
                     title: '负责人',
-                    key: 'principal'
-                },
-                {
+                    key: 'personInChargeName',
+                    ellipsis: true
+                }, {
                     title: '操作',
                     slot: 'action',
                     width: 150,
                     align: 'center'
                 }
             ],
-            single:false,
+            listData: [],
+            loading: false,
+            total: 0,
             modal:false
         }
     },
     mounted() {
         this.height = document.body.clientHeight-130
+        this.getTable()
+        this.getOrg()
     },
     methods: {
-        typeCheckAll() {
-            this.typeBox = []
-            this.typeCheckedAll = true
+        getTable() {
+            this.loading = true
+            let queryName = this.searchParams.queryName
+            let orgIds = this.searchParams.orgIds
+            let currentPage = this.searchParams.currentPage
+            tableMethod({
+                queryName,
+                orgIds,
+                currentPage
+            }).then(res=> {
+                this.listData = res.data.items
+                this.total = res.data.total
+                this.loading = false
+            })
         },
-        typeCheck(i) {
-            this.typeCheckedAll = false
-            if(this.typeBox.includes(i)) {
-                this.typeBox = this.typeBox.filter((ele) => {
-                    return ele != i
-                });
-            } else {
-                this.typeBox.push(i);
-            }
+        pageChange(index) {
+            this.searchParams.currentPage = index
+            this.getTable()
+        },
+        search() {
+            this.searchParams.currentPage = 1
+            this.getTable()
+        },
+        getOrg() {
+            orgMethod().then(res=> {
+                let treeItem = []
+                let trees = res.data
+                for(let i = 0; i < trees.length; i ++) {
+                    trees[i].title = trees[i].name
+                    trees[i].value = trees[i].id
+                    treeItem.push(trees[i])
+                }
+                this.orgList = createTree(treeItem, 0)
+            }).catch(err=> {
+
+            })
+        },
+        searchParamsClean() {
+            const defaultParams = {
+                queryName: '',
+                orgIds: '',
+                pageSize: 10,
+                currentPage: 1
+            };
+            this.searchParams = Object.assign({}, this.searchParams, defaultParams);
+        },      
+        detailHandle(id) {
+            this.$router.push({
+                path: '/childPage/warehouseDetail',
+                query: { id: id }
+            })
+        },
+        cancleHandle(id) {
+            this.$Modal.confirm({
+                title:'确认删除',
+                content:'是否确认删除仓库信息',
+                onOk:()=>{
+                    deleteMethod(id).then(res => {
+                        this.$Notice.success({
+                            title: '成功',
+                            desc: '删除仓库信息成功！'
+                        });
+                        this.getTable()
+                    })
+                }
+            })
         },
         add() {
             this.$router.push({
-                path:'/storeManage/childPage/warehouseAdd'
+                path:'/childPage/warehouseAdd'
             })
         },
-        msgExport(){
-             
+        msgExport() {
+            util.download('inventory/api/warehouse/excel-export', this.searchParams)
         }
     }
 }
@@ -155,7 +207,8 @@ export default {
                     color: #576374;
                     font-size: 12px;
                 }
-                button{
+                .ivu-btn{
+                    height: auto;
                     background: #4b7efe;
                     font-size: 12px;
                     padding: 4px 12px;
@@ -170,45 +223,6 @@ export default {
                 }
             }
         }
-        .c-adv-search {
-            margin-top: 10px;
-            padding-top: 5px;
-            border-top: 1px solid #ececec;
-            .c-adv-search-row {
-                margin: 5px 0;
-                .form-item {
-                    display: inline-block;
-                    height: 33px;
-                    label {
-                        display: inline-block;
-                        width: 100px;
-                        line-height: 35px;
-                        text-align: right;
-                        color: #576374;
-                    }
-                }
-                .cmp-tab {
-                    display: inline-block;
-                    a {
-                        margin-right: 20px;
-                        color: #576374;
-                    }
-                    .checked {
-                        color: #4B7EFE;
-                    }
-                }
-            }
-        }
-    }
-    .searchTrans {
-        height: 220px;
-        overflow: hidden;
-        transition: 0.5s height;
-    }
-    .searchPack {
-        height: 43px;
-        overflow: hidden;
-        transition: 0.5s height;
     }
     .index-content {
         border-top: 5px solid #f0f0f0;
@@ -216,7 +230,8 @@ export default {
         .c-table-top-btns {
             height: 36px;
             border-bottom: 1px solid #EEE;
-            button{
+            .ivu-btn{
+                height: auto;
                 min-width: 50px;
                 background: #576374;
                 font-size: 12px;
@@ -270,5 +285,11 @@ export default {
             border-radius: 3px;
         }
     }
+}
+/deep/.ivu-tag .ivu-icon-ios-close {
+    display: none;
+}
+/deep/.ivu-select-multiple .ivu-tag span:not(.ivu-select-max-tag) {
+    margin: 0;
 }
 </style>

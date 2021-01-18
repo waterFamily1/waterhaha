@@ -315,18 +315,18 @@ export default {
             ]);
         },
         exportQRcode() {
-            // exportcode1().then(res => {
-            //     console.log(res.data.key)
-            //     let key = res.data.key
-            //     this.export2(key)
-            // }).catch(err => {
-            //     // 异常情况
-            // })
-            util.download('/uaa/api/process/qrcode-export')
+            exportcode1().then(res => {
+                // console.log(res.data.key)
+                let key = res.data.key
+                this.export2(key)
+            }).catch(err => {
+                // 异常情况
+            })
+            // util.download('/uaa/api/process/qrcode-export')
         },
         export2(key) {
             exportcode2(key).then(res => {
-                console.log(JSON.stringify(res))
+                // console.log(JSON.stringify(res))
                 let expQrcode = '/uaa/api/process/qrcode-export'
                 util.download(expQrcode);
             }).catch(err => {

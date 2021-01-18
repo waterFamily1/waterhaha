@@ -62,21 +62,45 @@ export default {
             path: `/childPage/outAdd`,
             title: '出库新增',
             auth: ['hidden']
-        },{
+        }, {
+            path: `/childPage/outDetail`,
+            title: '出库详细',
+            auth: ['hidden']
+        }, {
             path: `/childPage/allotAdd`,
             title: '调拨新增',
             auth: ['hidden']
-        },{
+        }, {
+            path: `/childPage/allotDetail`,
+            title: '调拨详细',
+            auth: ['hidden']
+        }, {
             path: `/childPage/checkAdd`,
             title: '盘点新增',
             auth: ['hidden']
-        },{
+        }, {
             path: `/childPage/warehouseAdd`,
             title: '仓库新增',
             auth: ['hidden']
-        },{
+        }, {
+            path: `/childPage/warehouseDetail`,
+            title: '仓库详细',
+            auth: ['hidden']
+        }, {
+            path: `/childPage/warehousrEdit`,
+            title: '仓库编辑',
+            auth: ['hidden']
+        }, {
             path: `/childPage/materialAdd`,
             title: '物料新增',
+            auth: ['hidden']
+        }, {
+            path: `/childPage/checkDetail`,
+            title: '盘点信息',
+            auth: ['hidden']
+        }, {
+            path: `/childPage/warehouseImport`,
+            title: '库位导入',
             auth: ['hidden']
         }
     ]
