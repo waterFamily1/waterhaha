@@ -4,72 +4,74 @@
             <TabPane label="我的下载" name="name1">
                 <div class="c-left-border-blue">
                    <div>
-                       <Input v-model="value" placeholder="文档名称或文档标签" style="width: 200px;margin-right:5px" size="small"  />
-                       <Button type="primary" size="small" style="font-size:12px">搜索</Button>
+                       <Input v-model="downK" placeholder="文档名称或文档标签" style="width: 200px;margin-right:5px" size="small"  />
+                       <Button type="primary" size="small" style="font-size:12px" @click="downSearch()">搜索</Button>
                    </div>
                 </div>
                 <div class="c-top-border-gray">
-                    <Table stripe :columns="downloadList" size="small">
+                    <Table stripe :columns="downloadList" size="small" :data="downData">
                         <template slot-scope="{ row }" slot="name">
                             <strong>{{ row.name }}</strong>
                         </template>
                         <template slot-scope="{ row, index }" slot="action">
-                            <!-- <Button class="action" size="small" style="margin-right: 5px;">配置</Button> -->
-                            <Button class="action" size="small">查看</Button>
+                            <Button class="action" type="text" size="small" style="margin-right: 5px;color:rgb(75, 126, 254);font-size:13px">下载</Button>
+                            <Button class="action" type="text" size="small" style="margin-right: 5px;color:rgb(75, 126, 254);font-size:13px">收藏</Button>
+                            <Button class="action" type="text" size="small" style="color:rgb(75, 126, 254);font-size:13px">推荐</Button>
                         </template>
                     </Table>
-                    <Page :total="100" show-elevator class="page" />
+                    <Page :total="downTotal" show-elevator class="page" @on-change="downChangeSize" />
                 </div>
             </TabPane>
             <TabPane label="我的上传" name="name2">
                 <div class="c-left-border-blue">
                    <div>
-                       <Input v-model="value" placeholder="文档名称或文档标签" style="width: 200px;margin-right:5px" size="small"  />
-                       <Button type="primary" size="small" style="font-size:12px">搜索</Button>
+                       <Input v-model="uploadK" placeholder="文档名称或文档标签" style="width: 200px;margin-right:5px" size="small"  />
+                       <Button type="primary" size="small" style="font-size:12px" @click="uploadSearch()">搜索</Button>
                    </div>
                 </div>
                 <div class="c-top-border-gray">
-                    <Table stripe :columns="uploadList" size="small">
+                    <Table stripe :columns="uploadList" size="small" :data="uploadData">
                         <template slot-scope="{ row }" slot="name">
                             <strong>{{ row.name }}</strong>
                         </template>
                         <template slot-scope="{ row, index }" slot="action">
-                            <!-- <Button class="action" size="small" style="margin-right: 5px;">配置</Button> -->
-                            <Button class="action" size="small">查看</Button>
+                            <Button class="action" type="text" size="small" style="margin-right: 5px;color:rgb(75, 126, 254);font-size:13px">编辑</Button>
+                            <Button class="action" type="text" size="small" style="color:rgb(75, 126, 254);font-size:13px">删除</Button>
                         </template>
                     </Table>
-                    <Page :total="100" show-elevator class="page" />
+                    <Page :total="uploadTotal" show-elevator class="page" @on-change="uploadChangeSize" />
                 </div>
             </TabPane>
             <TabPane label="我的收藏" name="name3">
                  <div class="c-left-border-blue">
                    <div>
-                       <Input v-model="value" placeholder="文档名称或文档标签" style="width: 200px;margin-right:5px" size="small"  />
-                       <Button type="primary" size="small" style="font-size:12px">搜索</Button>
+                       <Input v-model="collectK" placeholder="文档名称或文档标签" style="width: 200px;margin-right:5px" size="small"  />
+                       <Button type="primary" size="small" style="font-size:12px" @click="collectSearch()">搜索</Button>
                    </div>
                 </div>
                 <div class="c-top-border-gray">
-                    <Table stripe :columns="collectList" size="small">
+                    <Table stripe :columns="collectList" size="small" :data="collectData">
                         <template slot-scope="{ row }" slot="name">
                             <strong>{{ row.name }}</strong>
                         </template>
                         <template slot-scope="{ row, index }" slot="action">
-                            <!-- <Button class="action" size="small" style="margin-right: 5px;">配置</Button> -->
-                            <Button class="action" size="small">查看</Button>
+                           <Button class="action" type="text" size="small" style="margin-right: 5px;color:rgb(75, 126, 254);font-size:13px">下载</Button>
+                            <Button class="action" type="text" size="small" style="margin-right: 5px;color:rgb(75, 126, 254);font-size:13px">收藏</Button>
+                            <Button class="action" type="text" size="small" style="color:rgb(75, 126, 254);font-size:13px">推荐</Button>
                         </template>
                     </Table>
-                    <Page :total="100" show-elevator class="page" />
+                    <Page :total="collectToatl" show-elevator class="page" @on-change="collectChangeSize" />
                 </div>
             </TabPane>
             <TabPane label="推荐我的" name="name4">
                 <div class="c-left-border-blue">
                    <div>
-                       <Input v-model="value" placeholder="文档名称或文档标签" style="width: 200px;margin-right:5px" size="small"  />
-                       <Button type="primary" size="small" style="font-size:12px">搜索</Button>
+                       <Input v-model="recommendK" placeholder="文档名称或文档标签" style="width: 200px;margin-right:5px" size="small"  />
+                       <Button type="primary" size="small" style="font-size:12px" @click="recommendSearch()">搜索</Button>
                    </div>
                 </div>
                 <div class="c-top-border-gray">
-                    <Table stripe :columns="recommendList" size="small">
+                    <Table stripe :columns="recommendList" size="small" :data="recommendData">
                         <template slot-scope="{ row }" slot="name">
                             <strong>{{ row.name }}</strong>
                         </template>
@@ -78,7 +80,7 @@
                             <Button class="action" size="small">查看</Button>
                         </template>
                     </Table>
-                    <Page :total="100" show-elevator class="page" />
+                    <Page :total="recommendTotal" show-elevator class="page" @on-change="recommendChangeSize" />
                 </div>
             </TabPane>
             <TabPane label="我的标签" name="name5">
@@ -86,10 +88,10 @@
                     <div class="label-div">
                         <h3>已选标签</h3>
                         <ul>
-                            <li v-for="(item,index) in showList" :key="index" @mouseenter="showClose(index)" @mouseleave="hideColse(index)">
-                                <span>{{ item.label }}</span>
+                            <li v-for="(item,index) in userList" :key="index" @mouseenter="showClose(index)" @mouseleave="hideColse(index)">
+                                <span>{{ item.labelName }}</span>
                                 <!-- -->
-                                <Icon type="ios-close-circle-outline"  class="icon-label" v-if="item.show" />
+                                <Icon type="ios-close-circle-outline"  class="icon-label" v-if="item.show" @click.stop="deleteHandle(item.labelName)" />
                             </li>
                             
                         </ul>
@@ -97,31 +99,15 @@
                     <div class="label-div">
                         <h3>更多标签</h3>
                         <div class="dropdown">
-                            <Collapse simple accordion>
-                                <Panel name="1" >
-                                    设备运维
+                           <Collapse simple accordion >
+                                <Panel  v-for="(item,index) in cateList" :key="index">
+                                    {{ item.name }}
                                     <div slot="content" class="cmp-tab">
-                                        <a href="javascript:;" v-for="(item, index) in typeList" 
-                                        :key="index" @click="typeCheck(item.id,index)" 
-                                        :class="{checked:typeBox.includes(item.id)}">{{ item.label }}</a>
+                                        <a href="javascript:;" v-for="(ele, idx) in item.children" 
+                                        :key="idx" @click="typeCheck(ele.name)" 
+                                        :class="{checked:typeBox.includes(ele.name)}">{{ ele.name }}</a>
                                     </div>
-                                </Panel>
-                                <Panel name="2" >
-                                    生产运营
-                                <div slot="content" class="cmp-tab">
-                                        <a href="javascript:;" v-for="(item, index) in produceList" 
-                                        :key="index" @click="typeSelect(item.id,index)" 
-                                        :class="{checked:produceBox.includes(item.id)}">{{ item.label }}</a>
-                                    </div>
-                                </Panel>
-                                <Panel name="3" >
-                                    管理制度
-                                    <div slot="content" class="cmp-tab">
-                                        <a href="javascript:;" v-for="(item, index) in manageList" 
-                                        :key="index" @click="typeSelectM(item.id,index)" 
-                                        :class="{checked:manageBox.includes(item.id)}">{{ item.label }}</a>
-                                    </div>
-                                </Panel>
+                                </Panel> 
                             </Collapse>
                             <div class="finish-btn" >
                                 <button @click="finish()">完成</button>
@@ -134,124 +120,171 @@
     </div>
 </template>
 <script>
+import { labelTree,myDownload,myUpload,myCollect,recommendMe,userLabel,deleteLabel,addLabel} from '@api/knowledgeManage/myknowledge';
+import createTree from '@/libs/public-util'
+import {formatTime} from '@/libs/public'
+import util from '@/libs/public_js'
 export default {
     data() {
         return {
             height:'',
-            value:'name1',
+            downK:'',
+            uploadK:'',
+            collectK:'',
+            recommendK:"",
             downloadList: [
                 {
                     title: '文档名称',
-                    key: 'name'
+                    key: 'name',
+                    width:310
                 },
                 {
                     title: '文档标签',
-                    key: 'tag'
+                    key: 'labelName',
+                    width:310
                 },
                 {
                     title: '文档大小',
-                    key: 'size'
+                    key: 'size',
+                    width:110,
+                    // 
+                    render: (h, params) => {
+                        let that = this
+                        const text = params.row.size
+                        return h('span', {}, (text/1048576).toFixed(2)+'M');
+                    }
                 },
                 {
                     title: '上传人员',
-                    key: 'person'
+                    key: 'createUserName',
+                    width:110
                 },
                 {
                     title: '下载时间',
-                    key: 'time'
+                    key: 'createDate',
+                    width:120
                 },
                 {
                     title: '操作',
                     slot: 'action',
-                    width: 150,
+                    width: 250,
                     align: 'center'
                 }
             ],
             uploadList: [
-                {
+               {
                     title: '文档名称',
-                    key: 'name'
+                    key: 'name',
+                    width:310
                 },
                 {
                     title: '文档标签',
-                    key: 'tag'
+                    key: 'labelName',
+                    width:310
                 },
                 {
                     title: '文档大小',
-                    key: 'size'
+                    key: 'size',
+                    width:110,
+                    // 
+                    render: (h, params) => {
+                        let that = this
+                        const text = params.row.size
+                        return h('span', {}, (text/1048576).toFixed(2)+'M');
+                    }
                 },
                 {
-                    title: '下载次数',
-                    key: 'times'
+                    title: '上传人员',
+                    key: 'createUserName',
+                    width:110
                 },
                 {
-                    title: '推荐次数',
-                    key: 'recommendTimes'
-                },
-                {
-                    title: '上传时间',
-                    key: 'upladTime'
+                    title: '下载时间',
+                    key: 'createDate',
+                    width:120
                 },
                 {
                     title: '操作',
                     slot: 'action',
-                    width: 150,
+                    width: 250,
                     align: 'center'
                 }
             ],
             collectList: [
                 {
                     title: '文档名称',
-                    key: 'name'
+                    key: 'name',
+                    width:310
                 },
                 {
                     title: '文档标签',
-                    key: 'tag'
+                    key: 'labelName',
+                    width:310
                 },
                 {
                     title: '文档大小',
-                    key: 'size'
+                    key: 'size',
+                    width:110,
+                    // 
+                    render: (h, params) => {
+                        let that = this
+                        const text = params.row.size
+                        return h('span', {}, (text/1048576).toFixed(2)+'M');
+                    }
                 },
                 {
                     title: '上传人员',
-                    key: 'person'
+                    key: 'createUserName',
+                    width:110
                 },
                 {
-                    title: '收藏时间',
-                    key: 'collectTime'
+                    title: '下载时间',
+                    key: 'createDate',
+                    width:120
                 },
                 {
                     title: '操作',
                     slot: 'action',
-                    width: 150,
+                    width: 250,
                     align: 'center'
                 }
             ],
             recommendList :[
                 {
                     title: '文档名称',
-                    key: 'name'
+                    key: 'name',
+                    width:310
                 },
                 {
                     title: '文档标签',
-                    key: 'tag'
+                    key: 'labelName',
+                    width:310
                 },
                 {
                     title: '文档大小',
-                    key: 'size'
+                    key: 'size',
+                    width:110,
+                    // 
+                    render: (h, params) => {
+                        let that = this
+                        const text = params.row.size
+                        return h('span', {}, (text/1048576).toFixed(2)+'M');
+                    }
                 },
                 {
-                    title: '推荐人',
-                    key: 'person'
+                    title: '上传人员',
+                    key: 'createUserName',
+                    width:110
                 },
                 {
-                    title: '推荐时间',
-                    key: 'recommendTime'
+                    title: '下载时间',
+                    key: 'createDate',
+                    width:120
                 },
                 {
                     title: '操作',
                     slot: 'action',
-                    width: 150,
+                    width: 250,
                     align: 'center'
                 }
             ],
@@ -259,73 +292,186 @@ export default {
             typeBox:[],
             produceBox:[],
             manageBox:[],
-            typeList:[
-                {id:1,label:'设备管理制度',show:false},
-                {id:2,label:'巡检管理',show:false},
-                {id:3,label:'维修管理',show:false},
-                {id:4,label:'养护管理',show:false}
-            ],
-            produceList:[
-                {id:5,label:'生产指标',show:false},
-                {id:6,label:'安全制度',show:false},
-                {id:7,label:'报警预案',show:false},
-                {id:8,label:'工艺流程',show:false}
-            ],
-            manageList:[
-                {id:9,label:'人事制度',show:false},
-                {id:10,label:'财务制度',show:false}
-            ],
             showList:[],
-            tempList:[]
+            tempList:[],
+            downPage:1,
+            downTotal:0,
+            downData:[],
+            uploadData:[],
+            uploadPage:1,
+            uploadTotal:0,
+            collectData:[],
+            collectToatl:0,
+            collectPage:1,
+            recommendData:[],
+            recommendPage:1,
+            recommendTotal:0,
+            cateList:[],
+            userList:[]
         }
     },
     mounted() {
         this.height = document.body.clientHeight-46
+        this.getTree()
+        this.getDownload()
+        this.getUpload()
+        this.getCollect()
+        this.getRecommend()
+        this.getLabel()
     },
     created() {
         this.value=this.$route.query.name
     },
     methods: {
+        deleteHandle(name){
+            deleteLabel(name).then(res=>{
+                console.log(res)
+                if(res.data.count){
+                    
+                     this.$Message.success('删除成功！');
+                    this.getLabel()
+                    console.log(this.typeBox)
+                    this.typeBox.map((ele,index)=>{
+                        if(ele == name){
+                          this.typeBox.splice(index,1)
+                        }
+                    })
+                }
+            })
+        },
+        getLabel(){
+            userLabel().then(res=>{
+               console.log(res)
+               if(res.data){
+                   res.data.map(ele=>{
+                       ele.show = false
+                       this.typeBox.push(ele.labelName)
+                   })
+                   this.userList = res.data
+                   
+               }
+            })
+        },
+        downSearch(){
+            this.getDownload()
+        },
+        downChangeSize(size){
+           this.downPage = size
+           this.getDownload()
+        },
+        uploadSearch(){
+            this.getUpload()
+        },
+        uploadChangeSize(size){
+           this.uploadPage = size
+           this.getUpload()
+        },
+        collectSearch(){
+            this.getCollect()
+        },
+        collectChangeSize(size){
+           this.collectPage = size
+           this.getCollect()
+        },
+        recommendSearch(){
+            this.getRecommend()
+        },
+        recommendChangeSize(size){
+           this.recommendPage = size
+           this.getRecommend()
+        },
+        getTree(){
+           labelTree().then(res=>{
+               console.log(res)
+                if(res.data){
+                    let treeItem = []
+                    let trees = res.data
+                    for(let i = 0; i < trees.length; i ++) {
+                        trees[i].title = trees[i].name
+                        trees[i].value = trees[i].id
+                        treeItem.push(trees[i])
+                    }
+                    this.cateList = createTree(treeItem, 0)
+                }
+           })
+        },
+        getDownload(){
+            myDownload(this.downPage,this.downK).then(res=>{
+               if(res.data.items){
+                   res.data.items.map(ele=>{
+                       ele.createDate = formatTime(ele.createDate, 'HH:mm:ss yyyy-MM-dd')
+                   })
+                   this.downData = res.data.items
+                   this.downTotal = res.data.total
+               }
+            })
+        },
+        getUpload(){
+           myUpload(this.uploadPage,this.uploadK).then(res=>{
+               if(res.data.items){
+                   res.data.items.map(ele=>{
+                       ele.createDate = formatTime(ele.createDate, 'HH:mm:ss yyyy-MM-dd')
+                   })
+                   this.uploadData = res.data.items
+                   this.uploadTotal = res.data.total
+               }
+           })
+        },
+        getCollect(){
+            myCollect(this.collectPage,this.collectK).then(res=>{
+                if(res.data.items){
+                   res.data.items.map(ele=>{
+                       ele.createDate = formatTime(ele.createDate, 'HH:mm:ss yyyy-MM-dd')
+                   })
+                   this.collectData = res.data.items
+                   this.collectToatl = res.data.total
+               }
+            })
+        },
+        getRecommend(){
+            recommendMe(this.recommendPage,this.recommendK).then(res=>{
+                if(res.data.items){
+                   res.data.items.map(ele=>{
+                       ele.createDate = formatTime(ele.createDate, 'HH:mm:ss yyyy-MM-dd')
+                   })
+                   this.recommendData = res.data.items
+                   this.recommendTotal = res.data.total
+               }
+            })
+        },
         typeCheck(i,index) {
-            console.log(i)
             if(this.typeBox.includes(i)) {
                 this.typeBox = this.typeBox.filter((ele) => {
                     return ele != i
                 });
             } else {
                 this.typeBox.push(i);
-                this.selectedList.push(this.typeList[index])
-            }
-        },
-        typeSelect(i,index) {
-            if(this.produceBox.includes(i)) {
-                this.produceBox = this.produceBox.filter((ele) => {
-                    return ele != i
-                });
-            } else {
-                this.produceBox.push(i);
-                this.selectedList.push(this.produceList[index])
-            }
-        },
-        typeSelectM(i,index) {
-             if(this.manageBox.includes(i)) {
-                this.manageBox = this.manageBox.filter((ele) => {
-                    return ele != i
-                });
-            } else {
-                this.manageBox.push(i);
-                this.selectedList.push(this.manageList[index])
             }
         },
         finish(){
             console.log(this.typeBox)
-            this.showList=this.selectedList
+            console.log(this.userList)
+            let arr = []
+            this.userList.map(item=>{
+                arr.push(item.labelName)    
+            })
+            let temp = arr.concat(this.typeBox)
+            let a = temp.filter(function(v, i, arr) {
+                return temp.indexOf(v) === arr.lastIndexOf(v);
+            })
+            console.log(a)
+            addLabel(a).then(res=>{
+               if(res.data.count){
+                   this.$Message.success('编辑成功！');
+                    this.getLabel()
+               }
+            })
         },
         showClose(index){
-            this.showList[index].show=true
+            this.userList[index].show=true
         },
         hideColse(index){
-            this.showList[index].show=false
+            this.userList[index].show=false
         }
     }
 }

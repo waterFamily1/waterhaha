@@ -5,10 +5,14 @@
                 <h3>标签中心</h3>  
             </div>
             <div class="serach-box">
-                <Input v-model="value" placeholder="输入标签名称以检索" style="width: 100%" />
+                <Input v-model="value" placeholder="输入标签名称以检索" style="width: 100%" @on-change="search" />
+                 <ul class="search-list" v-if="isSeachdata">
+                        <div style="color:#bbbec4;font-size:13px;text-align:center"  v-if="searchList.length==0">无匹配数据</div>
+                        <li v-for="(item,index) in searchList" :key="index" @click="chooseLabel(index)" v-else>{{ item.name }}</li>
+                    </ul>
             </div>
             <div class="z-tree">
-                <Tree :data="data1" :render="renderContent"></Tree>
+                <Tree :data="data1" :render="renderContent" @on-select-change="selectNode"></Tree>
             </div>
         </div>
         <div class="c-tree-right">
@@ -18,22 +22,29 @@
                         <h3>标签信息</h3>  
                     </div>
                     <div class="action-btn" v-if="appear">
-                        <button>保存</button>
+                        <button @click="save()">保存</button>
                         <button class="reset">取消</button>
                     </div>
                 </div>
-                <div class="base-org-detail" v-if="appear">
-                    <Form>
-                        <div class="form-line">
+                <div class="base-org-detail" >
+                    <Form ref="formValidate" :model="formValidate" :rules="ruleValidate">
+                        <div class="form-line" v-if="tagAppear">
                             <h4>当前标签</h4>
-                            <div class="base-org-border"> 
-                               <Input v-model="value" style="width: 300px" />
+                            <FormItem label="" label-position="top" prop="tag" v-if="isEdit">
+                                <Input v-model="formValidate.tag" style="width:300px"></Input>
+                            </FormItem>
+                            <div class="base-org-border" v-else> 
+                               <span>{{formValidate.tag}}</span>
                             </div>
                         </div>
-                        <div class="form-line">
+                        <div class="form-line" v-if="cateAppear">
                             <h4>当前类别</h4>
-                            <div class="base-org-border"> 
-                                <Input v-model="value" placeholder="管理制度" style="width: 300px" disabled />
+                            <FormItem label="" label-position="top" prop="category"  v-if="disAppear">
+                                <Input v-model="formValidate.category" style="width:300px"></Input>
+                            </FormItem>
+                            <div class="base-org-border" v-else> 
+                                <Input v-model="formValidate.category"  style="width: 300px" disabled v-if="show" />
+                                <span v-else>{{ formValidate.category }}</span>
                             </div>
                         </div>
                     </Form>
@@ -43,10 +54,26 @@
     </div>
 </template>
 <script>
+// labelTree
+import { labelTree,createLabel,deleteLabel,editLabel,searchWord} from '@api/knowledgeManage/tag';
+import createTree from '@/libs/public-util'
+import {formatTime} from '@/libs/public'
 export default {
     name:'tagManage',
     data (){
         return {
+            formValidate: {
+                category:'',
+                tag:''
+            },
+            ruleValidate:{
+                category: [
+                    { required: true, message: '请选择类型', trigger: 'blur' }
+                ],
+                tag: [
+                    {required: true, message: '请输入名称', trigger: 'blur'}
+                ]
+            },
             height:'',
             value:'',
             tableList: [
@@ -87,7 +114,7 @@ export default {
                 }
             ],
             data1: [{
-                title: 'parent 1',
+                title: '全部',
                 expand: true,
                 render: (h, { root, node, data }) => {
                     return h('span', {
@@ -119,53 +146,133 @@ export default {
                                     size:'small'
                                 }),
                                 style: {
-                                    display: data.is_show ? 'block' : 'none'
+                                    display: data.is_show ? 'block' : 'none',
+                                    fontSize:'12px'
                                 },
                                 on: {
-                                    click: () => { 
-                                        
+                                    click: (e) => { 
+                                        e.stopPropagation()
+                                        this.newCate(data)
                                     }
                                 }
                             },'新增')
                         ])
                     ]);
                 },
-                children: [
-                    {
-                        title: 'child 1-1',
-                        expand: true,
-                        children: [
-                            {
-                                title: 'leaf 1-1-1',
-                                expand: true
-                            },
-                            {
-                                title: 'leaf 1-1-2',
-                                expand: true
-                            }
-                        ]
-                    },
-                    {
-                        title: 'child 1-2',
-                        expand: true,
-                        children: [
-                            {
-                                title: 'leaf 1-2-1',
-                                expand: true
-                            },
-                            {
-                                title: 'leaf 1-2-1',
-                                expand: true
-                            }
-                        ]
-                    }
-                ]
+                children:[]
             }],
-            appear:false
+            appear:false,
+            tagAppear:false,
+            cateAppear:false,
+            currentNode:{},
+            disAppear:false,
+            isEdit:true,
+            editStatus:false,
+            editCate:true,
+            searchList:[],
+            treeItem:[],
+            isSeachdata:false,
+            show:false
         }
     },
 
     methods:{
+        chooseLabel(index){
+            let current = this.searchList[index]
+            this.isSeachdata = false
+            labelTree().then(res=>{
+               console.log(res)
+                if(res.data){
+                    let treeItem = []
+                    let trees = res.data
+                    for(let i = 0; i < trees.length; i ++) {
+                        trees[i].title = trees[i].name
+                        trees[i].value = trees[i].id
+                        // trees[i].expand = true
+                        treeItem.push(trees[i])
+                    }
+                     treeItem.map(ele=>{
+                        if(ele.id == current.id){
+                            console.log(ele)
+                            ele.selected = true
+                        }else{
+                            ele.selected = false
+                        }
+                    })
+                    this.data1[0].children = createTree(treeItem, 0)
+                    this.tagAppear = true
+                    this.isEdit = false
+                    this.cateAppear = true
+                    this.disAppear= false
+                    this.show = false
+                    this.formValidate.tag = current.name
+                    this.formValidate.category = current.parentName
+                }
+           })
+        },
+        search(e){
+           if(this.value){
+                this.isSeachdata=true
+                searchWord(this.value).then(res=>{
+                    console.log(res)
+                    if(res.data){
+                        this.searchList = res.data
+                    }
+                   
+                })
+            }else{
+                this.isSeachdata = false
+            }
+          
+        },
+        selectNode(node){
+            console.log(node)
+            if(node[0].title != '全部'){
+                if(node[0].parentId==0){
+                    this.cateAppear = true
+                    this.disAppear = false
+                    this.show = false
+                    this.formValidate.category = node[0].title
+                }else{
+                    this.cateAppear = true
+                    this.tagAppear = true
+                    this.disAppear = false
+                    this.show = false
+                    this.isEdit = false
+                    this.formValidate.tag = node[0].title
+                    this.formValidate.category = node[0].parentName
+                }
+            }
+            
+        },
+        newCate(node){
+           console.log(node)
+           this.currentNode = node
+           this.cateAppear = true
+           this.disAppear = true
+           this.appear = true
+           this.tagAppear = false
+           this.formValidate.tag=""
+           this.formValidate.category = ""
+           this.show = true
+        },
+        getTree(){
+           labelTree().then(res=>{
+               console.log(res)
+                if(res.data){
+                    let treeItem = []
+                    let trees = res.data
+                    for(let i = 0; i < trees.length; i ++) {
+                        trees[i].title = trees[i].name
+                        trees[i].value = trees[i].id
+                        // trees[i].expand = true
+                        treeItem.push(trees[i])
+                    }
+                    this.baseData = treeItem
+                    this.data1[0].children = createTree(treeItem, 0)
+                }
+           })
+        },
         renderContent (h, { root, node, data }) {
             return h('span', {
                 style: {
@@ -199,10 +306,14 @@ export default {
                         }),
                         style: {
                             marginRight: '4px',
-                            display: data.is_show ? 'inline-block' : 'none'
+                            display:data.parentId!=0?'none':( data.is_show ? 'inline-block' : 'none'),
+                             fontSize:'12px'
                         },
                         on: {
-                            // click: () => { this.append(data) }
+                            click: (e) => { 
+                                 e.stopPropagation()
+                                this.append(data) 
+                            }
                         }
                     },'新建'),
                     h('Button', {
@@ -212,11 +323,13 @@ export default {
                         }),
                         style: {
                             marginRight: '4px',
-                            display: data.is_show ? 'inline-block' : 'none'
+                            display: data.is_show ? 'inline-block' : 'none',
+                             fontSize:'12px'
                         },
                         on: {
-                            click: () => { 
-                                this.newFun()
+                            click: (e) => { 
+                                 e.stopPropagation()
+                                this.editFun(data)
                              }
                         }
                     },'编辑'),
@@ -226,36 +339,161 @@ export default {
                             size:'small'
                         }),
                         style: {
-                            display: data.is_show ? 'inline-block' : 'none'
+                            display: data.is_show ? 'inline-block' : 'none',
+                             fontSize:'12px'
                         },
                         on: {
-                            // click: () => { this.remove(root, node, data) }
+                            click: (e) => { 
+                                 e.stopPropagation()
+                                 this.remove(data) 
+                            }
                         }
                     },'删除')
                 ])
             ]);
         },
         append (data) {
-            const children = data.children || [];
-            children.push({
-                title: 'appended node',
-                expand: true
+           console.log(data)
+           this.currentNode = data
+           this.tagAppear = true
+           this.cateAppear = true
+            this.disAppear = false
+           this.formValidate.category = data.title
+           this.appear = true
+           this.formValidate.tag=""
+           this.show = true
+        },
+        remove (data) {
+           console.log(data)
+           this.$Modal.confirm({
+                title: '提示',
+                content: '<p>你确定要删除吗？</p>',
+                onOk: () => {
+                    deleteLabel(Number(data.id)).then(res=>{
+                        if(res.data.count){
+                            this.$Message.success('删除成功');
+                            this.getTree()
+                            
+                        }
+                    })
+                },
+                onCancel: () => {
+                    
+                }
             });
-            this.$set(data, 'children', children);
         },
-         remove (root, node, data) {
-            const parentKey = root.find(el => el === node).parent;
-            const parent = root.find(el => el.nodeKey === parentKey).node;
-            const index = parent.children.indexOf(data);
-            parent.children.splice(index, 1);
-        },
-         newFun() {
+        editFun(data) {
+            console.log(data)
+            this.currentNode = data
+            if(data.parentId==0){
+                this.editCate = true
+                this.formValidate.category = data.title
+                this.cateAppear = true
+                this.disAppear = true
+                this.tagAppear = false
+            }else{
+                this.editCate = false
+                this.formValidate.category = data.parentName
+                this.formValidate.tag = data.title
+                this.cateAppear = true
+                this.isEdit = true
+                this.disAppear = false
+                this.tagAppear = true
+                this.show = true
+            }
             let self = this
             self.appear = true
+            this.editStatus = true
         },
+        save(){
+            if(!this.editStatus){
+                if(this.currentNode.title == '全部'){
+                    // 新建类别
+                    let data = {
+                        name: this.formValidate.category,
+                        parentId: 0,
+                        parentName: "",
+                        tenantId: 11,
+                        type: 1,
+                    }
+                    createLabel(data).then(res=>{
+                        console.log(res)
+                        if(res.data.id){
+                            this.$Message.success('新建成功！');
+                            this.getTree()
+                            this.appear = false
+                        }
+                    })
+                }else{
+                    console.log(this.currentNode)
+                    // 新建标签
+                    let data={
+                        name: this.formValidate.tag,
+                        parentId: this.currentNode.id,
+                        parentName: this.currentNode.name,
+                        tenantId: this.currentNode.tenantId,
+                        type: 2,
+                    }
+                    createLabel(data).then(res=>{
+                        console.log(res)
+                        if(res.data.id){
+                            this.$Message.success('新建成功！');
+                            this.getTree()
+                            this.appear = false
+                            this.isEdit = false
+                        }
+                    })
+                }
+            }else{
+                // 编辑类别
+                if(this.editCate){
+                    
+                    let data = {
+                        id: this.currentNode.id,
+                        name: this.formValidate.category,
+                        parentId: this.currentNode.parentId,
+                        parentName: "",
+                        tenantId: this.currentNode.tenantId,
+                        type: 1
+                    }
+                    editLabel(data).then(res=>{
+                        if(res.data.count){
+                            this.$Message.success('编辑成功！');
+                            this.getTree()
+                            this.appear = false
+                        }
+                    })
+                }
+                // 编辑标签
+                else{
+                    console.log(this.currentNode)
+                    let data = {
+                        id: this.currentNode.id,
+                        name: this.formValidate.tag,
+                        parentId: this.currentNode.parentId,
+                        parentName: this.currentNode.parentName,
+                        tenantId: this.currentNode.tenantId,
+                        type: 2,
+                    }
+                    editLabel(data).then(res=>{
+                        if(res.data.count){
+                            this.$Message.success('编辑成功！');
+                            this.getTree()
+                            this.appear = false
+                             this.isEdit = false
+                        }
+                    })
+                }
+                
+            }
+           
+            
+            
+        }
     },
      mounted() {
         this.height = document.body.clientHeight-46
+        this.getTree()
     },
 
 }
@@ -278,6 +516,8 @@ export default {
         }
         .serach-box{
             padding: 2px;
+            position: relative;
+            z-index: 10;
             /deep/.ivu-input{
                 height: 28px;
                 line-height: 28px;
@@ -289,6 +529,18 @@ export default {
                 background-color: transparent;
                 position: relative;
                 cursor: pointer;
+            }
+            .search-list{
+                position: absolute;
+                top: 38px;
+                left: 0;
+                width:100%;
+                background: #fff;
+                padding: 5px 0 ;
+
+                li{
+                    padding:7px 16px;
+                }
             }
         }
         .z-tree{
