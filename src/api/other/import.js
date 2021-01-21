@@ -8,3 +8,10 @@ export function saveMethod(data) {
         data
     })
 }
+
+export function saveMethod1(data) {
+    return request({
+        url: '/inventory/api/excel-data-save?excelDataCacheKey='+data,
+        method: 'get'
+    })
+}

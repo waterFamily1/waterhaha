@@ -89,3 +89,11 @@ export function deleteMethod(data) {
         method: 'DELETE'
     })
 }
+
+//确定导入
+export function saveExcelMethod(data) {
+    return request({
+        url: '/inventory/api/warehousePosition/excel-data-save?excelDataCacheKey='+data,
+        method: 'get'
+    })
+}

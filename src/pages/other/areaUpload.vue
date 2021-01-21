@@ -51,21 +51,26 @@
                     
                     <div v-show="errNum == 0">
                         <div class="import-mod-valid-tip">
-                            <div class="import-mod-valid-img"></div>
-                            <div style="line-height: 50px;">文件确认通过</div>
+                            <!-- <div class="import-mod-valid-img"></div> -->
+                            <!-- <div style="line-height: 50px;">文件确认通过</div> -->
                             <div>
-                                <Button type="primary" style="margin: 20px auto;width: 100px;" shape="circle" @click="submit" :loading="submitLoading">确定导入</Button>
+                                <Button type="primary" style="margin: 20px auto;width: 100px;" @click="submit" :loading="submitLoading">确定导入</Button>
                             </div>
                         </div>
                     </div>      
                 </div>
+                <div v-show="activeProcess == 3" class="complete-box">
+                        <Icon type="md-checkmark-circle" style="color:#56D43F" size="60"></Icon>
+                        <h3>本次成功导入{{totalNum}}行数据</h3>
+                        <Button type="primary" class="c-btn-back btn-back" @click="backClick">返回上一级</Button>
+                    </div>
             </div>
         </div>
     </div>
 </template>
 <script>
 import config from './config'
-import { saveMethod } from '@/api/other/import'
+import { saveMethod, saveMethod1 } from '@/api/other/import'
 
 function render(h, data) {
 	const errorPrefix = 'Error:';
@@ -105,7 +110,8 @@ export default {
             submitLoading: false,
             columns: [],
             importHref: '',
-            Action: ''
+            Action: '',
+            processActive: false
         }
     },
     created() {
@@ -148,6 +154,17 @@ export default {
         } else if(this.uploadName == '批量导入SIM卡') {
             this.importHref = '/box/api/sim-manager/excel-temlate-down'
             this.Action = '/box/api/sim-manager/excel-import'
+            this.columns = [
+                {title: '行号', key: 'index', render: render},
+                {title: '设备类型名称	', key: 'name', ellipsis: true, render: render},
+                {title: '所属组织 ', key: 'orgName', ellipsis: true, render: render},
+                {title: '上级组织/类型路径', key: 'parentNamePath', ellipsis: true, render: render},
+                {title: '备注', key: 'remarks', ellipsis: true, render: render},
+                {title: '其他错误', key: 'otherError', ellipsis: true, render: render}
+            ]
+        } else if(this.uploadName == '物料导入') {
+            this.importHref = '/inventory/api/excel-temlate-down'
+            this.Action = '/inventory/api/excel-import'
             this.columns = [
                 {title: '行号', key: 'index', render: render},
                 {title: '设备类型名称	', key: 'name', ellipsis: true, render: render},
@@ -211,22 +228,42 @@ export default {
         },
         submit() {
             this.submitLoading = true;
-            saveMethod({
-                excelDataCacheKey: this.excelDataCachekey
-            }).then(res=> {
-                this.submitLoading = false
-                if(res){
-                    this.$Notice.success({
-                        title: '成功！',
-                        desc: '数据保存成功',
-                        duration: 3
-                    })
-                    this.activeProcess = 3
-                    
-                }
-            }).catch(err=> {
-                this.submitLoading = false
-            })
+            if(this.uploadName == '物料导入') {
+                saveMethod1(this.excelDataCachekey).then(res=> {
+                    this.submitLoading = false
+                    if(res){
+                        this.$Notice.success({
+                            title: '成功！',
+                            desc: '数据保存成功',
+                            duration: 3
+                        })
+                        this.activeProcess = 3
+                        
+                    }
+                }).catch(err=> {
+                    this.submitLoading = false
+                })
+            } else {
+                saveMethod({
+                    excelDataCacheKey: this.excelDataCachekey
+                }).then(res=> {
+                    this.submitLoading = false
+                    if(res){
+                        this.$Notice.success({
+                            title: '成功！',
+                            desc: '数据保存成功',
+                            duration: 3
+                        })
+                        this.activeProcess = 3
+                        
+                    }
+                }).catch(err=> {
+                    this.submitLoading = false
+                })
+            }
+        },
+        backClick(){
+            this.$router.back()
         }
     }
 }
@@ -351,6 +388,9 @@ export default {
         border:solid 1px #0BB1DF;
         color:#0BB1DF;
         background:#fff;
+    }
+    .complete-box {
+        text-align: center;
     }
 }
 </style>

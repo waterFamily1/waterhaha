@@ -76,7 +76,7 @@
                                     <Input v-model="searchParamsByLocator.locationNo" placeholder="库位编号" style="width: 200px" />
                                     <Button type="primary" @click="searchLocator" class="c-btn-add">搜索</Button>
                                 </div>
-                                <div class="c-btns-right">
+                                <div class="c-btns-right btns-box">
                                     <Button
                                         class="c-btn-add"
                                         @click="addRow"
@@ -483,6 +483,11 @@ export default {
                 font-size: 13px;
                 height: auto;
                 margin-left: 5px;
+            }
+            .btns-box {
+                .c-btn-add {
+                    padding: 3px 15px;
+                }
             }
         }
     }

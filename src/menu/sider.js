@@ -535,5 +535,60 @@ export default [
                 auth: ['hidden']
             }
         ]
+    }, {
+        path: '/myAttention',
+        header: 'home',
+        title: '我的关注',
+        auth: ['hidden'],
+        children: [
+            {
+                path: `/myAttention`,
+                auth: ['hidden']
+            }
+        ]
+    }, {
+        path: '/taskBoard',
+        header: 'home',
+        title: '任务看板',
+        auth: ['hidden'],
+        children: [
+            {
+                path: `/taskBoard`,
+                auth: ['hidden']
+            }
+        ]
+    }, {
+        path: '/newsCenter',
+        header: 'home',
+        title: '消息中心',
+        auth: ['hidden'],
+        children: [
+            {
+                path: `/newsCenter`,
+                auth: ['hidden']
+            }
+        ]
+    }, {
+        path: '/userSet',
+        header: 'home',
+        title: '用户设置',
+        auth: ['hidden'],
+        children: [
+            {
+                path: `/userSet`,
+                auth: ['hidden']
+            }
+        ]
+    }, {
+        path: '/question',
+        header: 'home',
+        title: '问题反馈',
+        auth: ['hidden'],
+        children: [
+            {
+                path: `/question`,
+                auth: ['hidden']
+            }
+        ]
     }
 ]

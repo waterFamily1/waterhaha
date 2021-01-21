@@ -100,6 +100,33 @@ const util = {
 		}
 		return roots;
 	},
+	treeBtnDelStyle : function(render, onOk, onCancel, onBefore, title){
+		var _title = title ? title : "你确定要删除吗？";
+		return render (
+	        "Poptip",
+	        {
+				props: { confirm: true, title: _title, width: 200, placement: "top-end", transfer: true },
+	            on: {
+	                'on-ok': onOk,
+	                'on-cancel': onCancel || function(){}
+	            }
+	        },
+	        [
+	        	render("a",
+		        	{
+		        		attrs: { href: "javascript:;" },
+		        		style: { margin: "0 5px" },
+		        		class: {"c-tree-btn-del": true},
+		            	on: {
+		            		click: () => {
+		            			onBefore && onBefore();
+		            		}
+		            	}
+		        	},
+	        	"删除")
+	        ]
+	    )
+	},
 }
 
 export default util;
