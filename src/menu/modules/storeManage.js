@@ -102,6 +102,14 @@ export default {
             path: `/childPage/warehouseImport`,
             title: '库位导入',
             auth: ['hidden']
+        }, {
+            path: `/childPage/materialDetail`,
+            title: '物料详细',
+            auth: ['hidden']
+        }, {
+            path: `/childPage/materialEdit`,
+            title: '物料编辑',
+            auth: ['hidden']
         }
     ]
 }

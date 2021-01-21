@@ -5,21 +5,21 @@
                 <div>t</div>
             </span>
             <DropdownMenu slot="list">
-                <i-link to="/setting/user">
+                <i-link to="/userSet">
                     <DropdownItem>
-                        <Icon type="ios-contact-outline" />
-                        <span>{{ $t('basicLayout.user.center') }}</span>
+                        <span>用户设置</span>
                     </DropdownItem>
                 </i-link>
-                <i-link to="/setting/account">
+                <i-link to="/question">
                     <DropdownItem>
-                        <Icon type="ios-settings-outline" />
-                        <span>{{ $t('basicLayout.user.setting') }}</span>
+                        <span>问题反馈</span>
                     </DropdownItem>
                 </i-link>
+                <DropdownItem>
+                    <span>APP下载</span>
+                </DropdownItem>
                 <DropdownItem divided name="logout">
-                    <Icon type="ios-log-out" />
-                    <span>{{ $t('basicLayout.user.logOut') }}</span>
+                    <span>退出登录</span>
                 </DropdownItem>
             </DropdownMenu>
         </Dropdown>

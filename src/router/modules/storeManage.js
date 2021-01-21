@@ -273,6 +273,26 @@ export default {
                 closable: false
             },
             component: () => import('@/pages/storeManage/childPage/materialAdd')
+        },
+        {          
+            path: '/childPage/materialDetail',
+            name: `${pre}childPage-materialDetail`,
+            meta: {
+                ...meta,
+                title: '物料详细',
+                closable: false
+            },
+            component: () => import('@/pages/storeManage/childPage/materialDetail')
+        },
+        {          
+            path: '/childPage/materialEdit',
+            name: `${pre}childPage-materialEdit`,
+            meta: {
+                ...meta,
+                title: '物料编辑',
+                closable: false
+            },
+            component: () => import('@/pages/storeManage/childPage/materialEdit')
         }
     ]
 }

@@ -10,45 +10,61 @@
                 </div>
                 <div class="title-main" >
                     <div class="org-tree">
-                         <Tree :data="baseData" :render="renderContent" class="demo-tree-render"></Tree>
-                </div>
+                        <Tree :data="treeData" :render="renderContent" class="demo-tree-render"></Tree>
                     </div>
+                </div>
             </div>
             <div class="tissue-right">
                 <div class="tissue-title">
                     <h3>物料类别信息</h3> 
-                    <span v-if="appear">
+                    <span v-if="status != 'info'">
+                        <Button type="primary" style="background:#4b7efe" :loading="loading" @click="save()">保存</Button>
                         <Button @click="cancel()" style="background:#c8c8c8">取消</Button>
-                        <Button type="primary" style="background:#4b7efe">保存</Button>
                     </span>
                 </div>
                 <div class="tissue-content">
-                    <Form :model="tissueList" label-position="right"  autocomplete="off">
+                    <Form ref="materialForm" :model="params" :rules="rules" label-position="right" autocomplete="off">
                         <div class="form-li">
                             <h4>所属组织</h4>
-                            <div v-if="appear" style="min-height:40px">联泰潮英智慧水务</div>
+                            <div style="min-height:40px">{{ params.orgName }}</div>
                         </div>
-                        <div class="form-li" v-if="!appear">
-                            <FormItem label="类别编码：" label-position="top">
-                                <!-- <Input v-model="tissueList.devicename" v-if="appear"></Input> -->
-                            </FormItem>
+                        <div class="form-li" v-if="status != 'add'">
+                            <h4>类别编码：</h4>
+                            <div>{{ params.categoryNumber }}</div>
                         </div>
-                        
                         <div class="form-li">
-                            <!-- <h4>设备类型名称</h4> -->
-                            <FormItem label="类别名称：" label-position="top">
-                                <Input v-model="tissueList.name" v-if="appear"></Input>
+                            <FormItem 
+                                label="类别名称：" 
+                                label-position="top" 
+                                prop="categoryName" 
+                                v-if="status == 'add' || status == 'edit'"
+                            >
+                                <Input v-model="params.categoryName"></Input>
                             </FormItem>
+                            <div v-if="status == 'info'">
+                                <h4>类别名称：</h4>
+                                <div>{{ params.categoryName }}</div>
+                            </div>
                         </div>
                         <div class="form-li">
                             <h4>上级类别：</h4>
-                            <div v-if="appear" style="min-height:40px">无</div>
+                            <div 
+                                v-if="status == 'add' || status == 'edit'" 
+                                style="min-height:40px"
+                            >{{ params.parentName }}</div>
                         </div>
                         <div class="form-li">
-                            <!-- <h4>设备类型名称</h4> -->
-                            <FormItem label="备注：" label-position="top">
-                                <Input v-model="tissueList.remark" v-if="appear" type="textarea"></Input>
+                            <FormItem 
+                                label="备注：" 
+                                label-position="top" 
+                                v-if="status == 'add' || status == 'edit'"
+                            >
+                                <Input v-model="params.remark" type="textarea"></Input>
                             </FormItem>
+                            <div v-if="status == 'info'">
+                                <h4>上级类别：</h4>
+                                <div>{{ params.remark }}</div>
+                            </div>
                         </div>
                     </Form>
                 </div>
@@ -57,80 +73,59 @@
     </div>
 </template>
 <script>
+import { treeMethod, saveMethod, removeMethod } from '@/api/store/cate'
+import createTree from '@/libs/public-util'
+import util from '@/libs/public_js'
+import { mapState } from 'vuex'
+var _NOOP = function() {}
+
 export default {
     name: 'materialCategory',
     data () {
         return {
-            baseData: [{
-                title: '联泰潮英智慧水务',
-                expand: true,
-                render: (h, { root, node, data }) => {
-                    return h('span', {
-                        style: {
-                            display: 'inline-block',
-                            width: '100%'
-                        },
-                        on: {
-                            'mouseenter': () => {
-                                data.is_show = true
-                            },
-                            'mouseleave': () => {
-                                data.is_show = false
-                            }
-                        }
-                    }, [
-                        h('span', [
-                            h('span', data.title),
-                        ]),
-                        h('span', {
-                            style: {
-                                display: 'inline-block',
-                                float: 'right'
-                            }
-                        }, [
-                            h('Button', {
-                                props: Object.assign({}, this.buttonProps, {
-                                    type: 'primary'
-                                }),
-                                style: {
-                                    display: data.is_show ? 'block' : 'none',
-                                },
-                                on: {
-                                    click: () => { 
-                                        this.newFun()
-                                    }
-                                }
-                            },'新建')
-                        ])
-                    ]);
-                },
-                
-            }],
+            treeData: [],
+            status: 'info',
             buttonProps: {
                 type: 'default',
                 size: 'small'
             },
-            tissueList: {
-                superior:'',
-                remark:'',
-                name:''
+            params: {
+        		categoryName: '',
+                categoryNumber: '',
+				id: '',
+				orgId: 0,
+                orgName: '',
+                parentName: '',
+				parentId: '',
+                remark: ''
+        	},
+        	rules: {
+        		categoryName: [{ required: true, message: '请输入类别名称', trigger: 'blur' }]
             },
-            appear: false,
-            appearOther: false,
-            listshow: true,
+            loading: false,
+            data: {},
             height: 0,
-            ruleValidate:{
-            devicename: [
-                { required: true, message: '请输入姓名', trigger: 'blur' }
-            ],
-            },
         }
     },
     mounted() {
         this.height = document.body.clientHeight-80
+        this.getTree()
     },
     methods: {
+        getTree() {
+            treeMethod().then(res=> {
+                let treeItem = []
+                let trees = res.data
+                for(let i = 0; i < trees.length; i ++) {
+                    trees[i].title = trees[i].name
+                    trees[i].expand = false
+                    treeItem.push(trees[i])
+                }
+                this.treeData = createTree(treeItem,0)
+            })
+        },
         renderContent (h, { root, node, data }) {
+            var self = this
             return h('span', {
                 style: {
                     display: 'inline-block',
@@ -139,16 +134,24 @@ export default {
                 on: {
                     //鼠标进入
                     'mouseenter': () => {
-                        data.is_show = true;
+                        data.is_show = true
                     },
                     //鼠标离开
                     'mouseleave': () => {
-                        data.is_show = false;
+                        data.is_show = false
                     }
                 }
             }, [
                 h('span', [
-                    h('span', data.title)
+                    h('span', {
+                        on: {
+                            'click':()=> {
+                                if(data.type == 20) {
+                                    this.show(data)
+                                }
+                            }
+                        }
+                    },data.title),
                 ]),
                 h('span', {
                     style: {
@@ -162,117 +165,126 @@ export default {
                         }),
                         style: {
                             marginRight: '4px',
+                            fontSize:'12px',
                             display: data.is_show ? 'inline-block' : 'none'
                         },
                         on: {
-                            // click: () => { this.append(data) }
+                            click: () => { this.addNew(data) }
                         }
-                    },'编辑'),
-                    h('Button', {
+                    },'新建'),
+                    (data.type == 20) && h('Button', {
                         props: Object.assign({}, this.buttonProps, {
                             type: 'primary'
                         }),
                         style: {
+                            marginRight: '4px',
+                            fontSize:'12px',
                             display: data.is_show ? 'inline-block' : 'none'
                         },
                         on: {
-                            // click: () => { this.remove(root, node, data) }
+                            click: () => { this.edit(data) }
+                        }
+                    },'编辑'),
+                    (data.type == 20) && h('Button', {
+                        props: Object.assign({}, this.buttonProps, {
+                            type: 'primary'
+                        }),
+                        style: {
+                            fontSize:'12px',
+                            display: data.is_show ? 'inline-block' : 'none'
+                        },
+                        on: {
+                            click: () => { this.remove(data) }
                         }
                     },'删除')
                 ])
             ]);
         },
-        renderContentList (h, { root, node, data }) {
-            return h('span', {
-                style: {
-                    display: 'inline-block',
-                    width: '100%'
-                },
-                on: {
-                    //鼠标进入
-                    'mouseenter': () => {
-                        data.is_show = true;
-                    },
-                    //鼠标离开
-                    'mouseleave': () => {
-                        data.is_show = false;
-                    }
+        addNew(data) {
+            this.data = data
+            this.status = 'add'
+            this.params.orgName = data.orgName
+            this.params.orgId = data.id
+            this.params.parentName = '无'
+            this.params.remark = ''
+            this.params.categoryNumber = ''
+            this.params.categoryName = ''
+            this.params.id = ''
+        },
+        save() {
+            this.loading = true
+            let orgName = this.this.params.orgName
+            this.$refs['materialForm'].validate((valid) => {
+                if(valid) {
+                    saveMethod(this.params).then(res=> {
+                        this.$Notice.success({title: '操作成功！'})
+                        this.getTree()
+                        this.loading = false
+                        this.status = 'info'
+                        this.params = res.data
+                        this.params.orgName = orgName
+                    }).catch((res)=>{
+                        this.loading = false
+                    })
                 }
-            }, [
-                h('span', [
-                    h('span', data.title),
-                ]),
-                h('span', {
-                    style: {
-                        display: 'inline-block',
-                        float: 'right'
-                    }
-                }, [
-                    h('Button', {
-                        props: Object.assign({}, this.buttonProps, {
-                            type: 'primary'
-                        }),
-                        style: {
-                            marginRight: '4px',
-                            fontSize:'13px',
-                            display: data.is_show ? 'inline-block' : 'none'
-                        },
-                        on: {
-                            // click: () => { this.append(data) }
-                        }
-                    },'编辑'),
-                    h('Button', {
-                        props: Object.assign({}, this.buttonProps, {
-                            type: 'primary'
-                        }),
-                        style: {
-                            marginRight: '4px',
-                            fontSize:'13px',
-                            display: data.is_show ? 'inline-block' : 'none'
-                        },
-                        on: {
-                            // click: () => { this.remove(root, node, data) }
-                        }
-                    },'删除'),
-                    h('Button', {
-                        props: Object.assign({}, this.buttonProps, {
-                            type: 'primary'
-                        }),
-                        style: {
-                            fontSize:'13px',
-                            display: data.is_show ? 'inline-block' : 'none'
-                        },
-                        on: {
-                            // click: () => { this.remove(root, node, data) }
-                        }
-                    },'新建')
-                ])
-            ]);
+            })
         },
-        append (data) {
-            const children = data.children || [];
-            children.push({
-                title: 'appended node',
-                expand: true
+        edit(data) {
+            this.data = data
+            this.status = 'edit'
+            this.params.orgName = data.orgName
+            this.params.orgId = data.id
+            this.params.parentName = '无'
+            this.params.categoryNumber = data.no
+            this.params.remark = data.remark
+            this.params.categoryName = data.name
+            this.params.id = Math.abs(data.id)
+        },
+        remove(data) {
+            let id = Math.abs(data.id)
+            this.$Modal.confirm({
+                title: '你确定要删除吗？',
+                onOk: () => {
+                    removeMethod(id).then(res=> {
+                        this.$Notice.success({title: '删除成功！'})
+                        this.getTree()
+                    })
+                },
+                onCancel: () => {
+
+                }
             });
-            this.$set(data, 'children', children);
         },
-        remove (root, node, data) {
-            const parentKey = root.find(el => el === node).parent;
-            const parent = root.find(el => el.nodeKey === parentKey).node;
-            const index = parent.children.indexOf(data);
-            parent.children.splice(index, 1);
-        },
-        newFun() {
-            let self = this
-            self.appear = true
-            self.listshow = false
+        show(data) {
+            this.data = data
+            this.status = 'info'
+            this.params.orgName = data.orgName
+            this.params.orgId = data.id
+            this.params.parentName = '无'
+            this.params.categoryNumber = data.no
+            this.params.remark = data.remark
+            this.params.categoryName = data.name
+            this.params.id = Math.abs(data.id)
         },
         cancel() {
-            let self = this
-            self.appear = false
-            self.appearOther = true
-            
+            this.status = 'info'
+            if(this.data.type == 20) {
+                this.params.orgName = this.data.orgName
+                this.params.orgId = this.data.id
+                this.params.parentName = '无'
+                this.params.categoryNumber = this.data.no
+                this.params.remark = this.data.remark
+                this.params.categoryName = this.data.name
+                this.params.id = Math.abs(this.data.id)
+            } else {
+                this.params.orgName = ''
+                this.params.orgId = 0
+                this.params.parentName = '无'
+                this.params.categoryNumber = ''
+                this.params.remark = ''
+                this.params.categoryName = this.data.name
+                this.params.id = ''
+            }
         }
     }
 }
@@ -297,22 +309,19 @@ export default {
                 display: inline;
                 float: right;
             }
-            button{
-                padding:4px 15px;
-                background: #576374;
-                border: 0;
-                float:right;
-                color: #fff;
+            .ivu-btn {
+                height: auto;
                 font-size: 12px;
+                color: #fff;
+                padding: 4px 12px;
+                min-width: 70px;
                 margin: 0 5px;
-                border-radius: 3px;
-                height: 25px;
             }
         }
         .search-input{  
             padding: 12px 14px;
             border-bottom: 1px solid #f0f0f0;
-            input{
+            input {
                 width: 100%;
                 border: 1px solid #eaeaea;
                 padding: 0 24px 0 8px;
@@ -329,11 +338,13 @@ export default {
                 }
             }
             /deep/.ivu-tree-title {
-                    width: 100%;
+                    width: 95%;
             }
             /deep/.ivu-tree-arrow{
-                width: 0;
-                display: none;
+                width: 10px;
+            }
+            /deep/.ivu-btn-small {
+                height: 22px;
             }
         }
         .tissue-left {

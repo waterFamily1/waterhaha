@@ -14,10 +14,21 @@
                     <i-header-breadcrumb v-if="showBreadcrumb && !headerMenu && !isMobile" ref="breadcrumb" />
                     <i-header-search v-if="showSearch && !headerMenu && !isMobile && !showBreadcrumb" />
                     <div class="i-layout-header-right">
-                        <i-menu-head v-if="headerMenu && isMobile" />
-                        <i-header-attention />
-                        <i-header-board />
-                        <i-header-notice v-if="showNotice" />
+                        <span class="i-layout-header-trigger i-layout-header-trigger-min">
+                            <i-link to="/myAttention">
+                                <Icon type="ios-star"></Icon>
+                            </i-link>
+                        </span>
+                        <span class="i-layout-header-trigger i-layout-header-trigger-min">
+                            <i-link to="/taskBoard">
+                                <Icon type="ios-paper-outline"></Icon>
+                            </i-link>
+                        </span>
+                        <span class="i-layout-header-trigger i-layout-header-trigger-min">
+                            <i-link to="/newsCenter">
+                                <Icon type="md-notifications" />
+                            </i-link>
+                        </span>
                         <i-header-user />
                     </div>
                 </Header>

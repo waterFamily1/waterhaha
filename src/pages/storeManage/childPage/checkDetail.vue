@@ -269,7 +269,7 @@ export default {
             util.download('/inventory/api/materiel-inventory/export', {id: this.$route.query.id})
         },
         uploadSucess(res) {
-            if(res.data.errNum == 0) {
+            if(res.errNum == 0) {
                 this.$Notice.success({title:'导入成功！'})
                 this.searchParams.queryName = ''
                 this.searchParams.currentPage = 1

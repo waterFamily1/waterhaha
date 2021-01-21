@@ -15,6 +15,12 @@ import storeManage from './modules/storeManage'          //库存管理
 import knowledgeManage from './modules/knowledgeManage'  //知识管理
 import basicsManage from './modules/basicsManage'        //基础管理 
 import systemManage from './modules/systemManage'        //系统管理
+import header1 from './modules/header1'                  //我的关注
+import header2 from './modules/header2'                  //任务看板
+import header3 from './modules/header3'                  //消息中心
+import header4 from './modules/header4'                  //用户设置
+import header5 from './modules/header5'                  //问题反馈
+
 
 import other from './modules/other' //基础管理 => 导入
 /**
@@ -71,33 +77,6 @@ const frameIn = [
             }
         ]
     },
-    // 我的关注
-    {
-        path: '/myAttention',
-        name: 'myAttention',
-        meta: {
-            title: '我的关注'
-        },
-        component: () => import('@/pages/header/myAttention')
-    },
-    //任务看板
-    {
-        path: '/taskBoard',
-        name: 'taskBoard',
-        meta: {
-            title: '任务看板'
-        },
-        component: () => import('@/pages/header/taskBoard')
-    },
-    //消息中心
-    {
-        path: '/newsCenter',
-        name: 'newsCenter',
-        meta: {
-            title: '消息中心'
-        },
-        component: () => import('@/pages/header/newsCenter')
-    },
     dashboard,
     supervise,
     dataManage,
@@ -114,7 +93,12 @@ const frameIn = [
     knowledgeManage,
     basicsManage,
     systemManage,
-    other
+    other,
+    header1,
+    header2,
+    header3,
+    header4,
+    header5
 ];
 
 export const asyncRoute = [
@@ -166,33 +150,6 @@ export const asyncRoute = [
                 }
             }
         ]
-    },
-    // 我的关注
-    {
-        path: '/myAttention',
-        name: 'myAttention',
-        meta: {
-            title: '我的关注'
-        },
-        component: () => import('@/pages/header/myAttention')
-    },
-    //任务看板
-    {
-        path: '/taskBoard',
-        name: 'taskBoard',
-        meta: {
-            title: '任务看板'
-        },
-        component: () => import('@/pages/header/taskBoard')
-    },
-    //消息中心
-    {
-        path: '/newsCenter',
-        name: 'newsCenter',
-        meta: {
-            title: '消息中心'
-        },
-        component: () => import('@/pages/header/newsCenter')
     },
     dashboard
 ]
