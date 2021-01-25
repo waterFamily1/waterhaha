@@ -211,7 +211,7 @@ export default {
            })
         },
         search(e){
-           if(this.value){
+            if(this.value){
                 this.isSeachdata=true
                 searchWord(this.value).then(res=>{
                     console.log(res)

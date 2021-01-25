@@ -87,7 +87,9 @@
                     })
                     .then((res) => {
                         getUserCurrent().then(async res => {
+                            console.log(res)
                             // console.log(JSON.stringify(res))
+                            sessionStorage.setItem('__APPLEPIE_U_',JSON.stringify(res.data))
                         }).catch(err => {
                             console.log('err: ', err);
                             reject(err);

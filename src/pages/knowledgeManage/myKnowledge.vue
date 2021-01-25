@@ -1,6 +1,6 @@
 <template>
     <div class="index-box" :style="{height: height+'px'}">
-        <Tabs :value="value">
+        <Tabs :value="value" @on-click="changeName">
             <TabPane label="我的下载" name="name1">
                 <div class="c-left-border-blue">
                    <div>
@@ -14,9 +14,10 @@
                             <strong>{{ row.name }}</strong>
                         </template>
                         <template slot-scope="{ row, index }" slot="action">
-                            <Button class="action" type="text" size="small" style="margin-right: 5px;color:rgb(75, 126, 254);font-size:13px">下载</Button>
-                            <Button class="action" type="text" size="small" style="margin-right: 5px;color:rgb(75, 126, 254);font-size:13px">收藏</Button>
-                            <Button class="action" type="text" size="small" style="color:rgb(75, 126, 254);font-size:13px">推荐</Button>
+                            <Button class="action" type="text" size="small" style="margin-right: 5px;color:rgb(75, 126, 254);font-size:13px" @click="downLoadFile(row.id)">下载</Button>
+                            <Button class="action" type="text" size="small" style="margin-right: 5px;color:rgb(75, 126, 254);font-size:13px" v-if="row.collect" @click="cancelCollect(row.id)">取消收藏</Button>
+                            <Button class="action" type="text" size="small" style="margin-right: 5px;color:rgb(75, 126, 254);font-size:13px" v-else @click="collect(row.id)">收藏</Button>
+                            <Button class="action" type="text" size="small" style="color:rgb(75, 126, 254);font-size:13px" @click="recommend(row)">推荐</Button>
                         </template>
                     </Table>
                     <Page :total="downTotal" show-elevator class="page" @on-change="downChangeSize" />
@@ -35,8 +36,8 @@
                             <strong>{{ row.name }}</strong>
                         </template>
                         <template slot-scope="{ row, index }" slot="action">
-                            <Button class="action" type="text" size="small" style="margin-right: 5px;color:rgb(75, 126, 254);font-size:13px">编辑</Button>
-                            <Button class="action" type="text" size="small" style="color:rgb(75, 126, 254);font-size:13px">删除</Button>
+                            <Button class="action" type="text" size="small" style="margin-right: 5px;color:rgb(75, 126, 254);font-size:13px" @click="docEdit(row)">编辑</Button>
+                            <Button class="action" type="text" size="small" style="color:rgb(75, 126, 254);font-size:13px" @click="deleteUpload(row.id)">删除</Button>
                         </template>
                     </Table>
                     <Page :total="uploadTotal" show-elevator class="page" @on-change="uploadChangeSize" />
@@ -55,9 +56,10 @@
                             <strong>{{ row.name }}</strong>
                         </template>
                         <template slot-scope="{ row, index }" slot="action">
-                           <Button class="action" type="text" size="small" style="margin-right: 5px;color:rgb(75, 126, 254);font-size:13px">下载</Button>
-                            <Button class="action" type="text" size="small" style="margin-right: 5px;color:rgb(75, 126, 254);font-size:13px">收藏</Button>
-                            <Button class="action" type="text" size="small" style="color:rgb(75, 126, 254);font-size:13px">推荐</Button>
+                           <Button class="action" type="text" size="small" style="margin-right: 5px;color:rgb(75, 126, 254);font-size:13px" @click="downLoadFile(row.id)">下载</Button>
+                            <Button class="action" type="text" size="small" style="margin-right: 5px;color:rgb(75, 126, 254);font-size:13px" v-if="row.collect" @click="cancelCollectC(row.id)">取消收藏</Button>
+                            <Button class="action" type="text" size="small" style="margin-right: 5px;color:rgb(75, 126, 254);font-size:13px" v-else @click="collectC(row.id)">收藏</Button>
+                            <Button class="action" type="text" size="small" style="color:rgb(75, 126, 254);font-size:13px" @click="recommend(row)">推荐</Button>
                         </template>
                     </Table>
                     <Page :total="collectToatl" show-elevator class="page" @on-change="collectChangeSize" />
@@ -117,10 +119,104 @@
                 </div>
             </TabPane>
         </Tabs>
+        <!-- 文档推荐 -->
+        <Modal v-model="modal" width="520" class="model-box"> 
+            <p slot="header" style="color:#1c2438;font-size:14px;border-left:7px solid #4b7efe;background:#f8f9fb;height:39px;line-height:39px">
+                <!-- <Icon type="ios-information-circle"></Icon> -->
+                <span class="rectangle"></span>
+                <span style="margin-left:8px">文档推荐</span>
+            </p>
+            <div>
+                <Form ref="formValidate" :model="formValidate" :rules="ruleValidate">
+                    <div>
+                        <div class="key-item">
+                            <label>文档名称：</label>
+                            <span>{{name}}.{{docuType}}</span>
+                        </div>
+                        <FormItem label="推荐给：" prop="tissue">
+                           <!-- <div class="key-item"> -->
+                                <TreeSelect v-model="formValidate.tissue" :data="orgList" v-width="150" @on-change="changeArea"  />
+                            <!-- </div>  -->
+                        </FormItem>
+                        
+                        <div class="key-item">
+                            <label ></label>
+                            <Select v-model="personId" multiple  placeholder="请选择用户" style="width:80%">
+                                <Option v-for="item in userList" :value="item.id" :key="item.id">{{ item.name }}</Option>
+                            </Select>
+                        </div> 
+                        <div class="key-item">
+                            <label >附言：</label>
+                            <Input type="textarea" v-model="remark" style="width:80%" />
+                        </div>
+                    </div>
+                </Form>
+            </div>
+                
+            <div class="model-table">
+                <div class="action-btn">
+                <span @click="modal = false">取消</span>
+                <span style="background: #4b7efe;" @click="modalSure('formValidate')">确定</span>
+                </div> 
+                
+            </div>
+            <div slot="footer" >
+                <!-- <Button type="primary"  long  @click="save" style="font-size:12px">保存为新模版</Button> -->
+            </div>
+        </Modal>
+         <!-- 文档编辑 -->
+         <Modal v-model="modalE" width="520" class="model-box"> 
+            <p slot="header" style="color:#1c2438;font-size:14px;border-left:7px solid #4b7efe;background:#f8f9fb;height:39px;line-height:39px">
+                <!-- <Icon type="ios-information-circle"></Icon> -->
+                <span class="rectangle"></span>
+                <span style="margin-left:8px">文档编辑</span>
+            </p>
+            <div>
+                <Form ref="formValidate" :model="formValidate" :rules="ruleValidate" label-position="top">
+                    <div>
+                        <FormItem label="文档名称：" prop="name">
+                            <Input  v-model="formValidate.name"  />
+                        </FormItem>
+                        <FormItem label="文档标签：" prop="label" >
+                            <Input  v-model="formValidate.label" readonly @on-focus="chooseLabel" />
+                       </FormItem>
+                        <div class="dropdown" v-if="dropdownShow">
+                            <Collapse simple accordion >
+                                <Panel v-for="(item,index) in cateList" :key="index">
+                                    {{ item.name }}
+                                    <div slot="content" class="cmp-tab">
+                                        <a href="javascript:;" v-for="(ele, idx) in item.children" 
+                                        :key="idx" @click="typeCheck(ele.name)" 
+                                        :class="{checked:typeBox.includes(ele.name)}">{{ ele.name }}</a>
+                                    </div>
+                                </Panel>
+                            </Collapse>
+                            <div class="finish-btn" >
+                                <button @click="finishE()">完成</button>
+                            </div>
+                        </div>
+                        <FormItem label="文档摘要：" prop="remark">
+                            <Input type="textarea" v-model="formValidate.remark"  />
+                       </FormItem>
+                    </div>
+                </Form>
+            </div>
+                
+            <div class="model-table">
+                <div class="action-btn">
+                <span @click="modalE = false">取消</span>
+                <span style="background: #4b7efe;" @click="modalSureE('formValidate')">确定</span>
+                </div> 
+                
+            </div>
+            <div slot="footer" >
+                <!-- <Button type="primary"  long  @click="save" style="font-size:12px">保存为新模版</Button> -->
+            </div>
+        </Modal>
     </div>
 </template>
 <script>
-import { labelTree,myDownload,myUpload,myCollect,recommendMe,userLabel,deleteLabel,addLabel} from '@api/knowledgeManage/myknowledge';
+import { orgMethod,labelTree,myDownload,myUpload,myCollect,recommendMe,userLabel,deleteLabel,addLabel,collectAction,roles,recommend,editDoc,deleteDoc} from '@api/knowledgeManage/myknowledge';
 import createTree from '@/libs/public-util'
 import {formatTime} from '@/libs/public'
 import util from '@/libs/public_js'
@@ -167,8 +263,8 @@ export default {
                 {
                     title: '操作',
                     slot: 'action',
-                    width: 250,
-                    align: 'center'
+                    // width: 230,
+                    // align: 'center'
                 }
             ],
             uploadList: [
@@ -200,14 +296,14 @@ export default {
                 },
                 {
                     title: '下载时间',
-                    key: 'createDate',
+                    key: 'createDateE',
                     width:120
                 },
                 {
                     title: '操作',
                     slot: 'action',
-                    width: 250,
-                    align: 'center'
+                    // width: 250,
+                    // align: 'center'
                 }
             ],
             collectList: [
@@ -245,8 +341,8 @@ export default {
                 {
                     title: '操作',
                     slot: 'action',
-                    width: 250,
-                    align: 'center'
+                    // width: 250,
+                    // align: 'center'
                 }
             ],
             recommendList :[
@@ -284,8 +380,8 @@ export default {
                 {
                     title: '操作',
                     slot: 'action',
-                    width: 250,
-                    align: 'center'
+                    // width: 250,
+                    // align: 'center'
                 }
             ],
             selectedList:[],
@@ -307,7 +403,38 @@ export default {
             recommendPage:1,
             recommendTotal:0,
             cateList:[],
-            userList:[]
+            userList:[],
+            modal:false,
+             docuType:'',
+            name:'',
+            documentId:'',
+             orgList:[],
+            modal:false,
+            tissue:'',
+            personId:[],
+            userList:[],
+            remark:'',
+            formValidate:{
+                tissue:'',
+                 name:'',
+                label:'',
+                remark:'',
+            },
+            ruleValidate:{
+                tissue:[
+                    { required: true, type: 'number', message: '请选择组织', trigger: 'change' }
+                ] ,
+                name:[
+                    { required: true, message: '请填写名称', trigger: 'blur'}
+                ],
+
+                label:[
+                   { required: true, message: '请选择标签', trigger: 'blur'}
+                ],
+            },
+            modalE:false,
+            editObj:{},
+            dropdownShow:false
         }
     },
     mounted() {
@@ -318,11 +445,177 @@ export default {
         this.getCollect()
         this.getRecommend()
         this.getLabel()
+        this.getOrg()
     },
     created() {
         this.value=this.$route.query.name
     },
     methods: {
+        deleteUpload(id){
+            this.$Modal.confirm({
+                title: '是否确定删除？',
+                width: '300',
+                onOk: () => {
+                    deleteDoc(id).then(res=>{
+                        if(res.data.count){
+                            this.$Message.success('删除成功');
+                            this.getUpload()
+                        }
+                    }).catch(err=> {
+
+                    })
+                },
+                onCancel: () => {
+                    // this.$Message.info('Clicked cancel');
+                }
+            });
+            
+        }, 
+         finishE(){
+            this.dropdownShow = false
+            console.log(this.typeBox)
+            this.formValidate.label = this.typeBox.join(',')
+        },
+        chooseLabel(){
+            console.log("dd")
+            this.dropdownShow = true
+        },
+        modalSureE(name){
+            this.$refs[name].validate((valid) => {
+                if (valid) {
+                    this.editObj.name = this.formValidate.name
+                    this.editObj.labelName = this.typeBox.join(',')
+                    this.editObj.summary = this.formValidate.remark
+                    editDoc(this.editObj).then(res=>{
+                        if(res.data.count){
+                            this.modalE = false
+                            this.$Message.success('编辑成功！');
+                            this.getList()
+                        }
+                    })
+                } else {
+                    this.$Message.error('Fail!');
+                }
+            })
+        },
+        docEdit(row){
+            this.modalE = true
+            console.log(row)
+            this.editObj = row
+            this.formValidate.name = row.name
+            this.formValidate.label = row.labelName
+            this.formValidate.remark = row.summary
+            this.typeBox = row.labelName.split(',')
+        },
+        changeName(name){
+           console.log(name)
+            if(name == 'name1'){
+                this.getDownload()
+            }else if(name == 'name2'){
+                this.getUpload()
+            }else if(name == 'name3'){
+                this.getCollect()
+            }else if(name == 'name4'){
+                this.getRecommend()
+            }else{
+                this.getLabel()
+                this.getTree()
+            }
+        },
+         modalSure(name){
+            this.$refs[name].validate((valid) => {
+                if (valid) {
+                        let data = {
+                        documentId: this.documentId,
+                        orgId:this.formValidate.tissue,
+                        postscript: this.remark,
+                        roleId: this.personId.length!=0?this.personId.join(','):'',
+                    }
+                    recommend(data).then(res=>{
+                        if(res.data.count){
+                        //   recommendCount
+                            this.modal = false
+                        }
+                    })
+                } else {
+                    this.$Message.error('Fail!');
+                }
+            })
+           
+        },
+        getOrg() {
+            orgMethod().then(res=> {
+                let treeItem = []
+                let trees = res.data
+                for(let i = 0; i < trees.length; i ++) {
+                    trees[i].title = trees[i].name
+                    trees[i].value = trees[i].id
+                    treeItem.push(trees[i])
+                }
+                this.orgList = createTree(treeItem, 0)
+            }).catch(err=> {
+
+            })
+        },
+        changeArea(name){
+            this.getRole()
+        },
+        getRole(){
+            roles(this.tissue).then(res=>{
+                console.log(res)
+                if(res.data.items){
+                    this.userList = res.data.items
+                }
+                
+            })
+        },
+        recommend(row){
+            console.log(row)
+            this.modal = true
+            this.name = row.name
+            this.docuType = row.type
+            this.documentId = row.id
+        },
+        collect(id){
+            collectAction(id,1).then(res=>{
+                if(res.data.count){
+                     this.$Message.success('收藏成功');
+                     this.getDownload()
+                }
+            })
+        },
+        cancelCollect(id){
+            console.log(id)
+            collectAction(id,2).then(res=>{
+                if(res.data.count){
+                     this.$Message.success('取消收藏成功');
+                     this.getDownload()
+                }
+            })
+        },
+        collectC(id){
+            collectAction(id,1).then(res=>{
+                if(res.data.count){
+                     this.$Message.success('收藏成功');
+                     this.getCollect()
+                }
+            })
+        },
+        cancelCollectC(id){
+            console.log(id)
+            collectAction(id,2).then(res=>{
+                if(res.data.count){
+                     this.$Message.success('取消收藏成功');
+                     this.getCollect()
+                }
+            })
+        },
+        downLoadFile(id){
+            const defaultParams = {
+                 ids:id
+                };
+            util.download('/knowledge/api/documents/download', defaultParams)
+        },
         deleteHandle(name){
             deleteLabel(name).then(res=>{
                 console.log(res)
@@ -382,7 +675,7 @@ export default {
         },
         getTree(){
            labelTree().then(res=>{
-               console.log(res)
+            //    console.log(res)
                 if(res.data){
                     let treeItem = []
                     let trees = res.data
@@ -392,6 +685,7 @@ export default {
                         treeItem.push(trees[i])
                     }
                     this.cateList = createTree(treeItem, 0)
+                    console.log(this.cateList)
                 }
            })
         },
@@ -410,7 +704,7 @@ export default {
            myUpload(this.uploadPage,this.uploadK).then(res=>{
                if(res.data.items){
                    res.data.items.map(ele=>{
-                       ele.createDate = formatTime(ele.createDate, 'HH:mm:ss yyyy-MM-dd')
+                       ele.createDateE = formatTime(ele.createDate, 'HH:mm:ss yyyy-MM-dd')
                    })
                    this.uploadData = res.data.items
                    this.uploadTotal = res.data.total
@@ -538,6 +832,8 @@ export default {
                 margin-top: 5px;
                 padding: 5px 10px;
                 border-radius: 4px;
+                position: relative;
+                top: 0;
                 .cmp-tab {
                     display: inline-block;
                     a {
@@ -572,6 +868,78 @@ export default {
         .label-div:first-child{
             border-right:2px solid #ededed
         }
+    }
+}
+.action-btn{
+    margin-top: 20px;
+    text-align:center;
+    span{
+        display: inline-block;
+        min-width: 130px;
+        margin: 0 15px;
+        padding: 4px 12px;
+        font-size: 12px;
+        background: #c8c8c8;
+        color: #fff;
+        border-radius: 3px;
+    }
+}
+.model-box{
+    position: relative;
+    z-index: 100;
+}
+.dropdown{
+    position: absolute;
+    top: 220px;
+    left: 0;
+    width: 100%;
+    // border: 1px solid #ededed;
+    background: #fff;
+    z-index: 999;
+    margin-top: 5px;
+    padding: 5px 10px;
+    border-radius: 4px;
+    .cmp-tab {
+        display: inline-block;
+        a {
+            margin-right: 20px;
+            color: #8190a5;
+            background: #eef1f7;
+            padding: 0 10px;
+            height: 26px;
+            line-height: 26px;
+            font-size: 10px;
+            display: inline-block;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        .checked {
+            color: #184fd8;
+            background-color: #e8effd;
+        }
+    }
+    .finish-btn{
+        text-align: center;
+        margin: 20px 0;
+        button{
+            min-width: 130px;
+            margin: 0 15px;
+            color: #fff;
+            background-color: #4b7efe;
+        }
+    }
+}
+/deep/.ivu-collapse-content > .ivu-collapse-content-box{
+    margin-bottom: 0;
+}
+.key-item{
+    display: block;
+    margin-bottom: 10px;
+    label{
+        font-size: 13px;
+        color: #495060;
+        display: inline-block;
+        width: 70px;
     }
 }
 </style>

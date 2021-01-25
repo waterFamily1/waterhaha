@@ -62,3 +62,48 @@ export function addLabel(data) {
         data
     })
 }
+// 收藏 
+export function collectAction(id,type) {
+    return request({
+        url: 'knowledge/api/documents/collect?id='+id+'&type='+type,
+        method: 'get'
+    })
+}
+// 文档推荐 
+export function recommend(data) {
+    return request({
+        url: 'knowledge/api/documents/recommend',
+        method: 'put',
+        data
+    })
+}
+// 获取角色 
+export function roles(orgIds) {
+    return request({
+        url: 'uaa/api/roles?visibleProcessFill=false&orgIds='+orgIds+'&processId=1&currentPage=1&pageSize=0',
+        method: 'get'
+    })
+}
+
+// 获取组织
+export function orgMethod() {
+    return request({
+        url: '/uaa/api/organizations',
+        method: 'get'
+    })
+}
+// 编辑文档 
+export function editDoc(data) {
+    return request({
+        url: 'knowledge/api/documents',
+        method: 'put',
+        data
+    })
+}
+// 删除文档
+export function deleteDoc(id) {
+    return request({
+        url: 'knowledge/api/documents?ids='+id,
+        method: 'delete'
+    })
+}

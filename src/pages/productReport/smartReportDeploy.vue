@@ -341,6 +341,11 @@ export default {
             this.template = true
             this.catalog = false
             this.newFun = true
+            this.form2= {
+                name: '',
+                url: '',
+                remark: ''
+            }
         },
         deleteItem(data){
             this.$Modal.confirm({
