@@ -19,3 +19,9 @@ export function userSetting (data) {
         data
     })
 }
+export function getUserCurrent () {
+    return request({
+        url: '/uaa/api/users/current?webOper='+true,
+        method: 'get'
+    });
+}

@@ -77,37 +77,13 @@
                             </FormItem>
                         </Col>
                     </Row>
-                    <Row>
-                        <Col span="12">
-                            <FormItem label="画面触屏:" prop="name">
-                                <Switch size="large">
-                                    <span slot="open">开启</span>
-                                    <span slot="close">关闭</span>
-                                </Switch>
-                                <Tooltip  placement="right" >
-                                    <Icon type="ios-help-circle" style="font-size:18px;color:rgb(173, 173, 173);vertical-align:middle;margin-left:6px" @click="disabled = true" />
-                                    <div slot="content">
-                                        <p>开启后只可以触屏使用大屏功能</p> 
-                                    </div>
-                                </Tooltip>
-                            </FormItem>
-                        </Col>
-                        <Col span="12">
-                            <FormItem label="开启音箱控制:" prop="tissue">
-                                <Switch size="large">
-                                    <span slot="open">开启</span>
-                                    <span slot="close">关闭</span>
-                                </Switch>
-                            </FormItem>
-                        </Col>
-                    </Row>
                 </div>
             </Form>
         </div>
     </div>
 </template>
 <script>
-import { uploadFun,userSetting } from '@api/header/userSet';
+import { uploadFun,userSetting,getUserCurrent } from '@api/header/userSet';
 export default {
     name: 'userSet',
     data(){
@@ -161,21 +137,26 @@ export default {
     },
     mounted() {
         this.height = document.body.clientHeight-46
-        let userinfo = JSON.parse(sessionStorage.getItem('__APPLEPIE_U_'))
-        console.log(userinfo)
-        this.userObj = userinfo
-         this.formValidate={
-                name:userinfo.name,
-                tissue:userinfo.orgName,
-                phone:userinfo.tel,
-                email:userinfo.email,
-                terminal:'',
-                language:userinfo.langKey,
-                type:userinfo.msgMode,
-                img:userinfo.imageUrl
-            }
+        this.getUserinfo()
     },
     methods:{
+        getUserinfo(){
+            getUserCurrent().then(async res => {
+                console.log(res)
+                let userinfo = res.data
+                this.userObj = userinfo
+                this.formValidate={
+                    name:userinfo.name,
+                    tissue:userinfo.orgName,
+                    phone:userinfo.tel,
+                    email:userinfo.email,
+                    terminal:userinfo.deviceNo,
+                    language:userinfo.langKey,
+                    type:userinfo.msgMode,
+                    img:userinfo.imageUrl
+                }
+            })
+        },
          handleUploadicon(file) {
             let formData = new FormData()
             formData.append('file', file)
@@ -205,11 +186,12 @@ export default {
                 orgId: this.userObj.orgId,
                 orgName: this.userObj.orgName,
                 tel: this.formValidate.phone,
-                version: 4,
+                version: this.userObj.version,
             }
             userSetting(data).then(res=>{
                 if(res.data.count){
                     this.$Message.success('用户设置成功');
+                    this.getUserinfo()
                 }
             })
         }
