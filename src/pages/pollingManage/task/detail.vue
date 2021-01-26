@@ -233,7 +233,6 @@ export default {
                     }
                     suspend(data).then(res=>{
                         if(res.data.count){
-                            //  
                             this.$Message.success('终止成功!');
                             this.$router.go(-1)
                         }
@@ -245,10 +244,9 @@ export default {
             });
         },
         cancel(){
-            this.$router.go(-1)
+            this.$router.back()
         },
         cancelAttention(){
-            console.log("dddd")
             this.$Modal.confirm({
                 title: '是否要取消关注此条数据?',
                 width: '300',
@@ -295,7 +293,6 @@ export default {
         },
         getRegional() {
             getOrg().then(res => {
-                // console.log(res)
                 let treeItem = []
                 let trees = res.data
                 for(let i = 0; i < trees.length; i ++) {
@@ -326,7 +323,7 @@ export default {
                 executorId:this.personId,taskId:this.id
             }
           assign(data).then(res=>{
-              console.log(res)
+            //   console.log(res)
               if(res.data.count){
                    this.$Message.success('数据保存成功!');
                     this.defectDetail()
@@ -335,7 +332,7 @@ export default {
           })
         },
         changeItem(name){
-          console.log(name)
+        //   console.log(name)
           if(name=='hang'){
               this.hangModal = true
           }else{
@@ -349,17 +346,17 @@ export default {
         
         defectDetail(){
             taskDetail(this.id).then(res=>{
-                console.log(res)
+                // console.log(res)
                 if(res.data){
                     res.data.startTime = formatTime(res.data.startTime, 'yyyy-MM-dd HH:mm:ss')
-                   res.data.endTime=formatTime(res.data.endTime, 'yyyy-MM-dd HH:mm:ss')
-                   let text = res.data.executeStatus 
-                   let a =text=='unallocated'?'未分配':(text=='toBeExecuted'?'待执行':(text=='executing'?'执行中':(text=='finished'?'已完成':(text=='abnormal'?'异常':'已终止'))))
-                   res.data.executeStatus = a
+                    res.data.endTime=formatTime(res.data.endTime, 'yyyy-MM-dd HH:mm:ss')
+                    let text = res.data.executeStatus 
+                    let a =text=='unallocated'?'未分配':(text=='toBeExecuted'?'待执行':(text=='executing'?'执行中':(text=='finished'?'已完成':(text=='abnormal'?'异常':'已终止'))))
+                    res.data.executeStatus = a
                     this.faultDto = res.data
                     this.tableData = res.data.patrolPointDetailDTOs
-                     this.attention = res.data.concerned
-                     this.personId = res.data.executorId
+                    this.attention = res.data.concerned
+                    this.personId = res.data.executorId
                 }
             })
         } ,       

@@ -16,8 +16,8 @@
                         <Icon type="ios-arrow-up" v-else />
                         高级搜索
                     </a>
-                    <button type="button" @click="search()">搜索</button>
-                    <button type="button" class="reset" @click="reset()">重置</button>
+                    <Button @click="search()">搜索</Button>
+                    <Button class="reset" @click="reset()">重置</Button>
                 </div>
             </div>
             <div class="c-adv-search">
@@ -25,8 +25,8 @@
                     <div class="form-item">
                         <label>执行日期：</label>
                         <div class="cmp-tab">
-                            <DatePicker type="date"  placement="bottom-end"  @on-change="startTimeChange" :options="startDate" format="yyyy-MM-dd"  v-model="startTime" placeholder="开始日期" style="width: 180px"></DatePicker> -
-                            <DatePicker type="date"  placement="bottom-end"  @on-change="endTimeChange" :options="endDate" format="yyyy-MM-dd"  v-model="endTime" placeholder="结束日期" style="width: 180px"></DatePicker>
+                            <DatePicker type="date" placement="bottom-end" @on-change="startTimeChange" :options="startDate" format="yyyy-MM-dd" v-model="startTime" placeholder="开始日期" style="width: 180px"></DatePicker> -
+                            <DatePicker type="date" placement="bottom-end" @on-change="endTimeChange" :options="endDate" format="yyyy-MM-dd" v-model="endTime" placeholder="结束日期" style="width: 180px"></DatePicker>
                         </div>
                     </div>
                 </div>
@@ -54,11 +54,7 @@
         </div>
         <div class="task-content">
              <Table stripe :columns="tableList" :data = "tableData">
-                <template slot-scope="{ row }" slot="name">
-                    <strong>{{ row.name }}</strong>
-                </template>
                 <template slot-scope="{ row, index }" slot="action">
-                    <!-- <Button class="action" size="small" style="margin-right: 5px;">配置</Button> -->
                     <Button class="action" size="small" type="text" style="color:rgb(75, 126, 254);font-size:13px" @click="check(row.id)">查看</Button>
                     <Button class="action" size="small" type="text" style="color:rgb(75, 126, 254);font-size:13px" @click="cancelT(row.id)" v-if="row.executeStatus=='unallocated'||row.executeStatus=='toBeExecuted'">删除</Button>
                 </template>
@@ -76,13 +72,7 @@ export default {
     data(){
         return {
             searchShow: false,
-            height:"",
-            cityList: [
-                {
-                    value: 'New York',
-                    label: 'New York'
-                }
-            ],
+            height: '',
             stateList: [
                 {label: '未分配',id: 'unallocated'},
                 {label: '待执行',id: 'toBeExecuted'},
@@ -91,26 +81,24 @@ export default {
                 {label: '异常',id: 'abnormal'},
                 {label: '已终止',id: 'interrupt'}
             ],
-            typeList:[
+            typeList: [
                 {label:'普通巡检',id:'inside'},
                 {label:'地图巡检',id:'outside'}
             ],
             typeCheckedAll: false,
             typeBox: [],
-            tissue:'',
-            modal:false,
-            keyword:'',
+            tissue: '',
+            modal: false,
+            keyword: '',
             tableList: [
                 {
                     title: '编号',
                     key: 'no'
-                },
-                {
+                }, {
                     title: '巡检名称',
                     key: 'name',
                     ellipsis: true
-                },
-                {
+                }, {
                     title: '状态',
                     key: 'executeStatus',
                     render: (h, params) => {
@@ -119,12 +107,10 @@ export default {
                         return h('span', {
                         }, text);
                     }
-                },
-                {
+                }, {
                     title: '执行人',
                     key: 'executorName'
-                },
-                {
+                }, {
                     title: '开始时间',
                     key: 'startTime',
                     width:110,
@@ -132,8 +118,7 @@ export default {
                         return h('span', {
                         }, formatTime(params.row.startTime, 'yyyy-MM-dd HH:mm:ss'));
                     }
-                },
-                {
+                }, {
                     title: '结束时间',
                     key: 'endTime',
                     width:110,
@@ -141,34 +126,30 @@ export default {
                         return h('span', {
                         }, formatTime(params.row.endTime, 'yyyy-MM-dd HH:mm:ss'));
                     }
-                },
-                {
+                }, {
                     title: '巡检点',
                     key: 'point',
                     render:(h,params)=>{
-                        // 
                         let text = params.row.inspectedCount+"/"+ params.row.patrolPointCount
                         return h('span',{},text)
                     }
-                },
-                {
+                }, {
                     title: '发现缺陷',
                     key: 'abnormalCount'
-                },
-                {
+                }, {
                     title: '操作',
                     slot: 'action',
                     width: 150
                 }
             ],
-            processList:[],
-            area:"",
-            status:[],
-            type:[],
-            startTime:'',
-            start:'',
-            endTime:'',
-            end:'',
+            processList: [],
+            area: '',
+            status: [],
+            type: [],
+            startTime: '',
+            start: '',
+            endTime: '',
+            end: '',
             startDate: {
                 disabledDate (date) {
                     return date && date.valueOf() >= Date.now();
@@ -201,7 +182,6 @@ export default {
             let type = this.type.length!=0?this.type.join(','):''
             // queryName,orgId,start,end,status,type,page
            getList(this.keyword,this.area,begin,end,state,type,this.page).then(res=>{
-               console.log(res)
                if(res.data.items){
                    this.tableData = res.data.items
                    this.total = res.data.total
@@ -210,7 +190,6 @@ export default {
         },
         getOrg(){
             getOrganizations().then(res=>{
-                console.log(res)
                 let treeItem = []
                 let trees = res.data
                 for(let i = 0; i < trees.length; i ++) {
@@ -226,10 +205,10 @@ export default {
             this.taskList()
         },
         reset(){
-            this.status=[]
+            this.status= []
             this.type = []
-            this.area =""
-            this.keyword=""
+            this.area = ''
+            this.keyword= ''
             this.page = 1
             this.start = this.getTime().split(',')[1]
             this.end = this.getTime().split(',')[0]
@@ -277,7 +256,6 @@ export default {
             return  pre+","+today
         },
         check(id){
-            // 
             this.$router.push({
                 path:'/task/detail',
                 query: {
@@ -290,10 +268,10 @@ export default {
         this.height = document.body.clientHeight-130
         this.getOrg()
         this.start = this.getTime().split(',')[1]
-         this.end = this.getTime().split(',')[0]
-         this.startTime = this.getTime().split(',')[1]
-         this.endTime = this.getTime().split(',')[1]
-         this.taskList()
+        this.end = this.getTime().split(',')[0]
+        this.startTime = this.getTime().split(',')[1]
+        this.endTime = this.getTime().split(',')[1]
+        this.taskList()
     }
 }
 </script>
@@ -329,7 +307,8 @@ export default {
                     color: #576374;
                     font-size: 12px;
                 }
-                button{
+                .ivu-btn {
+                    height: auto;
                     background: #4b7efe;
                     font-size: 12px;
                     padding: 4px 12px;
@@ -363,13 +342,6 @@ export default {
                 .cmp-tab {
                     display: inline-block;
                     vertical-align: top;
-                    // a {
-                    //     margin-right: 20px;
-                    //     color: #576374;
-                    // }
-                    // .checked {
-                    //     color: #4B7EFE;
-                    // }
                     /deep/.ivu-tag{
                         font-size: 14px;
                     }
@@ -390,7 +362,6 @@ export default {
    .task-content{
        border-top: 5px solid #f0f0f0;
        padding: 10px;
-
    }
 }
 </style>

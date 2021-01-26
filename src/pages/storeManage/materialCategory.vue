@@ -6,7 +6,16 @@
                     <h3>物料类别管理</h3>
                 </div>
                 <div class="search-input">
-                    <input type="text" placeholder="输入物料类别以检索">
+                    <Select
+                        v-model="queryName"
+                        filterable
+                        :clearable="true"
+                        placeholder="输入物料类别以检索"
+                        @on-change="searchChange"
+                        :remote-method="remoteMethod"
+                        :loading="searchLoading">
+                        <Option v-for="(option, index) in searchOptions" :value="Math.abs(option.id)" :key="index">{{option.name}}</Option>
+                    </Select>
                 </div>
                 <div class="title-main" >
                     <div class="org-tree">
@@ -73,7 +82,7 @@
     </div>
 </template>
 <script>
-import { treeMethod, saveMethod, removeMethod } from '@/api/store/cate'
+import { treeMethod, saveMethod, removeMethod, searchMethod } from '@/api/store/cate'
 import createTree from '@/libs/public-util'
 import util from '@/libs/public_js'
 import { mapState } from 'vuex'
@@ -105,6 +114,10 @@ export default {
             loading: false,
             data: {},
             height: 0,
+            queryName: '',
+            searchLoading: false,
+            searchOptions: [],
+            trees: []
         }
     },
     mounted() {
@@ -112,13 +125,32 @@ export default {
         this.getTree()
     },
     methods: {
+        remoteMethod(query) {
+            if(query != '') {
+                this.searchLoading = true
+                searchMethod(query).then(res=> {
+                    this.searchLoading = false
+                    this.searchOptions = res.data
+                })
+            } else {
+                this.searchOptions = []
+            }
+        },
+        searchChange(id) {
+            this.trees.map(item=> {
+                if(Math.abs(item.id) == id) {
+                    this.show(item)
+                }
+            })
+        },  
         getTree() {
             treeMethod().then(res=> {
                 let treeItem = []
                 let trees = res.data
+                this.trees = res.data
                 for(let i = 0; i < trees.length; i ++) {
                     trees[i].title = trees[i].name
-                    trees[i].expand = false
+                    trees[i].expand = true
                     treeItem.push(trees[i])
                 }
                 this.treeData = createTree(treeItem,0)
@@ -133,12 +165,12 @@ export default {
                 },
                 on: {
                     //鼠标进入
-                    'mouseenter': () => {
-                        data.is_show = true
+                    mouseover: () => {
+                        this.$set(data,'is_show', true)
                     },
                     //鼠标离开
-                    'mouseleave': () => {
-                        data.is_show = false
+                    mouseout: () => {
+                        this.$set(data,'is_show', false)
                     }
                 }
             }, [

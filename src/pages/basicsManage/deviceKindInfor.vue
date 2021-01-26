@@ -222,14 +222,12 @@ export default {
                 },
                 on: {
                     //鼠标进入
-                    'mouseenter': () => {
-                        // console.log(data)
-                        data.is_show = true;
+                    mouseover: () => {
+                        this.$set(data,'is_show', true)
                     },
                     //鼠标离开
-                    'mouseleave': () => {
-                        // console.log('33')
-                        data.is_show = false;
+                    mouseout: () => {
+                        this.$set(data,'is_show', false)
                     }
                 }
             }, [

@@ -8,6 +8,13 @@ export function tableMethod(data) {
     })
 }
 
+export function numMethod(data) {
+    return request({
+        url: '/inventory/api/materiel-inventory/inventory-report-inventory-number?orgId='+data.orgId+'&warehouseId='+data.warehouseId+'',
+        method: 'get'
+    })
+}
+
 // 获取组织
 export function orgMethod() {
     return request({

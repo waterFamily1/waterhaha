@@ -24,3 +24,12 @@ export function removeMethod(data) {
         method: 'DELETE'
     })
 } 
+
+//搜索
+
+export function searchMethod(data) {
+    return request({
+        url: '/inventory/api/materiel-category/list?queryName='+data,
+        method: 'get'
+    })
+}

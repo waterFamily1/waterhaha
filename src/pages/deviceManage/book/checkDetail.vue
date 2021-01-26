@@ -137,7 +137,8 @@ export default {
             equFiles: [],
             equParam: {},
             parentEquData: {},
-            equMpoints: []
+            equMpoints: [],
+            attention: ''
         }
     },
     components: {

@@ -137,11 +137,11 @@ export default {
                             on: {
                                 //鼠标进入
                                 mouseover: () => {
-                                    data.is_show = true;
+                                    this.$set(data,'is_show', true)
                                 },
                                 //鼠标离开
                                 mouseout: () => {
-                                    data.is_show = false;
+                                    this.$set(data,'is_show', false)
                                 }
                             }
                         }, [
@@ -255,11 +255,11 @@ export default {
                 on: {
                     //鼠标进入
                     mouseover: () => {
-                        data.is_show = true;
+                        this.$set(data,'is_show', true)
                     },
                     //鼠标离开
                     mouseout: () => {
-                        data.is_show = false;
+                        this.$set(data,'is_show', false)
                     }
                 }
             }, [

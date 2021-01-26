@@ -3,7 +3,7 @@
         <div class="upload-tree">
             <div class="upload-title">
                 <h3>{{ uploadName }}</h3>
-                <Button v-show="activeProcess == 2" type="primary" @click="redo">重新整理</Button>
+                <Button v-show="activeProcess == 2" type="primary" @click="redo" style="background: #2d8cf0">重新整理</Button>
                 <Button v-show="activeProcess != 2" class="c-btn-back" @click="goBack">返回</Button>
             </div>
             <div class="upload-content">
@@ -129,7 +129,7 @@ export default {
             ]
         } else if(this.uploadName == '区域位置导入') {
             this.importHref = '/uaa/api/excel/template?type=process'
-            this.Action = '/uaa/api/excel/validate'
+            this.Action = '/uaa/api/excel/import'
             this.columns = [
                 {title: '行号', key: 'index', render: render},
                 {title: '区域位置名称', key: 'name', ellipsis: true, render: render},
@@ -294,6 +294,7 @@ export default {
                 font-size: 12px;
                 line-height: 12px;
                 height: 26px;
+                border: none;
             }
         }
         .upload-content {

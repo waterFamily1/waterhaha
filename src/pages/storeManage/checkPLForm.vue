@@ -14,7 +14,7 @@
                 <div class="form-item">
                     <label>仓库名称：</label> 
                     <Select v-model="searchParams.warehouseNo" @on-change="wareChange" style="width:150px">
-					    <Option v-for="item in warehouseCombo" :value="item.warehouseNo" :key="item.warehouseNo">{{ item.warehouseName }}</Option>
+					    <Option v-for="item in warehouseCombo" :value="item.id" :key="item.id">{{ item.warehouseName }}</Option>
 					</Select>
                 </div>
                 <div class="form-item">
@@ -222,6 +222,7 @@ export default {
                 orgId,
                 warehouseId
             }).then(res=> {
+                console.log(res)
                 this.inventoryNoData = res.data
             })
         },

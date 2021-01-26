@@ -22,7 +22,7 @@
                         </div>
                         <div class="c-form-item">
                             <label>创建时间：</label>
-                            <!-- <span>{{ detailInfo.createDate | F("yyyy-MM-dd hh:mm") }}</span> -->
+                            <span>{{ detailInfo.createDate }}</span>
                         </div>
                         <div class="c-form-item">
                             <label>备注：</label>
@@ -198,6 +198,7 @@ export default {
         getDetail() {
             detailMethod(this.id).then(res=> {
                 this.detailInfo = res.data
+                this.detailInfo.createDate = util.transDateFromServer(res.data.createDate)
             })
         },
         getList() {

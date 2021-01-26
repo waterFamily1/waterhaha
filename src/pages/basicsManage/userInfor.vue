@@ -15,8 +15,8 @@
                 />
             </div>
             <div class="c-adv-search-btn">
-                 <button type="button" @click="search()">搜索</button>
-                  <button type="button" class="reset" @click="reset()">重置</button>
+                <button type="button" @click="search()">搜索</button>
+                <button type="button" class="reset" @click="reset()">重置</button>
             </div>
         </div>  
         <div class="c-top-border-gray">
@@ -26,9 +26,6 @@
             </div>
             <div class="table-wrapper" :style="{height: (height-45)+'px'}">
                 <Table stripe :columns="columns1" :data="data1">
-                    <template slot-scope="{ row }" slot="name">
-                        <strong>{{ row.name }}</strong>
-                    </template>
                     <template slot-scope="{ row, index }" slot="action">
                         <Button class="action" size="small" style="margin-right: 5px;" @click="checkUser(row.id)">查看</Button>
                         <Button class="action" size="small" @click="remove(row.id)">删除</Button>
