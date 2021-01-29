@@ -39,10 +39,6 @@
             </div>
         </div>
         <div class="c-table-top">
-            <!-- <div class="c-table-top-btns">
-                <Button @click="addModal = true">新增</Button>
-                <Button @click="deleteHandle()">删除</Button>
-            </div> -->
             <Table ref="selection" :columns="columns" :data="data"
              @on-select="handleSelect"
                         @on-select-cancel="handleSelectCancel"
@@ -190,8 +186,6 @@ export default {
                     
                 }
             });
-            
-            
         },
         check(id){
             console.log(id)
@@ -254,10 +248,28 @@ export default {
                 // 异常情况
             })
         },
-         
         search(){
            this.getList()
         },
+        reset() {
+            this.planList.name = ''
+            this.area = []
+            this.startTime = ''
+            this.start = ''
+            this.endTime = ''
+            this.end = ''
+            this.startDate = {
+                disabledDate (date) {
+                    return date && date.valueOf() >= Date.now();
+                }
+            }
+            this.endDate = {
+                disabledDate (date) {
+                    return date && date.valueOf() <= Date.now()- 86400000
+                }
+            }
+            this.confirmWay = []
+        },  
         endTimeChange(day){
           this.end = day
             this.startDate = {

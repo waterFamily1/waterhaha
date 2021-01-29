@@ -2,13 +2,13 @@
     <div class="detail-wrap" :style="{height: height+'px'}">
         <div class="c-left-border-blue">
             <div>
-                <h3>缺陷详情</h3>
+                <h3>保养任务详情</h3>
                 <a href="javascript:;" v-if="attention" @click="cancelAttention()">取消关注</a>
                  <a href="javascript:;" v-else @click="addAttention()">添加关注</a>
             </div>
             <div class="c-btns-right">
-                <Button type="primary" @click="allocation=true">任务分派</Button>
-                <Button type="primary" style="background:#c8c8c8">返回</Button>
+                <Button type="primary" v-if="state==1" @click="allocation=true">任务分派</Button>
+                <Button type="primary" style="background:#c8c8c8" @click="goBack">返回</Button>
             </div>
         </div>
         <div class="c-top-border-gray">
@@ -65,10 +65,10 @@
             :footer-hide="true">
             <div>选择相应的执行人员进行分派：</div>
             <div style="margin-top:20px">
-                <TreeSelect v-model="orgId" placeholder="请选择组织"  :data="orgData" v-width="300" @on-change="changeOrg" size="small" />              
+                <TreeSelect v-model="orgId" placeholder="请选择组织"  :data="orgData" v-width="300" @on-change="changeOrg" />              
             </div>
             <div style="margin-top:20px">
-                <Select v-model="personId" style="width:300px" placeholder="请选择人员" size="small">
+                <Select v-model="personId" style="width:300px" placeholder="请选择人员">
                     <Option v-for="item in handlerList" :value="item.value" :key="item.value">{{ item.label }}</Option>
                 </Select>
             </div>
@@ -94,13 +94,13 @@ export default {
             severity: '',
             polling: '',
             device: '',
+            state: '',
             applyColumns: [
                 {   
                     title: '序号',
                       width: 70,
                     type: 'index',
-                },
-                {
+                }, {
                     title: '保养周期',
                     key: 'maintainPeriod',
                     render: (h,params) => {
@@ -140,30 +140,25 @@ export default {
                 {
                     label:'缺少备品',
                     value:1
-                },
-                {
+                }, {
                     label:'等待整改',
                     value:2
-                },
-                {
+                }, {
                     label:'统一规划',
                     value:3
-                },
-                {
+                }, {
                     label:'其他原因',
                     value:4
-                },
+                }
             ],
             closeList:[
                 {
                     label:'重复填报',
                     value:1
-                },
-                {
+                }, {
                     label:'误报',
                     value:2
-                },
-                {
+                }, {
                     label:'其他原因',
                     value:3
                 }
@@ -225,7 +220,7 @@ export default {
               console.log(res)
               if(res.data.nums==0){
                    this.$Message.success('指派人员成功!');
-                    this.$router.go(-1)
+                    this.$router.back()
               }
           })
         },
@@ -266,11 +261,15 @@ export default {
             taskDetail(this.id).then(res=>{
                 console.log(res)
                 if(res.data){
+                    this.state = res.data.state
                    res.data.startDate=formatTime(res.data.startDate, 'yyyy-MM-dd')
                     this.faultDto = res.data
                 }
             })
-        } ,       
+        } ,   
+        goBack() {
+            this.$router.back()
+        }    
     }
 }
 </script>
