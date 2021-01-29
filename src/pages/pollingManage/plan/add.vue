@@ -5,7 +5,7 @@
             <div class="map-type-icon" v-if="type=='map'"></div>
             <div class="c-btns-right">
                 <button @click="save('formValidate')">保存</button>
-                <button class="cancel">取消</button>
+                <button class="cancel" @click="cancel()">取消</button>
             </div>
         </div>
         <Form action="" ref="formValidate" :model="formValidate" :rules="ruleValidate" :label-width="140" class="form-module">
@@ -725,6 +725,9 @@ export default {
                     this.selectedData.splice(index, 1);
                 } 
             });
+        },
+        cancel(){
+           this.$router.go(-1)
         },
         save(name){
             this.$refs[name].validate((valid) => {

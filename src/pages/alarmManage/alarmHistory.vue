@@ -425,9 +425,10 @@ export default {
            
             // siteId,queryName,begin,end,alarmStatus,methods,level,page,siteName
             let arr = []
+            console.log(this.historyList.area)
             this.historyList.area.map(ele=>{
-                this.siteId.map(item=>{
-                   if(item.id == ele.id){
+                this.baseData.map(item=>{
+                   if(item.id == ele){
                        arr.push(ele.name)
                    }
                 })

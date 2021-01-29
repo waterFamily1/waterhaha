@@ -173,7 +173,7 @@
     </div>
 </template>
 <script>
-import { getListMethod, regionalCon, dataKindMethod, deleteMethods } from '@/api/dataManage/siteManage'
+import { getListMethod, regionalCon, dataKindMethod, deleteMethod } from '@/api/dataManage/siteManage'
 import { formatTime, isAllEqual, download } from '@/libs/public'
 import createTree from '@/libs/public-util'
 

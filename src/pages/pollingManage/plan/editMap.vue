@@ -4,7 +4,7 @@
             <h3>巡检计划线路（{{ obj.name }}）</h3>
             <div class="c-btns-right">
                 <button @click="save('formValidate')">保存</button>
-                <button class="cancel">取消</button>
+                <button class="cancel" @click="cancel()">取消</button>
             </div>
         </div>
         <div class="map-content" :style="{height: (height-45)+'px'}">
@@ -58,7 +58,10 @@ export default {
                     this.obj = res.data
                 }
             })
-        }
+        },
+        cancel(){
+           this.$router.go(-1)
+        },
     },
     mounted() {
         this.height = document.body.clientHeight-75

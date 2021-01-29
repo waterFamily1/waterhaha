@@ -41,7 +41,10 @@
                         </div>
                     </div>
                 </FormItem>
-                <FormItem label="订阅人:" prop="people" class="select-item">
+                <div>
+                    <span style="position:absolute;top:313px;left:35px;color:#ed4014;font-size:20px">*</span>
+                    <FormItem label="订阅人:" prop="people" class="select-item">
+                    
                     <div class="form-content">
                         <Tag 
                             v-for="item in alarmUsersList" 
@@ -55,6 +58,8 @@
                     </div>
                     <Button type="primary" class="form-btn" @click="peopleModel = true">选择</Button>
                 </FormItem>
+                </div>
+                
             </Form>
         </div>
         <!-- 报警对象 -->
@@ -144,7 +149,7 @@ export default {
                 ],
                 value: [
                     { required: true, message: '请输入阈值', trigger: 'blur' }
-                ]
+                ],
             },
             wayList: [
                 {
@@ -327,6 +332,11 @@ export default {
                 if (valid) {
                     if(this.title == '新增报警') {
                         let userId = JSON.stringify(this.peopleForm.user).replace("[","").replace("]","")
+                        if(!userId){
+                             this.$Message.warning('订阅人不可为空');
+                             return
+                            // 
+                        }
                         saveMethod({
                             alarmObject: this.formValidate.object,
                             alarmType: 1,
@@ -348,6 +358,11 @@ export default {
                         })
                     } else if(this.title == '编辑报警') {
                         let userId = JSON.stringify(this.peopleForm.user).replace("[","").replace("]","")
+                        if(!userId){
+                             this.$Message.warning('订阅人不可为空');
+                             return
+                            // 
+                        }
                         editSaveMethod({
                             alarmObject: this.formValidate.object,
                             alarmTime: this.alarmTime,

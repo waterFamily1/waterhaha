@@ -244,19 +244,29 @@ export default {
                     desc: '请选中后删除'
                 });
             } else {
-                let ids = this.ids.replace("\"","").replace("\"","")
-                deleteMethod(ids).then(res=> {
-                    // console.log(res)
-                    if(res.status == 200) {
-                        this.$Notice.success({
-                            title: '成功',
-                            desc: '删除成功！'
-                        })
-                        this.getList()
-                    }
-                }).catch(err=> {
+                this.$Modal.confirm({
+                title: '确定要删除吗?',
+                width: '300',
+                onOk: () => {
+                    let ids = this.ids.replace("\"","").replace("\"","")
+                    deleteMethod(ids).then(res=> {
+                        // console.log(res)
+                        if(res.status == 200) {
+                            this.$Notice.success({
+                                title: '成功',
+                                desc: '删除成功！'
+                            })
+                            this.getList()
+                        }
+                    }).catch(err=> {
 
-                })
+                    })
+                },
+                onCancel: () => {
+                    // this.$Message.info('Clicked cancel');
+                }
+            });
+                
             }
         }
     }

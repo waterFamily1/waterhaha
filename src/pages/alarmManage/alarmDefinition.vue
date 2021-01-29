@@ -156,7 +156,12 @@ export default {
                      render: (h, params) => {
                         let that = this
                         const text = params.row.alarmTriggerTime
-                        return h('span', {}, formatTime(text, 'HH:mm:ss yyyy-MM-dd'));
+                        if(text){
+                            return h('span', {}, formatTime(text, 'HH:mm:ss yyyy-MM-dd'));
+                        }else{
+                            return h('span', {}, '');
+                        }
+                        
                     }
                 },
                 {
