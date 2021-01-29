@@ -138,7 +138,7 @@ import createTree from '@/libs/public-util'
                             props:{
                                 size:'small',
                                 transfer:true,
-                                value :'signle'
+                                value :'single'
                             },
                             on:{
                                 'on-change':(val)=>{
@@ -340,6 +340,13 @@ import createTree from '@/libs/public-util'
          this.getRegional()
     },
     methods: {
+        remove(index){
+            console.log(index)
+            this.selectedData.splice(index,1)
+        },
+        cancel(){
+           this.$router.go(-1)
+        },
         add(){
             console.log(this.page)
             this.modal=true
@@ -425,6 +432,10 @@ import createTree from '@/libs/public-util'
         },
         save(name){
              console.log(this.mpointList)
+             if(this.mpointList.length==0){
+                  this.$Message.warning('验证失败 ! 请选择测点');
+                  return
+             }
             this.baseData.forEach(ele=>{
                 if(ele.id == this.formInline.location){
                     this.locationName = ele.name

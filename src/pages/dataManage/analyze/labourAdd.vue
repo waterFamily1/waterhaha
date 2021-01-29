@@ -323,6 +323,9 @@ import createTree from '@/libs/public-util'
                 }
             });
         },
+        cancel(){
+            this.$router.go(-1)
+        },
         save(name){
             console.log(this.mpointList)
             this.baseData.forEach(ele=>{

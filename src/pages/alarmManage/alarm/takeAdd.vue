@@ -277,6 +277,9 @@ export default {
         this.getOrgination()
     },
     methods: {
+        goBack(){
+            this.$router.go(-1)
+        },
         deleteUser(id){
           console.log(id)
           this.formValidate.user= this.formValidate.user.filter(ele=>{

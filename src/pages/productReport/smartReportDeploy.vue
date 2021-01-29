@@ -305,7 +305,7 @@ export default {
                             rname: this.form2.name,
                             rpath: this.form2.url,
                             rtype: "Smart",
-                            siteid: this.curSiteId
+                            folderid: this.curSiteId
                         }
                         newTemp(data).then(res=>{
                             console.log(res)

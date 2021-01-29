@@ -18,7 +18,7 @@
                         <DropdownItem name="close">关闭</DropdownItem>
                     </DropdownMenu>
                 </Dropdown>
-                <Button type="primary" style="background:#c8c8c8">返回</Button>
+                <Button type="primary" style="background:#c8c8c8" @click="goback()">返回</Button>
             </div>
         </div>
         <div class="c-top-border-gray">
@@ -255,6 +255,9 @@ export default {
         this.getOrganizations()
     },
     methods:{
+        goback(){
+            this.$router.go(-1)
+        },
         sureHang(){
             let data = {
                 faultHangupRenson: this.hangId,

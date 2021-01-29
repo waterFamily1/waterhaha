@@ -13,6 +13,7 @@
                         :data="cityList"
                         @on-change="treeChange"
                         v-width="200" 
+                        multiple
                     />
                 </div>
                 <div class="form-search-btn">
@@ -81,7 +82,7 @@ export default {
             height: '',
             keyword: '',
             cityList: [],
-            model1: '',
+            model1: [],
             searchShow: false,
             typeValue: [],
             tableList: [
@@ -122,7 +123,7 @@ export default {
     methods: {
         getList() {
             let queryName = this.keyword
-            let processId = this.model1
+            let processId = this.model1.length!=0?this.model1.join(','):''
             let indexType = this.typeValue
             let pageNum = this.pageNum
             getListMethod({
@@ -151,7 +152,7 @@ export default {
         },
         resetHandle() {
             this.keyword = ''
-            this.model1 = ''
+            this.model1 = []
             this.typeValue = []
             this.pageNum = '1'
             this.getList()
@@ -218,7 +219,7 @@ export default {
             })
         },
         treeChange(value) {
-            // console.log(value)
+            console.log(value)
             this.model1 = value
         }
     }

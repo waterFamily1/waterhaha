@@ -284,8 +284,8 @@ export default {
                             processId: this.formItem.location,
                             processName: this.processName
                         }).then(res=> {
-                            // console.log(res)
-                            if(res.data.status == 200) {
+                            console.log(res)
+                            if(res.data.id) {
                                 this.$router.push({
                                     path:'/indicator'
                                 })

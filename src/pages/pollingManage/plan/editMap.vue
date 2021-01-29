@@ -58,7 +58,10 @@ export default {
                     this.obj = res.data
                 }
             })
-        }
+        },
+        cancel(){
+           this.$router.go(-1)
+        },
     },
     mounted() {
         this.height = document.body.clientHeight-75

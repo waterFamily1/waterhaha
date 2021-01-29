@@ -264,7 +264,14 @@ export default {
             })
 
         },
-        
+        reset(){
+            this.searchList.area = []
+            this.searchList.organize = []
+            this.searchList.severity = ""
+            this.state = []
+            this.defectType = []
+            this.getTime()
+        }
     }
 }
 </script>

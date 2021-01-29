@@ -726,6 +726,9 @@ export default {
                 } 
             });
         },
+        cancel(){
+           this.$router.go(-1)
+        },
         save(name){
             this.$refs[name].validate((valid) => {
                 if (valid) {

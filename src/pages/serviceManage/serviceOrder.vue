@@ -23,7 +23,7 @@
                         高级搜索
                     </a>
                     <Button @click="getTable()">搜索</Button>
-                    <Button class="reset">重置</Button>
+                    <Button class="reset" @click="reset()">重置</Button>
                 </div>
             </div>
             <div class="c-adv-search">
@@ -155,6 +155,14 @@ export default {
         this.getRegional()
     },
     methods :{
+        reset(){
+            this.keyword = ""
+            this.area = []
+            this.startTime = ""
+            this.endDate = ""
+            this.endTime = ""
+            this.states = []
+        },
         getTable() {
             let queryName = this.keyword
             let processIds = this.area

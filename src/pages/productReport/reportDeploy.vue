@@ -509,7 +509,7 @@ export default {
                         this.$Message.error('Fail!');
                     }
                 })
-            console.log(data)
+            // console.log(data)
         
         },
         createTemp(){
@@ -593,7 +593,7 @@ export default {
                         tempSave(data).then(res=>{
                             if(res.data.count){
                                 this.$Message.success('保存成功');
-                                this.getTemplateDetail()
+                                this.getOrg()
                                 
                                 
                             }
