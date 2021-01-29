@@ -5,7 +5,7 @@
                 <h3>巡检点</h3>
                 <div class="form-search-btn">
                     <button type="button" @click="save('formItem')">保存</button>
-                    <button type="button" class="reset" @click="reset()">重置</button>
+                    <button type="button" class="reset" @click="reset()">取消</button>
                 </div>
             </div>
         </div>

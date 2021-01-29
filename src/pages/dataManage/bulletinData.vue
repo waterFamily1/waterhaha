@@ -169,8 +169,8 @@ export default {
                 console.log(res)
                 let data= res.data.items
                 data.forEach(ele=>{
-                    ele.formLatestdate= formatTime(ele.formLatestdate, 'HH:mm:ss yyyy-MM-dd')
-                    ele.updateTime = formatTime(ele.updateTime, 'HH:mm:ss yyyy-MM-dd')
+                    ele.formLatestdate=ele.formLatestdate? formatTime(ele.formLatestdate, 'HH:mm:ss yyyy-MM-dd'):''
+                    ele.updateTime =ele.updateTime? formatTime(ele.updateTime, 'HH:mm:ss yyyy-MM-dd'):''
                 })
                 this.tableData = data
                 this.total = res.data.total

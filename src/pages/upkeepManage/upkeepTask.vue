@@ -39,10 +39,10 @@
             </div>
         </div>
         <div class="c-table-top">
-            <div class="c-table-top-btns">
+            <!-- <div class="c-table-top-btns">
                 <Button @click="addModal = true">新增</Button>
                 <Button @click="deleteHandle()">删除</Button>
-            </div>
+            </div> -->
             <Table ref="selection" :columns="columns" :data="data"
              @on-select="handleSelect"
                         @on-select-cancel="handleSelectCancel"

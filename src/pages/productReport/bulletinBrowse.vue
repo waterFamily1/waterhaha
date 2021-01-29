@@ -12,7 +12,7 @@
                         size="small">
                     </AutoComplete>
                     <div class="tree-box">
-                        <Tree :data="treeData" @on-select-change="selectNode"></Tree>
+                        <Tree :data="treeData" @on-select-change="selectNode" :render="renderContent"></Tree>
                     </div>
                 </div>
             </div>
@@ -138,6 +138,23 @@ export default {
         this.preDay = this.getTime().split(',')[0]
     },
     methods: {
+        // renderContent (h, { root, node, data }) {
+        //     console.log(data)
+        //         return h('span', {
+        //             style: {
+        //                 display: 'inline-block',
+        //                 width: '100%'
+        //             }
+        //         }, [
+        //             h('span', [
+        //                 h('span',{
+        //                     // style:{
+        //                     //    display: data.children.length==0?'none':'inline-block'
+        //                     // }
+        //                 }, data.title)
+        //             ])
+        //         ]);
+        //     },
          exportTable(){
             const defaultParams = {
                 formId: this.currentRecord.id,
