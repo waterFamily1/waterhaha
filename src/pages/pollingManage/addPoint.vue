@@ -4,8 +4,8 @@
             <div class="search-main">
                 <h3>巡检点</h3>
                 <div class="form-search-btn">
-                    <button type="button" @click="save('formItem')">保存</button>
-                    <button type="button" class="reset" @click="reset()">重置</button>
+                    <Button @click="save('formItem')">保存</Button>
+                    <Button class="reset" @click="reset()">重置</Button>
                 </div>
             </div>
         </div>
@@ -35,7 +35,7 @@
         <div class="table-define">
             <div class="info">
                 <h3>巡检步骤</h3>
-                <button @click="add()">新增</button>
+                <Button @click="add()">新增</Button>
             </div>
             <Table stripe :columns="columns7" :data="data6"></Table>
         </div>
@@ -50,9 +50,6 @@
                 </Input>
             </div>
             <Table :columns="peoColumns" :data="peoData" style="margin-top:20px">
-                 <template slot-scope="{ row }" slot="name">
-                    <strong>{{ row.name }}</strong>
-                </template>
                 <template slot-scope="{ row, index }" slot="action">
                     <Icon type="ios-checkmark-circle-outline" style="color:#999;font-size:24px" @click="checkSite(row)" />
                 </template>
@@ -374,7 +371,8 @@ export default {
                     color: #576374;
                     font-size: 12px;
                 }
-                button{
+                .ivu-btn {
+                    height: auto;
                     background: #4b7efe;
                     font-size: 12px;
                     padding: 4px 12px;
@@ -404,7 +402,8 @@ export default {
             border-bottom: 1px solid #f0f0f0;
             height: 50px;
             padding: 10px 0 10px 10px;
-            button{
+            .ivu-btn{
+                height: auto;
                 background:#576374;
                 font-size: 12px;
                 padding: 4px 12px;

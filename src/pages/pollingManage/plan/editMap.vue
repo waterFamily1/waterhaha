@@ -3,8 +3,8 @@
         <div class="c-left-border-blue">
             <h3>巡检计划线路（{{ obj.name }}）</h3>
             <div class="c-btns-right">
-                <button @click="save('formValidate')">保存</button>
-                <button class="cancel">取消</button>
+                <Button @click="save('formValidate')">保存</Button>
+                <Button class="cancel">取消</Button>
             </div>
         </div>
         <div class="map-content" :style="{height: (height-45)+'px'}">
@@ -93,7 +93,8 @@ export default {
         .c-btns-right{
             float: right;
             margin-top: 2px;
-            button{
+            .ivu-btn {
+                height: auto;
                 background: #4b7efe;
                 font-size: 12px;
                 padding: 4px 12px;

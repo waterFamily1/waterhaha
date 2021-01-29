@@ -291,7 +291,7 @@ export default {
         .c-btns-right {
             float: right;
             margin-top: 2px;
-            button {
+            .ivu-btn {
                 min-width: 70px;
                 margin: 0 5px;
                 border: none;
@@ -318,7 +318,8 @@ export default {
                 line-height: 30px;
                 font-size: 15px;
             }
-            button {
+            .ivu-btn {
+                height: auto;
                 min-width: 70px;
                 margin: 0 2px;
                 border: none;

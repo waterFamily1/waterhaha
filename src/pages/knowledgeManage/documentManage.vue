@@ -29,16 +29,16 @@
                         </FormItem>
                     </Form>
                     <div class="action-btn">
-                        <button @click="search()">搜索</button>
-                        <button class="reset" @click="reset()">重置</button>
+                        <Button @click="search()">搜索</Button>
+                        <Button class="reset" @click="reset()">重置</Button>
                     </div>
                </div>
                <div class="c-top-border-gray">
                    <div class="c-table-top-btns">
-                        <button @click="downloadFile()">下载</button>
-                        <button @click="uploadFile()">上传</button>
-                        <button @click="move()">移动</button>
-                        <button @click="deleteHandle()">删除</button>
+                        <Button @click="downloadFile()">下载</Button>
+                        <Button @click="uploadFile()">上传</Button>
+                        <Button @click="move()">移动</Button>
+                        <Button @click="deleteHandle()">删除</Button>
                     </div>
                     <Table stripe :columns="tableList" size="small" :data="tableData"
                         @on-select="handleSelect"
@@ -62,7 +62,6 @@
         <!-- 文档编辑 -->
          <Modal v-model="modal" width="520" class="model-box"> 
             <p slot="header" style="color:#1c2438;font-size:14px;border-left:7px solid #4b7efe;background:#f8f9fb;height:39px;line-height:39px">
-                <!-- <Icon type="ios-information-circle"></Icon> -->
                 <span class="rectangle"></span>
                 <span style="margin-left:8px">文档编辑</span>
             </p>
@@ -87,7 +86,7 @@
                                 </Panel>
                             </Collapse>
                             <div class="finish-btn" >
-                                <button @click="finish()">完成</button>
+                                <Button @click="finish()">完成</Button>
                             </div>
                         </div>
                         <FormItem label="文档摘要：" prop="remark">
@@ -194,7 +193,7 @@
                                 </Panel>
                             </Collapse>
                             <div class="finish-btn" >
-                                <button @click="finish()">完成</button>
+                                <Button @click="finish()">完成</Button>
                             </div>
                         </div>
                         <FormItem label="文档摘要：" prop="digest">
@@ -889,12 +888,12 @@ export default {
                 },
                 on: {
                     //鼠标进入
-                    'mouseenter': () => {
-                        data.is_show = true;
+                    mouseover: () => {
+                        this.$set(data,'is_show', true)
                     },
                     //鼠标离开
-                    'mouseleave': () => {
-                        data.is_show = false;
+                    mouseout: () => {
+                        this.$set(data,'is_show', false)
                     }
                 }
             }, [
@@ -1180,7 +1179,8 @@ export default {
                 .action-btn{
                     float: right;
                     margin-top: 4px;
-                    button{
+                    .ivu-btn{
+                        height: auto;
                         background: #4b7efe;
                         font-size: 12px;
                         padding: 4px 12px;
@@ -1200,7 +1200,8 @@ export default {
                 .c-table-top-btns{
                     height: 36px;
                     border-bottom: 1px solid #EEE;
-                    button{
+                    .ivu-btn{
+                        height: auto;
                         background: #576374;
                         font-size: 12px;
                         padding: 4px 12px;
@@ -1277,7 +1278,7 @@ export default {
     .finish-btn{
         text-align: center;
         margin: 20px 0;
-        button{
+        .ivu-btn{
             min-width: 130px;
             margin: 0 15px;
             color: #fff;

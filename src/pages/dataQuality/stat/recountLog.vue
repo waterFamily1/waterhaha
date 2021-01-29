@@ -123,7 +123,8 @@ export default {
             .search-btn {
                 float: right;
                 margin-top: 4px;
-                button{
+                .ivu-btn {
+                    height: auto;
                     background: #4b7efe;
                     font-size: 12px;
                     padding: 4px 12px;

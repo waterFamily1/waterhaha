@@ -172,6 +172,14 @@ const state = {
             "6": "6"
         }
     },
+    // 区域位置
+    process: {
+        type: [{ label: "区域", value: 1 }, { label: "位置", value: 2 }],
+        typeText: {
+            "1": "区域",
+            "2": "位置"
+        }
+    },
 }
 
 export default {

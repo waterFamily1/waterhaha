@@ -69,7 +69,7 @@ import { putUser } from '@api/basic/user';
         }
         div{
             float: right;
-            button{
+            .ivu-btn {
                 min-width: 70px;
                 margin: 0 5px;
                 color: #fff;

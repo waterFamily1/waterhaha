@@ -831,7 +831,7 @@ export default {
         .c-btns-right {
             float: right;
             margin-top: 2px;
-            button {
+            .ivu-btn {
                 min-width: 70px;
                 margin: 0 5px;
                 border: none;
@@ -855,12 +855,12 @@ export default {
         border-bottom: 1px solid #EEE;
         display: flex;
         justify-content: space-between;
-        button {
+        .ivu-btn {
             min-width: 50px;
             background-color: #576374;
             border: none;
             color: #fff;
-            height: 26px;
+            height: auto;
             font-size: 12px;
             padding: 4px 12px;
         }

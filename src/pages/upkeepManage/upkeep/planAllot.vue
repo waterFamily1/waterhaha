@@ -21,8 +21,8 @@
                 <Row>
                     <Col span="12">
                         <label for="">起止日期：</label>
-                        <DatePicker type="date" v-model="detailObj.startDate" style="width: 160px" disabled size="small"></DatePicker> - 
-                        <DatePicker type="date" v-model="detailObj.endDate" style="width: 160px" disabled size="small"></DatePicker>
+                        <DatePicker type="date" v-model="detailObj.startDate" style="width: 160px" disabled></DatePicker> - 
+                        <DatePicker type="date" v-model="detailObj.endDate" style="width: 160px" disabled></DatePicker>
                     </Col>
                     <Col span="12" style="color:rgb(224, 61, 62)">
                         <label for="">分配完成：</label>
@@ -32,26 +32,26 @@
                 <Row>
                     <Col span="12">
                         <label for="">区域位置：</label>
-                        <TreeSelect v-model="area" multiple :data="treeData" v-width="200" size="small"  />
+                        <TreeSelect v-model="area" multiple :data="treeData" v-width="200" />
                     </Col>
                     <Col span="12">
                         <label for="">保养内容：</label>
-                        <Select v-model="maincon" style="width:200px" size="small">
-                            <Option v-for="(item,index) in mainList" :value="index" :key="index">{{ item}}</Option>
+                        <Select v-model="maincon" style="width:200px" @on-change="maincoChange" :clearable="true" @on-clear="maincoClear">
+                            <Option v-for="(item,index) in mainList" :value="item" :key="index">{{ item }}</Option>
                         </Select>
                     </Col>
                 </Row>
                 <Row>
                     <Col span="12">
                         <label for="">执行人员：</label>
-                       <Select v-model="userId" style="width:200px" size="small">
+                       <Select v-model="userId" style="width:200px">
                             <Option v-for="item in userList" :value="item.value" :key="item.value">{{ item.label }}</Option>
                         </Select>
                         <span class="label-required">*</span>
                     </Col>
                     <Col span="12">
                         <label for="">设备类型：</label>
-                        <TreeSelect v-model="equ" multiple :data="genreList" v-width="200" size="small"  />
+                        <TreeSelect v-model="equ" multiple :data="genreList" v-width="200" />
                     </Col>
                 </Row>
                 <Row>
@@ -83,7 +83,7 @@
     </div>
 </template>
 <script>
-import { typeMethod,regionalCon,patrolList ,remainCon,remainDetail,detailList,assignTask,distributeTask} from '@api/upkeep/plan';
+import { typeMethod,regionalCon,patrolList ,remainCon,remainDetail,detailList,assignTask,distributeTask} from '@api/upkeep/plan'
 import createTree from '@/libs/public-util'
 import {formatTime} from '@/libs/public'
 import { typeTreeMethod1 } from '@/libs/public'
@@ -94,10 +94,7 @@ export default {
             height: '',
             area:[],
             maincon:'',
-            mainList:[{
-                value:'',
-                label:'sss'
-            }],
+            mainList:[],
             treeData:[],
             genreList:[],
             equ:[],
@@ -209,7 +206,7 @@ export default {
                 planId: this.id,
             }
             assignTask(data).then(res=>{
-                console.log(res)
+                // console.log(res)
                 if(res.data.nums){
                     this.$Message.success('分配成功！');
                     this.getDetail()
@@ -219,14 +216,37 @@ export default {
         },
        
         changeSize(size){
-
+            this.page = size
+            this.getDetailList()
         },
+        maincoChange(val) {
+            this.maincon = val
+            this.page = 1
+            this.getDetailList()
+        },
+        maincoClear() {
+            this.maincon = ''
+            this.page = 1
+            this.getDetailList()
+        },
+        // 详情列表
+        getDetailList(){
+            let equId = this.equ.length!=0?this.equ.join(','):''
+            let areaId = this.area.length!=0?this.area.join(','):''
+            detailList(this.page,this.id,equId,areaId,this.maincon).then(res=>{
+            //    console.log(res)
+               if(res.data.items){
+                    this.tableData = res.data.items
+                    this.total = res.data.total
+                }
+            })
+        }, 
         up(){
             let data ={
                planId:this.id
             }
             distributeTask(data).then(res=>{
-                console.log(res)
+                // console.log(res)
                 if(res.data.num){
                     this.$Message.success('下达成功！');
                     this.$router.go(-1)
@@ -238,7 +258,7 @@ export default {
         },
         getRegional() {
             regionalCon().then(res => {
-                console.log(res)
+                // console.log(res)
                 let treeItem = []
                 let trees = res.data
                 for(let i = 0; i < trees.length; i ++) {
@@ -253,9 +273,9 @@ export default {
                 // 异常情况
             })
         },
-         getType() {
+        getType() {
             typeMethod().then(res=> {
-                console.log(res)
+                // console.log(res)
                 let treeItem = []
                 let trees = res.data
                 for(let i = 0; i < trees.length; i ++) {
@@ -278,7 +298,7 @@ export default {
         // 获取保养内容
         maintain(){
             remainCon(this.id).then(res=>{
-                // console.log(res)
+                // console.log(res.data)
                 if(res.data){
                     this.mainList = res.data
                 }
@@ -304,23 +324,11 @@ export default {
                     if(temp.state == 2){
                         this.isUp = false
                     }
-                    console.log(this.area)
+                    // console.log(this.area)
                     this.detailObj = res.data
                 }
             })
         },
-        // 详情列表
-        getDetailList(){
-            let equId = this.equ.length!=0?this.equ.join(','):''
-            let areaId = this.area.length!=0?this.area.join(','):''
-            detailList(this.page,this.id,equId,areaId,this.maincon).then(res=>{
-            //    console.log(res)
-               if(res.data.items){
-                    this.tableData = res.data.items
-                    this.total = res.data.total
-                }
-            })
-        }, 
         selectAll(selection){
             this.checkAll = !this.checkAll
             if(this.checkAll){
@@ -378,7 +386,7 @@ export default {
         .c-btns-right {
             float: right;
             margin-top: 2px;
-            button {
+            .ivu-btn{ 
                 min-width: 70px;
                 margin: 0 5px;
                 border: none;
@@ -422,7 +430,7 @@ export default {
         .c-btn-left{
             height: 36px;
             border-bottom: 1px solid #EEE;
-            button {
+            .ivu-btn{
                 min-width: 50px;
                 margin: 0 5px;
                 border: none;

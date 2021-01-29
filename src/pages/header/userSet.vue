@@ -3,7 +3,7 @@
         <div class="search-header">
              <h3>用户设置</h3>
             <div class="c-adv-search-btn">
-                <button type="button" @click="save()">保存</button>
+                <Button @click="save()">保存</Button>
             </div>
         </div> 
         <div class="c-top-border-gray">
@@ -210,7 +210,8 @@ export default {
         }
         .c-adv-search-btn{
             float: right;
-            button{
+            .ivu-btn{
+                height: auto;
                 background: #4b7efe;
                 font-size: 12px;
                 padding: 4px 12px;

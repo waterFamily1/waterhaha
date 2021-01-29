@@ -218,7 +218,7 @@ export default {
         }
         div{
             float: right;
-            button{
+            .ivu-btn{
                 min-width: 70px;
                 margin: 0 5px;
                 color: #fff;

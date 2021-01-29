@@ -6,8 +6,8 @@
                 <span style="color:rgb(153, 153, 153);font-size:12px;font-weight:100">(编号：{{detailObj.no}})</span>
             </div>
             <div class="c-btns-right">
-                <button  @click="edit()">编辑</button>
-                <button  style="background:#c8c8c8" @click="back()">返回</button>
+                <Button @click="edit()">编辑</Button>
+                <Button style="background:#c8c8c8" @click="back()">返回</Button>
             </div>
         </div>
         <div class="c-top-border-gray">
@@ -164,7 +164,8 @@ export default {
                     color: #576374;
                     font-size: 12px;
                 }
-                button{
+                .ivu-btn {
+                    height: auto;
                     background: #4b7efe;
                     font-size: 12px;
                     padding: 4px 12px;
@@ -177,7 +178,7 @@ export default {
                     background: #495566;
                 }
             /deep/.ivu-dropdown {
-                button {
+                .ivu-btn {
                     background: #495566;
                 }
             }

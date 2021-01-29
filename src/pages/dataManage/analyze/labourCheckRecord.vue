@@ -284,7 +284,7 @@ export default {
         div{
             margin-top: 2px;
             float: right;
-            button{
+            .ivu-btn {
                 min-width: 70px;
                 margin: 0 5px;
                 color: #fff;
@@ -303,7 +303,8 @@ export default {
             justify-content: space-between;
             font-size: 12px;
             border-bottom: 1px solid #EEE;
-            button{
+            .ivu-btn {
+                height: auto;
                 min-width: 50px;
                 background: #576374;
                 font-size: 12px;

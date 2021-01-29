@@ -29,7 +29,7 @@
             width="450"
             @on-cancel="cancelModal">
             <h4 style="margin-bottom:20px">角色名称</h4>
-            <Input v-model="roleName" placeholder="Enter something..." style="width:300px" />
+            <Input v-model="roleName" placeholder="" style="width:300px" />
         </Modal>
         <!-- 新建名称 -->
         <Modal 
@@ -38,7 +38,7 @@
             width="450"
             @on-cancel="createCancel">
             <h4 style="margin-bottom:20px">角色名称</h4>
-            <Input v-model="newName" placeholder="Enter something..." style="width:300px" />
+            <Input v-model="newName" placeholder="" style="width:300px" />
         </Modal>
     </div>
 </template>
@@ -85,12 +85,12 @@ export default {
                 },
                 on: {
                     //鼠标进入
-                    'mouseenter': () => {
-                        data.is_show = true;
+                    mouseover: () => {
+                        this.$set(data,'is_show', true)
                     },
                     //鼠标离开
-                    'mouseleave': () => {
-                        data.is_show = false;
+                    mouseout: () => {
+                        this.$set(data,'is_show', false)
                     }
                 }
             }, [

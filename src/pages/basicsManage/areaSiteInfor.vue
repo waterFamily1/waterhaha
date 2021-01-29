@@ -11,56 +11,55 @@
                 </div>
                 <div class="area-list">
                     <Tree :data="baseData" class="demo-tree-render" 
-                    @on-select-change="getNode" :render="renderContent"></Tree>
+                    :render="renderContent"></Tree>
                 </div>
             </div>
             <div class="area-right">
                 <div class="area-title">
                     <h3>区域位置信息</h3> 
-                    <span v-if="appear">
-                        <Button type="primary" @click="saveHandle()">保存</Button>
-                        <Button @click="cancleHandle('areaList')">取消</Button>
+                    <span v-show="status != 'info'">
+                        <Button type="primary" :loading="loading" @click="saveHandle()">保存</Button>
+                        <Button @click="cancleHandle()">取消</Button>
                     </span>
                 </div>
                 <div class="area-form">
-                    <Form ref="areaList" :model="areaList" :rules="ruleValidate" label-position="right" :label-width="120" autocomplete="off">
+                    <Form ref="form" :model="params" :rules="ruleValidate" label-position="right" :label-width="120" autocomplete="off">
                         <FormItem label="区域位置名称" prop="name">
-                            <Input v-model="areaList.name" style="width: 280px" v-if="appear"></Input>
-                            <span v-if="appearOther">{{ name }}</span>
+                            <Input v-model="params.name" style="width: 280px" v-if="(status == 'add' || status == 'edit')"></Input>
+                            <span v-if="status == 'info'">{{ params.name }}</span>
                         </FormItem>
                         <FormItem label="备注">
-                            <Input v-model="areaList.remarks" style="width: 280px" v-if="appear"></Input>
-                            <span v-if="appearOther">{{ remarks }}</span>
+                            <Input v-model="params.remarks" style="width: 280px" v-if="(status == 'add' || status == 'edit')"></Input>
+                            <span v-if="status == 'info'">{{ params.remarks }}</span>
                         </FormItem>
                         <FormItem label="URL">
-                            <Input v-model="areaList.url" style="width: 280px" placeholder="请输入以https://开头的链接" v-if="appear"></Input>
-                            <span v-if="appearOther">{{ url }}</span>
+                            <Input v-model="params.url" style="width: 280px" placeholder="请输入以https://开头的链接" v-if="(status == 'add' || status == 'edit')"></Input>
+                            <span v-if="status == 'info'">{{ params.url }}</span>
                         </FormItem>
                         <FormItem label="MR">
                             <span>真实世界、虚拟世界、数字化信息的实时互动与结合</span>
-                            <Button class="area-form-upload" v-if="appear">上传文件</Button>
+                            <Button class="area-form-upload" v-if="(status == 'add' || status == 'edit')">上传文件</Button>
                         </FormItem>
                         <FormItem label="位置类别" prop="type">
-                            <RadioGroup v-model="areaList.type" style="width: 280px" v-if="appear">
-                                <Radio label="2" :disabled="whichAppear == '3'">区域</Radio>
-                                <Radio label="1" :disabled="whichAppear == '3'">位置</Radio>
+                            <RadioGroup v-model="params.type" v-if="(status == 'add' || status == 'edit')" >
+                                <Radio :label="item.value" v-for="item in types" :key="item.value" :disabled = "disabledType">{{item.label}}</Radio>
                             </RadioGroup>
-                            <span v-if="appearOther">{{ type }}</span>
+                            <span v-if="status == 'info'">{{typeText[params.type]}}</span>
                         </FormItem>
-                        <FormItem label="站点定位">
-                            <RadioGroup v-model="areaList.location" v-if="appear" @on-change="locationChange">
-                                <Radio label="false">无</Radio>
-                                <Radio label="true">有</Radio>
+                        <FormItem label="站点定位：">
+                            <span class="base-process-text" v-if="status == 'info'">{{ (params.latitude && params.longitude)?'有':'无'}}</span>
+                            <RadioGroup v-model="show" v-if="(status == 'add' || status == 'edit')">
+                                <Radio :label="0" :key="0">无</Radio>
+                                <Radio :label="1" :key="1">有</Radio>
                             </RadioGroup>
-                            <div class="loca-box" v-if="locationShow">
+                            <div class="loca-box" v-if="(status == 'edit' || show == 1)">
                                 经纬度
-                                <Input v-model="areaList.longitude" size="small" style="width: 100px;" />
-                                <Input v-model="areaList.latitude" size="small" style="width: 100px;" />
+                                <Input v-model="params.longitude" size="small" style="width: 100px;" />
+                                <Input v-model="params.latitude" size="small" style="width: 100px;" />
                                 <Button size="small" @click="locationBtn()">定位</Button>
                             </div>
-                            <span v-if="appearOther">{{ location }}</span>
-                            <div v-if="appearOther&&longitude != ''" style="display:inline-block;margin-left: 300px;">经纬度
-                                <span>{{ longitude }},{{ latitude }}</span>
+                            <div v-if="status == 'info'" style="display:inline-block;margin-left: 300px;">经纬度：
+                                <span>{{ params.longitude }},{{ params.latitude }}</span>
                             </div>
                         </FormItem>
                     </Form>
@@ -74,25 +73,19 @@
                                 accept=".jpg , .png, .jpeg"
                                 ref="upload">
                                 <div class="img-box">
-                                    <img :src="areaList.imageUrl">
+                                    <img :src="params.imageUrl">
                                 </div>
-                                <Button v-if="appear">添加图片</Button>
+                                <Button v-if="(status == 'add' || status == 'edit')">添加图片</Button>
                             </Upload>
                         </div>
                     </div>
                 </div>
                 <div class="area-map">
-                    <baidu-map center="天津" :zoom="13" 
-                        :scroll-wheel-zoom="true" :style="{height: mapHei+'px'}">
-                        <bm-map-type :map-types="['BMAP_NORMAL_MAP', 'BMAP_HYBRID_MAP']" anchor="BMAP_ANCHOR_TOP_LEFT"></bm-map-type>
-                        <bm-view class="map" id="map"></bm-view>
-                        <bm-control :offset="{width: '10px', height: '10px'}">
-                            <bm-auto-complete v-model="keyword" :sugStyle="{zIndex: 1}">
-                                <Input suffix="ios-search" placeholder="请输入地名关键字" style="width: auto" />
-                            </bm-auto-complete>
-                        </bm-control>
-                        <bm-local-search :keyword="keyword" :auto-viewport="true" ></bm-local-search>
-                    </baidu-map>
+                    <div id="site-map"></div>
+                    <div class="map-center-point" v-show="!!show"></div>
+                    <div class="bdmap-search">
+                        <Input prefix="ios-search" type="text" id="process-bdmap-search-key" class="bdmap-search-key" />
+                    </div>
                 </div>
             </div>
         </div>
@@ -114,6 +107,25 @@ import { regionalCon, exportcode1, exportcode2, getlocationInfor, appendLocation
 import createTree from '@/libs/public-util'
 import axios from 'axios'
 import util from '@/libs/public_js'
+import { mapState } from 'vuex'
+import mapUtil from '@/libs/map'
+var map
+
+function addMarker(data) {
+    console.log(data)
+    if(data.longitude && data.latitude)  {
+        var P = new BMap.Point(data.longitude, data.latitude)
+        var marker = new BMap.Marker(P, {icon: new BMap.Icon(point_icon, new BMap.Size(38, 38))})
+        marker.setOffset(new BMap.Size(4,-19))
+        map.addOverlay(marker)
+        map.centerAndZoom(P, 15)
+    } else {
+        map.clearOverlays()
+    }
+}
+function clearMapSearch() {
+    document.querySelector('#process-bdmap-search-key').value = ''
+}
 
 export default {
     name: 'areaSiteInfor',
@@ -191,43 +203,68 @@ export default {
                     { required: true, message: '请输入区域位置名称', trigger: 'blur' }
                 ],
                 type: [
-                    { required: true, message: '位置类别', trigger: 'blur' }
+                    { required: true, message: '位置类别', trigger: 'blur', type: 'number' }
                 ],
                 url: [
                     { pattern: /^(https):\/\/.+$/, message: '请输入以https://开头的链接', trigger: 'change' }
                 ]
             },
-            postionMap:{  //地图坐标
+            parentId: '',
+            disabledType: false,
+            show: 0,
+            params: {
+                id: '',
+                parentId: '',
+                name: '',
+                type: '',
+                imageUrl: ''
+            },
+            activeTreeId: '',
+            location: {
                 lng: '',
                 lat: ''
             },
-            keyword: '',
-            id: '',
-            seqOrder: '',
-            name: '',
-            type: '',
-            imageUrl: '',
-            url: '',
-            longitude: '',
-            latitude: '',
-            location: '',
-            remarks: '',
-            parentId: '',
-            appear: false,
-            appearOther: false,
-            locationShow: false,
-            whichAppear: '4'
+            locationTemp: {
+                lng: '',
+                lat: ''
+            },
+            status: 'info', // info, edit, add
+            loading: false
         }
     },
+    computed: mapState({
+        types: state => state.map.process.type,
+        typeText: state => state.map.process.typeText
+    }),
     mounted() {
         this.height = document.body.clientHeight-80
-        this.mapHei = document.body.clientHeight-390
-        this.postionMap.lng = '120.211486'
-        this.postionMap.lat = '30.256576'
+        document.querySelector('#site-map').style.height = document.body.clientHeight-390 + 'px'
+        mapUtil.create(()=> {
+            map = new BMap.Map('site-map')
+            map.enableScrollWheelZoom(true)
+            mapUtil.setStyle(map)
+
+            mapUtil.placePoint(map, (point)=>{
+                console.log(point)
+                this.location.lng = point.lng
+                this.location.lat = point.lat
+            });
+            
+            mapUtil.addSearch(map, 'process-bdmap-search-key', (po)=>{
+                console.log(po)
+                this.locationTemp.lng = po.lng
+                this.locationTemp.lat = po.lat
+            });
+            map.addEventListener('dragend',  (e)=>{
+                if(this.show == 1) {
+                    let pos = map.getCenter()
+                    this.locationTemp.lng = pos.lng
+                    this.locationTemp.lat = pos.lat
+                }
+            });
+        });
+
         this.getRegional()
-    },
-    created() {
-        
     },
     methods: {
         getRegional() {
@@ -264,7 +301,13 @@ export default {
                 }
             }, [
                 h('span', [
-                    h('span', data.title)
+                    h('span', {
+                        on: {
+                            click:() => {
+                                this.getNode(data)
+                            }
+                        }
+                    }, data.title)
                 ]),
                 h('span', [
                     h('Button', {
@@ -279,7 +322,7 @@ export default {
                             display: data.is_show ? 'inline-block' : 'none'
                         },
                         on: {
-                            click: () => { this.edit(root, node, data) }
+                            click: () => { this.edit(data) }
                         }
                     },'编辑'),
                     h('Button', {
@@ -294,10 +337,10 @@ export default {
                             display: data.is_show ? 'inline-block' : 'none'
                         },
                         on: {
-                            click: () => { this.remove(root, node, data) }
+                            click: () => { this.remove(data) }
                         }
                     },'删除'),
-                    (data.children) && h('Button', {
+                    (data.children.length != 0) && h('Button', {
                         props: Object.assign({}, this.buttonProps, {
                             type: 'primary',
                             size: 'small'
@@ -308,7 +351,7 @@ export default {
                             display: data.is_show ? 'inline-block' : 'none'
                         },
                         on: {
-                            click: () => { this.append(root, node, data) }
+                            click: () => { this.append(data) }
                         }
                     },'新建')
                 ])
@@ -322,7 +365,6 @@ export default {
             }).catch(err => {
                 // 异常情况
             })
-            // util.download('/uaa/api/process/qrcode-export')
         },
         export2(key) {
             exportcode2(key).then(res => {
@@ -333,182 +375,163 @@ export default {
                 // 异常情况
             })
         },
+        resetForm() {
+            this.$refs["form"].resetFields();
+        },
         getNode(data) {
-            let id = data[0].id
-            getlocationInfor(id).then(res=> {
-                // console.log(JSON.stringify(res.data))
-                this.id = res.data.id
-                this.parentId = res.data.id
-                this.name = res.data.name
-                if(res.data.type == 2) {
-                    this.type = '区域'
-                } else if(res.data.type == 1) {
-                    this.type = '位置'
-                }
-                if(res.data.location == false) {
-                    this.location = '无'
-                } else if(res.data.location == true) {
-                    this.location = '有'
-                }
-                this.remarks = res.data.remarks
-                this.url = res.data.url
-                if(res.data.longitude == '') {
-                    this.postionMap.lng = '120.211486'
-                    this.postionMap.lat = '30.256576'
+            getlocationInfor(data.id).then(res=> {
+                this.params = res.data
+                this.activeTreeId = res.data.id
+                if(this.params.latitude && this.params.longitude) {
+                    map.setCenter(new BMap.Point(this.params.longitude, this.params.latitude))
+                } else if(this.locationTemp.lng && this.locationTemp.lat) {
+                    map.centerAndZoom(new BMap.Point(this.locationTemp.lng, this.locationTemp.lat), 15)
+                } else if(this.location.lng && this.location.lat) {
+                    map.centerAndZoom(new BMap.Point(this.location.lng, this.location.lat), 15)
                 } else {
-                    this.postionMap.lng = res.data.longitude
-                    this.postionMap.lat = res.data.latitude
+                    mapUtil.placePoint(map, (point)=>{
+                        this.location.lng = point.lng
+                        this.location.lat = point.lat
+                    });
                 }
-                this.areaList.imageUrl = res.data.imageUrl
             }).catch(err => {
                 // 异常情况
             })
-            if(data[0].parentId == 'all') {    
-                this.appear = false
-                this.appearOther = false
-            } else {
-                this.appear = false
-                this.appearOther = true
+        },
+        append(data) {
+            this.resetForm()
+            this.status = 'add'
+            this.activeTreeId = data.id
+            this.disabledType = false
+            this.params = {
+                name: '',
+                type: '',
+                parentId: data.id,
+                latitude: null,
+                longitude: null,
+                imageUrl: ''
             }
+
+            this.show = 0
+            map.clearOverlays()
         },
-        append(root, data, node) {
-            this.whichAppear = '2'
-            this.appear = true
-            this.appearOther = false
-            this.areaList.location = 'false'
-            this.areaList.name = ''
-            this.areaList.remarks = ''
-            this.areaList.url = ''
-            this.areaList.imageUrl = ''
-            this.areaList.latitude = ''
-            this.areaList.longitude = ''
-            this.areaList.type = ''
-        },
-        remove(root, node, data) {
+        remove(data) {
+            this.activeTreeId = data.id
             this.cancelModal = true
         },
-        edit(root, node, data) {
-            this.appear = true
-            this.appearOther = false
-            this.whichAppear = '3'
-            this.areaList.name = this.name
-            this.areaList.remarks = this.remarks
-            this.areaList.url = this.url
-            this.areaList.imageUrl = this.imageUrl
-            this.areaList.latitude = this.latitude
-            this.areaList.longitude = this.longitude
-            if(this.location == '有') {
-                this.areaList.location = 'true'
-            } else if(this.location == '无') {
-                this.areaList.location = 'false'
-            }
-            if(this.type == '位置') {
-                this.areaList.type = '1'
-            } else if(this.type == '区域') {
-                this.areaList.type = '2'
-            }
-        },
-        locationChange(val) {
-            if(val == 'yes') {
-                this.locationShow = true
+        edit(data) {
+            this.resetForm()
+            this.status = 'edit'
+            this.activeTreeId = data.id
+            this.params = Object.assign({}, this.params, data)
+            
+            map.clearOverlays();
+            if(data.longitude && data.latitude)  {
+                this.show = 1
+                this.locationTemp.lng = data.longitude
+                this.locationTemp.lat = data.latitude
+                map.setCenter(new BMap.Point(this.params.longitude, this.params.latitude))
             } else {
-                this.locationShow = false
+                this.show = 0
+                map.setCenter(new BMap.Point(this.location.lng, this.location.lat))
             }
+            if ((data.type == 1 && data.children.length > 0) || data.type==2)
+                this.disabledType = true
+            else this.disabledType = false
+
+
         },
         locationBtn() {
-            this.map = new BMap.Map('map')
-            if(this.areaList.latitude != '' && this.areaList.longitude != '') {
-                map.clearOverlays(); 
-                var new_point = new BMap.Point(this.areaList.longitude ,this.areaList.latitude)
-                var marker = new BMap.Marker(new_point);  // 创建标注
-                map.addOverlay(marker);              // 将标注添加到地图中
-                map.panTo(new_point);
+            if(this.params.latitude != '' && this.params.longitude != '') {
+                map.clearOverlays()
+                map.setCenter(new BMap.Point(this.params.longitude, this.params.latitude))
             }
         },
         saveHandle() {
-            if(this.whichAppear == '2') {
-                appendLocation({
-                    checked: 0,
-                    imageUrl: this.areaList.imageUrl,
-                    latitude: this.areaList.latitude,
-                    longitude: this.areaList.longitude,
-                    mrs: [],
-                    name: this.areaList.name,
-                    parentId: this.parentId,
-                    remarks: this.areaList.remarks,
-                    type: this.areaList.type,
-                    url: this.areaList.url
-                }).then(res=> {
-                    this.success2(true)
-                    this.appearOther = true
-                    this.appear = false
-                    this.getRegional()
-                    this.name = this.areaList.name
-                    this.remarks = this.areaList.remarks
-                    this.url = this.areaList.url
-                    this.imageUrl = this.areaList.imageUrl
-                    this.latitude = this.areaList.latitude
-                    this.longitude = this.areaList.longitude
-                    if( this.areaList.type == 0) {
-                        this.type = '区域'
-                    } else if( this.areaList.type == 1) {
-                        this.type = '位置'
+            const status = this.status
+            this.$refs["form"].validate(valid => {
+                if (valid) {   
+                    if(this.show == 0) {
+                        this.params.longitude = ''
+                        this.params.latitude = ''
+                    } else {
+                        this.params.longitude = this.locationTemp.lng
+                        this.params.latitude = this.locationTemp.lat
                     }
-                    if( this.areaList.location == false) {
-                        this.location = '无'
-                    } else if( this.areaList.location == true) {
-                        this.location = '有'
+                    if(status == 'add') {
+                        let data = this.params
+                        this.loading = true
+                        appendLocation({
+                            checked: 0,
+                            imageUrl: this.params.imageUrl,
+                            latitude: this.params.latitude,
+                            longitude: this.params.longitude,
+                            mrs: [],
+                            name: this.params.name,
+                            parentId: this.params.parentId,
+                            remarks: this.params.remarks,
+                            type: this.params.type
+                        }).then(res=> {
+                            if (res.data.id) {
+                                this.status = 'info'
+                                this.$Notice.success({
+                                    title: "新建成功"
+                                });
+                                this.show = 0
+                                addMarker(data)
+                            }
+                            this.loading = false
+                        }).catch(err => {
+                            this.loading = false
+                        })
+                    } else if(status == 'edit') {
+                        let data = this.params
+                        editLocation({
+                            checked: 0,
+                            id: this.activeTreeId,
+                            idPath: this.params.idPath,
+                            imageUrl: this.params.imageUrl,
+                            latitude: this.params.latitude,
+                            longitude: this.params.longitude,
+                            location: this.params.location,
+                            mrs: [],
+                            name: this.params.name,
+                            no: this.params.no,
+                            parentId: this.params.parentId,
+                            remarks: this.params.remarks,
+                            seqOrder: this.params.seqOrder,
+                            state: this.params.state,
+                            tenantId: this.params.tenantId,
+                            type: this.params.type,
+                            url: this.params.url,
+                            version: this.params.version
+                        }).then(res => {
+                            if(res.data.count) {
+                                this.status = 'info'
+                                this.$Notice.success({
+                                    title: '编辑成功'
+                                })
+                                this.show = 0
+                                addMarker(data)
+                            }
+                        }).catch(()=>{
+                            this.loading = false
+                        })
                     }
-                    // this.locationBtn()
-                }).catch(err => {
-                    // 异常情况
-                })
-            } else if(this.whichAppear == '3') {
-                editLocation({
-                    checked: 0,
-                    imageUrl: this.areaList.imageUrl,
-                    latitude: this.areaList.latitude,
-                    longitude: this.areaList.longitude,
-                    mrs: [],
-                    name: this.areaList.name,
-                    parentId: this.parentId,
-                    remarks: this.areaList.remarks,
-                    type: this.areaList.type,
-                    url: this.areaList.url
-                }).then(res => {
-                    this.appearOther = true
-                    this.appear = false
-                    this.getRegional()
-                    this.name = this.areaList.name
-                    this.remarks = this.areaList.remarks
-                    this.url = this.areaList.url
-                    this.imageUrl = this.areaList.imageUrl
-                    this.latitude = this.areaList.latitude
-                    this.longitude = this.areaList.longitude
-                    if( this.areaList.type == 0) {
-                        this.type = '区域'
-                    } else if( this.areaList.type == 1) {
-                        this.type = '位置'
-                    }
-                    if( this.areaList.location == false) {
-                        this.location = '无'
-                    } else if( this.areaList.location == true) {
-                        this.location = '有'
-                    }
-                }).catch(err => {
-                    // 异常情况
-                })
-            }
+                }
+            })
         },
         cancleHandle(name) {
-            this.$refs[name].resetFields();
+            this.status = 'info'
+            this.show = 0
+            addMarker(this.params)
         },
         handleUploadicon(file) {
             let formData = new FormData()
             formData.append('file', file)
             uploadFun(formData).then(res=> {
                 // console.log(res)
-                this.areaList.imageUrl = res.data.fullPath
+                this.params.imageUrl = res.data.fullPath
             }).catch(err => {
                 // 异常情况
             })
@@ -529,13 +552,20 @@ export default {
             })
         },
         cancelOk() {
-            let id = this.id
+            let id = this.activeTreeId
             cancleLocation(id).then(res => {
                 // console.log(JSON.stringify(res.data))
                 this.success1(true)
                 this.getRegional()
-                this.appearOther = false
-                this.appear = false
+                this.status = 'info'
+                this.params = {
+                    name: '',
+                    type: '',
+                    parentId: 0,
+                    latitude: null,
+                    longitude: null,
+                    imageUrl: ''
+                };
             }).catch(err => {
                 // 异常情况
             })
@@ -690,6 +720,7 @@ export default {
             .area-map {
                 width: 100%;
                 padding: 10px 10px 0 10px;
+                position: relative;
                 .map {
                     width: 100%;
                     height: 300px;
@@ -719,5 +750,20 @@ export default {
         top: 5px;
         left: 290px;
     }
+}
+.map-center-point {
+    width: 38px;
+    height: 38px;
+    background: url('../../images/map/point.png') no-repeat 0 0;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-left: -15px;
+    margin-top: -38px;
+}
+.bdmap-search {
+    position: absolute;
+    top: 17px;
+    right: 20px;
 }
 </style>

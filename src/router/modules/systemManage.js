@@ -32,7 +32,7 @@ export default {
                 title: '终端配置',
                 closable: false
             },
-            component: () => import('@/pages/systemManage/terminalDeploy')
+            component: () => import('@/pages/systemManage/terminalDeploy'),
         }, {
             path: '/teminal/addUser',
             name: `${pre}teminal-addUser`,

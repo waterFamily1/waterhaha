@@ -13,13 +13,12 @@
               </Select>
           </div>
           <div class="form-search-btn">
-              <button type="button" @click="search()">搜索</button>
-              <button type="button" class="reset" @click="reset()">重置</button>
+              <Button @click="search()">搜索</Button>
+              <Button class="reset" @click="reset()">重置</Button>
           </div>
        </div>
        <div class="site-content">
          <div class="c-table-top-btns">
-            <!-- <button type="button" @click="fileUpload()"> </button> -->
             <Button >
                 <Upload
                 :before-upload="fileUpload"
@@ -31,13 +30,9 @@
                 </Upload>
             </Button>
             <Button type="text" style="margin-left:10px" @click="templateDownload()">模版下载</Button>
-            <!--  -->
          </div>
          <div class="table-wrapper" :style="{height: (height-45)+'px'}">
             <Table stripe :columns="siteTableList" :data="siteTableData">
-                <template slot-scope="{ row }" slot="name">
-                    <strong>{{ row.name }}</strong>
-                </template>
                 <template slot-scope="{ row, index }" slot="action">
                     
                     <Button type="text" style="color:rgb(75, 126, 254);font-size:13px" @click="downFile(row.templeDownload)">下载文件</Button>
@@ -397,7 +392,8 @@ export default {
         .form-search-btn {
             display: inline-block;
             float: right;
-            button{
+            .ivu-btn {
+                height: auto;
                 background: #4b7efe;
                 font-size: 12px;
                 padding: 4px 12px;
@@ -417,7 +413,8 @@ export default {
         .c-table-top-btns {
             height: 36px;
             border-bottom: 1px solid #EEE;
-            button{
+            .ivu-btn {
+                height: auto;
                 min-width: 50px;
                 background: #576374;
                 font-size: 12px;

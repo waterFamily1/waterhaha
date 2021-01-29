@@ -13,12 +13,12 @@
                 </div>
                 <div class="form-search-btn">
                     <a href="javascript:;" @click="higherSearch()">
-                        <Icon type="ios-arrow-down" v-if="searchShow" />
-                        <Icon type="ios-arrow-up" v-else />
+                        <Icon type="ios-arrow-up" v-if="searchShow"/>
+                        <Icon type="ios-arrow-down" v-else />
                         高级搜索
                     </a>
-                    <button type="button" @click="search()">搜索</button>
-                    <button type="button" class="reset" @click="reset()">重置</button>
+                    <Button @click="search()">搜索</Button>
+                    <Button class="reset" @click="reset()">重置</Button>
                 </div>
             </div>
             <div class="c-adv-search">
@@ -113,6 +113,7 @@ export default {
                 }, {
                     title: '计划名称',
                     key: 'planName',
+                    ellipsis: true
                 }, {
                     title: '状态',
                     key: 'state',
@@ -126,11 +127,13 @@ export default {
                 }, {
                     title: '保养持续时间',
                     key: 'planDuration',
-                     width:120,
+                    width:120,
+                    ellipsis: true
                 }, {
                     title: '保养内容项',
                     key: 'contentsItems',
-                     width:120,
+                    width:120,
+                    ellipsis: true
                 }, {
                     width:105,
                     title: '创建时间',
@@ -207,7 +210,7 @@ export default {
             
         },
         check(id){
-            console.log(id)
+            // console.log(id)
             this.$router.push({
                 path: '/upkeep/planAllot',
                 query:{
@@ -271,7 +274,7 @@ export default {
             typeMethod().then(res=> {
                 // console.log(res)
                 let treeItem = []
-                let trees = res.data.items
+                let trees = res.data
                 for(let i = 0; i < trees.length; i ++) {
                     trees[i].title = trees[i].name
                     trees[i].value = trees[i].id
@@ -311,10 +314,10 @@ export default {
             let begin = this.start?this.$moment(this.start).utc().format():''
             let end  = this.end?this.$moment(this.end).utc().format():''
             let range = {"start":begin,"end":end}
-            console.log(range)
+            // console.log(range)
             let state = this.confirmWay.length!=0?this.confirmWay.join(','):''
             planList(this.planList.name,range,begin,end,state,this.page).then(res=>{
-              console.log(res)
+            //   console.log(res)
               if(res.data.items){
                   let temp = res.data.items
                   temp.map(ele=>{
@@ -335,7 +338,7 @@ export default {
             this.searchShow = !this.searchShow
         },
         ok() {
-            console.log(this.addForm)
+            // console.log(this.addForm)
             let equIds = this.addForm.length!=0?this.addForm.type.join(','):''
             let areaIds =this.addForm.value.length!=0?this.addForm.value.join(','):''
             this.$router.push({
@@ -347,7 +350,7 @@ export default {
             })
         },
         cancel() {
-            this.$Message.info('Clicked cancel');
+            // this.$Message.info('Clicked cancel');
         }
     }
 }
@@ -378,7 +381,8 @@ export default {
                     color: #576374;
                     font-size: 12px;
                 }
-                button{
+                .ivu-btn {
+                    height: auto;
                     background: #4b7efe;
                     font-size: 12px;
                     padding: 4px 12px;
@@ -444,7 +448,7 @@ export default {
         .c-table-top-btns {
             height: 36px;
             border-bottom: 1px solid #EEE;
-            button {
+            .ivu-btn { 
                 background-color: #576374;
                 border: none;
                 min-width: 50px;

@@ -513,7 +513,7 @@ export default {
         .c-btns-right {
             float: right;
             margin-top: 2px;
-            button {
+            .ivu-btn {
                 min-width: 70px;
                 margin: 0 5px;
                 border: none;
@@ -563,7 +563,7 @@ export default {
     }
 }
 .mg-select-table-header {
-    button {
+    .ivu-btn {
         background-color: #838A95;
         border: none;
         color: #fff;

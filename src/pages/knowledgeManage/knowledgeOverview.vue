@@ -21,7 +21,7 @@
                         </Panel>
                     </Collapse>
                     <div class="finish-btn" >
-                        <button @click="finish()">完成</button>
+                        <Button @click="finish()">完成</Button>
                     </div>
                 </div>
             </div>
@@ -446,7 +446,7 @@ export default {
             border-bottom: 1px solid #ededed;
             display: flex;
             justify-content: space-between;
-            button{
+            .ivu-btn{
                 height: 25px;
                 margin-right: 5px;
                 font-size: 12px;
@@ -499,7 +499,7 @@ export default {
                 .finish-btn{
                     text-align: center;
                     margin: 20px 0;
-                    button{
+                    .ivu-btn{
                         min-width: 130px;
                         margin: 0 15px;
                         color: #fff;

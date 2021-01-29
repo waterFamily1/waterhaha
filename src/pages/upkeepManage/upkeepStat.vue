@@ -21,12 +21,12 @@
                 
                 <div class="form-search-btn">
                     <a href="javascript:;" @click="higherSearch()">
-                        <Icon type="ios-arrow-down" v-if="searchShow" />
-                        <Icon type="ios-arrow-up" v-else />
+                        <Icon type="ios-arrow-up" v-if="searchShow"/>
+                        <Icon type="ios-arrow-down" v-else />
                         高级搜索
                     </a>
-                    <button type="button" @click="search()">搜索</button>
-                    <button type="button" class="reset" @click="reset()">重置</button>
+                    <Button @click="search()">搜索</Button>
+                    <Button class="reset" @click="reset()">重置</Button>
                 </div>
             </div>
             <div class="c-adv-search">
@@ -44,7 +44,7 @@
         </div>
         <div class="c-table-top">
             <div class="c-table-top-btns">
-                <Button  @click="exportTable()">导出</Button>
+                <Button @click="exportTable()">导出</Button>
             </div>
             <Table ref="selection" :columns="columns" :data="data">
                 <template slot-scope="{ row, index }" slot="action">
@@ -99,6 +99,7 @@ export default {
                 }, {
                     title: '执行人',
                     key: 'executeUserName',
+                    ellipsis: true
                 },
                 {
                     title: '区域位置',
@@ -107,9 +108,11 @@ export default {
                 }, {
                     title: '保养内容项',
                     key: 'contentsItems',
+                    ellipsis: true
                 }, {
                     title: '缺陷申报',
                     key: 'faults',
+                    ellipsis: true
                 }, {
                     title: '保养耗时',
                     key: 'continuingTime',
@@ -290,7 +293,8 @@ export default {
                     color: #576374;
                     font-size: 12px;
                 }
-                button{
+                .ivu-btn {
+                    height: auto;
                     background: #4b7efe;
                     font-size: 12px;
                     padding: 4px 12px;
@@ -356,7 +360,8 @@ export default {
         .c-table-top-btns {
             height: 36px;
             border-bottom: 1px solid #EEE;
-            button {
+           .ivu-btn {
+                height: auto;
                 background-color: #576374;
                 border: none;
                 min-width: 50px;

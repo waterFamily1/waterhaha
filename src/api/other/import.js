@@ -15,3 +15,12 @@ export function saveMethod1(data) {
         method: 'get'
     })
 }
+
+//导入区域位置
+export function saveMethod2(data) {
+    return request({
+        url: '/uaa/api/excel/validate',
+        method: 'post',
+        data
+    })
+}

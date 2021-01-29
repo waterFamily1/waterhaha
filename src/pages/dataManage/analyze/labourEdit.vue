@@ -463,7 +463,7 @@ import createTree from '@/libs/public-util'
         }
         div{
             float: right;
-            button{
+            .ivu-btn {
                 min-width: 70px;
                 margin: 0 5px;
                 color: #fff;
@@ -492,7 +492,7 @@ import createTree from '@/libs/public-util'
             padding:10px;
             .action-btn{
                  margin-bottom: 10px;
-                button{
+                .ivu-btn {
                     background: #576374;
                     font-size: 12px;
                     box-shadow: 0;

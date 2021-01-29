@@ -4,8 +4,8 @@
             <h3>巡检计划</h3>
             <div class="map-type-icon" v-if="type=='map'"></div>
             <div class="c-btns-right">
-                <button @click="save('formValidate')">保存</button>
-                <button class="cancel">取消</button>
+                <Button @click="save('formValidate')">保存</Button>
+                <Button class="cancel">取消</Button>
             </div>
         </div>
         <Form action="" ref="formValidate" :model="formValidate" :rules="ruleValidate" :label-width="140" class="form-module">
@@ -839,7 +839,8 @@ export default {
         .c-btns-right{
             float: right;
             margin-top: 2px;
-            button{
+            .ivu-btn {
+                height: auto;
                 background: #4b7efe;
                 font-size: 12px;
                 padding: 4px 12px;
@@ -865,7 +866,8 @@ export default {
             .c-btns-right{
                 float: right;
                 margin-top: 2px;
-                button{
+                .ivu-btn {
+                    height: auto;
                     background: #4b7efe;
                     font-size: 12px;
                     padding: 4px 12px;

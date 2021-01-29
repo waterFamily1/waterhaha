@@ -22,8 +22,8 @@
                         <h3>标签信息</h3>  
                     </div>
                     <div class="action-btn" v-if="appear">
-                        <button @click="save()">保存</button>
-                        <button class="reset">取消</button>
+                        <Button @click="save()">保存</Button>
+                        <Button class="reset">取消</Button>
                     </div>
                 </div>
                 <div class="base-org-detail" >
@@ -578,7 +578,8 @@ export default {
                     } 
                 }
                 .action-btn{
-                    button{
+                    .ivu-btn {
+                        height: auto;
                         background: #4b7efe;
                         font-size: 12px;
                         padding: 4px 12px;

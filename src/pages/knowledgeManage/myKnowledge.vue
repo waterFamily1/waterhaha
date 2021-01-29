@@ -112,7 +112,7 @@
                                 </Panel> 
                             </Collapse>
                             <div class="finish-btn" >
-                                <button @click="finish()">完成</button>
+                                <Button @click="finish()">完成</Button>
                             </div>
                         </div>
                     </div>
@@ -192,7 +192,7 @@
                                 </Panel>
                             </Collapse>
                             <div class="finish-btn" >
-                                <button @click="finishE()">完成</button>
+                                <Button @click="finishE()">完成</Button>
                             </div>
                         </div>
                         <FormItem label="文档摘要：" prop="remark">
@@ -855,7 +855,7 @@ export default {
                 .finish-btn{
                     text-align: center;
                     margin: 20px 0;
-                    button{
+                    .ivu-btn{
                         min-width: 130px;
                         margin: 0 15px;
                         color: #fff;
@@ -921,7 +921,7 @@ export default {
     .finish-btn{
         text-align: center;
         margin: 20px 0;
-        button{
+        .ivu-btn{
             min-width: 130px;
             margin: 0 15px;
             color: #fff;

@@ -328,7 +328,7 @@ export default {
         .c-btns-right {
             float: right;
             margin-top: 2px;
-            button {
+            .ivu-btn {
                 min-width: 70px;
                 margin: 0 5px;
                 border: none;
@@ -353,7 +353,7 @@ export default {
             /deep/.ivu-select {
                 margin-right: 10px;
             }
-            button {
+            .ivu-btn {
                 background: #d8d5d5;
                 border: none;
                 color: #fff;

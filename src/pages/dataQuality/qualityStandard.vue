@@ -258,7 +258,8 @@ export default {
         .c-table-top-btns {
             height: 36px;
             border-bottom: 1px solid #EEE;
-            button{
+            .ivu-btn {
+                height: auto;
                 min-width: 50px;
                 background: #576374;
                 font-size: 12px;

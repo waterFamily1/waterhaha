@@ -15,14 +15,14 @@
                 />
             </div>
             <div class="c-adv-search-btn">
-                <button type="button" @click="search()">搜索</button>
-                <button type="button" class="reset" @click="reset()">重置</button>
+                <Button @click="search()">搜索</Button>
+                <Button class="reset" @click="reset()">重置</Button>
             </div>
         </div>  
         <div class="c-top-border-gray">
             <div class="c-table-top-btns">
-                <button type="button" @click="addUser()">新增用户</button>
-                <button type="button" style="margin-left:10px" @click="upload()">批量导入</button>
+                <Button @click="addUser()">新增用户</Button>
+                <Button style="margin-left:10px" @click="upload()">批量导入</Button>
             </div>
             <div class="table-wrapper" :style="{height: (height-45)+'px'}">
                 <Table stripe :columns="columns1" :data="data1">
@@ -232,7 +232,8 @@ import createTree from '@/libs/public-util'
         .c-adv-search-btn{
             float: right;
             margin-top: 4px;
-            button{
+            .ivu-btn {
+                height: auto;
                 background: #4b7efe;
                 font-size: 12px;
                 padding: 4px 12px;
@@ -253,7 +254,8 @@ import createTree from '@/libs/public-util'
         .c-table-top-btns {
             height: 36px;
             border-bottom: 1px solid #EEE;
-            button{
+            .ivu-btn {
+                height: auto;
                 min-width: 50px;
                 background: #576374;
                 font-size: 12px;

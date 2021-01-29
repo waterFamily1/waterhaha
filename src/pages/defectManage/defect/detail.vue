@@ -406,14 +406,14 @@ export default {
         .c-btns-right {
             float: right;
             margin-top: 2px;
-            button {
+            .ivu-btn {
                 min-width: 70px;
                 margin: 0 5px;
                 border: none;
                 height: 28px;
             }
             /deep/.ivu-dropdown {
-                button {
+                .ivu-btn {
                     background: #495566;
                 }
             }

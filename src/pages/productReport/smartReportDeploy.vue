@@ -133,12 +133,12 @@ export default {
                 },
                 on: {
                     //鼠标进入
-                    'mouseenter': () => {
-                        data.is_show = true;
+                    mouseover: () => {
+                        this.$set(data,'is_show', true)
                     },
                     //鼠标离开
-                    'mouseleave': () => {
-                        data.is_show = false;
+                    mouseout: () => {
+                        this.$set(data,'is_show', false)
                     }
                 }
             }, [

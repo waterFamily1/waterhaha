@@ -17,12 +17,12 @@
                 </div>
                 <div class="form-search-btn">
                     <a href="javascript:;" @click="higherSearch()">
-                        <Icon type="ios-arrow-down" v-if="searchShow" />
-                        <Icon type="ios-arrow-up" v-else />
+                        <Icon type="ios-arrow-up" v-if="searchShow"/>
+                        <Icon type="ios-arrow-down" v-else />
                         高级搜索
                     </a>
-                    <button type="button" @click="getList()">搜索</button>
-                    <button type="button" class="reset" @click="resetHandle()">重置</button>
+                    <Button @click="getList()">搜索</Button>
+                    <Button class="reset" @click="resetHandle()">重置</Button>
                 </div>
             </div>
             <div class="c-adv-search">
@@ -42,7 +42,7 @@
         </div>
         <div class="index-content">
             <div class="c-table-top-btns">
-                <button type="button" @click="addHandle()">新增</button>
+                <Button @click="addHandle()">新增</Button>
             </div>
             <div class="table-wrapper" :style="{height: (height-45)+'px'}">
                 <Table stripe :columns="tableList" :data="tableData">
@@ -252,7 +252,8 @@ export default {
                     color: #576374;
                     font-size: 12px;
                 }
-                button{
+                .ivu-btn {
+                    height: auto;
                     background: #4b7efe;
                     font-size: 12px;
                     padding: 4px 12px;
@@ -312,7 +313,8 @@ export default {
         .c-table-top-btns {
             height: 36px;
             border-bottom: 1px solid #EEE;
-            button{
+            .ivu-btn {
+                height: auto;
                 min-width: 50px;
                 background: #576374;
                 font-size: 12px;

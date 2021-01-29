@@ -14,12 +14,12 @@
                         </div>
                         <div class="form-search-btn">
                             <a href="javascript:;" @click="higherSearch()">
-                                <Icon type="ios-arrow-down" v-if="searchShow" />
-                                <Icon type="ios-arrow-up" v-else />
+                                <Icon type="ios-arrow-up" v-if="searchShow"/>
+                                <Icon type="ios-arrow-down" v-else />
                                 高级搜索
                             </a>
-                            <button type="button" @click="search()">搜索</button>
-                            <button type="button" class="reset" @click="reset()">重置</button>
+                            <Button @click="search()">搜索</Button>
+                            <Button class="reset" @click="reset()">重置</Button>
                         </div>
                     </div>
                     <div class="c-adv-search">
@@ -361,7 +361,8 @@ export default {
                         color: #576374;
                         font-size: 12px;
                     }
-                    button{
+                    .ivu-btn {
+                        height: auto;
                         background: #4b7efe;
                         font-size: 12px;
                         padding: 4px 12px;
@@ -421,11 +422,11 @@ export default {
         .c-table-top-btns {
             height: 36px;
             border-bottom: 1px solid #EEE;
-            button {
+            .ivu-btm {
                 min-width: 50px;
                 background-color: #576374;
                 border: none;
-                height: 28px;
+                height: auto;
                 font-size: 12px;
                 padding: 4px 12px;
                 color: #fff;

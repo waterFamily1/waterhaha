@@ -4,20 +4,24 @@
             <div class="search-main">
                 <div class="form-item">
                     <label>操作时间：</label>
+
                     <DatePicker 
-                        type="date" v-model="startTime1" :editable="false"
-                        :options="startDate" :value="startTime"
-                        format="yyyy-MM-dd" 
-                        @on-change="handleChange" style="width: 120px">
-                    </DatePicker> 
-                    -
-                    <DatePicker 
-                        type="date" v-model="endTime1" :editable="false" 
-                        :options="endDate" :value="endTime" 
+                        type="date" 
+                        placeholder="开始日期" 
+                        style="width: 120px"
+                        v-model="startTime"
                         format="yyyy-MM-dd"
-                        @on-change="endTimeChange" style="width: 120px"
-                    >
-                    </DatePicker>
+                        @on-change="startTimeChange"
+                    ></DatePicker> - 
+                    <DatePicker 
+                        type="date" 
+                        placeholder="结束日期" 
+                        style="width: 120px"
+                        v-model="endTime"
+                        @on-change="endTimeChange" 
+                        format="yyyy-MM-dd"
+                        :options="endDate"
+                    ></DatePicker>
                 </div>
                 <div class="form-item">
                     <label>平台：</label>
@@ -51,8 +55,8 @@
                     </Select>
                 </div>
                 <div class="form-search-btn">
-                    <button type="button" @click="handleSearch()">搜索</button>
-                    <button type="button" class="reset" @click="handleReset()">重置</button>
+                    <Button @click="handleSearch()">搜索</Button>
+                    <Button class="reset" @click="handleReset()">重置</Button>
                 </div>
             </div>
         </div>
@@ -67,17 +71,13 @@
 <script>
 import { getList, getBusinessName, searchHandleName } from '@/api/system/logs'
 import createNameTree from '@/libs/log-util'
+import util from '@/libs/public_js'
 
 export default {
     name: 'hangleLog',
     data() {
         return {
             height: '',
-            startDate: {
-                disabledDate (date) {
-                    return date && date.valueOf() < Date.now() - 86400000;
-                }
-            },
             endDate: {
                 disabledDate (date) {
                     return date && date.valueOf() < Date.now() - 86400000;
@@ -94,11 +94,10 @@ export default {
                 {
                     value: 'web',
                     label: 'WEB'
-                },
-                {
+                }, {
                     value: 'app',
                     label: 'APP'
-                },
+                }
             ],
             operationName: '',
             operationList: [],
@@ -106,7 +105,8 @@ export default {
             handleColumns: [
                 {
                     title: '平台',
-                    key: 'platform'
+                    key: 'platform',
+                    width: 70
                 }, {
                     title: '业务名称',
                     key: 'businessName'
@@ -123,7 +123,11 @@ export default {
                     ellipsis: true
                 }, {
                     title: '操作时间',
-                    key: 'operationTime'
+                    width: 160,
+                    key: 'operationTime',
+                    render (h, data) {
+                        return util.tableDatetime(h, data.row.operationTime)
+                    }
                 }, {
                     title: '操作地址',
                     key: 'geoLocation',
@@ -153,14 +157,14 @@ export default {
     },
     methods: {
         getTable() {    
-            this.start = this.startTime+'T16:00:00.000Z'
-            this.end = this.endTime+'T15:59:59.000Z'
-            let startTime = this.start
-            let endTime = this.end
             let platform = this.platform
             let operationName = this.operationName
             let handleName = this.handleName
             let pageNum = this.pageNum
+
+            let startTime = this.$moment(this.startTime).utc().format()
+            let endTime = this.endTime+'T15:59:59.000Z'
+
             getList({
                 startTime,
                 endTime,
@@ -169,7 +173,7 @@ export default {
                 handleName,
                 pageNum
             }).then(res=> {
-                // console.log(JSON.stringify(res.data.items))
+                // console.log(res.data)
                 this.handleData = res.data.items
                 this.allTotal = res.data.total
             }).catch(err => {
@@ -178,10 +182,10 @@ export default {
         },
         getDate() {
             let nowDate = new Date()
-            const year = nowDate.getFullYear();
-            const month = nowDate.getMonth() + 1;
-            const d1 = nowDate.getDate()-1;
-            const d = nowDate.getDate();
+            let year = nowDate.getFullYear();
+            let month = nowDate.getMonth() + 1;
+            let d1 = nowDate.getDate();
+            let d = nowDate.getDate();
             let day1
             let day
             if (month >= 1 && month <= 9) {
@@ -202,19 +206,17 @@ export default {
             this.startTime = this.startTime1
             this.endTime = this.endTime1
         },
-        handleChange(date) {
-            let startValue = this.startTime
-            startValue = new Date(date).getTime()
+        startTimeChange(day) {
+            this.startTime = day
             this.endDate = {
-                disabledDate(date) {
-                    return date && date.valueOf() < startValue - 86400000;
+                disabledDate (date) {
+                    return date && date.valueOf() <=new Date(day).getTime()- 86400000
                 }
             }
         },
-        endTimeChange(date) {
-            // console.log(date)
-            this.endTime = date
-        },  
+        endTimeChange(day) {
+            this.endTime = day
+        },
         getName() {
             let platform = this.platform
             getBusinessName(platform).then(res=> {
@@ -259,6 +261,7 @@ export default {
             this.getTable()
         },
         handleSearch() {
+            this.pageNum = 1
             this.getTable()
         },
         handleReset() {
@@ -295,7 +298,8 @@ export default {
             .form-search-btn {
                 float: right;
                 margin-top: 4px;
-                button{
+                .ivu-btn {
+                    height: auto;
                     background: #4b7efe;
                     font-size: 12px;
                     padding: 4px 12px;

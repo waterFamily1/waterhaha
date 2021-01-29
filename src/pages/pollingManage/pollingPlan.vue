@@ -12,12 +12,12 @@
                 </div>
                 <div class="form-search-btn">
                     <a href="javascript:;" @click="higherSearch()">
-                        <Icon type="ios-arrow-down" v-if="searchShow" />
-                        <Icon type="ios-arrow-up" v-else />
+                        <Icon type="ios-arrow-up" v-if="searchShow"/>
+                        <Icon type="ios-arrow-down" v-else />
                         高级搜索
                     </a>
-                    <button type="button" @click="search()">搜索</button>
-                    <button type="button" class="reset" @click="reset()">重置</button>
+                    <Button @click="search()">搜索</Button>
+                    <Button class="reset" @click="reset()">重置</Button>
                 </div>
             </div>
             <div class="c-adv-search">
@@ -43,7 +43,7 @@
             </div>
         </div>
         <div class="plan-content" :style="{height: (height-45)+'px'}">
-           <div class="btn-add"><button @click="modal = true">新增计划</button></div>
+           <div class="btn-add"><Button @click="modal = true">新增计划</Button></div>
            <div class="c-top-border-gray">
                <div>
                     <h3 class="plan-title">地图巡检</h3>
@@ -403,7 +403,8 @@ export default {
                     color: #576374;
                     font-size: 12px;
                 }
-                button{
+                .ivu-btn {
+                    height: auto;
                     background: #4b7efe;
                     font-size: 12px;
                     padding: 4px 12px;
@@ -461,15 +462,16 @@ export default {
         .btn-add{
             border-top: 5px solid #f0f0f0;
             padding: 10px;
-            button{
-               width:100px;
-               text-align: center;
-               background: #576374;
-               font-size: 12px;
-               color: #fff;
-               border: 0;
-               padding: 4px 12px;
-               border-radius: 3px;
+            .ivu-btn {
+                height: auto;
+                width:100px;
+                text-align: center;
+                background: #576374;
+                font-size: 12px;
+                color: #fff;
+                border: 0;
+                padding: 4px 12px;
+                border-radius: 3px;
             }
         }
         .c-top-border-gray{

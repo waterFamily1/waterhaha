@@ -60,9 +60,10 @@ export function cancleLocation(data) {
 }
 
 //编辑
-export function editLocation() {
+export function editLocation(data) {
     return request({
-        url: '/uaa/api/processes/',
-        method: 'put'
+        url: '/uaa/api/processes',
+        method: 'put',
+        data
     })
 }

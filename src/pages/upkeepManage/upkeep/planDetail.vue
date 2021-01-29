@@ -484,6 +484,17 @@ export default {
                     })
                 }
             })
+        },
+        goBack() {
+            this.$Modal.confirm({
+                title: '是否确认取消编辑？',
+                onOk: () => {
+                    this.$router.back()
+                },
+                onCancel: () => {
+        
+                }
+            });
         }
     }
 }
@@ -505,7 +516,7 @@ export default {
         .c-btns-right {
             float: right;
             margin-top: 2px;
-            button {
+            .ivu-btn{
                 min-width: 70px;
                 margin: 0 5px;
                 border: none;

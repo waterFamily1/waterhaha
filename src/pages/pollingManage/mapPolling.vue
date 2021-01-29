@@ -13,17 +13,14 @@
                     <DatePicker type="date" placeholder="Select date" style="width: 200px" size="small"></DatePicker>
                 </div>
                   <div class="form-search-btn">
-                    <button type="button">搜索</button>
-                    <button type="button" class="reset">重置</button>
+                    <Button>搜索</Button>
+                    <Button class="reset">重置</Button>
                 </div>
             </div>
         </div>
         <div class="map-content" :style="{height: (height-45)+'px'}">
             <div class="c-scrollbar">
                 <Table stripe :columns="tableList" >
-                    <template slot-scope="{ row }" slot="name">
-                        <strong>{{ row.name }}</strong>
-                    </template>
                     <template slot-scope="{ row, index }" slot="action">
                         <!-- <Button class="action" size="small" style="margin-right: 5px;">配置</Button> -->
                         <Button class="action" size="small">查看</Button>
@@ -124,7 +121,8 @@ export default {
                     color: #576374;
                     font-size: 12px;
                 }
-                button{
+                .ivu-btn{
+                    height: auto;
                     background: #4b7efe;
                     font-size: 12px;
                     padding: 4px 12px;

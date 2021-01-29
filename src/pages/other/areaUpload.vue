@@ -51,8 +51,8 @@
                     
                     <div v-show="errNum == 0">
                         <div class="import-mod-valid-tip">
-                            <!-- <div class="import-mod-valid-img"></div> -->
-                            <!-- <div style="line-height: 50px;">文件确认通过</div> -->
+                            <div class="import-mod-valid-img"></div>
+                            <div style="line-height: 50px;">文件确认通过</div>
                             <div>
                                 <Button type="primary" style="margin: 20px auto;width: 100px;" @click="submit" :loading="submitLoading">确定导入</Button>
                             </div>
@@ -60,17 +60,17 @@
                     </div>      
                 </div>
                 <div v-show="activeProcess == 3" class="complete-box">
-                        <Icon type="md-checkmark-circle" style="color:#56D43F" size="60"></Icon>
-                        <h3>本次成功导入{{totalNum}}行数据</h3>
-                        <Button type="primary" class="c-btn-back btn-back" @click="backClick">返回上一级</Button>
-                    </div>
+                    <Icon type="md-checkmark-circle" style="color:#56D43F" size="60"></Icon>
+                    <h4 style="display:block;margin: 15px 0">本次成功导入{{totalNum}}行数据</h4>
+                    <Button type="primary" class="c-btn-back btn-back" @click="backClick">返回上一级</Button>
+                </div>
             </div>
         </div>
     </div>
 </template>
 <script>
 import config from './config'
-import { saveMethod, saveMethod1 } from '@/api/other/import'
+import { saveMethod, saveMethod1, saveMethod2 } from '@/api/other/import'
 
 function render(h, data) {
 	const errorPrefix = 'Error:';
@@ -129,7 +129,7 @@ export default {
             ]
         } else if(this.uploadName == '区域位置导入') {
             this.importHref = '/uaa/api/excel/template?type=process'
-            this.Action = '/uaa/api/excel/import'
+            this.Action = '/uaa/api/excel/validate'
             this.columns = [
                 {title: '行号', key: 'index', render: render},
                 {title: '区域位置名称', key: 'name', ellipsis: true, render: render},
@@ -230,6 +230,23 @@ export default {
             this.submitLoading = true;
             if(this.uploadName == '物料导入') {
                 saveMethod1(this.excelDataCachekey).then(res=> {
+                    this.submitLoading = false
+                    if(res){
+                        this.$Notice.success({
+                            title: '成功！',
+                            desc: '数据保存成功',
+                            duration: 3
+                        })
+                        this.activeProcess = 3
+                        
+                    }
+                }).catch(err=> {
+                    this.submitLoading = false
+                })
+            } else if(this.uploadName == '区域位置导入') {
+                saveMethod({
+                    excelDataCacheKey: this.excelDataCachekey
+                }).then(res=> {
                     this.submitLoading = false
                     if(res){
                         this.$Notice.success({

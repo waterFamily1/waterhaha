@@ -52,7 +52,7 @@
         </div>
         <div class="index-content">
             <div class="c-table-top-btns">
-                <button type="button" @click="msgExport()">信息导出</button>
+                <Button @click="msgExport()">信息导出</Button>
             </div> 
             <div class="table-wrapper" :style="{height: (height-45)+'px'}">
                 <Table :columns="columns" :data="listData" :loading="loading" stripe></Table>
@@ -307,7 +307,8 @@ export default {
                     color: #576374;
                     font-size: 12px;
                 }
-                button{
+                .ivu-btn {
+                    height: auto;
                     background: #4b7efe;
                     font-size: 12px;
                     padding: 4px 12px;
@@ -368,7 +369,8 @@ export default {
         .c-table-top-btns {
             height: 36px;
             border-bottom: 1px solid #EEE;
-            button{
+            .ivu-btn {
+                height: auto;
                 min-width: 50px;
                 background: #576374;
                 font-size: 12px;
