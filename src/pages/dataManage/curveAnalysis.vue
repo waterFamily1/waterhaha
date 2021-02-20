@@ -34,163 +34,165 @@
                     :site-groupList="siteGroupList"
                 ></singledata>
             </div>
-            <div class="tissue-right" id="J_CURVES_CHART" style="overflow-x:hidden;overflow-y:auto;">
-                <div class="title">
-                    <div>
-                        <span>{{ siteTitle }}</span>
-                        <div class="tag" v-if="siteShow == '1'">
-                            <Tag 
-                                v-for="(item ,index) in siteGroupList" 
-                                :key="index"
-                                :name="item.name"
-                                closable 
-                                @on-close="removeSiteList"
-                            >{{ item.name }}</Tag>
-                        </div>
-                        <div class="tag" v-if="siteShow == '2'">
-                            <Tag 
-                                v-for="(item ,index) in siteGroupList" 
-                                :key="index"
-                                :name="item.name"
-                            >{{ item.name }}</Tag>
-                        </div>
+            <fullscreen ref="fullscreen" @change="fullscreenChange" background="#FFF" style="width: 100%">
+                <div class="tissue-right" id="C_CAPTURE_MAIN">
+                    <div class="title">
+                        <div>
+                            <span>{{ siteTitle }}</span>
+                            <div class="tag" v-if="siteShow == '1'">
+                                <Tag 
+                                    v-for="(item ,index) in siteGroupList" 
+                                    :key="index"
+                                    :name="item.name"
+                                    closable 
+                                    @on-close="removeSiteList"
+                                >{{ item.name }}</Tag>
+                            </div>
+                            <div class="tag" v-if="siteShow == '2'">
+                                <Tag 
+                                    v-for="(item ,index) in siteGroupList" 
+                                    :key="index"
+                                    :name="item.name"
+                                >{{ item.name }}</Tag>
+                            </div>
 
-                        <Button type="primary" size="small" style="font-size:12px" v-if="siteShow == '1'">刷新</Button>
-                        <div style="float:right" v-if="siteShow == '1'">
-                            <Button 
-                                type="default" 
-                                size="small" 
-                                style="font-size:12px;background:#576374;color:#fff"
-                                @click="emptyHandle()"
-                            >清空</Button>
-                            <Button 
-                                type="default" 
-                                size="small" 
-                                style="font-size:12px;background:#576374;color:#fff"
-                                @click="saveModalMethod"
-                            >保存为组合</Button>
+                            <Button type="primary" size="small" style="font-size:12px" v-if="siteShow == '1'">刷新</Button>
+                            <div style="float:right" v-if="siteShow == '1'">
+                                <Button 
+                                    type="default" 
+                                    size="small" 
+                                    style="font-size:12px;background:#576374;color:#fff"
+                                    @click="emptyHandle()"
+                                >清空</Button>
+                                <Button 
+                                    type="default" 
+                                    size="small" 
+                                    style="font-size:12px;background:#576374;color:#fff"
+                                    @click="saveModalMethod"
+                                >保存为组合</Button>
+                            </div>
                         </div>
-                    </div>
-                    <div class="curves-panel">
-                        <span>起始时间：</span>
-                        <DatePicker 
-                            v-model="beginDate"
-                            format="yyyy-MM-dd HH:mm:ss"
-                            type="date" 
-                            placeholder="选择时间" 
-                            style="width: 200px"
-                        ></DatePicker>
-                        <div class="cmp-date-step-icon">
-                            <a href="javascript:;" @click="dayBefore"> 
-                                <Icon type="ios-play" style="transform:rotate(180deg);" />
-                            </a>
-                            <a href="javascript:;" @click="dayAfter"> 
-                                <Icon type="ios-play" />
-                            </a>
-                            <a href="javascript:;" @click="dayReset">
-                                <Icon type="ios-skip-forward" />
-                            </a>
-                        </div>
-                        <span>时间跨度：</span>
-                        <Select 
-                            v-model="timeValue"
-                            style="width:70px;display:inline-block"
-                        >
-                            <Option v-for="item in dateList" :value="item.value" :key="item.value">{{ item.name }}</Option>
-                        </Select>
-                        <div class="action-btn">
-                            <Dropdown>
-                               <a href="javascript:;">
-                                    <Icon type="ios-more" style="font-size:25px;color:rgb(75, 126, 254)" />
+                        <div class="curves-panel">
+                            <span>起始时间：</span>
+                            <DatePicker 
+                                v-model="beginDate"
+                                format="yyyy-MM-dd HH:mm:ss"
+                                type="date" 
+                                placeholder="选择时间" 
+                                style="width: 200px"
+                            ></DatePicker>
+                            <div class="cmp-date-step-icon">
+                                <a href="javascript:;" @click="dayBefore"> 
+                                    <Icon type="ios-play" style="transform:rotate(180deg);" />
                                 </a>
-                               <DropdownMenu slot="list">
-                                    <DropdownItem>
-                                        <Checkbox >环比</Checkbox>
-                                    </DropdownItem>
-                                    <DropdownItem>
-                                        <Checkbox >年同比</Checkbox>
-                                    </DropdownItem>
-                                    <DropdownItem>
-                                        <Checkbox >单图显示</Checkbox>
-                                    </DropdownItem>
-                                    <DropdownItem>
-                                        <Checkbox >多Y轴</Checkbox>
-                                    </DropdownItem>
-                                </DropdownMenu>
-                            </Dropdown>
-                            <a href="javascript:;" @click="exportChart" class="c-icon-export" title="导出"></a>
-                            <a href="javascript:;" @click="refreshChart" title="刷新">
-                                <Icon type="ios-sync" />
-                            </a>
-                            <a href="javascript:;" class="c-icon-table" @click="openDrawer" title="表格数据"></a>
-                            <Dropdown>
-                                <a href="javascript:;">
-                                    <Icon type="md-trending-up" />   
+                                <a href="javascript:;" @click="dayAfter"> 
+                                    <Icon type="ios-play" />
                                 </a>
-                               <DropdownMenu slot="list">
-                                    <DropdownItem>
-                                        <Checkbox @on-change="addLineAverage" v-model="lineRef.avg">显示平均线</Checkbox>
-                                    </DropdownItem>
-                                    <DropdownItem>
-                                        <Checkbox @on-change="addLineAlarm" v-model="lineRef.alarm">显示报警线</Checkbox>
-                                    </DropdownItem>
-                                    <DropdownItem>
-                                        <Checkbox @on-change="addLineMax" v-model="lineRef.max">显示最大值</Checkbox>
-                                    </DropdownItem>
-                                    <DropdownItem>
-                                        <Checkbox @on-change="addLineMin" v-model="lineRef.min">显示最小值</Checkbox>
-                                    </DropdownItem>
-                                </DropdownMenu>
-                            </Dropdown>
-                            <a href="javascript:;" style="color:#333">
-                                <Icon type="ios-expand" />
-                            </a>
-                        </div>
-                    </div>
-                </div>
-                <div class="curves-chart-container">
-                    <Spin fix v-if="chartLoading"></Spin>
-                    <div id="J_TABLE" class="curves-table ivu-table ivu-table-stripe"  style="margin-top:50px">
-                        <highcharts 
-                            :options="chartOptions" 
-                            ref="lineChart" 
-                            v-if="show" 
-                            style="height:294px"
-                        ></highcharts>
-                        <highcharts 
-                            :options="chartOptionsSec" 
-                            ref="lineChartSec" 
-                            v-if="show" 
-                            style="height:294px"
-                        ></highcharts>
-                        <div id="J_TABLE" class="curves-table">
-                            <Drawer 
-                                :mask="false"
-                                :closable="false" 
-                                :width="370"
-                                v-model="drawerTable"
+                                <a href="javascript:;" @click="dayReset">
+                                    <Icon type="ios-skip-forward" />
+                                </a>
+                            </div>
+                            <span>时间跨度：</span>
+                            <Select 
+                                v-model="timeValue"
+                                style="width:70px;display:inline-block"
                             >
-                                <table border="0" align="left" style="background: #fff;">
-                                    <thead style="position:fixed;z-index: 100;background: #fff;">
-                                        <tr>
-                                            <th width="160" align="left">时间</th>
-                                            <th width="94" align="left">{{ drawerColumns1 }}</th>
-                                            <th width="94" align="left">{{ drawerColumns2 }}</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr v-for="(item, index) in drawerData" :key="index">
-                                            <td width="170" align="left">{{ item.dataDate | formatDate }}</td>
-                                            <td width="94" align="left">{{ item.dataValue }}</td>
-                                            <td width="94" align="left">{{ drawerData2[index].dataValue }}</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </Drawer>
+                                <Option v-for="item in dateList" :value="item.value" :key="item.value">{{ item.name }}</Option>
+                            </Select>
+                            <div class="action-btn">
+                                <Dropdown>
+                                <a href="javascript:;">
+                                        <Icon type="ios-more" style="font-size:25px;color:rgb(75, 126, 254)" />
+                                    </a>
+                                <DropdownMenu slot="list">
+                                        <DropdownItem>
+                                            <Checkbox >环比</Checkbox>
+                                        </DropdownItem>
+                                        <DropdownItem>
+                                            <Checkbox >年同比</Checkbox>
+                                        </DropdownItem>
+                                        <DropdownItem>
+                                            <Checkbox >单图显示</Checkbox>
+                                        </DropdownItem>
+                                        <DropdownItem>
+                                            <Checkbox >多Y轴</Checkbox>
+                                        </DropdownItem>
+                                    </DropdownMenu>
+                                </Dropdown>
+                                <a href="javascript:;" @click="exportChart" class="c-icon-export" title="导出"></a>
+                                <a href="javascript:;" @click="refreshChart" title="刷新">
+                                    <Icon type="ios-sync" />
+                                </a>
+                                <a href="javascript:;" class="c-icon-table" @click="openDrawer" title="表格数据"></a>
+                                <Dropdown>
+                                    <a href="javascript:;">
+                                        <Icon type="md-trending-up" />   
+                                    </a>
+                                <DropdownMenu slot="list">
+                                        <DropdownItem>
+                                            <Checkbox @on-change="addLineAverage" v-model="lineRef.avg">显示平均线</Checkbox>
+                                        </DropdownItem>
+                                        <DropdownItem>
+                                            <Checkbox @on-change="addLineAlarm" v-model="lineRef.alarm">显示报警线</Checkbox>
+                                        </DropdownItem>
+                                        <DropdownItem>
+                                            <Checkbox @on-change="addLineMax" v-model="lineRef.max">显示最大值</Checkbox>
+                                        </DropdownItem>
+                                        <DropdownItem>
+                                            <Checkbox @on-change="addLineMin" v-model="lineRef.min">显示最小值</Checkbox>
+                                        </DropdownItem>
+                                    </DropdownMenu>
+                                </Dropdown>
+                                <a href="javascript:;" style="color:#333" @click="fullscreenChart">
+                                    <Icon type="ios-expand" />
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="curves-chart-container">
+                        <Spin fix v-if="chartLoading"></Spin>
+                        <div id="J_TABLE" class="curves-table ivu-table ivu-table-stripe"  style="margin-top:50px">
+                            <highcharts 
+                                :options="chartOptions" 
+                                ref="lineChart" 
+                                v-if="show" 
+                                style="height:294px"
+                            ></highcharts>
+                            <highcharts 
+                                :options="chartOptionsSec" 
+                                ref="lineChartSec" 
+                                v-if="show" 
+                                style="height:294px"
+                            ></highcharts>
+                            <div id="J_TABLE" class="curves-table">
+                                <Drawer 
+                                    :mask="false"
+                                    :closable="false" 
+                                    :width="370"
+                                    v-model="drawerTable"
+                                >
+                                    <table border="0" align="left" style="background: #fff;">
+                                        <thead style="position:fixed;z-index: 100;background: #fff;">
+                                            <tr>
+                                                <th width="160" align="left">时间</th>
+                                                <th width="94" align="left">{{ drawerColumns1 }}</th>
+                                                <th width="94" align="left">{{ drawerColumns2 }}</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="(item, index) in drawerData" :key="index">
+                                                <td width="170" align="left">{{ item.dataDate | formatDate }}</td>
+                                                <td width="94" align="left">{{ item.dataValue }}</td>
+                                                <td width="94" align="left">{{ drawerData2[index].dataValue }}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </Drawer>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            </fullscreen>
         </div>
         <Modal v-model="curveModal" width="500">
             <p slot="header" style="color:#1c2438;font-size:14px;border-left:7px solid #4b7efe;background:#f8f9fb;height:39px;line-height:39px">
@@ -274,6 +276,10 @@ import group from './curve/datagroup'
 import singledata from './curve/singleData'
 import util from '@/libs/public_js'
 
+import fullscreen from 'vue-fullscreen'
+import Vue from 'vue'
+Vue.use(fullscreen)
+
 var chartCache = [] , chartDataCache = [], 
     RTH_1 = 70, RTH_2 = 50, RTH = RTH_1+RTH_2, //lay层顶部二行的高度
     TDW = 100; // 表格宽
@@ -317,16 +323,13 @@ export default {
                 {
                     name:'天',
                     value:'day'
-                },
-                {
+                }, {
                     name:'周',
                     value:'week'
-                },
-                {
+                }, {
                     name:'月',
                     value:'month'
-                },
-                {
+                }, {
                     name:'年',
                     value:'year'
                 }
@@ -344,7 +347,6 @@ export default {
             drawerData: [],
             drawerData2: [],
             chartOptions: {
-                
                 chart: {
                     type: 'line'
                 },
@@ -500,6 +502,7 @@ export default {
             allData:[],
             chain: false,
             YOY: false,
+            singleTrees: []
         }
     },
     filters: {
@@ -534,6 +537,53 @@ export default {
         const day = myDate.getDate(); // 获取当前日（1-31）
         this.beginDate = `${year}-${month}-${day} 00:00:00`;
 
+        var rids 
+        if(this.$route.query.id) {
+            let beginDate = this.$moment(this.beginDate).utc().format()
+            let ids = this.$route.query.id
+            chartMethod({
+                ids,
+                beginDate
+            }).then(res=> {
+                
+                res.data.items.forEach(item=> {
+                    this.siteGroupList.push({
+                        id: item.mpointId,
+                        name: item.mpointName
+                    })
+                })
+
+                this.allData = res.data.items
+                this.drawerColumns1 = res.data.items[0].mpointName
+                this.drawerColumns2 = res.data.items[1].mpointName
+                this.drawerData = res.data.items[0].data
+                this.drawerData2 = res.data.items[1].data
+                let firstChart = res.data.items[0]
+                let secChart = res.data.items[1]
+                this.chartOptions.title.text = firstChart.mpointName+"-"+firstChart.siteName
+                let xData = [],yData = []
+                firstChart.data.map(ele=>{
+                    xData.push(this.timeFormat(ele.dataDate))
+                    yData.push(Number(ele.dataValue))
+                })
+                this.chartOptions.xAxis.categories = xData
+                this.chartOptions.series[0].name = firstChart.mpointName+"-"+firstChart.siteName
+                this.chartOptions.series[0].data = yData
+                this.chartOptionsSec.title.text = secChart.mpointName+"-"+secChart.siteName
+                let xDataSec = [],yDataSec = []
+                secChart.data.map(ele=>{
+                    xDataSec.push(this.timeFormat(ele.dataDate))
+                    yDataSec.push(Number(ele.dataValue))
+                })
+                this.chartOptionsSec.xAxis.categories = xDataSec
+                this.chartOptionsSec.series[0].name = secChart.mpointName+"-"+secChart.siteName
+                this.chartOptionsSec.series[0].data = yDataSec
+                this.show = true
+            })
+            this.siteShow = '1'
+            this.siteTitle = '您选择的测点：'
+        }
+
         var h = document.querySelector('.lay').offsetHeight,
             C = document.querySelector('#J_CURVES_CHART'),
             B = document.querySelector('#J_CURVES_SIDEBAR'),
@@ -560,6 +610,19 @@ export default {
         });
     },
     methods: {
+        fullscreenChart() {
+            this.$refs['fullscreen'].toggle()
+        },
+        fullscreenChange(fullscreen) {
+            var h = document.querySelector('.lay').offsetHeight,
+                M = document.querySelector('#C_CAPTURE_MAIN')
+            
+            if(fullscreen) {
+                M.style.height = '100%'
+            } else {
+                M.style.height = h - 51 - 20 + 'px'
+            }
+        },
         renderContent (h, { root, node, data }) {
             return h('span', {
                 style: {
@@ -815,8 +878,10 @@ export default {
         },
         getSingleData() {
             singleDataMethod().then(res=> {
+                // console.log(res)
                 let treeItem = []
                 let trees = res.data.items
+                this.singleTrees = res.data.items
                 for(let i = 0; i < trees.length; i ++) {
                     trees[i].title = trees[i].name
                     trees[i].expand = true
@@ -827,6 +892,7 @@ export default {
                     treeItem.push(trees[i])
                 }
                 this.singleList = createNameTree(treeItem)
+
             }).catch(err=> {
 
             })
@@ -863,6 +929,7 @@ export default {
             this.getcharts(data[0].id)
         },
         parentSite(data) {
+            console.log(data)
             this.siteGroupList = data
             this.siteShow = '1'
             this.siteTitle = '您选择的测点：'

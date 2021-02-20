@@ -54,8 +54,16 @@ let  dataQuality = [
 
 let dataManage = [
     {
-        path: '/task-detail',
+        path: '/task-detailSimple',
+        title: '查看单测点计算任务',
+        auth: ['hidden']
+    }, {
+        path: '/task-detailComplex',
         title: '查看多测点计算任务',
+        auth: ['hidden']
+    }, {
+        path: '/task-detailCustom',
+        title: '查看自定义型计算任务',
         auth: ['hidden']
     }, {
         path: '/analyze/synthesiSite',
@@ -172,6 +180,30 @@ let dataManage = [
     }, {
         path: `/bulletin/recordDetail`,
         title: '简报记录详情',
+        auth: ['hidden']
+    }, {
+        path: `/simpleForm`,
+        title: '新增单测点计算任务',
+        auth: ['hidden']
+    }, {
+        path: `/simpleFormEdit`,
+        title: '编辑单测点计算任务',
+        auth: ['hidden']
+    }, {
+        path: `/complexForm`,
+        title: '新增多测点计算任务',
+        auth: ['hidden']
+    }, {
+        path: `/complexFormEdit`,
+        title: '编辑多测点计算任务',
+        auth: ['hidden']
+    }, {
+        path: `/customForm`,
+        title: '新增自定义型计算任务',
+        auth: ['hidden']
+    }, {
+        path: `/customFormEdit`,
+        title: '编辑自定义型计算任务',
         auth: ['hidden']
     }
 ]

@@ -4,16 +4,16 @@
             <div class="search-main">
                 <div class="form-item">
                     <label>起止日期：</label>
-                     <DatePicker type="date"  placement="bottom-end"  @on-change="startTimeChange" :options="startDate" format="yyyy-MM-dd"  v-model="startTime" placeholder="开始日期" style="width: 120px"></DatePicker> -
-                    <DatePicker type="date"  placement="bottom-end"  @on-change="endTimeChange" :options="endDate" format="yyyy-MM-dd"  v-model="endTime" placeholder="结束日期" style="width: 120px"></DatePicker>
+                     <DatePicker type="date" placement="bottom-end" @on-change="startTimeChange" :options="startDate" format="yyyy-MM-dd"  v-model="startTime" placeholder="开始日期" style="width: 120px"></DatePicker> -
+                    <DatePicker type="date" placement="bottom-end" @on-change="endTimeChange" :options="endDate" format="yyyy-MM-dd" v-model="endTime" placeholder="结束日期" style="width: 120px"></DatePicker>
                 </div>
                 <div class="form-item">
                     <label>所属组织：</label> 
-                    <TreeSelect v-model="area"  :data="processList"  v-width="200" @on-change="changeArea"  />
+                    <TreeSelect v-model="area" :data="processList" v-width="200" @on-change="changeArea" />
                 </div>
                 <div class="form-item">
                     <label>执行人员：</label> 
-                    <Select v-model="personId" style="width:150px" size="small">
+                    <Select v-model="personId" style="width:150px">
                         <Option v-for="item in userList" :value="item.value" :key="item.value">{{ item.label }}</Option>
                     </Select>
                 </div>
@@ -66,7 +66,7 @@ export default {
     data(){
         return {
             searchShow: false,
-            height:"",
+            height: "",
             cityList: [
                 {
                     value: 'New York',
@@ -90,8 +90,7 @@ export default {
                     title: '巡检任务名称',
                     key: 'name',
                     width:160
-                },
-                {
+                }, {
                     title: '状态',
                     key: 'executeStatus',
                     render: (h, params) => {
@@ -100,12 +99,10 @@ export default {
                         return h('span', {
                         }, text);
                     }
-                },
-                {
+                }, {
                     title: '执行人',
                     key: 'executorName'
-                },
-                {
+                }, {
                     title: '开始时间',
                     key: 'startTime',
                     width:110,
@@ -113,8 +110,7 @@ export default {
                         return h('span', {
                         }, formatTime(params.row.startTime, 'yyyy-MM-dd HH:mm:ss'));
                     }
-                },
-                {
+                }, {
                     title: '结束时间',
                     key: 'endTime',
                     width:110,
@@ -122,14 +118,12 @@ export default {
                         return h('span', {
                         }, formatTime(params.row.endTime, 'yyyy-MM-dd HH:mm:ss'));
                     }
-                },
-                {
+                }, {
                     title: '所属组织',
                     key: 'orgName',
                     width:110,
                     ellipsis: true
-                },
-                {
+                }, {
                     title: '巡检点',
                     key: 'point',
                     render:(h,params)=>{
@@ -137,29 +131,23 @@ export default {
                         let text = params.row.inspectedCount+"/"+ params.row.patrolPointCount
                         return h('span',{},text)
                     }
-                },
-                {
+                }, {
                     title: '巡检项',
                     key: 'point',
                     render:(h,params)=>{
                         let text =params.row.hasResultCount +"/"+ params.row.stepCount
                         return h('span',{},text)
                     }
-                    // 
-                },
-                {
+                }, {
                     title: '缺陷申报',
                     key: 'faultCount'
-                },
-                {
+                }, {
                     title: '计划距离',
                     key: 'distance'
-                },
-                {
+                }, {
                     title: '实际距离',
                     key: 'realDistance'
-                },	
-                {
+                }, {
                     title: '巡检耗时',
                     key: 'elapsedTime'
                 }
@@ -213,9 +201,9 @@ export default {
             this.getStatList()
         },
         reset(){
-            this.status=[]
-            this.area =""
-            this.personId=""
+            this.status = []
+            this.area = ""
+            this.personId= ""
             this.page = 1
             this.start = this.getTime().split(',')[1]
             this.end = this.getTime().split(',')[0]
@@ -236,7 +224,7 @@ export default {
             let today = year+"-"+month+"-"+day
             return  pre+","+today
         },
-         endTimeChange(day){
+        endTimeChange(day){
           this.end = day
             this.startDate = {
                 disabledDate (date) {
@@ -254,7 +242,6 @@ export default {
         },
         getOrg(){
             getOrganizations().then(res=>{
-                console.log(res)
                 let treeItem = []
                 let trees = res.data
                 for(let i = 0; i < trees.length; i ++) {
@@ -270,7 +257,7 @@ export default {
             let begin = this.start?this.$moment(this.start).utc().format():''
             let end  = this.end?this.start+"T15:59:59.000Z":''
             let state = this.status.length!=0?this.status.join(','):''
-            let orgName=""
+            let orgName= ""
             this.baseData.map(item=>{
                 if(item.id == this.area){
                     orgName = item.name
@@ -278,7 +265,6 @@ export default {
             })
             // orgId,executorId,executeDateStart,executeDateEnd,executeStatus,page,orgName
             getList(this.area,this.personId,begin,end,state,this.page,orgName).then(res=>{
-                console.log(res)
                 if(res.data.items){
                     this.tableData = res.data.items
                     this.total = res.data.total
@@ -290,7 +276,6 @@ export default {
         },
         getUserList(){
             getUsers(this.area).then(res=>{
-                console.log(res)
                 this.userList = res.data
             })
         },
@@ -301,7 +286,6 @@ export default {
             this.searchShow = !this.searchShow
         },
         mapClick(){
-            console.log("1111")
             this.$router.push({
                 path:'/pollingManage/plan/add',
                 query: {

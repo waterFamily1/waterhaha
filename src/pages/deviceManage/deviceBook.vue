@@ -31,7 +31,7 @@
                 </div>
                 <div class="form-search-btn">
                     <a href="javascript:;" @click="higherSearch()">
-                        <Icon type="ios-arrow-up" v-if="searchShow"/>
+                        <Icon type="ios-arrow-up" v-if="searchShow" />
                         <Icon type="ios-arrow-down" v-else />
                         高级搜索
                     </a>
@@ -101,43 +101,35 @@ export default {
                     type: 'selection',
                     width: 55,
                     align: 'center'
-                },
-                {
+                }, {
                     title: '设备名称',
-                    key: 'name'
-                },
-                {
+                    key: 'name',
+                    ellipsis: true
+                }, {
                     title: '设备编号',
                     key: 'code'
-                },
-                {
+                }, {
                     title: '设备类型',
                     key: 'typeName'
-                },
-                {
+                }, {
                     title: '型号',
                     key: 'model'
-                },
-                {
+                }, {
                     title: '所属组织',
                     key: 'orgName',
                     ellipsis: true
-                },
-                {
+                }, {
                     title: 'ABC类',
                     key: 'abc'
-                },
-                 {
+                }, {
                     title: '区域位置',
                     key: 'processName',
                     ellipsis: true
-                },
-                {
+                }, {
                     title: '状态',
                     key: 'state',
                     width: 70
-                },
-                {
+                }, {
                     title: '操作',
                     slot: 'action',
                     width: 70,

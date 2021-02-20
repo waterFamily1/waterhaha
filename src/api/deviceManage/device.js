@@ -23,3 +23,19 @@ export function typeMethod() {
         method: 'get'
     })
 }
+
+//导出二维码
+export function codeMethod(data) {
+    return request({
+        url: '/equipment/api/equipments/qrcode-export?all='+data.isAll+'&ids='+data.ids+'&queryName='+data.queryName+'&processIds='+data.processIds+'&typeIds='+data.typeIds+'',
+        method: 'get'
+    })
+}
+
+//导出进度
+export function exportMethod(data) {
+    return request({
+        url: '/equipment/api/equipments/qrcode-export/progress?key='+data,
+        method: 'get'
+    })
+}

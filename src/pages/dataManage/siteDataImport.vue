@@ -89,20 +89,16 @@ export default {
             {
                 name:'等待中',
                 value:0
-            },
-            {
+            }, {
                 name:'导入中',
                 value:1
-            },
-             {
+            }, {
                 name:'部成',
                 value:2
-            },
-             {
+            }, {
                 name:'成功',
                 value:3
-            },
-             {
+            }, {
                 name:'中止',
                 value:4
             }, {
@@ -114,20 +110,16 @@ export default {
                 {
                     title: '状态',
                     key: 'statusName'
-                },
-                {
+                }, {
                     title: '时间',
                     key: 'createTime'
-                },
-                {
+                }, {
                     title: '时长',
                     key: 'importDuration'
-                },
-                {
+                }, {
                     title: '备注',
                     key: 'memo'
-                },
-                {
+                }, {
                     title: '操作',
                     slot: 'action',
                     width: 150,
@@ -154,18 +146,16 @@ export default {
         modelData:[],
         modelColumns:[
             {
-             type: 'selection',
-                        width: 70,
-                        align: 'center'
-            },
-                {
-                    title: '区域位置',
-                    key: 'siteName'
-                },
-                {
-                    title: '测点名称',
-                    key: 'mpointName'
-                },
+                type: 'selection',
+                width: 70,
+                align: 'center'
+            }, {
+                title: '区域位置',
+                key: 'siteName'
+            }, {
+                title: '测点名称',
+                key: 'mpointName'
+            }
         ],
         modal :false,
         modelKey:'',

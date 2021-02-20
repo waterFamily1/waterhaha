@@ -4,11 +4,11 @@
             <div class="search-main">
                 <div class="form-item">
                     <label>关键字：</label>
-                    <Input v-model="keyword" placeholder="录入名称" style="width: 150px" size="small" />
+                    <Input v-model="keyword" placeholder="录入名称" style="width: 150px" />
                 </div>
                 <div class="form-item">
                     <label>区域位置：</label> 
-                   <TreeSelect v-model="areaLocation" size="small" multiple  :data="areaData" v-width="200" />
+                   <TreeSelect v-model="areaLocation" multiple :data="areaData" v-width="200" />
                 </div>
                 <div class="form-search-btn">
                     <a href="javascript:;" @click="higherSearch()">
@@ -25,8 +25,8 @@
                     <div class="form-item">
                         <label>业务时间：</label>
                         <div class="cmp-tab">
-                           <DatePicker type="date"  @on-change="startTimeChange" :options="startDate" format="yyyy-MM-dd"  v-model="startTime" placeholder="开始日期" style="width: 190px"></DatePicker> -
-                           <DatePicker type="date"  @on-change="endTimeChange" :options="endDate" format="yyyy-MM-dd"  v-model="endTime" placeholder="结束日期" style="width: 190px"></DatePicker>
+                           <DatePicker type="date" @on-change="startTimeChange" :options="startDate" format="yyyy-MM-dd" v-model="startTime" placeholder="开始日期" style="width: 190px"></DatePicker> -
+                           <DatePicker type="date" @on-change="endTimeChange" :options="endDate" format="yyyy-MM-dd"  v-model="endTime" placeholder="结束日期" style="width: 190px"></DatePicker>
                         </div>
                     </div>
                 </div>
@@ -43,9 +43,6 @@
                         @on-select-cancel="handleSelectCancel"
                         @on-select-all="handleSelectAll"
                         @on-select-all-cancel="handleSelectAllCancel">>
-                    <template slot-scope="{ row }" slot="name">
-                        <strong>{{ row.name }}</strong>
-                    </template>
                     <template slot-scope="{ row, index }" slot="action">
                         <Button class="action" size="small" style="margin-right: 5px;" @click="logData(row)">录入数据</Button>
                         <Button class="action" size="small" style="margin-right: 5px;" @click="checkRecord(row)">查看记录</Button>
@@ -61,6 +58,8 @@
 import { regionalCon,getTable,deleteLabour} from '@api/dataManage/labour';
 import createTree from '@/libs/public-util'
 import {formatTime} from '@/libs/public'
+import util from '@/libs/public_js'
+
 export default {
     name: 'labourData',
     data() {
@@ -76,28 +75,30 @@ export default {
                     type: 'selection',
                     width: 70,
                     align: 'center'
-                },
-                {
+                }, {
                     title: '区域位置',
-                    key: 'siteName'
-                },
-                {
+                    key: 'siteName',
+                    ellipsis: true
+                }, {
                     title: '录入名称',
-                    key: 'formName'
-                },
-                {
+                    key: 'formName',
+                    ellipsis: true
+                }, {
                     title: '录入周期',
                     key: 'cycleName'
-                },
-                {
+                }, {
                     title: '最近业务时间',
                     key: 'formLatestdate',
-                },
-                {
+                    render(h, data) {
+                        return util.tableDatetime(h, data.row.formLatestdate)
+                    } 
+                }, {
                     title: '最近录入时间',
                     key: 'updateTime',
-                },
-                {
+                    render(h, data) {
+                        return util.tableDatetime(h, data.row.updateTime)
+                    } 
+                }, {
                     title: '操作',
                     slot: 'action',
                     align: 'center'
@@ -164,13 +165,7 @@ export default {
             let start = begin?begin+"T16:00:00.000Z":''
             let endS = end?end+"T15:59:59.000Z":""
             getTable(siteId,queryName,start,endS,page,siteName).then(res=>{
-                console.log(res)
-                let data= res.data.items
-                data.forEach(ele=>{
-                    ele.formLatestdate= formatTime(ele.formLatestdate, 'HH:mm:ss yyyy-MM-dd')
-                    ele.updateTime = formatTime(ele.updateTime, 'HH:mm:ss yyyy-MM-dd')
-                })
-                this.tableData = data
+                this.tableData = res.data.items
                 this.total = res.data.total
             })
         },

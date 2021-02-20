@@ -4,91 +4,211 @@
             <div class="search-main">
                 <div class="form-item">
                     <label>所属组织：</label> 
-                    <Select v-model="model1" style="width:200px" size="small">
-                        <Option v-for="item in cityList" :value="item.value" :key="item.value">{{ item.label }}</Option>
-                    </Select>
+                    <TreeSelect 
+                        v-model="orgId" 
+                        :data="orgList" 
+                        v-width="200" 
+                    />
                 </div>
                 <div class="form-item">
                     <label>时间：</label>
-                    <DatePicker type="date" placeholder="Select date" style="width: 200px" size="small"></DatePicker>
+                    <DatePicker type="date" placeholder="请选择日期" format="yyyy-MM-dd" style="width: 200px" v-model="executeDate" :clearable="false"></DatePicker>
                 </div>
                   <div class="form-search-btn">
-                    <Button>搜索</Button>
-                    <Button class="reset">重置</Button>
+                    <Button @click="search()">搜索</Button>
+                    <Button class="reset" @click="searchParamsClean">重置</Button>
                 </div>
             </div>
         </div>
         <div class="map-content" :style="{height: (height-45)+'px'}">
             <div class="c-scrollbar">
-                <Table stripe :columns="tableList" >
-                    <template slot-scope="{ row, index }" slot="action">
-                        <!-- <Button class="action" size="small" style="margin-right: 5px;">配置</Button> -->
-                        <Button class="action" size="small">查看</Button>
-                    </template>
-                </Table> 
+                <Table :columns="columns" :data="listData" @on-select-cancel="onSelect" @on-selection-change="onSelect" stripe :loading="loading" width="900"></Table>
             </div>
+
             <div class="map-show">
-                <baidu-map center="天津" :zoom="13" 
-                        :scroll-wheel-zoom="true" style="height:100%">
-                        <bm-control >
-                            <bm-auto-complete v-model="keyword" :sugStyle="{zIndex: 1}">
-                                <Input suffix="ios-search" placeholder="" style="width: auto" />
-                            </bm-auto-complete>
-                        </bm-control>
-                    <bm-local-search :keyword="keyword" :auto-viewport="true" ></bm-local-search>
-                </baidu-map>
+                <div id="patrol-trace-map" style="margin-left: 10px;" :style="{height: H+'px'}"></div>
+                <span v-show="mapLoading" style="position: absolute;left: 20px;top: 10px;color: #999;">正在加载地图...</span>
+                <div class="bdmap-search">
+                    <Icon type="ios-search" size="20" color="#CCCCCC"></Icon>
+                    <input type="text" id="bdmap-search-key" class="bdmap-search-key" />
+                </div>
             </div>
         </div>
     </div>
 </template>
 <script>
+import { orgMethod, tableMethod } from '@/api/pollingManage/map'
+import createTree from '@/libs/public-util'
+import util from '@/libs/public_js'
+import { mapState } from 'vuex'
+import mapUtil from '@/libs/map'
+
+var map
+const _LOCAL_NOW = util.F(new Date)+' 00:00:00'
+
 export default {
     name:'mapPolling',
     data () {
         return {
             height :'',
-            tableList: [
+            H: '300px',
+            orgId: '',
+            orgList: [],
+            executeDate: _LOCAL_NOW,
+            columns: [
+                { type: "selection", width: 30, align: "center" },
                 {
-                    type: 'selection',
-                    width: 50,
-                    align: 'center'
-                },
-                {
-                    title: '巡检任务',
-                    key: 'task'
-                },
-                {
-                    title: '任务编号',
-                    key: 'number'
-                },
-                {
-                    title: '状态',
-                    key: 'state'
-                },
-                {
-                    title: '巡检点',
-                    key: 'point'
-                },
-                {
-                    title: '结果记录',
-                    key: 'result'
+                    title: "巡检任务",
+                    key: "name",
+                    ellipsis: true
+                }, {
+                    title: "任务编号",
+                    key: "no",
+                    ellipsis: true
+                }, {
+                    title: "状态",
+                    key: "executeStatus",
+                    width:80
+                }, {
+                    title: "巡检点",
+                    key: "inspectedCount",
+                    width: 80,
+                    render: (h, data) => {
+                        return h(
+                            "span",
+                            data.row.inspectedCount +
+                                "/" +
+                                data.row.patrolPointCount
+                        );
+                    }
+                }, {
+                    title: "结果记录",
+                    key: "hasResultCount",
+                    width: 120,
+                    renderHeader: (h) => {
+                            return h('span', {
+                                attrs:{
+                                    title: '结果记录'
+                                }
+                            }, '结果记录')
+                        },
+                    render: (h, data) => {
+                        return h(
+                            "span",
+                            data.row.hasResultCount + "/" + data.row.stepCount
+                        );
+                    }
+                }, {
+                    title: "报缺", 
+                    key: "faultCount",
+                    width: 60
+                }, {
+                    title: "执行人", 
+                    key: "executorName", 
+                    width: 120
+                }, {
+                    title: "结束时间",
+                    key: "endTime",
+                    width: 120,
+                    render: (h, data) => {
+                        return h("span", util.transDateFromServer(data.row.endTime, "hh:mm:ss"));
+                    }
                 }
             ],
-            model1:'',
-            keyword:'',
-            cityList: [
-                {
-                    value: 'New York',
-                    label: 'New York'
-                }
-            ],
+            listData: [],
+            currentPage: 1,
+            loading: false,
+            mapLoading: false
         }
     },
-    methods: {
-
-    },
+    computed: mapState({
+        patrol : (state) => state.map.patrol
+    }),
     mounted() {
         this.height = document.body.clientHeight-75
+        this.getOrg() 
+
+        var layHeight = document.querySelector('.lay').offsetHeight - 103
+        this.H = this.height-110 
+        mapUtil.create(()=>{
+            map = new BMap.Map('patrol-trace-map')
+            map.enableScrollWheelZoom(true)
+            mapUtil.setStyle(map)
+            this.getTable()
+            mapUtil.addSearch(map)
+        });
+    },
+    methods: {
+        getOrg() {
+            orgMethod().then(res=> {
+                let treeItem = []
+                let trees = res.data
+                for(let i = 0; i < trees.length; i ++) {
+                    trees[i].title = trees[i].name
+                    trees[i].value = trees[i].id
+                    treeItem.push(trees[i])
+                }
+                this.orgList = createTree(treeItem, 0)
+            }).catch(err=> {
+
+            })
+        },
+        getTable() {
+            this.loading = true
+            const _STATE = this.patrol.task.state
+            let orgId = this.executeDate
+            let executeDate = util.transDateFromLocale(this.executeDate)
+            let currentPage = this.currentPage
+            tableMethod({
+
+            }).then(res=> {
+                this.loading = false
+                if(res.data) {
+                    res.data.items.forEach((item)=>{
+                        item._checked = true
+                        item.executeStatus = _STATE[item.executeStatus]
+                    })
+                    this.listData = res.data.items
+                    this.onSelect(res.data.items)
+                    if(res.data.total == 0) {
+                        mapUtil.placePoint(map, ()=>{ 
+                            this.mapLoading = false 
+                        })
+                        return
+                    } else {
+                        this.mapLoading = false
+                    }
+                }
+            }).catch(err=> {
+
+            })
+        },
+        onSelect(selection) {
+            //取同一计划下，最后一个任务
+            map.clearOverlays(); 
+            if(!selection.length) return
+            let selected = []
+            let beforeRow = selection[0]
+            for (let i = 0; i < selection.length; i++) {
+                let obj = selection[i]
+                if (obj.patrolPlanId != beforeRow.patrolPlanId) {
+                    selected.push(beforeRow)
+                    beforeRow = obj
+                }
+            }
+            selected.push(selection[selection.length - 1]) //最后一行
+            selected.forEach((item)=>{
+                mapUtil.drawPatrol(map, item)
+            })
+        },
+        search() {
+            this.currentPage = 1
+            this.getTable()
+        },
+        searchParamsClean() {
+            this.orgId = ''
+            this.executeDate = _LOCAL_NOW
+        }
     }
 }
 </script>
@@ -150,7 +270,13 @@ export default {
             width: 50%;
             height: 100%;
             float: right;
+            position: relative;
         }
     }
+}
+.bdmap-search {
+    position: absolute;
+    top: 17px;
+    right: 20px;
 }
 </style>

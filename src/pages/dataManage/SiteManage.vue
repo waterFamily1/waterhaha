@@ -176,6 +176,7 @@
 import { getListMethod, regionalCon, dataKindMethod, deleteMethod } from '@/api/dataManage/siteManage'
 import { formatTime, isAllEqual, download } from '@/libs/public'
 import createTree from '@/libs/public-util'
+import util from '@/libs/public_js'
 
 export default {
     name: 'SiteManage',
@@ -195,28 +196,22 @@ export default {
                     type: 'selection',
                     width: 60,
                     align: 'center'
-                },
-                {
+                }, {
                     title: '测点编号',
                     key: 'mpointId'
-                },
-                {
+                }, {
                     title: '区域位置',
                     key: 'siteName'
-                },
-                {
+                }, {
                     title: '测点名称',
                     key: 'mpointName'
-                },
-                {
+                }, {
                     title: '当前值',
                     key: 'value'
-                },
-                {
+                }, {
                     title: '业务时间',
                     key: 'datadt'
-                },
-                {
+                }, {
                     title: '信号类型',
                     key: 'datype',
                     width: 100,
@@ -236,18 +231,15 @@ export default {
                             }
                         },text);
                     }
-                },
-                {
+                }, {
                     title: '数据来源',
                     key: 'datasourceName',
                     width: 110
-                },
-                {
+                }, {
                     title: '数据分类',
                     key: 'categoryId',
                     width: 110
-                },
-                {
+                }, {
                     title: '操作',
                     slot: 'action',
                     width: 140,
@@ -501,6 +493,7 @@ export default {
                         list.push(item.id)
                     })
                     let ids = JSON.stringify(list).replace("[","").replace("]","")
+                    this.idsLength
                     this.$router.push({
                         path: '/analyze/synthesiSite',
                         type: 'COMPLEX'
@@ -545,6 +538,7 @@ export default {
                     })
                     let ids = JSON.stringify(list).replace("[","").replace("]","")
                     this.ids = ids
+                    this.idsLength = ''
                 }).catch(err=> {
 
                 })
@@ -552,18 +546,19 @@ export default {
         },
         exportHandle(val) {
             let ids = this.ids
+            let _params = {
+                ids: ''
+            }
             if(val == 0) {
                 if(ids == '') {
                     this.$Notice.info({
                         title: '请选择导出测点！'
                     });
                 } else {
-                    let url = 'http://web.tjdeht.cn:8801/loong/api/mpoints/export?ids='+ids
-                    window.open(url)
+                    util.download('/loong/api/mpoints/export', _params, ()=>{});
                 }
             } else if(val == 1) {
-                let url = 'http://web.tjdeht.cn:8801/loong/api/mpoints/export?ids='+ids
-                window.open(url)
+                util.download('/loong/api/mpoints/export', _params, ()=>{});
             }
         },
         deleteOk() {
@@ -729,14 +724,12 @@ export default {
             //查看曲线
             console.log(this.idsLength)
             if (this.idsLength && this.idsLength > 0 && this.idsLength < 9) {
-                // var ids = [];
-                // this.haveSelected.forEach((item)=>{
-                //     ids.push(item.id);
-                // })
-                // this.$router.push({
-                //     name: 'data-analysis-info',
-                //     params: { id: ids.join(',') }
-                // });
+                var ids = [];
+                // console.log(this.ids)
+                this.$router.push({
+                    path: '/data-analysis',
+                    query: { id: this.ids }
+                });
             } else {
                 this.$Notice.warning({
                     title: '警告',

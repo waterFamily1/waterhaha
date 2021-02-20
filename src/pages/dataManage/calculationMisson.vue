@@ -49,15 +49,13 @@
         </div>
         <div class="sim-content">
             <div class="c-table-top-btns">
-                <Dropdown>
-                    <Button type="primary">
-                        新增
-                        <Icon type="md-arrow-dropdown"></Icon>
+                <Dropdown @on-click="addTask">
+                    <Button type="primary"> 新增 <Icon type="md-arrow-dropdown"></Icon>
                     </Button>
                     <DropdownMenu slot="list">
-                        <DropdownItem>单测点计算</DropdownItem>
-                        <DropdownItem>多测点计算</DropdownItem>
-                        <DropdownItem>自定义型计算</DropdownItem>
+                        <DropdownItem name='simple'>单测点计算</DropdownItem>
+                        <DropdownItem name='complex'>多测点计算</DropdownItem>
+                        <DropdownItem name='custom'>自定义型计算</DropdownItem>
                     </DropdownMenu>
                 </Dropdown>
                 <Button style="margin-left:10px" @click="removeHandle()">删除</Button>
@@ -74,8 +72,8 @@
                 >
                     <template slot-scope="{ row, index }" slot="action">
                         <Button class="action" size="small" style="margin-right: 5px;" @click="detailHandle(row)">查看</Button>
-                        <Button class="action" size="small" style="margin-right: 5px;">编辑</Button>
-                        <Button class="action" size="small">计算记录</Button>
+                        <Button class="action" size="small" style="margin-right: 5px;" @click="editHandle(row)">编辑</Button>
+                        <Button class="action" size="small" @click="jisuan(row)">计算记录</Button>
                     </template>
                 </Table>
                 <Page 
@@ -155,12 +153,52 @@
             <Icon type="md-help-circle" />
             <p>重新计算将覆盖当前值，请确认是否要重新计算？</p>
         </Modal>
+        <!-- 计算记录 -->
+        <Modal ref="modal1" v-model="showDetail" title="计算记录" width="700" closable>
+            <div>
+                <div class="log-search">
+                    <div class="c-adv-search-row">
+                        <label>计算时间：</label>
+                        <div class="search-item">
+                            <DatePicker type="date" format="yyyy-MM-dd" v-model="logSearchParam.dateRange.start" placeholder="开始时间" style="width: 200px" ></DatePicker> -
+                            <DatePicker type="date" v-model="logSearchParam.dateRange.end" format="yyyy-MM-dd" placeholder="结束时间" style="width: 200px"></DatePicker>
+                        </div>
+                    </div>
+                    <div class="c-adv-search-row">
+                        <label>执行状态：</label>
+                        <div class="search-item">
+                            <TagSelect v-model="logSearchParam.status" @on-change="logSearch">
+                                <TagSelectOption name="Normal">正常</TagSelectOption>
+                                <TagSelectOption name="Error">异常</TagSelectOption>
+                                <TagSelectOption name="Recalced">重新计算</TagSelectOption>
+                            </TagSelect>
+                        </div>
+                    </div>
+                </div>
+                <Table :columns="columnsLog" :data="dataLog" :loading="loading1" size="small" @on-selection-change="selectChange"></Table>
+                <Page :total="totalLog" :page-size="logSearchParam.pageSize" :current="logSearchParam.currentPage" class="table-page" show-total show-elevator size="small" @on-change="logPageChange"></Page>
+                <div class="task-log">
+                    <div class="task-log-span log-left">
+                        <span>正常：<i>{{ntotal}}</i></span>
+                        <span class="task-log-span-left">异常：<i>{{etotal}}</i></span>
+                    </div>
+                    <div class="log-right">
+                        <a @click="refreshTalc">
+                            <Icon type="md-refresh" size="16" color="rgb(75, 126, 254)"></Icon>
+                            <span>重新计算</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div slot="footer"></div>
+        </Modal>
     </div>
 </template>
 <script>
-import { getListMethod, removeMethod, invokeMethod, recountMethod, regionalCon } from '@/api/dataManage/taskCalc'
+import { getListMethod, removeMethod, invokeMethod, recountMethod, regionalCon, jisuanMethod, jisuanMethod1 } from '@/api/dataManage/taskCalc'
 import { formatTime } from '@/libs/public'
 import createTree from '@/libs/public-util'
+import util from '@/libs/public_js'
 
 export default {
     name: 'SiteManage',
@@ -181,43 +219,54 @@ export default {
                     type: 'selection',
                     width: 60,
                     align: 'center'
-                },
-                {
+                }, {
                     title: '任务编号',
-                    key: 'mpointNo'
-                },
-                {
+                    key: 'mpointNo',
+                    width: 90,
+                    ellipsis: true
+                }, {
                     title: '任务名称',
-                    key: 'taskname'
-                },
-                {
+                    key: 'taskname',
+                    ellipsis: true
+                }, {
                     title: '任务状态',
-                    key: 'status'
-                },
-                {
+                    key: 'status',
+                    width: 100,
+                    render: (h, data) => {
+                        return h( "span", data.row.status === 'ON' ? '启用' : '停用' )
+                    }
+                }, {
                     title: '数据时间(最早)',
-                    key: 'startdt'
-                },
-                {
+                    key: 'startdt',
+                    width: 160,
+                    render(h, data) {
+                        return util.tableDatetime(h, data.row.startdt)
+                    } 
+                }, {
                     title: '计算周期',
-                    key: 'cycleName'
-                },
-                {
+                    key: 'cycleName',
+                    width: 100,
+                    ellipsis: true
+                }, {
                     title: '单位',
-                    key: 'unit'
-                },
-                {
+                    key: 'unit',
+                    width: 80
+                }, {
                     title: '任务类型',
-                    key: 'ftype'
-                },
-                {
+                    key: 'ftype',
+                    width: 120,
+                    render: (h, data) => {
+                        return h( "span", { attrs: { title: data.row.ftype === 'Simple' ? '单测点计算' : (data.row.ftype === 'Custom' ? '自定义型计算' : '多测点计算') } }, 
+                        data.row.ftype === 'Simple' ? '单测点计算' : data.row.ftype === 'Custom' ? '自定义型计算' : '多测点计算' );
+                    }
+                }, {
                     title: '区域位置',
-                    key: 'siteName'
-                },
-                {
+                    key: 'siteName',
+                    ellipsis: true
+                }, {
                     title: '操作',
                     slot: 'action',
-                    width: 150,
+                    width: 200,
                     align: 'center'
                 }
             ],
@@ -243,7 +292,60 @@ export default {
             taskTypeValue: [],
             ids: '',
             startDT: '',
-            endDT: ''
+            endDT: '',
+            showDetail: false,
+            columnsLog: [
+                { type: 'selection', width: 60 },
+                { title: '数据时间', key: 'datadt',
+                    render(h, data) {
+                        return util.tableDatetime(h, data.row.datadt)
+                    } 
+                },
+                { title: '计算时间', key: 'finishdt',
+                    render(h, data) {
+                        return util.tableDatetime(h, data.row.finishdt)
+                    } 
+                },
+                { title: '值', key: 'excuteVal',
+                    render: (h, data) => {
+                        if(data.row.status === 'Error') {
+                            return h("div", [
+                                util.tableBtnStyle(
+                                    h, () => {
+                                        this.$Modal.confirm({
+                                            title: '提示',
+                                            content: '<p>'+ data.row.error +'</p>'
+                                        });
+                                    }, "查看原因"
+                                )
+                            ]);
+                        } else {
+                            return h( "span", data.row.excuteVal );
+                        }
+                    }
+                }, { title: '执行状态', key: 'status', 
+                    render: (h, data) => {
+                        return h( "span", data.row.status === 'Recalced' ? '重新计算' : data.row.status === 'Normal' ? '正常' : '异常' );
+                    }
+                }
+            ],
+            dataLog: [],
+            selectData: [],
+            loading1: false,
+            totalLog: 0,
+            ntotal: 0,
+            etotal: 0,
+            logSearchParam: {
+                pageSize: 10,
+                currentPage: 1,
+                id: null,
+                dateRange:{
+                    start: '',
+                    end: util.formatDateTime(new Date(),'yyyy-MM-dd hh:mm:ss'),
+                },
+                status: []
+            },
+            jisuanStar: ''
         }
     },
     mounted() {
@@ -252,6 +354,25 @@ export default {
         this.getRegional()
     },
     methods: {
+        // 添加
+        addTask(name) {
+            if(name == 'simple') {
+                //单测点
+                this.$router.push({
+                    path: '/simpleForm'
+                })
+            } else if(name == 'complex') {
+                //多测点
+                this.$router.push({
+                    path: '/complexForm'
+                })
+            } else {
+                //多测点
+                this.$router.push({
+                    path: '/customForm'
+                })
+            }
+        },
         getList() {
             let queryName = this.keyword
             let status = this.operatorValue
@@ -265,27 +386,7 @@ export default {
                 currentPage
             }).then(res=> {
                 // console.log(JSON.stringify(res.data))
-                let arr = res.data.items
-                arr.map(item=> {
-                    if(item.status == 'ON') {
-                        item.status = '启用'
-                    } else if(item.status == 'OFF') {
-                        item.status = '停用'
-                    }
-
-                    item.startdt = formatTime(item.startdt, 'HH:mm:ss yyyy-MM-dd')
-
-                    if(item.ftype == 'Simple') {
-                        item.ftype = '单测点计算'
-                    } else if (item.ftype == 'Complex') {
-                        item.ftype = '多测点计算'
-                    } else if (item.ftype == 'Custom') {
-                        item.ftype = '自定义型计算'
-                    }
-
-                    return item
-                })
-                this.siteTableData = arr
+                this.siteTableData = res.data.items
                 this.allTotal = res.data.total
             }).catch(err=> {
 
@@ -331,12 +432,6 @@ export default {
             } else {
                 this.removeModal = true
             }
-            // this.$router.push({
-            //     path:'/other/areaUpload',
-            //     query: {
-            //         uploadName: '批量导入SIM卡'
-            //     }
-            // })
         },
         removeOk() {
             let ids = this.ids
@@ -493,13 +588,157 @@ export default {
         detailHandle(row) {
             let id = row.id
             let mpointid = row.mpointid
-            this.$router.push({
-                path: '/task-detail',
-                query: {
-                    id: id,
-                    mpointid: mpointid
+            if(row.ftype == 'Custom') {
+                this.$router.push({
+                    path: '/task-detailCustom',
+                    query: {
+                        id: id,
+                        mpointid: mpointid,
+                        type: row.ftype
+                    }
+                })
+            } else if (row.ftype == 'Simple') {
+                this.$router.push({
+                    path: '/task-detailSimple',
+                    query: {
+                        id: id,
+                        mpointid: mpointid,
+                        type: row.ftype
+                    }
+                })
+            } else if (row.ftype == 'Complex') {
+                this.$router.push({
+                    path: '/task-detailComplex',
+                    query: {
+                        id: id,
+                        mpointid: mpointid,
+                        type: row.ftype
+                    }
+                })
+            }
+        },
+        // 计算日志搜索
+        logSearch(item) {
+            this.getTaskLogData()
+        },
+        jisuan(row) {
+            this.logSearchParam.currentPage = 1;
+            this.logSearchParam.status = '';
+            this.logSearchParam.dateRange.start = util.formatDateTime(row.startdt,'yyyy-MM-dd 00:00:00')
+            this.logSearchParam.dateRange.end = util.formatDateTime(new Date(),'yyyy-MM-dd hh:mm:ss')
+            this.logSearchParam.id = row.id
+            this.showDetail = true
+            this.getTaskLogData()
+        },
+        // 计算日志数据
+        getTaskLogData() {
+            this.dataLog = []
+            this.loading1 = true
+            this.logSearchParam.startDT = this.$moment(this.logSearchParam.dateRange.start).utc().format()
+            this.logSearchParam.endDT = this.$moment(this.logSearchParam.dateRange.dateRange).utc().format()
+            let currentPage = this.logSearchParam.currentPage
+            let id = this.logSearchParam.id
+            let status = this.logSearchParam.status
+            let startDT = this.logSearchParam.startDT
+            let endDT = this.logSearchParam.endDT
+            jisuanMethod({
+                currentPage,
+                id,
+                status,
+                startDT,
+                endDT
+            }).then(res=> {
+                if(res.data.items) {
+                    this.dataLog = res.data.items
+                    this.totalLog = res.data.total
+                    this.ntotal = res.data.ntotal
+                    this.etotal = res.data.etotal
+                    this.loading1 = false
                 }
             })
+        },
+        // 选中值
+        selectChange(data) {
+            this.selectData = data
+        },
+        // 计算日志切换页码
+        logPageChange(currentPage) {
+            this.logSearchParam.currentPage = currentPage
+            this.logSearch()
+        },
+        // 重新计算
+        refreshTalc() {
+            if(this.selectData.length == 0) {
+                this.$Notice.warning({
+                    title: "警告",
+                    desc: "请选择计算任务进行重新计算",
+                    duration: 3
+                });
+            } else {
+                let paramsData = [];
+                this.selectData.forEach(v => {
+                    if(v.status == 'Recalced') {
+                        this.$Notice.warning({
+                            title: "警告",
+                            desc: "只有执行状态为正常或异常的才能重新计算",
+                            duration: 3
+                        });
+                        return;
+                    }
+                    let paramsObj = {
+                        taskid: v.taskid,
+                        status: 'Waitting',
+                        datadt: v.datadt
+                    }
+                    paramsData.push(paramsObj);
+                })
+                this.$Modal.confirm({
+                    title: '提示',
+                    content: '<p>重新计算将覆盖当前值，请确认是否重新计算？</p>',
+                    onOk: () => {
+                        jisuanMethod1(paramsData).then(res=> {
+                            if(res.data.count) {
+                                this.$Notice.success({
+                                    title: "成功",
+                                    desc: "补算任务添加成功，五分钟之后查询结果！"
+                                });
+                                this.selectData = []
+                                this.showDetail = false
+                            }
+                        })
+                    },
+                    onCancel: () => {
+                        
+                    }
+                });
+            }
+        },
+        editHandle(row) {
+            if(row.ftype == 'Simple') {
+                this.$router.push({
+                    path: '/simpleFormEdit',
+                    query: {
+                        id: row.mpointid,
+                        type: row.ftype
+                    }
+                })
+            } else if(row.ftype == 'Complex') {
+                this.$router.push({
+                    path: '/complexFormEdit',
+                    query: {
+                        id: row.mpointid,
+                        type: row.ftype
+                    }
+                })
+            } else {
+                this.$router.push({
+                    path: '/customFormEdit',
+                    query: {
+                        id: row.mpointid,
+                        type: row.ftype
+                    }
+                })
+            }
         }
     }
 }
@@ -669,5 +908,37 @@ export default {
             }
         }
     }
+}
+.log-search {
+    .c-adv-search-row {
+        margin: 5px 0;
+        display: flex;
+        height: 32px;
+        label {
+            display: inline-block;
+            width: 100px;
+            line-height: 32px;
+            text-align: left;
+        }
+        /deep/.ivu-tag-text {
+            font-size: 14px;
+        }
+    }
+}
+.table-page {
+    text-align: right;
+    margin: 10px 0;
+}
+.task-log-span-left {
+    margin-left: 40px;
+}
+.task-log {
+    padding: 10px 20px;
+    background: #f4f4f4;
+    font-size: 14px;
+    color: #333;
+    height: 40px;
+    display: flex;
+    justify-content: space-between;
 }
 </style>

@@ -61,21 +61,21 @@ service.interceptors.response.use(
                 break;
             }
         }
-        // if (response.headers["x-error"]) {
-        //     console.log(11)
-        //     if (ERROR_CN[response.headers["x-error"]])
-        //       VUEINS.$Message.error(
-        //         ERROR_CN[response.headers["x-error"]] || response.headers["x-error"]
-        //       );
-        //   } else {
-        //     if (response.status == 200) {
-        //       return response.data;
-        //     } else {
-        //       return response;
-        //     }
-        //   }
+        if (response.headers["x-error"]) {
+            if (ERROR_CN[response.headers["x-error"]])
+                VUEINS.$Message.error(
+                    ERROR_CN[response.headers["x-error"]] || response.headers["x-error"]
+                );
+        } else {
+            if (response.status == 200) {
+                return response.data;
+            } else {
+                return response;
+            }
+        }
     },
     error => {
+        console.log(error)
         // if (error && error.response) {
         //     switch (error.response.status) {
         //     case 400: error.message = '请求错误'; break;
@@ -135,7 +135,7 @@ service.interceptors.response.use(
         //       VUEINS.$Message.error("无权限操作");
         //     }
         //   }
-        //   return Promise.reject(error);
+          return Promise.reject(error);
     }
 );
 

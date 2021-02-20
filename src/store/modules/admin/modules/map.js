@@ -180,6 +180,167 @@ const state = {
             "2": "位置"
         }
     },
+     // 巡检管理
+    patrol: {
+        // 巡检任务管理
+        task: {
+            type: [
+                {
+                    label: "普通巡检",
+                    value: "inside"
+                }, {
+                    label: "地图巡检",
+                    value: "outside"
+                }
+            ],
+            state: {
+                unallocated: "未分配",
+
+                toBeExecuted: "待执行",
+
+                executing: "执行中",
+
+                finished: "已完成",
+
+                abnormal: "异常",
+
+                interrupt: "已终止"
+            }
+        },
+        // 巡检计划
+        plan: {
+        planStates: {
+            New: "新建",
+            Ing: "执行中",
+            Interrupt: "已终止",
+            Finish: "已完成"
+        },
+        weeks: [
+            { id: 1, name: "星期一" },
+            { id: 2, name: "星期二" },
+            { id: 3, name: "星期三" },
+            { id: 4, name: "星期四" },
+            { id: 5, name: "星期五" },
+            { id: 6, name: "星期六" },
+            { id: 7, name: "星期日" }
+        ],
+        weeksText: {
+            "1": "星期一",
+            "2": "星期二",
+            "3": "星期三",
+            "4": "星期四",
+            "5": "星期五",
+            "6": "星期六",
+            "7": "星期日"
+        },
+        statesMap: [
+            {
+                label: "新建",
+                value: "New"
+            }, {
+                label: "执行中",
+                value: "Ing"
+            }, {
+                label: "已终止",
+                value: "Interrupt"
+            }, {
+                label: "已完成",
+                value: "Finish"
+            }
+        ],
+        stateTexts: {
+            New: "新建",
+            Ing: "执行中",
+            Interrupt: "已终止",
+            Finish: "已完成"
+        },
+        clockMap: [
+            {
+                label: "正常",
+                value: "1"
+            }, {
+                label: "异常",
+                value: "2"
+            }, {
+                label: "未完成",
+                value: "3"
+            }
+        ],
+        clockTexts: {
+            "1": "正常",
+            "2": "异常",
+            "3": "未完成"
+        }
+    },
+        // 巡检统计
+    statistics: {
+        state: [
+            {
+                label: "未分配",
+                value: "unallocated"
+            },
+            {
+                label: "待执行",
+                value: "toBeExecuted"
+            },
+            {
+                label: "执行中",
+                value: "executing"
+            },
+            {
+                label: "已完成",
+                value: "finished"
+            },
+            {
+                label: "异常",
+                value: "abnormal"
+            },
+            {
+                label: "已终止",
+                value: "interrupt"
+            }
+        ]
+    }
+    },
+    // 测点管理
+  mpoint: {
+    type: [
+      { label: "状态信号", value: "State" },
+      { label: "数值信号", value: "Digtal" }
+    ],
+    source: [
+      { label: "自动采集", value: "AUTO" },
+      { label: "人工录入", value: "INPUT" },
+      { label: "数据计算", value: "CALC" }
+    ],
+    sourceText: {
+      AUTO: "自动采集",
+      INPUT: "人工录入",
+      CALC: "数据计算"
+    },
+    datype: [
+      { datypeName: "状态信号", id: "State" },
+      { datypeName: "数值信号", id: "Digtal" }
+    ],
+    datypeText: {
+      State: "状态信号",
+      Digtal: "数值信号"
+    },
+    // 信号类型
+    status: [
+      { statusName: "0,关;1,开;", id: "0,关;1,开;" },
+      { statusName: "0,关;1,开;2,自动;", id: "0,关;1,开;2,自动;" },
+      { statusName: "自定义", id: "-1" }
+    ], // 状态值
+    numtail: [
+      { numtailName: "0", id: 0 },
+      { numtailName: "1", id: 1 },
+      { numtailName: "2", id: 2 },
+      { numtailName: "3", id: 3 },
+      { numtailName: "4", id: 4 },
+      { numtailName: "5", id: 5 }
+    ] // 小数位
+  },
 }
 
 export default {

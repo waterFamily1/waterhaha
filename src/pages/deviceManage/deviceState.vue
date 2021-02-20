@@ -86,12 +86,19 @@
                 <Page :total="allTotal" @on-change="changePage" show-elevator show-total class="page" />
             </div>
         </div>
+        <Modal
+            v-model="showCodeProgress" title="导出二维码">
+            <p>正在导出中，请稍后...</p>
+            <Progress :percent="codeProgress"></Progress>
+            <div slot="footer"></div>
+        </Modal>
     </div>
 </template>
 <script>
-import { tableMethod, regionalCon, typeMethod } from '@/api/deviceManage/device'
+import { tableMethod, regionalCon, typeMethod, codeMethod, exportMethod } from '@/api/deviceManage/device'
 import createTree from '@/libs/public-util'
 import { typeTreeMethod1 } from '@/libs/public'
+import util from '@/libs/public_js'
 
 export default {
     name: 'deviceState',
@@ -112,52 +119,42 @@ export default {
                     type: 'selection',
                     width: 55,
                     align: 'center'
-                },
-                {
+                }, {
                     title: '设备名称',
                     key: 'name',
                     ellipsis: true
-                },
-                {
+                }, {
                     title: '设备编号',
                     key: 'code',
                     ellipsis: true
-                },
-                {
+                }, {
                     title: '设备类型',
                     key: 'typeName',
                     ellipsis: true
-                },
-                {
+                }, {
                     title: '型号',
                     key: 'model',
                     ellipsis: true
-                },
-                {
+                }, {
                     title: '所属组织',
                     key: 'orgName',
                     ellipsis: true
-                },
-                {
+                }, {
                     title: 'ABC类',
                     key: 'abc'
-                },
-                 {
+                }, {
                     title: '区域位置',
                     key: 'processName',
                     ellipsis: true
-                },
-                {
+                }, {
                     title: '运行状态',
                     key: 'maintainState',
                     width: 100
-                },
-                {
+                }, {
                     title: '资产状态',
                     key: 'state',
                     width: 100
-                },
-                {
+                }, {
                     title: '操作',
                     slot: 'action',
                     width: 70,
@@ -277,7 +274,7 @@ export default {
             this.selectList = list
         },
         importCode(isAll){
-            if( isAll != 'true' && this.selectList.length == 0) {
+            if(isAll != 'true' && this.selectList.length == 0) {
                 this.$Message.warning('请选择导出设备！')
                 return false
             }
@@ -286,6 +283,48 @@ export default {
             this.codeProgressId = 0
             this.codeProgress = 0
             clearInterval(this.codeTimer)
+
+            let params = ''
+            let ids = ''
+            if(isAll == 'true') {
+                params = 'getAll=true'
+            } else {
+                params = this.selectList.map(el => el.id).join()
+                ids = params
+            }
+            
+            let queryName = this.keyword
+            let processIds = this.areaSite
+            let typeIds = this.genre
+            codeMethod({
+                isAll,
+                ids,
+                queryName,
+                processIds,
+                typeIds
+            }).then(res=> {
+                // console.log(res)
+                let key = res.data.key
+                
+                this.codeTimer = setInterval( ()=> {
+                    exportMethod(key).then(res=> {
+                        this.codeProgress = parseInt(res.data.finished/res.data.total*100)
+                        if(res.data.total == res.data.finished) {
+                            clearInterval(this.codeTimer);
+                            //开始下载
+                            let url = '/equipment/api/equipments/qrcode-export/download?key='+key
+                            
+                            util.download(url)
+                            this.showCodeProgress = false;
+                        }
+                    })
+                }, 1000)
+
+            }).catch(err=> {    
+                if(err.response.data.message == 'equ_equ_equNotFound') {
+                    this.$Message.error('该设备不存在')
+                }
+            })
         },
         detailHandle(id) {
             this.$router.push({

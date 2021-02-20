@@ -12,7 +12,7 @@
                         size="small">
                     </AutoComplete>
                     <div class="tree-box">
-                        <Tree :data="treeData" @on-select-change="selectNode" :render="renderContent"></Tree>
+                        <Tree :data="treeData" @on-select-change="selectNode" ></Tree>
                     </div>
                 </div>
             </div>
@@ -75,6 +75,8 @@
 import { getTree,getDetail,exportTable,getTable} from '@api/productReport/bulletin';
 import { formatTime } from '@/libs/public'
 import util from '@/libs/public_js'
+import createTree from '@/libs/public-util'
+
 export default {
     name: 'bulletinBrowse',
     data() {
@@ -84,37 +86,10 @@ export default {
             formData: [],
             treeData: [],
             groupDetail: '',
-            groupList: [
-                {
-                    value: 'New York',
-                    label: 'New York'
-                },
-                {
-                    value: 'London',
-                    label: 'London'
-                },
-                {
-                    value: 'Sydney',
-                    label: 'Sydney'
-                },
-                {
-                    value: 'Ottawa',
-                    label: 'Ottawa'
-                },
-                {
-                    value: 'Paris',
-                    label: 'Paris'
-                },
-                {
-                    value: 'Canberra',
-                    label: 'Canberra'
-                }
-
-            ],
             id:'',
-            currentRecord:{},
-            currentDate:'',
-            preDay:"",
+            currentRecord: {},
+            currentDate: '',
+            preDay: "",
             endTimeOptions :{
                 disabledDate(date){
                     let myDate = new Date(date).getDay();
@@ -155,7 +130,7 @@ export default {
         //             ])
         //         ]);
         //     },
-         exportTable(){
+        exportTable(){
             const defaultParams = {
                 formId: this.currentRecord.id,
                 recordDate: this.preDay+'T16:00:00.000Z',
@@ -191,7 +166,7 @@ export default {
         },
         getOrg(){
             getTree().then(res=>{
-                console.log(res)
+                // console.log(res)
                 let arr = []
                 res.data.map(item=>{
                     if(item.parentId ==0 ||(item.id.includes('_'))){
@@ -199,36 +174,26 @@ export default {
                     }
                 })
                 let trees = arr
-
-                let tree=[]
+                let tree = []
+                let array = []
                 for(let i = 0; i < trees.length; i ++) {
                     trees[i].title = trees[i].name
                     trees[i].expand = true
                     tree.push(trees[i])
                 }
-                this.treeData=this.drawTree(tree)
-            })
-        },
-        drawTree(treeItem){
-            let  parent=treeItem.filter(item => item.parentId == 0)
-            treeItem.forEach(element => {
-                 if (element.parentId == 0) return
-                 this.draw(element,parent)
-            });
-            return parent;
-        },
-        draw(item,arr){
-            for(var i=0;i<arr.length;i++) {
-                if(item.parentId==arr[i].id){
-                    if( !(arr[i].children &&  arr[i].children.length>0)){
-                        arr[i].children = []
-                    }
-                    arr[i].children.push(item)
-
-                }else if(arr[i].children && arr[i].children.length>0){
-                    this.draw(item,arr[i].children)
+                array = createTree(tree, 0)
+                // this.treeData = createTree(tree, 0)
+                function filterTree(data = []) {
+                    const result = []
+                    data.map(item=> {
+                        if(item.children.length != 0) {
+                            result.push(item)
+                        }
+                    })
+                    return result
                 }
-            }
+                this.treeData = filterTree(array)
+            })
         },
         getDetailbyId(){
             getDetail(this.id).then(res=>{

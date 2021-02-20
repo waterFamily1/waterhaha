@@ -41,7 +41,9 @@
     </div>
 </template>
 <script>
-import { getTree,getDetail,exportT} from '@api/productReport/report';
+import { getTree,getDetail,exportT} from '@api/productReport/report'
+import createTree from '@/libs/public-util'
+
 export default {
     name: 'reportBrowse',
     data() {
@@ -74,8 +76,7 @@ export default {
         }
     },
     methods: {
-         renderContent (h, { root, node, data }) {
-            console.log(data)
+        renderContent (h, { root, node, data }) {
                 return h('span', {
                     style: {
                         display: 'inline-block',
@@ -84,13 +85,13 @@ export default {
                 }, [
                     h('span', [
                         h('span',{
-                            // style:{
+                            // style: {
                             //    display: data.children.length==0?'none':'inline-block'
                             // }
                         }, data.title)
                     ])
                 ]);
-            },
+        },
         handleSearch (value) {
             this.formData = !value ? [] : [
                 value,
@@ -100,12 +101,10 @@ export default {
         },
         getOrg(){
             getTree().then(res=>{
-                console.log(res)
-                let arr = []
-                arr = res.data.filter(item=>  !(item.id.includes('folder')))
-                let trees = arr
-
-                let tree=[]
+                // console.log(res)
+                let trees = res.data
+                let tree = []
+                let array = []
                 for(let i = 0; i < trees.length; i ++) {
                     if(trees[i].id == this.id){
                         trees[i].selected = true
@@ -114,35 +113,44 @@ export default {
                     trees[i].expand = true
                     tree.push(trees[i])
                 }
-                this.treeData=this.drawTree(tree)
-            })
-        },
-        drawTree(treeItem){
-            let  parent=treeItem.filter(item => item.parentId == 0)
-            treeItem.forEach(element => {
-                 if (element.parentId == 0) return
-                 this.draw(element,parent)
-            });
-            return parent;
-        },
-        draw(item,arr){
-            for(var i=0;i<arr.length;i++) {
-                if(item.parentId==arr[i].id){
-                    if( !(arr[i].children &&  arr[i].children.length>0)){
-                        arr[i].children = []
-                    }
-                    arr[i].children.push(item)
+                array = createTree(tree, 0)
 
-                }else if(arr[i].children && arr[i].children.length>0){
-                    this.draw(item,arr[i].children)
+                function filterTree(data = []) {
+                    const result = []
+                    for (const item of data) {
+                        if (dfs(item)) {
+                            result.push(item)
+                        }
+                    }
+
+                    return result
                 }
-            }
+
+                function dfs(data) {
+                    if ((!data.children.length) && !/(template)/.test(data.id)) {
+                        return false
+                    }
+
+                    const result = []
+                    for (const item of data.children) {
+                        if (dfs(item)) {
+                            result.push(item)
+                        }
+                    }
+                    
+                    data.children = result
+                    if (/(template)/.test(data.id)) return true
+                    if (!result.length) return false
+                    return true
+                }
+                this.treeData = filterTree(array)
+            })
         },
         geTempDetail(){
             let id = this.id.split('_')[1]
             let date =this.$moment(this.date).utc().format()
             getDetail(id,date).then(res=>{
-                console.log(res)
+                // console.log(res)
                 if(res.data){
                     this.mpoints = res.data.mpoints
                     let arr = res.data.mpoints

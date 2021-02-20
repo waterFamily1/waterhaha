@@ -13,23 +13,23 @@
                     <Row>
                         <Col span="12">
                             <FormItem label="区域位置：" prop="location">
-                               <TreeSelect v-model="formInline.location" size="small" :data="areaData" v-width="250" /> 
+                               <TreeSelect v-model="formInline.location" :data="areaData" v-width="250" /> 
                             </FormItem>
                         </Col>
                         <Col span="12">
                             <FormItem label="名称：" prop="name">
-                                <Input v-model="formInline.name" placeholder="名称" size="small"  style="width:250px"></Input>
+                                <Input v-model="formInline.name" placeholder="名称" style="width:250px"></Input>
                             </FormItem>
                         </Col>
                     </Row>
                     <FormItem label="采集周期：" prop="duration">
-                        <Input v-model="formInline.duration" placeholder="1-24范围的整数" size="small" style="width:250px"></Input>小时
+                        <Input v-model="formInline.duration" placeholder="1-24范围的整数" style="width:250px"></Input>小时
                      </FormItem>
                 </Form>
            </div>
            <div class="data-table" :style="{height: (height-80)+'px'}">
                <div class="action-btn" v-if="!ischannel">
-                   <Button type="info" size="small"  @click="add()">新增</Button>
+                   <Button type="info" size="small" @click="add()">新增</Button>
                    <Button type="info" size="small" @click="channel()">导入</Button>
                </div>
                 <Table stripe :columns="columns1" :data="selectedData" v-if="!ischannel" size="small">
@@ -94,7 +94,7 @@
                 </div>
             </div>
             <div slot="footer" >
-                <!-- <Button type="primary"  long  @click="save" style="font-size:12px">保存为新模版</Button> -->
+                <!-- <Button type="primary" long  @click="save" style="font-size:12px">保存为新模版</Button> -->
             </div>
         </Modal>
     </div>
@@ -143,8 +143,7 @@ import createTree from '@/libs/public-util'
                 {
                     title: '测点名称',
                     key: 'mpointName'
-                },
-                {
+                }, {
                     title: '名称分组',
                     key: 'formName',
                     render: (h, params) => {
@@ -170,8 +169,7 @@ import createTree from '@/libs/public-util'
                             })
                         ]);
                     }
-                },
-                {
+                }, {
                     title: '组序号',
                     key: 'cycleName',
                     render: (h, params) => {
@@ -197,8 +195,7 @@ import createTree from '@/libs/public-util'
                             })
                         ]);
                     }
-                },
-                {
+                }, {
                     title: '组内序号',
                     key: 'formLatestdate',
                      render: (h, params) => {
@@ -223,8 +220,7 @@ import createTree from '@/libs/public-util'
                             })
                         ]);
                     }
-                },
-                {
+                }, {
                     title: '操作',
                     slot: 'action',
                     align: 'center'
@@ -237,16 +233,13 @@ import createTree from '@/libs/public-util'
                     type: 'selection',
                     width: 70,
                     align: 'center'
-                },
-                {
+                }, {
                     title: '测点编号',
                     key: 'mpointId'
-                },
-                {
+                }, {
                     title: '区域位置',
                     key: 'siteName'
-                },
-                {
+                }, {
                     title: '测点名称',
                     key: 'mpointName'
                 }

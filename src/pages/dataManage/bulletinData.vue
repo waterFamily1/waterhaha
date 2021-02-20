@@ -4,11 +4,11 @@
             <div class="search-main">
                 <div class="form-item">
                     <label>关键字：</label>
-                    <Input v-model="keyword" placeholder="录入名称/录入周期" style="width: 300px" size="small" />
+                    <Input v-model="keyword" placeholder="录入名称/录入周期" style="width: 300px"/>
                 </div>
                 <div class="form-item">
                     <label>区域位置：</label> 
-                     <TreeSelect v-model="areaLocation" size="small" multiple  :data="areaData" v-width="200" />
+                    <TreeSelect v-model="areaLocation" multiple  :data="areaData" v-width="200" />
                 </div>
                 <div class="form-search-btn">
                     <a href="javascript:;" @click="higherSearch()">
@@ -94,28 +94,24 @@ export default {
                     type: 'selection',
                     width: 70,
                     align: 'center'
-                },
-                {
+                }, {
                     title: '区域位置',
-                    key: 'siteName'
-                },
-                {
+                    key: 'siteName',
+                    ellipsis: true
+                }, {
                     title: '简报名称',
-                    key: 'formName'
-                },
-                {
+                    key: 'formName',
+                    ellipsis: true
+                }, {
                     title: '录入周期',
                     key: 'cycleName'
-                },
-                {
+                }, {
                     title: '最近业务时间',
                     key: 'formLatestdate'
-                },
-                {
+                }, {
                     title: '最近录入时间',
                     key: 'updateTime'
-                },
-                {
+                }, {
                     title: '操作',
                     slot: 'action',
                     width: 150,

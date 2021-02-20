@@ -282,7 +282,7 @@ const util = {
 	           
 	            attrs: { href: "javascript:;" },
 	            style: { 
-	                color: "#346C93",
+	                color: "rgb(75, 126, 254)",
 	                margin: "0 10px 0 0"
 	            },
 	            on: {

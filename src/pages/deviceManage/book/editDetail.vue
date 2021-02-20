@@ -374,7 +374,7 @@ export default {
                     trees[i].value = trees[i].id
                     treeItem.push(trees[i])
                 }
-                this.orgNameList = createTree(treeItem)
+                this.orgNameList = createTree(treeItem, 0)
             }).catch(err=> {
 
             })
@@ -492,7 +492,9 @@ export default {
                 this.equipment.busId = res.data.id
 
             }).catch(err=> {
-
+                if(err.response.data.message == 'equ_equType_idHasUsed') {
+                    this.$Message.error('该设备类型已经被使用')
+                }
             })
         },
         tabClick(tab) {
@@ -658,6 +660,7 @@ export default {
                         desc: "添加设备成功！",
                         duration: 3
                     });
+                    this.$router.back()
                     // if (this.$route.name == "equ-edit") {
                     //     this.$Notice.success({
                     //         title: "修改成功",
@@ -681,7 +684,7 @@ export default {
             })
         },
         back() {
-
+            this.$router.back()
         }
     }
 }

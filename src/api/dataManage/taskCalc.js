@@ -57,3 +57,20 @@ export function detailCountMethod1(data) {
         method: 'get'
     })
 }
+
+//计算记录
+export function jisuanMethod(data) {
+    return request({
+        url: '/loong/api/calc-tasks/log?pageSize=10&currentPage='+data.currentPage+'&id='+data.id+'&status='+data.status+'&startDT='+data.startDT+'&endDT='+data.endDT+'',
+        method: 'get'
+    })
+}
+
+//重新计算
+export function jisuanMethod1(data) {
+    return request({
+        url: '/loong/api/calc-tasks/complement',
+        method: 'post',
+        data
+    })
+}
