@@ -12,10 +12,13 @@ export default {
         }, {
             path: `/equ/status/list`,
             title: '设备状态'
-        },
-        {
+        }, {
             path: `/addBook`,
             title: '添加设备',
+            auth: ['hidden']
+        }, {
+            path: `/import`,
+            title: '导入',
             auth: ['hidden']
         }
     ]

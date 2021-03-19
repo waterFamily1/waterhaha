@@ -39,7 +39,7 @@
                 <Button type="primary" @click="upload()" style="margin-left:10px">导入</Button>
                 
             </div>
-                <Table stripe :columns="tableList" size="small" :data="data"
+                <Table stripe :columns="tableList" :data="data"
                         @on-select="handleSelect"
                         @on-select-cancel="handleSelectCancel"
                         @on-select-all="handleSelectAll"

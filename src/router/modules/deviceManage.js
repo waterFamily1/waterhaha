@@ -25,6 +25,15 @@ export default {
             },
             component: () => import('@/pages/deviceManage/deviceBook')
         }, {
+            path: '/import',
+            name: `${pre}equ-import`,
+            meta: {
+                ...meta,
+                title: '导入',
+                closable: false
+            },
+            component: () => import('@/pages/deviceManage/book/import')
+        }, {
             path: '/equ/status/list',
             name: `${pre}equ-state`,
             meta: {

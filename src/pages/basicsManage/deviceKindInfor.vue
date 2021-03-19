@@ -39,16 +39,16 @@
                             <div style="min-height:40px">{{currentOrg.name}}</div>
                         </div>
                         <div class="form-li">
-                            <div  v-if="appear">
+                            <div v-if="appear">
                                 <h4>设备类型名称</h4>
-                                <div  style="min-height:40px">{{isCancel?tissueList.devicename:currentEqu.name}}</div>
+                                <div style="min-height:40px">{{isCancel?tissueList.devicename:currentEqu.name}}</div>
                             </div>
                             <FormItem label="设备类型名称" label-position="top" prop="devicename" v-else>
                                 <Input v-model="tissueList.devicename" ></Input>
                             </FormItem>
                         </div>
                         <div class="form-li">
-                            <div  v-if="appear">
+                            <div v-if="appear">
                                 <h4>备注</h4>
                                 <div style="min-height:40px">{{isCancel?tissueList.remark:currentEqu.remarks}}</div>
                             </div>
@@ -69,9 +69,8 @@
                                 :on-format-error="uploadError"
                                 accept=".jpg , .png, .jpeg"
                                 ref="upload">
-                                <Button style="background:#576374;border:0;padding:4px 12px;color:#fff;outline:0;border-radius:3px" >上传图片</Button>
+                                <Button style="background:#576374;border:0;padding:4px 12px;color:#fff;outline:0;border-radius:3px" v-if="showUpload">上传图片</Button>
                             </Upload> 
-                         
                         </div>
                     </Form>
                 </div>
@@ -105,7 +104,7 @@ export default {
             ruleValidate:{
                 devicename: [
                     { required: true, message: '请输入名称', trigger: 'blur' }
-                ], 
+                ]
             },
             isChooseequ:false,
             kword:'',
@@ -116,7 +115,8 @@ export default {
             imgPath:'',
             isCancel:false,
             equNew:false,
-            levelObj:{}
+            levelObj:{},
+            showUpload: false
         }
     },
     mounted() {
@@ -181,7 +181,6 @@ export default {
                         this.equBaseData=treeItem
                         this.equList=this.drawTree(treeItem)
                     }
-                    
                 })
             this.orgBaseData.forEach(element => {
                 if(element.id==this.currentEqu.orgId){
@@ -191,7 +190,7 @@ export default {
             });
         //     console.log(JSON.stringify(this.baseData))
            this.checkParent(this.currentEqu.orgId,this.orgBaseData)
-           console.log(this.baseData)
+        //    console.log(this.baseData)
         },
         checkParent(id,arr){
             for (let i = 0; i < arr.length; i++) {
@@ -247,12 +246,14 @@ export default {
                         }),
                         style: {
                             fontSize: '12px',
+                            height: '18px',
                             display: data.is_show ? 'inline-block' : 'none'
                         },
                         on: {
                             click: (e) => {
                                 e.stopPropagation()
                                 this.newFun(root, node, data) 
+                                this.showUpload = true
                             }
                         }
                     },'新建')
@@ -293,12 +294,14 @@ export default {
                         style: {
                             marginRight:"5px",
                            fontSize: '12px',
+                           height: '18px',
                             display: data.is_show ? 'inline-block' : 'none'
                         },
                         on: {
                             click: (e) => { 
                                 e.stopPropagation()
                                 this.edit(data) 
+                                this.showUpload = true
                             }
                         }
                     },'编辑'),
@@ -310,6 +313,7 @@ export default {
                         style: {
                             marginRight:"5px",
                             fontSize: '12px',
+                            height: '18px',
                             display: data.is_show ? 'inline-block' : 'none'
                         },
                         on: {
@@ -326,13 +330,15 @@ export default {
                         }),
                         style: {
                             fontSize: '12px',
+                            height: '18px',
                             display: data.is_show ? 'inline-block' : 'none'
                         },
                         on: {
                             click: (e) => { 
-                                console.log("新建设备")
+                                // console.log("新建设备")
                                  e.stopPropagation()
                                 this.create(root, node, data) 
+                                this.showUpload = true
                             }
                         }
                     },'新建')
@@ -378,7 +384,7 @@ export default {
             }
         },
         selectNode(item){
-            console.log(item)
+            // console.log(item)
             this.currentOrg=item[0]
             this.getCurrentequ(item[0].id)
             this.currentEqu={}
@@ -395,6 +401,7 @@ export default {
            this.imgPath=""
            this.levelObj = node[0]
            this.equNew = true
+           this.showUpload = false
         },
         append (data) {
             const children = data.children || [];
@@ -436,6 +443,7 @@ export default {
             self.appear = true
             self.isCancel=true
             this.imgPath=""
+            this.showUpload = false
         },
         edit(data){
            this.appear= false
@@ -457,7 +465,8 @@ export default {
                 if (valid) {
                     if(this.isChooseequ){
                        this.saveEqu()
-                    }else{
+                       this.showUpload = false
+                    } else {
                        this.createEquipment()
                     }  
                 }
@@ -479,8 +488,8 @@ export default {
             })
         },
         createEquipment(){
-            console.log("新建新建======")
-            console.log(this.levelObj)
+            // console.log("新建新建======")
+            // console.log(this.levelObj)
             
             let data={
                 id: "",
@@ -506,11 +515,11 @@ export default {
             // console.log(file)
         },
         handleUploadicon(file) {
-            console.log(file)
+            // console.log(file)
             let formData = new FormData()
             formData.append('file', file)
             uploadImg(formData).then(res=> {
-                console.log(res)
+                // console.log(res)
                 this.imgPath = res.data.fullPath
             }).catch(err => {
                 // 异常情况

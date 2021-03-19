@@ -359,9 +359,9 @@ export default {
         },
         exportQRcode() {
             exportcode1().then(res => {
-                // console.log(res.data.key)
+                console.log(res)
                 let key = res.data.key
-                this.export2(key)
+                // this.export2(key)
             }).catch(err => {
                 // 异常情况
             })

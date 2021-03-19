@@ -160,7 +160,9 @@ export default {
             let executeDate = util.transDateFromLocale(this.executeDate)
             let currentPage = this.currentPage
             tableMethod({
-
+                orgId,
+                executeDate,
+                currentPage
             }).then(res=> {
                 this.loading = false
                 if(res.data) {

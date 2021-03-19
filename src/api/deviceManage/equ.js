@@ -31,3 +31,12 @@ export function deleteMethod(data) {
         method: 'DELETE'
     })
 }
+
+//import
+export function saveMethod() {
+    return request({
+        url: '',
+        method: 'post',
+        data
+    })
+}

@@ -294,93 +294,90 @@ export default {
                 closable: false
             },
             component: () => import('@/pages/dataManage/calculationMisson'),
-            children: [
-                {
-                    //新增单测点计算任务
-                    path: '/simpleForm',
-                    name: `${pre}simple-form`,
-                    meta: {
-                        ...meta,
-                        title: '新增单测点计算任务',
-                        closable: false
-                    },
-                    component: () => import('@/pages/dataManage/cal/simpleForm')
-                }, {
-                    //编辑单测点计算任务
-                    path: '/simpleFormEdit',
-                    name: `${pre}simple-formEdit`,
-                    meta: {
-                        ...meta,
-                        title: '编辑单测点计算任务',
-                        closable: false
-                    },
-                    component: () => import('@/pages/dataManage/cal/simpleForm')
-                }, {
-                    //新增单测点计算任务
-                    path: '/complexForm',
-                    name: `${pre}complex-form`,
-                    meta: {
-                        ...meta,
-                        title: '新增多测点计算任务',
-                        closable: false
-                    },
-                    component: () => import('@/pages/dataManage/cal/complexForm')
-                }, {
-                    path: '/complexFormEdit',
-                    name: `${pre}complex-formEdit`,
-                    meta: {
-                        ...meta,
-                        title: '编辑多测点计算任务',
-                        closable: false
-                    },
-                    component: () => import('@/pages/dataManage/cal/complexForm')
-                }, {
-                    path: '/customForm',
-                    name: `${pre}custom-form`,
-                    meta: {
-                        ...meta,
-                        title: '新增自定义型计算任务',
-                        closable: false
-                    },
-                    component: () => import('@/pages/dataManage/cal/customForm')
-                }, {
-                    path: '/customFormEdit',
-                    name: `${pre}custom-formEdit`,
-                    meta: {
-                        ...meta,
-                        title: '编辑自定义型计算任务',
-                        closable: false
-                    },
-                    component: () => import('@/pages/dataManage/cal/customForm')
-                }, {
-                    path: '/task-detailSimple',
-                    name: `${pre}task-detailSimple`,
-                    meta: {
-                        ...meta,
-                        title: '查看单测点计算任务',
-                        closable: false
-                    },
-                    component: () => import('@/pages/dataManage/task/taskDetail')
-                }, {
-                    path: '/task-detailComplex',
-                    name: `${pre}task-detailComplex`,
-                    meta: {
-                        ...meta,
-                        title: '查看多测点计算任务',
-                        closable: false
-                    },
-                    component: () => import('@/pages/dataManage/task/taskDetail')
-                }, {
-                    path: '/task-detailCustom',
-                    name: `${pre}task-detailCustom`,
-                    meta: {
-                        ...meta,
-                        title: '查看自定义型计算任务',
-                        closable: false
-                    },
-                    component: () => import('@/pages/dataManage/task/taskDetail')
-                }
-            ]
+        }, {
+            //新增单测点计算任务
+            path: '/simpleForm',
+            name: `${pre}simple-form`,
+            meta: {
+                ...meta,
+                title: '新增单测点计算任务',
+                closable: false
+            },
+            component: () => import('@/pages/dataManage/cal/simpleForm')
+        }, {
+            //编辑单测点计算任务
+            path: '/simpleFormEdit',
+            name: `${pre}simple-formEdit`,
+            meta: {
+                ...meta,
+                title: '编辑单测点计算任务',
+                closable: false
+            },
+            component: () => import('@/pages/dataManage/cal/simpleForm')
+        }, {
+            //新增单测点计算任务
+            path: '/complexForm',
+            name: `${pre}complex-form`,
+            meta: {
+                ...meta,
+                title: '新增多测点计算任务',
+                closable: false
+            },
+            component: () => import('@/pages/dataManage/cal/complexForm')
+        }, {
+            path: '/complexFormEdit',
+            name: `${pre}complex-formEdit`,
+            meta: {
+                ...meta,
+                title: '编辑多测点计算任务',
+                closable: false
+            },
+            component: () => import('@/pages/dataManage/cal/complexForm')
+        }, {
+            path: '/customForm',
+            name: `${pre}custom-form`,
+            meta: {
+                ...meta,
+                title: '新增自定义型计算任务',
+                closable: false
+            },
+            component: () => import('@/pages/dataManage/cal/customForm')
+        }, {
+            path: '/customFormEdit',
+            name: `${pre}custom-formEdit`,
+            meta: {
+                ...meta,
+                title: '编辑自定义型计算任务',
+                closable: false
+            },
+            component: () => import('@/pages/dataManage/cal/customForm')
+        }, {
+            path: '/task-detailSimple',
+            name: `${pre}task-detailSimple`,
+            meta: {
+                ...meta,
+                title: '查看单测点计算任务',
+                closable: false
+            },
+            component: () => import('@/pages/dataManage/task/taskDetail')
+        }, {
+            path: '/task-detailComplex',
+            name: `${pre}task-detailComplex`,
+            meta: {
+                ...meta,
+                title: '查看多测点计算任务',
+                closable: false
+            },
+            component: () => import('@/pages/dataManage/task/taskDetail')
+        }, {
+            path: '/task-detailCustom',
+            name: `${pre}task-detailCustom`,
+            meta: {
+                ...meta,
+                title: '查看自定义型计算任务',
+                closable: false
+            },
+            component: () => import('@/pages/dataManage/task/taskDetail')
         }, {
             path: '/analyze/labourCheckRecord',
             name: `${pre}analyze-labourCheckRecord`,

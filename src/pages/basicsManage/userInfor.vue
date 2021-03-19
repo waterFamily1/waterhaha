@@ -45,9 +45,8 @@ import createTree from '@/libs/public-util'
     export default {
         data () {
             return {
-                
                 model1: '',
-                height:0,
+                height: 0,
                 columns1: [
                     {
                         type: 'index',
@@ -112,13 +111,13 @@ import createTree from '@/libs/public-util'
                 ],
                 data1: [],
                 modal: false,
-                total:0,
-                userId:'',
-                kWord:'',
-                orgId:'',
-                orgName:'',
+                total: 0,
+                userId: '',
+                kWord: '',
+                orgId: '',
+                orgName: '',
                 data4: [],
-                show:false
+                show: false
             }
         },
         mounted() {
@@ -128,7 +127,7 @@ import createTree from '@/libs/public-util'
         created(){
             this.getUserList(this.kWord,this.orgId,1)
             getOrganizations().then(res=>{
-                console.log(res)
+                // console.log(res)
                 let treeItem = []
                 let trees = res.data
                 for(let i = 0; i < trees.length; i ++) {
@@ -136,42 +135,42 @@ import createTree from '@/libs/public-util'
                     trees[i].value = trees[i].id
                     treeItem.push(trees[i])
                 }
-                this.show=true
+                this.show = true
                 this.data4 = createTree(treeItem,0)
              })
         },
         methods: {
             reset(){
-               this.kWord=""
-               this.orgId=""
+               this.kWord = ''
+               this.orgId = ''
                this.getUserList(this.kWord,this.orgId,1)
             },
             remove(id) {
-               let that=this;
-               that.modal=true
-               this.userId=id
+               let that = this
+               that.modal = true
+               this.userId = id
             },
             asyncOK () {
-                deleteUser(this.userId).then(res=>{
-                    console.log(res)
-                    if(res.data.count==1){
+                deleteUser(this.userId).then(res=> {
+                    // console.log(res)
+                    if(res.data.count==1) {
                         this.modal = false;
                         this.getUserList(this.kWord,this.orgId,1)
                     }
                 })
             },
             getUserList(kword,orgid,size){
-                searchUser(kword,orgid,size).then(res=>{
+                searchUser(kword,orgid,size).then(res=> {
                     let result=res.data.items
-                    for(var index in result){
-                      if(result[index].roleMap.length!=0){
-                          result[index].role= result[index].roleMap[0].roleName
-                      }else{
-                          result[index].role=''
-                      }
+                    for(var index in result) {
+                        if(result[index].roleMap.length!=0) {
+                            result[index].role = result[index].roleMap[0].roleName
+                        } else {
+                            result[index].role =''
+                        }
                     }
-                   this.data1=result
-                   this.total=res.data.total
+                   this.data1 = result
+                   this.total = res.data.total
                 })
             },
             checkUser(id) {
@@ -189,26 +188,26 @@ import createTree from '@/libs/public-util'
                 })
             },
             search(){
-                searchUser(this.kWord,this.orgId,1).then(res=>{
-                    console.log(res)
-                    if(res.data){
-                        let result=res.data.items
-                        for(var index in result){
-                        if(result[index].roleMap.length!=0){
-                            result[index].role= result[index].roleMap[0].roleName
-                        }else{
-                            result[index].role=''
+                searchUser(this.kWord,this.orgId,1).then(res=> {
+                    // console.log(res)
+                    if(res.data) {
+                        let result = res.data.items
+                        for(var index in result) {
+                            if(result[index].roleMap.length!=0) {
+                                result[index].role = result[index].roleMap[0].roleName
+                            } else {
+                                result[index].role =''
+                            }
                         }
-                        }
-                        this.data1=result
-                        this.total=res.data.total
+                        this.data1 = result
+                        this.total = res.data.total
                     }
                 })
             },
-            changeSize(size){
-                console.log(size)
+            changeSize(size) {
+                // console.log(size)
                 this.getUserList(this.kWord,this.orgId,size)
-            },
+            }
         }
     }
 </script>

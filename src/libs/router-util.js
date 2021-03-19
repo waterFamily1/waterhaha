@@ -225,6 +225,10 @@ let deviceManage = [
         path: `/editStateDetail`,
         title: '设备状态详情',
         auth: ['hidden']
+    }, {
+        path: `/import`,
+        title: '导入',
+        auth: ['hidden']
     }
 ]
 

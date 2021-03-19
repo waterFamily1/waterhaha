@@ -4,7 +4,6 @@
             <div class="search-main">
                 <div class="form-item">
                     <label>操作时间：</label>
-
                     <DatePicker 
                         type="date" 
                         placeholder="开始日期" 
@@ -213,9 +212,23 @@ export default {
                     return date && date.valueOf() <=new Date(day).getTime()- 86400000
                 }
             }
+            let start = new Date(day)
+            let end = new Date(this.endTime)
+            if(start.getTime() > end.getTime()) {
+                this.$Notice.warning({
+                    title: '开始时间不得大于结束时间'
+                });
+            }
         },
         endTimeChange(day) {
             this.endTime = day
+            let start = new Date(this.startTime)
+            let end = new Date(day)
+            if(start.getTime() > end.getTime()) {
+                this.$Notice.warning({
+                    title: '开始时间不得大于结束时间'
+                });
+            }
         },
         getName() {
             let platform = this.platform
@@ -261,8 +274,16 @@ export default {
             this.getTable()
         },
         handleSearch() {
-            this.pageNum = 1
-            this.getTable()
+            let start = new Date(this.startTime)
+            let end = new Date(this.endTime)
+            if(start.getTime() > end.getTime()) {
+                this.$Notice.warning({
+                    title: '开始时间不得大于结束时间'
+                });
+            } else {
+                this.pageNum = 1
+                this.getTable()
+            }
         },
         handleReset() {
             this.getDate()

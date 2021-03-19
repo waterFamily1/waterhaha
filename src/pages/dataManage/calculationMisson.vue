@@ -554,9 +554,9 @@ export default {
             this.recountLoading = false
         },
         tagChange(checkedNames, name) {
-            if(name == '' || name == undefined || name == null) {
-                this.taskTypeValue = []
-            }
+            // if(name == '' || name == undefined || name == null) {
+            //     this.taskTypeValue = []
+            // }
         },
         timeChange(date) {
             this.endDT = this.$moment(date[1]).utc().format()

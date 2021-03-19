@@ -111,7 +111,8 @@ export default {
                         style: {
                             marginRight: '4px',
                             display: data.type =='role'?'none':(data.is_show ? 'inline-block' : 'none'),
-                            fontSize:'12px'
+                            fontSize:'12px',
+                            height: '18px'
                         },
                         on: {
                             click: (e) => { 
@@ -128,7 +129,8 @@ export default {
                         style: {
                             marginRight: '4px',
                             display: data.type =='org'?'none':(data.is_show ? 'inline-block' : 'none'),
-                            fontSize:'12px'
+                            fontSize:'12px',
+                            height: '18px'
                         },
                         on: {
                             click: (e) => { 
@@ -145,7 +147,8 @@ export default {
                         style: {
                             marginRight: '4px',
                             display: data.type =='org'?'none':(data.is_show ? 'inline-block' : 'none'),
-                            fontSize:'12px'
+                            fontSize:'12px',
+                            height: '18px'
                         },
                         on: {
                             click: (e) => {
@@ -154,7 +157,6 @@ export default {
                             }
                         }
                     },'删除')
-                    
                 ])
             ]);
         },  

@@ -24,7 +24,31 @@ export default {
         }, {
             path: `/task-calc`,
             title: '计算任务'
-        },{
+        }, {
+            path: `/simpleForm`,
+            title: '新增单测点计算任务',
+            auth: ['hidden']
+        }, {
+            path: `/simpleFormEdit`,
+            title: '编辑单测点计算任务',
+            auth: ['hidden']
+        }, {
+            path: `/complexForm`,
+            title: '新增多测点计算任务',
+            auth: ['hidden']
+        }, {
+            path: `/complexFormEdit`,
+            title: '编辑多测点计算任务',
+            auth: ['hidden']
+        }, {
+            path: `/customForm`,
+            title: '新增自定义型计算任务',
+            auth: ['hidden']
+        }, {
+            path: `/customFormEdit`,
+            title: '编辑自定义型计算任务',
+            auth: ['hidden']
+        }, {
             path: `/analyze/labourAdd`,
             title: '新增人工数据采集',
             auth: ['hidden']

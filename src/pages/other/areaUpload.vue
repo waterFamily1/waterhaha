@@ -15,7 +15,9 @@
                             :data = "uploadData"
                             :show-upload-list = "false"
                             :format = "['xls', 'xlsx']"
+                            :accept = "Accpet"
                             :before-upload = "beforeUpload"
+                            :on-format-error="handleFormatError"
                             :on-success = "uploadSucess"
                             :on-error = "uploadError"
                             :action="Action"
@@ -95,7 +97,7 @@ export default {
         return {
             height: '',
             uploadName: '',
-            Accpet: 'xls, xlsx',
+            Accpet: "xls, xlsx",
             loading: false,
             activeProcess: 1,
             uploadData: {
@@ -117,7 +119,7 @@ export default {
     created() {
         this.uploadName = this.$route.query.uploadName
         if(this.uploadName == '用户导入') {
-            this.importHref = '/uaa/api/excel/template?type=process'
+            this.importHref = '/uaa/api/excel/template?type=user'
             this.Action = '/uaa/api/excel/validate'
             this.columns = [
                 {title: '行号', key: 'index', render: render},
@@ -198,6 +200,12 @@ export default {
                 this.uploadData.type = 'equtype'
             }
         },
+        handleFormatError(file) {
+            this.$Notice.warning({
+                title: '只支持xls,xlsx格式文件'
+            });
+            this.loading = false;
+        },
         uploadError (error, file, fileList) {
             this.$Notice.error({title: '文件上传失败！'})
         },
@@ -277,7 +285,7 @@ export default {
                 }).catch(err=> {
                     this.submitLoading = false
                 })
-            }
+            } 
         },
         backClick(){
             this.$router.back()

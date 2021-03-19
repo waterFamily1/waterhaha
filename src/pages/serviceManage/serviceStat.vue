@@ -233,7 +233,7 @@ export default {
             this.searchShow = !this.searchShow
         },
         searchParamsClean () {
-            this.startTime = util.transDateFromLocale(util.formatDateTime(new Date(),'yyyy-MM-dd')+' 00:00:00')
+            this.startTime = util.transDateFromLocale(util.formatDateTime(new Date(),'yyyy-MM-dd')+' 23:59:59')
             this.endTime = util.transDateFromLocale(util.formatDateTime(new Date(),'yyyy-MM-dd')+' 23:59:59') 
             let startDate = this.$moment(this.startTime).utc().format()
             let endDate = this.$moment(this.endTime).utc().format()

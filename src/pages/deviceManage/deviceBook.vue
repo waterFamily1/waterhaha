@@ -309,9 +309,9 @@ export default {
         },
         msgUpload(){
              this.$router.push({
-                path:'/other/areaUpload',
+                path:'/import',
                 query: {
-                    uploadName: '信息导入'
+                    step: 1
                 }
             })
         }
