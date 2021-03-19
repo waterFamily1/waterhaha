@@ -11,8 +11,8 @@
         <div class="index-content">
             <div class="c-table-top-btns">
                 <div>
-                    <button type="button" @click="addNew()">新增</button>
-                    <button type="button" @click="deleteNew()" style="margin-left:10px">删除</button>
+                    <Button @click="addNew()">新增</Button>
+                    <Button @click="deleteNew()" style="margin-left:10px">删除</Button>
                 </div>
                 <div class="time">
                     <span>业务时间：</span>

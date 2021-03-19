@@ -1,0 +1,21 @@
+
+body{ font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;background: #fff; }
+#header { height: auto; border-bottom:1px solid #ddd; margin: 15px 25px; padding-bottom: 15px;}
+#header p{ overflow: hidden; line-height: 20px;}
+#header p a:link,#header p a:visited,#header p a:hover,#header p a:active {color: #989898;text-decoration-line: none;}
+#header .header-left { float: left; overflow: hidden;text-overflow: ellipsis;white-space: nowrap;width: 74%;}
+#header .header-right { float: right; width: 26%;text-align: right;}
+#header .name span{color: #5b5b5b;font-weight: bold;line-height: 37px; font-size: 16px;}
+#header .company{font-size: 14px; color: #989898;}
+.time { text-align: center; }
+.time .redspan{ color: #ec6035; }
+.time p {padding: 3px;}
+.refresh{width: 25px;height: 27px;position: relative;top: 8px;left: 8px;}
+.time p,.time span{ color: #333;}
+.time .share-time, .time .share-time span{ color: #989898; font-size: 14px; font-weight: normal;}
+#main{display: none;}
+#main-error{display: none;}
+#main-error{text-align: center;padding: 0 35px;}
+#main-error h6{font-size: 14px; color: #5b5b5b; font-weight: 700;padding: 30px;}
+#main-error p{font-size: 12px; color: #a0a0a0; text-align: left;padding-top: 20px;}
+.error-img{padding: 170px 60px; background: url('../images/error.png') center center no-repeat;}

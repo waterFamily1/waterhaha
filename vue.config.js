@@ -1,11 +1,16 @@
-const Setting = require('./src/setting.env');
+const Setting = require('./src/setting.env')
+
+const webpack = require('webpack')
+const ExtractTextPlugin = require('extract-text-webpack-plugin')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
+const CopyWebpackPlugin = require('copy-webpack-plugin')
 
 // 拼接路径
-const resolve = dir => require('path').join(__dirname, dir);
+const resolve = dir => require('path').join(__dirname, dir)
 
 // 增加环境变量
-process.env.VUE_APP_VERSION = require('./package.json').version;
-process.env.VUE_APP_BUILD_TIME = require('dayjs')().format('YYYY-M-D HH:mm:ss');
+process.env.VUE_APP_VERSION = require('./package.json').version
+process.env.VUE_APP_BUILD_TIME = require('dayjs')().format('YYYY-M-D HH:mm:ss')
 
 module.exports = {
     publicPath: Setting.publicPath,
@@ -110,5 +115,34 @@ module.exports = {
                 .add('@/mock')
                 .end()
         }
+    },
+    configureWebpack: {
+        plugins: [
+            new CopyWebpackPlugin([{
+                from: './src/ht/custom',
+                to: './custom'
+            }, {
+                from: './src/ht/client',
+                to: './client'
+            }, {
+                from: './src/ht/display.html',
+                to: './display.html'
+            }, {
+                from: './src/ht/scene.html',
+                to: './scene.html'
+            }, {
+                from: './src/ht/symbol.html',
+                to: './symbol.html'
+            }, {
+                from: './src/ht/bigScreen2.html',
+                to: './bigScreen2.html'
+            }, {
+                from: './src/ht/index2d.html',
+                to: './index2d.html'
+            }, {
+                from: './src/ht/index3d.html',
+                to: './index3d.html'
+            }])
+        ]
     }
 };

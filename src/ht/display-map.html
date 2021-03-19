@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>图纸预览</title>
+	<meta charset="UTF-8">
+	<link rel="shortcut icon" href="custom/images/favicon.ico" />
+	<link rel="stylesheet" href="styles/iview/iview.min.css">
+	<link rel="stylesheet" href="custom/libs/layui/css/layui.css">
+	<link rel="stylesheet" href="custom/css/common.css">
+	<link rel="stylesheet" href="custom/css/dialog.css">
+	<script src="custom/babel/polyfill.min.js"></script>
+</head>
+
+<body>
+	<div class="loading-mask"></div>
+</body>
+<script>
+	document.querySelector(".loading-mask").style.display = 'block';
+</script>
+<script src='custom/configs/htconfig.js'></script>
+<script src='client/license/ywckSbRPEf7k.js'></script>
+<script src='client/libs/core/ht.js'></script>
+<script src='client/license/product_generated.js'></script>
+<script src='client/libs/core/ht-ui.js'></script>
+<script src='client/libs/plugin/ht-edgetype.js'></script>
+<script src="client/libs/plugin/ht-obj.js"></script>
+<script src='client/libs/plugin/ht-vector.js'></script>
+<script src='client/libs/plugin/ht-animation.js'></script>
+<script src="client/promise.js"></script>
+<script src="client/axios.js"></script>
+<script src="client/ramda.js"></script>
+<script src='custom/js/zh_cn.js'></script>
+<script src="custom/js/common.js"></script>
+<script src="custom/js/dialog.js"></script>
+<script src="custom/libs/sockjs.min.js"></script>
+<script src="custom/libs/stomp.min.js"></script>
+<script src="custom/libs/echarts.js"></script>
+<!-- <script src="client/libs/plugin/ht-quickfinder.js"></script> -->
+<script src="custom/js/chart.js"></script>
+<script src="custom/libs/layui/layui.js"></script>
+<script lang="JavaScript">
+	// 窗口改变大小时进行自由伸缩
+	// var initMinZoom = null, minZoom = null;
+	// var returnToMinZoom = false;
+	window.onresize = function () {
+		setTimeout(function () {
+			window.__gv__ && window.__gv__.fitContent();
+		}, 200)
+	}
+	
+	function init() {
+		// 定义api接口
+		var api = envApi('/loong/api/mpoints/value');
+		dataModel = new ht.DataModel();
+		graphView = new ht.graph.GraphView(dataModel);
+		graphView.handleScroll = function () { };
+		graphView.handlePinch = function () { };
+		graphView.setMovableFunc(function (data) {
+			return false
+		});
+		graphView.setPannable(false);
+		graphView.setRectSelectable(false);
+		dataModel.enableAnimation();
+		// 保存gv到全局，并且防止被删除
+		Object.defineProperties(window, {
+			__gv__: {
+				value: graphView,
+				configurable: false
+			}
+		});
+		var url = getParam('tag') || 'previews/display.json';
+		if (/^\//.test(url)) {
+			url = url.slice(1);
+		}
+		var dataModelObj = {}
+		ht.Default.handleImageLoaded = function (url, symbolData) {
+			if (/.json$/.test(url) && url.indexOf("symbols") != -1) {
+				var data = dataModelObj[url] || [];
+				data.forEach(function (ele) {
+					if (ele) {
+						if (typeof ele.a("animate.func") == "function") {
+							ele.a("animate.func")(ele);
+						}
+						if (typeof ele.a("runInitFunc") == "function") {
+							ele.a("runInitFunc")(ele, graphView)
+						}
+						if (ele.a("ChimeePlayer.autoPlay")) {
+							var option = ele.a("ChimeePlayer.option") || {}
+							window.creatVideo && window.creatVideo(graphView, ele.a("url"), ele.a("rect"), option)
+						}
+					}
+				});
+			}
+		}
+		// 根据url地址参数获取所需要渲染的图纸
+		ht.Default.xhrLoad(url, function (text) {			
+			var json = ht.Default.parse(text);
+			if (!json) return false;
+			if (json.title) document.title = json.title;
+			dataModel.deserialize(json);
+			hideLoading();	
+			// graphView.fitContent();
+			graphView.setMovableFunc(function (data) {
+				return false;
+			});
+			graphView.setRectSelectable(false);
+			// initMinZoom = graphView.getZoom()
+			// minZoom = graphView.getZoom();
+			// // 图纸是否可移动
+			// if (!dataModel._attrObject.isMovedByDisplay) {
+			// 	graphView.setPannable(false);
+			// 	graphView.adjustZoom = function (value) {
+			// 		if (value < minZoom || value == minZoom) {
+			// 			graphView.setPannable(false);
+			// 			if (!returnToMinZoom) {
+			// 				returnToMinZoom = true;
+			// 				graphView.fitContent();
+			// 			}
+			// 			return minZoom;
+			// 		}
+			// 		returnToMinZoom = false
+			// 		graphView.setPannable(true);
+			// 		if (value > ht.Default.zoomMax) {
+			// 			return ht.Default.zoomMax;
+			// 		}
+			// 		return value;
+			// 	};
+			// }
+			var fromApp = getParam("fromApp") == "true" || location.hash == "#fromApp";
+			graphView.mp(function (e) {
+				// 视频自适应
+				for (var tag in playerObj) {
+					if (playerObj.hasOwnProperty(tag)) {
+						layoutVideo(graphView.dm().getDataByTag(tag), playerObj[tag], tag);
+					}
+				}
+			});
+			graphView.mi(function (e) {
+				// 增加交互事件监听器
+				if (e.kind === 'clickData' || e.kind === 'doubleClickData') {
+					var dataBindings = e.data.getDataBindings();
+					// 此处有两种情况：
+					// 1、在图纸中，拖拽进入图纸的测点
+					// 2、为图纸中的文本绑定测点
+					// 点击以上两种文本，页面跳转到数据曲线分析页面
+					if (dataBindings) {
+						if (dataBindings.s && dataBindings.s.text && dataBindings.s.text.id) {
+							if (fromApp) {
+								window.top.location.href = window.location.origin + '/data-analysis/' + dataBindings.s.text.id
+							} else {
+								// 当首页的监视画面全屏时，才可点击测点弹出曲线弹框
+								var currentIframe = window.parent.document.getElementsByName(window.name)[0]
+								if (currentIframe) {
+									if (currentIframe.getAttribute("data-isFullScreen") == "false") { } else {
+										pointChartDialog(dataBindings.s.text.id);
+									}
+								} else {
+									pointChartDialog(dataBindings.s.text.id);
+								}
+							}
+							return false;
+						}
+					}
+					if (typeof e.data.a("click.func") == "function") {
+						e.data.a("click.func")(e.data);
+					}
+					if (e.data.a("underControl") && e.data.a("underControl").openUnderControl) {
+						OpenDialog(e.data)
+					}
+				}
+			});
+			dataModel.each(function (data) {
+				if (data._image && data._image.indexOf("symbols") != -1) {
+					if (!dataModelObj[data._image]) {
+						dataModelObj[data._image] = []
+					}
+					dataModelObj[data._image].push(data)
+				}
+
+				try {
+					if (data.a("dataSourceType")) {
+						if (data.a("refreshFrequency")) {
+							var refreshFrequency = Number(data.a("refreshFrequency"))
+							if (!isNaN(refreshFrequency) && refreshFrequency > 0) {
+								initDateSource(data)
+								setInterval(function () {
+									initDateSource(data)
+								}, refreshFrequency * 60 * 1000);
+							}
+						} else {
+							initDateSource(data)
+						}
+					}
+					// 调用图纸中的动画函数
+					// if (typeof data.a("animate.func") == "function") {
+					// 	data.a("animate.func")(data);
+					// }
+
+				} catch (error) {
+					console.log(error)
+				}
+			});
+			createdMpointMap()
+			// // 定义循环函数
+			// var loopHand = loop(getData);
+			// // 5秒执行一次
+			// loopHand(5000);
+		});
+	}
+	document.body.onload = load;
+</script>
+
+</html>

@@ -6,7 +6,9 @@
                     <!-- <img src="@/assets/images/logo-small.png" v-if="menuCollapse">
                     <img src="@/assets/images/logo.png" v-else-if="siderTheme === 'light'">
                     <img src="@/assets/images/logo-dark.png" v-else> -->
-                    <div class="logo"></div>
+                    <div class="logo">
+                        <img :src="imgLogo" />
+                    </div>
                 </i-link>
             </transition>
         </div>
@@ -40,6 +42,8 @@
 
     import { mapState, mapGetters } from 'vuex';
 
+    import { imgMethod } from '@/api/public/head'
+
     // 元素是否在可视区域
     function isElementInViewport (el) {
         let rect = el.getBoundingClientRect();
@@ -48,6 +52,11 @@
 
     export default {
         name: 'iMenuSide',
+        data() {
+            return {
+                imgLogo: ''
+            }
+        },
         mixins: [ tTitle ],
         components: { iMenuSideItem, iMenuSideSubmenu, iMenuSideCollapse },
         props: {
@@ -82,6 +91,9 @@
                 this.handleUpdateMenuState();
             }
         },
+        mounted() {
+            this.getLogo()
+        },
         methods: {
             handleUpdateMenuState () {
                 this.$nextTick(() => {
@@ -104,6 +116,11 @@
                         });
                     }
                 });
+            },
+            getLogo() {
+                imgMethod().then(res=> {
+                    this.imgLogo = res.data.logoUrl
+                })
             }
         }
     }
@@ -114,7 +131,12 @@
     height: 62px;
     background-size: 100% 100%;
     cursor: pointer;
-    background-image: url(http://chaoying.tjdeht.cn:8803/group1/M00/00/00/wKgyrl79ek6AUrURAABGBlNN4EA007.png);
+    // background-image: url(http://chaoying.tjdeht.cn:8803/group1/M00/00/00/wKgyrl79ek6AUrURAABGBlNN4EA007.png);
+    img {
+        display: block;
+        width: 100%;
+        height: 100%;
+    }
 }
 /deep/.ivu-menu-vertical {
     /deep/.ivu-menu-submenu {

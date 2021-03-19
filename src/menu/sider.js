@@ -566,6 +566,9 @@ export default [
             {
                 path: `/newsCenter`,
                 auth: ['hidden']
+            }, {
+                path: `/newsDetail`,
+                auth: ['hidden']
             }
         ]
     }, {

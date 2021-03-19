@@ -1269,8 +1269,10 @@ export default {
             padding: 2px;
             border-bottom: 1px solid #f0f0f0;
             height: 34px;
+            display: flex;
+            justify-content: space-between;
             /deep/.ivu-select {
-                width: 195px;
+                width: 180px;
                 color: #495060;
                 font-size: 13px;
                 height: 28px;

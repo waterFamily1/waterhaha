@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0,maximum-scale=1.0, user-scalable=no"/>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>曲线分享</title>
+    <link rel="stylesheet" type="text/css" href="css/reset.css" />
+    <link rel="stylesheet" type="text/css" href="css/index.css" />
+    <script type="text/javascript" charset="utf-8" src="jslib/jquery-3.3.1.min.js"></script>
+    <script type="text/javascript" charset="utf-8" src="jslib/highcharts.js"></script>
+    <script type="text/javascript" charset="utf-8" src="js/highchart.plugin.mark.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div id="header">
+            <p class="name">
+                <span class="header-left" id="mpoint-name"></span>
+                <a class="header-right" href="http://g.eqxiu.com/s/3FyjbuwZ"><img src="images/logo.png" width="80" style="float: right;"></a>
+            </p>
+            <p class="company">
+                <span class="header-left" id="site-name"></span>
+                <a class="header-right" href="http://g.eqxiu.com/s/3FyjbuwZ">了解更多 ></a>
+            </div>
+        </div>
+        <div id="main">
+            <div class="time">
+                <p>分享时效有效时间还剩 :
+                    <span class="redspan">00</span>
+                    <span>天</span>
+                    <span class="redspan">00</span>
+                    <span>时</span>
+                    <span class="redspan">00</span>
+                    <span>分</span>
+                    <span class="redspan">00</span>
+                    <span>秒</span>
+                </p>
+                <p class="share-time"><span id="share-time"></span> 至 <span id="expire-time"></span><img class="refresh" src="images/refresh.png" onclick="refresh()"></p>
+            </div>
+            <div style="padding: 10px;"><div id="chart-wrap"></div></div>
+        </div>
+        <div id="main-error">
+            <h6>抱歉，您分享的页面已过期</h6>
+            <p class="error-img"></p>
+            <p style="padding: 40px 0 20px 0;">对不起，您分享的数据已失效，如需查看，请联系分享人重新分享，如果想了解我们产品，请猛戳右上角了解更多</p>
+        </div>
+    </div>
+    <script type="text/javascript" charset="utf-8" src="js/common.js"></script>
+    <script type="text/javascript" charset="utf-8" src="js/index.js"></script>
+</body>
+</html>

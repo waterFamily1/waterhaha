@@ -1,7 +1,8 @@
 <template>
-    <Breadcrumb class="i-layout-header-breadcrumb" v-if="!isLimit" ref="breadcrumb">
-        <BreadcrumbItem>
-            <i-menu-head-title :item="topItem" :hide-icon="!showBreadcrumbIcon" />
+    <Breadcrumb class="i-layout-header-breadcrumb" v-if="!isLimit" ref="breadcrumb" style="margin-left: 20px">
+        <BreadcrumbItem to="/dashboard/console">
+            首页
+            <!-- <i-menu-head-title :item="topItem" :hide-icon="!showBreadcrumbIcon" /> -->
         </BreadcrumbItem>
         <BreadcrumbItem v-for="item in items" v-if="item" :key="item.path">
             <i-menu-head-title :item="item" :hide-icon="!showBreadcrumbIcon" />
@@ -53,7 +54,9 @@
             },
             // 第一级，默认是 menu/header.js 中的第一项
             topItem () {
-                return this.header.find(item => item.name === this.headerName);
+                return this.header.find(item =>{
+                    item.name === this.headerName
+                });
             },
             // 得到所有侧边菜单，并转为平级，查询图标及显示对应内容
             allSiderMenu () {

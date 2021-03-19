@@ -341,6 +341,31 @@ const state = {
       { numtailName: "5", id: 5 }
     ] // 小数位
   },
+  dispatch: {
+    gatewayStatusText: {
+      "0": "离线",
+      "1": "在线",
+      "2": "未配置"
+    },
+    alarmStatus: [
+      { label: "全部", value: "" },
+      { label: "未处理", value: "1" },
+      { label: "已处理", value: "2" }
+    ],
+    alarmStatusText: {
+      "1": "未处理",
+      "2": "已处理"
+    },
+    staffStatus: [
+      { label: "全部", value: "" },
+      { label: "有任务", value: "1" },
+      { label: "无任务", value: "0" }
+    ],
+    staffStatusText: {
+      "1": "有",
+      "0": "无"
+    }
+  },
 }
 
 export default {

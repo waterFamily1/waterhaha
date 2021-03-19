@@ -112,7 +112,7 @@ import mapUtil from '@/libs/map'
 var map
 
 function addMarker(data) {
-    console.log(data)
+    // console.log(data)
     if(data.longitude && data.latitude)  {
         var P = new BMap.Point(data.longitude, data.latitude)
         var marker = new BMap.Marker(P, {icon: new BMap.Icon(point_icon, new BMap.Size(38, 38))})

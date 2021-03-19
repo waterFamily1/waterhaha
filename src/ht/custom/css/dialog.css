@@ -1,0 +1,402 @@
+.ivu-btn {
+    border: none
+}
+
+.ivu-btn:active, .ivu-btn:focus, .ivu-btn:visited {
+    box-shadow: none
+}
+
+.ivu-notice {
+    font-weight: 700
+}
+
+.ivu-tabs-nav-container {
+    padding-left: 20px
+}
+
+.ivu-tabs-nav .ivu-tabs-tab {
+    font-size: 13px
+}
+
+.ivu-btn-default {
+    background-color: #c8c8c8;
+    color: #fff
+}
+
+.ivu-btn-default:hover {
+    background-color: #cbcbcb;
+    color: #fefefe
+}
+
+.ivu-timeline-item-head {
+    width: 12px;
+    height: 12px;
+    border-width: 3px
+}
+
+.ivu-timeline-item-active {
+    color: #0bb1df;
+    font-weight: 700
+}
+
+.ivu-timeline-item-active .ivu-timeline-item-head {
+    width: 18px;
+    height: 18px;
+    left: -3px;
+    top: 0
+}
+
+.ivu-select .ivu-select-dropdown {
+    width: auto
+}
+
+.ivu-breadcrumb-item-link, .ivu-select-loading, .ivu-select-not-found {
+    font-size: 13px
+}
+
+.c-form-item .ivu-radio-group label {
+    text-align: left;
+    width: auto;
+    margin-right: 20px
+}
+
+.ivu-table-cell {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden
+}
+
+.ivu-table-cell .ivu-poptip-body {
+    text-align: left
+}
+
+.ivu-modal-content {
+    border-radius: 2px
+}
+
+.ivu-modal-header {
+    /* padding: 10px 16px;
+    border-left: 3px solid #0bb1df;
+    background-color: #f1f1f1; */
+}
+
+.ivu-modal-close {
+    top: 5px
+}
+
+.ivu-modal-footer {
+    border-top: none
+}
+
+.ivu-modal-confirm-footer button {
+    font-size: 14px;
+}
+
+.cmp-modal-confirm .ivu-modal-body {
+    padding: 0 0 30px
+}
+
+.cmp-modal-confirm .ivu-modal-confirm {
+    padding: 0
+}
+
+.ivu-modal-confirm-head {
+    padding: 10px 16px;
+    border-left: 3px solid #0bb1df;
+    background-color: #f1f1f1
+}
+
+.ivu-modal-confirm-footer {
+    padding: 10px;
+    text-align: center
+}
+
+.ivu-modal-confirm-footer .ivu-btn {
+    min-width: 130px;
+    margin: 0 15px
+}
+
+.c-modal-footer-btns {
+    text-align: center;
+    margin-bottom: 20px
+}
+
+.c-modal-footer-btns .ivu-btn {
+    min-width: 130px;
+    margin: 0 15px
+}
+
+.c-modal-footer-btns .ivu-btn-long {
+    margin: 0
+}
+
+.ivu-input.input-err, .ivu-input.input-err:focus, .ivu-input.input-err:hover {
+    border-color: #ff0000;
+}
+
+.ivu-modal-confirm-head-icon {
+    position: absolute;
+    left: 5px;
+    top: 0px;
+}
+
+/* .ivu-icon-close-circled color: #ed3f14; */
+
+/* ivu-icon-android-alert color: #f90;*/
+
+/* ivu-icon-checkmark-circled  color: #19be6b;*/
+
+.ivu-modal-confirm-head-icon .ivu-icon-close-circled {
+    font-size: 30px;
+    color: #ed3f14;
+}
+
+.ivu-modal-confirm-head-icon .ivu-icon-android-alert {
+    font-size: 30px;
+    color: #f90;
+}
+
+.ivu-modal-confirm-head-icon .ivu-icon-checkmark-circled {
+    font-size: 30px;
+    color: #19be6b;
+}
+
+.ivu-modal-confirm-body {
+    padding: 0;
+    font-size: 14px;
+    min-height: 70px;
+}
+
+/* 下控提示框 */
+
+.control-message-tip-wrap p {
+    padding-left: 48px;
+    padding-top: 5px;
+    min-height: 24px;
+}
+
+.control-message-tip-wrap .reason {
+    display: inline-block;
+    padding-left: 48px;
+    font-size: 12px;
+    margin-top: 5px;
+    color: #999;
+}
+
+.mock-value-err-tip {
+    position: absolute;
+    left: 0;
+    top: 30px;
+    font-size: 12px;
+    color: #ff0000;
+}
+
+/* -------------------------------------------------- */
+
+.alarm-msg-dialog .alarm-level {
+    width: 30px;
+    height: 30px;
+    border-radius: 15px;
+    background-color: #f90;
+    display: inline-block;
+    color: #fff;
+    font-size: 12px;
+    line-height: 30px;
+    vertical-align: top;
+    text-align: center;
+    font-style: normal;
+    font-family: 'Microsoft YaHei';
+}
+
+.layui-layer-title {
+    border-left: 7px solid #4b7efe;
+    background-color: #f8f9fb;
+    color: #1c2438;
+    font-weight: bold;
+}
+
+.layui-form-radio * {
+    font-size: 13px;
+}
+
+.layui-form-radio>i {
+    font-size: 16px;
+}
+
+.layui-form-radio>i:hover, .layui-form-radioed>i {
+    color: #4b7efe;
+}
+
+.layui-textarea {
+    min-height: 72px;
+}
+
+.layui-layer-btn.layui-layer-btn-c a {
+    min-width: 130px;
+    height: 26px;
+    line-height: 26px;
+    border: none;
+    font-size: 12px;
+    background-color: #c8c8c8;
+    color: #fff;
+    border-radius: 3px;
+    margin: 5px 15px;
+}
+
+.layui-layer-btn.layui-layer-btn-c .layui-layer-btn0 {
+    border-color: #4b7efe;
+    background-color: #4b7efe;
+}
+
+.layui-table-header {
+    border-width: 0;
+    background-color: rgba(255, 255, 255, 0)
+}
+
+.layui-table thead tr, .layui-table[lay-even] tr:nth-child(even) {
+    background-color: rgba(255, 255, 255, 0);
+}
+
+.layui-table-body .layui-table[lay-even] tr:hover, .layui-table-body .layui-table[lay-even] tr:nth-child(odd):hover {
+    background-color: rgba(226, 230, 251, 0.6);
+}
+
+.layui-table-body .layui-table[lay-even] tr:nth-child(odd) {
+    background-color: rgba(169, 169, 169, 0.1);
+}
+
+.layui-table td, .layui-table th {
+    font-size: 13px;
+}
+
+.layui-table-view .layui-table th {
+    color: #838A95;
+    font-weight: bold;
+}
+
+.alarm-lev-1, .alarm-lev-2, .alarm-lev-3 {}
+
+.alarm-lev-1 {
+    color: #F5423F;
+}
+
+.alarm-lev-2 {
+    color: #F9A10F;
+}
+
+.alarm-lev-3 {
+    color: #739AFB;
+}
+
+.alarm-status-unremove, .alarm-status-remove {
+    margin-top: 5px;
+    display: inline-block;
+    width: 55px;
+    height: 25px;
+    line-height: 25px;
+    background-image: url(../images/status.png);
+    background-repeat: no-repeat;
+    overflow: hidden;
+    text-indent: 10px;
+}
+
+.alarm-status-unremove {
+    color: #F9A10F;
+    background-position: 0 -25px;
+}
+
+.alarm-status-remove {
+    color: #8190A5;
+}
+
+.layui-layer.alarm-history-list-dialog, .layui-layer.alarm-msg-dialog {
+    background: none
+}
+
+.alarm-history-list-dialog .layui-table-box {
+    background-color: rgba(255, 255, 255, 0.9)
+}
+
+.alarm-history-list-dialog.layui-layer, .alarm-history-list-dialog .layui-table {
+    background-color: rgba(255, 255, 255, 0)
+}
+
+.alarm-history-list-dialog .layui-table-page>div {
+    text-align: right;
+}
+
+.alarm-history-list-dialog .layui-table-page {
+    background-color: rgba(255, 255, 255, 0.9)
+}
+
+.alarm-history-list-dialog .layui-laypage a:hover {
+    color: #4b7efe;
+}
+
+.alarm-history-list-dialog .layui-table-view {
+    border: none;
+    margin: 0
+}
+
+.alarm-history-detail {
+    padding: 16px;
+    font-size: 12px;
+}
+
+.alarm-history-detail h3 {
+    font-size: 13px;
+    font-weight: bold;
+    color: #4b7efe;
+    margin-bottom: 10px;
+}
+
+.alarm-history-detail .alarm-history-point+.alarm-history-point {
+    border-top: 1px dotted #f1f1f1;
+}
+
+.alarm-history-detail .layui-row {
+    line-height: 34px;
+}
+
+.alarm-history-detail .layui-row label {
+    display: inline-block;
+    width: 60px;
+    text-align: right;
+    font-size: 12px;
+}
+
+.confirm-alarm-wrap {
+    padding: 16px;
+    font-size: 13px;
+}
+
+.confirm-alarm-wrap label {
+    width: 60px;
+    text-align: right;
+    font-size: 13px;
+    padding: 9px 0;
+}
+
+.confirm-alarm-wrap .layui-input-block {
+    margin-left: 72px;
+}
+
+.confirm-alarm-dialog .layui-layer-btn {
+    width: 320px;
+    margin: 0 auto;
+    overflow: hidden;
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.confirm-alarm-dialog .layui-layer-btn a {
+    float: right;
+    min-width: 130px;
+    height: 24px;
+    line-height: 24px;
+    border: none;
+    font-size: 12px;
+    background-color: #cbcbcb;
+    color: #FEFEFE;
+    margin: 20px 15px;
+}

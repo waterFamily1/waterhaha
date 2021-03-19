@@ -1,0 +1,1102 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>图纸预览</title>
+	<meta charset="UTF-8">
+	<link rel="shortcut icon" href="custom/images/favicon.ico" />
+	<link rel="stylesheet" href="styles/iview/iview.min.css">
+	<link rel="stylesheet" href="custom/libs/layui/css/layui.css">
+	<link rel="stylesheet" href="custom/css/common.css">
+	<link rel="stylesheet" href="custom/css/dialog.css">
+	<script src="custom/babel/polyfill.min.js"></script>
+</head>
+
+<body>
+	<div class="loading-mask"></div>
+</body>
+<script>
+	document.querySelector(".loading-mask").style.display = 'block';
+</script>
+<script src='custom/configs/htconfig.js'></script>
+<script src='custom/libs/echarts.js'></script>
+<script src='client/license/ywckSbRPEf7k.js'></script>
+<script src='client/libs/core/ht.js'></script>
+<script src='client/license/product_generated.js'></script>
+<script src='client/libs/core/ht-ui.js'></script>
+<script src='client/libs/plugin/ht-edgetype.js'></script>
+<script src="client/libs/plugin/ht-obj.js"></script>
+<script src='client/libs/plugin/ht-vector.js'></script>
+<script src='client/libs/plugin/ht-animation.js'></script>
+<script src="client/promise.js"></script>
+<script src="client/axios.js"></script>
+<script src="client/ramda.js"></script>
+<script src='custom/js/zh_cn.js'></script>
+<script src="custom/js/common.js"></script>
+<script src="custom/js/dialog.js"></script>
+<script src="custom/libs/sockjs.min.js"></script>
+<script src="custom/libs/stomp.min.js"></script>
+<script src="custom/libs/layui/layui.js"></script>
+<script lang="JavaScript">
+	// 定时获取HT-sid的标识
+	var timerByGetSid = null;
+	// 窗口改变大小时进行自由伸缩
+	var initMinZoom = null, minZoom = null;
+	var returnToMinZoom = false;
+	window.onresize = throttle(function () {
+		if (window.__gv__) {
+			minZoom = htconfig.Default.zoomMin;
+			window.__gv__.fitContent();
+			minZoom = graphView.getZoom()
+			if (!dataModel._attrObject.isMovedByDisplay) {
+				graphView.setPannable(false);
+			}
+		}
+	}, 200);
+
+
+	var zoom = 1;
+	var options = {},
+		myChart = {},
+		areaChartNode = {},
+		chartParams = {},
+		curvesMpointObj = {};
+	var G = {};
+	G.rootFontSize = 30;
+	var minDate = new Date(util.F(new Date(), 'yyyy/MM/dd') + ' 00:00:00').getTime(),
+		maxDate = new Date(util.F(new Date(), 'yyyy/MM/dd hh:mm:ss')).getTime();
+	// 图表公用配置
+	var option = {
+		color: ['rgb(0,151,227)', 'rgb(41,245,112)'],
+		textStyle: {
+			color: '#4B85E3'
+		},
+		tooltip: {
+			backgroundColor: 'rgba(16,19,50,0.5)',
+			borderWidth: 1,
+			borderColor: 'rgba(75,133,277,0.8)',
+			padding: [10],
+			trigger: 'axis',
+			axisPointer: {
+				type: 'line',
+				label: {
+					backgroundColor: '#6a7985'
+				}
+			},
+			formatter: function formatter(params) {
+				var series1 = params[0];
+				var series2 = params[1];
+				var label = util.F(new Date(series1.value[0]), 'yyyy/MM/dd hh:mm:ss').split(" ")[1];
+				var string = label + '<br/>' + series1.marker + series1.seriesName + ':' + series1.value[1];
+				if (series2) {
+					string += '<br/>' + series2.marker + series2.seriesName + ':' + series2.value[1];
+				}
+				return string;
+			}
+		},
+		legend: {
+			show: false,
+			right: 0,
+			top: 0,
+			data: [],
+			textStyle: {
+				color: 'rgb(255,255,255)'
+			}
+		},
+		grid: {
+			left: '5%',
+			right: '5%',
+			bottom: '5%',
+			top: '5%',
+			containLabel: true
+		}
+	};
+	// 重置图表中的fontsize
+	var resetFontSize = function resetFontSize(newValue, myChart, option) {
+		if (myChart) {
+			var size = newValue * G.rootFontSize;
+			option.legend.textStyle.fontSize = size;
+			option.textStyle.fontSize = size;
+			option.xAxis[0].axisLabel.fontSize = size;
+			option.xAxis[0].axisLabel.margin = 10 * newValue;
+			option.yAxis[0].axisLabel.fontSize = size;
+			if (option.yAxis[1]) {
+				option.yAxis[1].axisLabel.fontSize = size;
+			}
+			myChart.setOption(option);
+		}
+	};
+	// 实时时间显示
+	function timeShow() {
+		setInterval(function () {
+			// 时钟时间变化
+			var date = new Date();
+			dataModel.getDataByTag('date').s('text', date.toLocaleDateString().replace(/\//g, ' - '));
+			dataModel.getDataByTag('time').s('text', date.toTimeString().slice(0, date.toTimeString().indexOf(' ') + 1).replace(/:/g, " : "));
+			switch (date.getDay()) {
+				case 0:
+					dataModel.getDataByTag('week').s('text', '星期日');
+					break;
+				case 1:
+					dataModel.getDataByTag('week').s('text', '星期一');
+					break;
+				case 2:
+					dataModel.getDataByTag('week').s('text', '星期二');
+					break;
+				case 3:
+					dataModel.getDataByTag('week').s('text', '星期三');
+					break;
+				case 4:
+					dataModel.getDataByTag('week').s('text', '星期四');
+					break;
+				case 5:
+					dataModel.getDataByTag('week').s('text', '星期五');
+					break;
+				default:
+					dataModel.getDataByTag('week').s('text', '星期六');
+					break;
+			}
+		}, 1000);
+	}
+	// 页面初始化
+	function init() {
+		// 定义api接口
+		var api = envApi('/loong/api/mpoints/value');
+		dataModel = new ht.DataModel();
+		graphView = new ht.graph.GraphView(dataModel);
+		dataModel.enableAnimation();
+		graphView.addToDOM();
+		// 保存gv到全局，并且防止被删除
+		Object.defineProperties(window, {
+			__gv__: {
+				value: graphView,
+				configurable: false
+			}
+		});
+		zoom = graphView.getZoom();
+		var url = getParam('tag') || 'previews/display.json';
+		if (/^\//.test(url)) {
+			url = url.slice(1);
+		}
+		var dataModelObj = {}
+		ht.Default.handleImageLoaded = function (url, symbolData) {
+			if (/.json$/.test(url) && url.indexOf("symbols") != -1) {
+				var data = dataModelObj[url] || [];
+				data.forEach(function (ele) {
+					if (ele) {
+						if (typeof ele.a("animate.func") == "function") {
+							ele.a("animate.func")(ele);
+						}
+						if (typeof ele.a("runInitFunc") == "function") {
+							ele.a("runInitFunc")(ele)
+						}
+						if (ele.a("ChimeePlayer.autoPlay")) {
+							var option = ele.a("ChimeePlayer.option") || {}
+							window.creatVideo && window.creatVideo(graphView, ele.a("url"), ele.a("rect"), option)
+						}
+					}
+				});
+			}
+		}
+		// 根据url地址参数获取所需要渲染的图纸
+		ht.Default.xhrLoad(url, function (text) {
+			var json = ht.Default.parse(text);
+			if (json.title) document.title = json.title;
+			dataModel.deserialize(json);
+			hideLoading();
+			graphView.fitContent();
+			graphView.setMovableFunc(function (data) {
+				return false;
+			});
+			graphView.setRectSelectable(false);
+			initMinZoom = graphView.getZoom()
+			minZoom = graphView.getZoom();
+			// 图纸是否可移动
+			if (!dataModel._attrObject.isMovedByDisplay) {
+				graphView.setPannable(false);
+				graphView.adjustZoom = function (value) {
+					if (value < minZoom || value == minZoom) {
+						graphView.setPannable(false);
+						if (!returnToMinZoom) {
+							returnToMinZoom = true;
+							graphView.fitContent();
+						}
+						return minZoom;
+					}
+					returnToMinZoom = false
+					graphView.setPannable(true);
+					if (value > ht.Default.zoomMax) {
+						return ht.Default.zoomMax;
+					}
+					return value;
+				};
+			}
+			var fromApp = getParam("fromApp") == "true" || location.hash == "#fromApp";
+			graphView.mi(function (e) {
+				// 增加交互事件监听器
+				if (e.kind === 'clickData' || e.kind === 'doubleClickData') {
+					var dataBindings = e.data.getDataBindings();
+					// 此处有两种情况：
+					// 1、在图纸中，拖拽进入图纸的测点
+					// 2、为图纸中的文本绑定测点
+					// 点击以上两种文本，页面跳转到数据曲线分析页面
+					if (dataBindings) {
+						if (dataBindings.s && dataBindings.s.text && dataBindings.s.text.id) {
+							if (fromApp) {
+								window.top.location.href = window.location.origin + '/data-analysis/' + dataBindings.s.text.id
+							} else {
+								// 当首页的监视画面全屏时，才可点击测点弹出曲线弹框
+								var currentIframe = window.parent.document.getElementsByName(window.name)[0]
+								if (currentIframe) {
+									if (currentIframe.getAttribute("data-isFullScreen") == "false") { } else {
+										pointChartDialog(dataBindings.s.text.id);
+									}
+								} else {
+									pointChartDialog(dataBindings.s.text.id);
+								}
+							}
+							return false;
+						}
+					}
+					if (typeof e.data.a("click.func") == "function") {
+						e.data.a("click.func")(e.data);
+					}
+					if (e.data.a("underControl") && e.data.a("underControl").openUnderControl) {
+						OpenDialog(e.data)
+					}
+				}
+			});
+			graphView.mp(function (e) {
+				if (e.property === 'zoom') {
+					if (myChart) {
+						for (var key in myChart) {
+							if (myChart.hasOwnProperty(key)) {
+								var element = myChart[key];
+								resetFontSize(e.newValue, element, options[key]);
+							}
+						}
+					}
+
+				}
+				// 视频自适应
+				for (var tag in playerObj) {
+					if (playerObj.hasOwnProperty(tag)) {
+						layoutVideo(graphView.dm().getDataByTag(tag), playerObj[tag], tag);
+					}
+				}
+			});
+			dataModel.each(function (data) {
+				if (data._image && data._image.indexOf("symbols") != -1) {
+					if (!dataModelObj[data._image]) {
+						dataModelObj[data._image] = []
+					}
+					dataModelObj[data._image].push(data)
+				}
+			});
+			// 动态变化右上角时间显示
+			timeShow();
+			// 获取图纸中绑定的测点，以及获取测点实时值，true:表示有测点实时曲线数据
+			createdMpointMap(true);
+			// 初始化图表
+			initChart();
+		});
+	}
+	var classCallCheck = function classCallCheck(instance, Constructor) {
+		if (!(instance instanceof Constructor)) {
+			throw new TypeError("Cannot call a class as a function");
+		}
+	};
+
+	var createClass = function () {
+		function defineProperties(target, props) {
+			for (var i = 0; i < props.length; i++) {
+				var descriptor = props[i];
+				descriptor.enumerable = descriptor.enumerable || false;
+				descriptor.configurable = true;
+				if ("value" in descriptor) descriptor.writable = true;
+				Object.defineProperty(target, descriptor.key, descriptor);
+			}
+		}
+		return function (Constructor, protoProps, staticProps) {
+			if (protoProps) defineProperties(Constructor.prototype, protoProps);
+			if (staticProps) defineProperties(Constructor, staticProps);
+			return Constructor;
+		};
+	}();
+
+	var MyEChart = function () {
+		function MyEChart(gv, host, option) {
+			classCallCheck(this, MyEChart);
+			var div = this.div = document.createElement('div');
+			this.gv = gv;
+			this.host = host;
+			div.style.position = 'absolute';
+			div.style.boxSizing = 'border-box';
+			div.style.zIndex = 100;
+			gv.getView().appendChild(div);
+
+			this.chart = echarts.init(div);
+			if (option) {
+				var size = gv.getZoom() * G.rootFontSize;
+				option.legend.textStyle.fontSize = size;
+				option.textStyle.fontSize = size;
+				option.xAxis[0].axisLabel.fontSize = size;
+				option.xAxis[0].axisLabel.margin = 10 * gv.getZoom();
+				option.yAxis[0].axisLabel.fontSize = size;
+				if (option.yAxis[1]) {
+					option.yAxis[1].axisLabel.fontSize = size;
+				}
+				this.chart.setOption(option);
+			}
+			gv.fitContent();
+			this.layout();
+			gv.mp(this.layout, this);
+		}
+		createClass(MyEChart, [{
+			key: 'layout',
+			value: function layout() {
+				var gv = this.gv,
+					host = this.host,
+					div = this.div,
+					zoom = gv.getZoom(),
+					tx = gv.tx(),
+					ty = gv.ty(),
+					rect = host.getRect(),
+					x = void 0,
+					y = void 0;
+
+				rect.x *= zoom;
+				rect.y *= zoom;
+				rect.width *= zoom;
+				rect.height *= zoom;
+
+				x = rect.x + tx;
+				y = rect.y + ty;
+
+				div.style.width = rect.width + 'px';
+				div.style.height = rect.height + 'px';
+				div.style.left = x + 'px';
+				div.style.top = y + 'px';
+
+				this.chart.resize();
+			}
+		}, {
+			key: 'setOption',
+			value: function setOption(o) {
+				this.chart.setOption(o);
+			}
+		}, {
+			key: 'clear',
+			value: function clear() {
+				this.chart.clear();
+			}
+		}, {
+			key: 'hide',
+			value: function hide() {
+				this.div.style.display = 'none';
+			}
+		}, {
+			key: 'show',
+			value: function show() {
+				this.div.style.display = 'block';
+			}
+		}]);
+		return MyEChart;
+	}();
+	var curvesMpointIdArr = []
+	function initChart() {
+		areaChartNode = {
+			1: dataModel.getDataByTag('areaChart1'),
+			2: dataModel.getDataByTag('areaChart2'),
+			3: dataModel.getDataByTag('areaChart3'),
+			4: dataModel.getDataByTag('areaChart4')
+		}
+
+		chartParams = {
+			1: dataModel.getDataByTag('chart1Params'),
+			2: dataModel.getDataByTag('chart2Params'),
+			3: dataModel.getDataByTag('chart3Params'),
+			4: dataModel.getDataByTag('chart4Params')
+		}
+
+		options[1] = Object.assign({}, option, {
+			color: ['RGBA(245, 166, 35, 1)', 'RGBA(59, 144, 20, 1)'],
+			xAxis: [{
+				type: 'time',
+				interval: 2 * 60 * 60 * 1000,
+				boundaryGap: false,
+				max: maxDate,
+				min: minDate,
+				axisLine: { show: false },
+				splitLine: { show: false },
+				axisLabel: {
+					// align:'left',
+					showMinLabel: true,
+					showMaxLabel: false,
+					margin: 10,
+					formatter: function formatter(arg) {
+						var x = util.F(new Date(arg), "yyyy/MM/dd hh:mm").split(' ')[1].split(":")[0];
+						if (x % 2 != 0) {
+							return ""
+						}
+						return x;
+					}
+				},
+				axisLine: {
+					show: true,
+					lineStyle: {
+						color: "#488BF7",
+						width: 2,
+						opacity: 0.6
+					}
+				},
+				splitLine: { show: false },
+				axisTick: {
+					inside: false,
+					lineStyle: {
+						color: 'rgba(255,255,255,0)'
+					}
+				}
+			}],
+			yAxis: [{
+				// scale: true,
+				type: 'value',
+				splitLine: {
+					lineStyle: {
+						type: 'dashed',
+						color: 'rgba(72,139,247,0.4)'
+					}
+				},
+				min: 0,
+				max: 1,
+				axisLine: {
+					show: false
+				},
+				axisTick: {
+					show: false
+				},
+				axisLabel: {},
+				splitNumber: 5
+			}, {
+				// scale: true,
+				type: 'value',
+				splitLine: {
+					lineStyle: {
+						type: 'dashed',
+						color: 'rgba(72,139,247,0)'
+					}
+				},
+				min: 0,
+				max: 1,
+				axisLine: {
+					show: false
+				},
+				axisTick: {
+					show: false
+				},
+				axisLabel: {},
+				splitNumber: 5
+			}],
+			series: [{
+				name: '进水',
+				type: 'line',
+				smooth: false,
+				showSymbol: false,
+				symbol: 'circle',
+				symbolSize: 4,
+				lineStyle: {
+					normal: {
+						width: 2
+					}
+				},
+				areaStyle: {
+					normal: {
+						opacity: 0,
+						color: 'rgba(245, 166, 35,0.40)'
+					}
+				},
+				data: []
+			}, {
+				name: '出水',
+				type: 'line',
+				smooth: false,
+				showSymbol: false,
+				symbol: 'circle',
+				symbolSize: 4,
+				yAxisIndex: 1,
+				lineStyle: {
+					normal: {
+						width: 2
+					}
+				},
+				areaStyle: {
+					normal: {
+						opacity: 0,
+						color: 'rgba(59, 144, 20,0.40)'
+					}
+				},
+				data: []
+			}]
+		});
+		options[2] = Object.assign({}, option, {
+			color: ['rgba(148, 88, 203, 1)', 'rgba(61, 124, 219,1)'],
+			xAxis: [{
+				type: 'time',
+				interval: 2 * 60 * 60 * 1000,
+				boundaryGap: false,
+				max: maxDate,
+				min: minDate,
+				axisLine: { show: false },
+				splitLine: { show: false },
+				axisLabel: {
+					// align:'left',
+					showMinLabel: true,
+					showMaxLabel: false,
+					margin: 10,
+					formatter: function formatter(arg) {
+						var x = util.F(new Date(arg), "yyyy/MM/dd hh:mm").split(' ')[1].split(":")[0];
+						if (x % 2 != 0) {
+							return ""
+						}
+						return x;
+					}
+				},
+				axisLine: {
+					show: true,
+					lineStyle: {
+						color: "#488BF7",
+						width: 2,
+						opacity: 0.6
+					}
+				},
+				splitLine: { show: false },
+				axisTick: {
+					inside: false,
+					lineStyle: {
+						color: 'rgba(255,255,255,0)'
+					}
+				}
+			}],
+			yAxis: [{
+				// scale: true,
+				type: 'value',
+				splitLine: {
+					lineStyle: {
+						type: 'dashed',
+						color: 'rgba(72,139,247,0.4)'
+					}
+				},
+				min: 0,
+				max: 1,
+				axisLine: {
+					show: false
+				},
+				axisTick: {
+					show: false
+				},
+				axisLabel: {},
+				splitNumber: 5
+			}, {
+				// scale: true,
+				type: 'value',
+				splitLine: {
+					lineStyle: {
+						type: 'dashed',
+						color: 'rgba(72,139,247,0)'
+					}
+				},
+				min: 0,
+				max: 1,
+				axisLine: {
+					show: false
+				},
+				axisTick: {
+					show: false
+				},
+
+				axisLabel: {},
+				splitNumber: 5
+			}],
+			series: [{
+				name: '进水',
+				type: 'line',
+				smooth: false,
+				showSymbol: false,
+				lineStyle: {
+					normal: {
+						width: 2,
+						color: new echarts.graphic.LinearGradient(1, 0, 0, 0, [{
+							offset: 0,
+							color: 'rgba(148, 88, 203, 1)'
+						}, {
+							offset: 1,
+							color: 'rgba(50, 35, 160, 1)'
+						}], false)
+
+					}
+				},
+				areaStyle: {
+					normal: {
+						color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+							offset: 0,
+							color: 'rgba(148, 88, 203, 0.5)'
+						}, {
+							offset: 1,
+							color: 'rgba(148, 88, 203, 0)'
+						}], false)
+					}
+				},
+				data: []
+			}, {
+				name: '出水',
+				type: 'line',
+				smooth: false,
+				showSymbol: false,
+				yAxisIndex: 1,
+				lineStyle: {
+					normal: {
+						width: 2,
+						color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [{
+							offset: 0,
+							color: 'rgba(61, 124, 219,1)'
+						}, {
+							offset: 1,
+							color: 'rgba(63, 127, 215, 1)'
+						}], false)
+					}
+				},
+				areaStyle: {
+					normal: {
+						color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+							offset: 0,
+							color: 'rgba(61, 124, 219, 0.5)'
+						}, {
+							offset: 1,
+							color: 'rgba(61, 124, 219, 0)'
+						}], false)
+					}
+				},
+				data: []
+			}]
+		});
+		options[3] = Object.assign({}, option, {
+			color: ['#1CDCAB', '#F74411'],
+			xAxis: [{
+				type: 'time',
+				interval: 2 * 60 * 60 * 1000,
+				boundaryGap: false,
+				max: maxDate,
+				min: minDate,
+				axisLine: { show: false },
+				splitLine: { show: false },
+				axisLabel: {
+					// align:'left',
+					showMinLabel: true,
+					showMaxLabel: false,
+					margin: 10,
+					formatter: function formatter(arg) {
+						var x = util.F(new Date(arg), "yyyy/MM/dd hh:mm").split(' ')[1].split(":")[0];
+						if (x % 2 != 0) {
+							return ""
+						}
+						return x;
+					}
+				},
+				axisLine: {
+					show: true,
+					lineStyle: {
+						color: "#488BF7",
+						width: 2,
+						opacity: 0.6
+					}
+				},
+				splitLine: { show: false },
+				axisTick: {
+					inside: false,
+					lineStyle: {
+						color: 'rgba(255,255,255,0)'
+					}
+				}
+			}],
+			yAxis: [{
+				// scale: true,
+				min: 0,
+				max: 1,
+				minInterval: 0.01,
+				splitNumber: 5,
+				type: 'value',
+				splitLine: {
+					lineStyle: {
+						type: 'dashed',
+						color: 'rgba(72,139,247,0.4)'
+					}
+				},
+				axisLine: {
+					show: false
+				},
+				axisTick: {
+					show: false
+				},
+				axisLabel: {}
+			}],
+			series: [{
+				name: '进水',
+				type: 'line',
+				smooth: false,
+				showSymbol: false,
+				symbol: 'circle',
+				symbolSize: 4,
+				lineStyle: {
+					normal: {
+						width: 2
+					}
+				},
+				// areaStyle: {
+				//   normal: {
+				//     color: 'rgba(48,52,172,0.87)',
+				//     opacity: 0.87
+				//   }
+				// },
+				// z: 10,
+				data: []
+			}, {
+				name: '出水',
+				type: 'line',
+				smooth: false,
+				showSymbol: false,
+				symbol: 'circle',
+				symbolSize: 4,
+				lineStyle: {
+					normal: {
+						width: 2
+					}
+				},
+				// areaStyle: {
+				//   normal: {
+				//     color: 'rgba(99,97,249,1)',
+				//     opacity: 1
+				//   }
+				// }, z: 9,
+				data: []
+			}]
+		});
+		options[4] = Object.assign({}, option, {
+			color: ['rgba(245,245,35,1)', 'rgba(1,218,230,1)'],
+			xAxis: [{
+				type: 'time',
+				interval: 2 * 60 * 60 * 1000,
+				boundaryGap: false,
+				max: maxDate,
+				min: minDate,
+				axisLine: { show: false },
+				splitLine: { show: false },
+				axisLabel: {
+					// align:'left',
+					showMinLabel: true,
+					showMaxLabel: false,
+					margin: 10,
+					formatter: function formatter(arg) {
+						var x = util.F(new Date(arg), "yyyy/MM/dd hh:mm").split(' ')[1].split(":")[0];
+						if (x % 2 != 0) {
+							return ""
+						}
+						return x;
+					}
+				},
+				axisLine: {
+					show: true,
+					lineStyle: {
+						color: "#488BF7",
+						width: 2,
+						opacity: 0.6
+					}
+				},
+				splitLine: { show: false },
+				axisTick: {
+					inside: false,
+					lineStyle: {
+						color: 'rgba(255,255,255,0)'
+					}
+				}
+			}],
+			yAxis: [{
+				// scale: true,
+				type: 'value',
+				splitLine: {
+					lineStyle: {
+						type: 'dashed',
+						color: 'rgba(72,139,247,0.4)'
+					}
+				},
+				min: 0,
+				max: 1,
+				minInterval: 0.01,
+				axisLine: {
+					show: false
+				},
+				axisTick: {
+					show: false
+				},
+				axisLabel: {},
+				splitNumber: 5
+			}, {
+				// scale: true,
+				type: 'value',
+				splitLine: {
+					lineStyle: {
+						type: 'dashed',
+						color: 'rgba(72,139,247,0)'
+					}
+				},
+				min: 0,
+				max: 1,
+				minInterval: 0.01,
+				axisLine: {
+					show: false
+				},
+				axisTick: {
+					show: false
+				},
+				axisLabel: {},
+				splitNumber: 5
+			}],
+			series: [{
+				name: '进水',
+				type: 'line',
+				smooth: true,
+				showSymbol: false,
+				symbol: 'circle',
+				symbolSize: 4,
+				data: []
+			}, {
+				name: '出水',
+				type: 'line',
+				smooth: true,
+				showSymbol: false,
+				symbol: 'circle',
+				symbolSize: 4,
+				yAxisIndex: 1,
+				data: []
+			}]
+		});
+		myChart = {
+			1: new MyEChart(graphView, areaChartNode[1], options[1]),
+			2: new MyEChart(graphView, areaChartNode[2], options[2]),
+			3: new MyEChart(graphView, areaChartNode[3], options[3]),
+			4: new MyEChart(graphView, areaChartNode[4], options[4])
+		}
+		function getParams(node, attr) {
+			if (node && node.getDataBindings() && node.getDataBindings().a && node.getDataBindings().a[attr]) {
+				return node.getDataBindings().a[attr].id
+			} else {
+				return "";
+			}
+		}
+
+		for (var index in chartParams) {
+			if (chartParams.hasOwnProperty(index)) {
+				var item = chartParams[index];
+				if (getParams(item, "mpoint1")) {
+					curvesMpointObj[getParams(item, "mpoint1")] = {
+						index: 0,
+						currentCurvesIndex: Number(index)
+					};
+					curvesMpointIdArr.push(getParams(item, "mpoint1"))
+				}
+				if (getParams(item, "mpoint2")) {
+					curvesMpointObj[getParams(item, "mpoint2")] = {
+						index: 1,
+						currentCurvesIndex: Number(index)
+					};
+					curvesMpointIdArr.push(getParams(item, "mpoint2"))
+				}
+			}
+		}
+		if (curvesMpointIdArr.length == 0) {
+			if (idArr.length) {
+				// 如果未绑定测点曲线，但是图纸中有绑定测点，则需创建websocket，并订阅
+				connect()
+			}
+			return;
+		}
+		getChartDate(curvesMpointIdArr.join(","))
+	}
+
+	function setCurvesData(data) {
+		// 重置x轴最大值，如果当前数据最大值和最小值不在同一天，则清除昨天数据
+		var currentCurvesInfo = curvesMpointObj[data.id];
+		var currentCurvesIndex = currentCurvesInfo.currentCurvesIndex;
+		var currentDataMs = new Date(data.datadt).getTime()
+		if (currentCurvesInfo) {
+			// 如若当前数据是当天之前的，舍弃该条数据
+			if (currentDataMs < options[currentCurvesIndex].xAxis[0].min) {
+				return false
+			}
+			// 将该条数据和已有数据中最新一条数据比较，判断是否属于同一天，如若不属于则清空以往数据
+			var historyData = options[currentCurvesIndex].series[currentCurvesInfo.index].data
+			var length = historyData.length;
+			var lastDataDate = length ? historyData[length - 1][0] : "";
+			// 如若该条推送的数据与已有数据中最新一条数据是同一条或小于已有数据中最新一条数据时间的，则舍弃该条推送数据
+			if (currentDataMs < lastDataDate || currentDataMs == lastDataDate) {
+				return false
+			}
+			if (!lastDataDate || util.F(new Date(lastDataDate), 'yyyy-MM-dd') == util.F(new Date(data.datadt), 'yyyy-MM-dd')) {
+				var yAxisNum = options[currentCurvesIndex].yAxis.length;
+				var currentValue = Number(data.value)
+				options[currentCurvesIndex].series[currentCurvesInfo.index].data.push([currentDataMs, currentValue]);
+				// options[currentCurvesIndex].series[currentCurvesInfo.index].data.sort(function (a, b) { return b[0] - a[0] });
+				options[currentCurvesIndex].xAxis[0].min = new Date(util.F(new Date(data.datadt), 'yyyy-MM-dd 00:00:00')).getTime();
+				if (currentDataMs > options[currentCurvesIndex].xAxis[0].max) {
+					options[currentCurvesIndex].xAxis[0].max = currentDataMs;
+				}
+				if (yAxisNum == 1) {
+					if (currentValue < options[currentCurvesIndex].yAxis[0].min) {
+						options[currentCurvesIndex].yAxis[0].min = currentValue;
+					}
+					if (currentValue > options[currentCurvesIndex].yAxis[0].max) {
+						options[currentCurvesIndex].yAxis[0].max = currentValue;
+					}
+				} else {
+					if (currentValue < options[currentCurvesIndex].yAxis[currentCurvesInfo.index].min) {
+						options[currentCurvesIndex].yAxis[currentCurvesInfo.index].min = currentValue;
+					}
+					if (currentValue > options[currentCurvesIndex].yAxis[currentCurvesInfo.index].max) {
+						options[currentCurvesIndex].yAxis[currentCurvesInfo.index].max = currentValue;
+					}
+				}
+				// myChart[currentCurvesIndex].clear();
+				myChart[currentCurvesIndex].setOption(options[currentCurvesIndex], true);
+			} else {
+				for (var key in options) {
+					if (options.hasOwnProperty(key)) {
+						var element = options[key];
+						element.xAxis[0].min = new Date(util.F(new Date(data.datadt), 'yyyy-MM-dd 00:00:00')).getTime();
+						element.xAxis[0].max = currentDataMs;
+						element["series"].forEach(function (value, index) {
+							value.data = []
+						})
+						if (key == currentCurvesIndex) {
+							element.yAxis.forEach(function (value, index) {
+								if (index == currentCurvesInfo.index) {
+									var currentValue = Number(data.value)
+									element.series[currentCurvesInfo.index].data.push([currentDataMs, currentValue]);
+									value.min = currentValue < 0 ? currentValue : 0;
+									value.max = currentValue > 1 ? currentValue : 1;
+								} else {
+									value.min = 0
+									value.max = 1
+								}
+							})
+						} else {
+							element.yAxis.forEach(function (value, index) {
+								value.min = 0
+								value.max = 1
+							})
+						}
+						// myChart[currentCurvesIndex].clear();
+						for (var i in myChart) {
+							if (myChart.hasOwnProperty(i)) {
+								var element = myChart[i];
+								element.setOption(options[i], true)
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	// 获取图表接口
+
+	function getChartDate(mpointIds) {
+		minDate = new Date(util.F(new Date(), 'yyyy/MM/dd') + ' 00:00:00').getTime();
+		maxDate = new Date(util.F(new Date(), 'yyyy/MM/dd hh:mm:ss')).getTime();
+		var chartApi = envApi('/loong/api/curves/data');
+		var beginDate = util.transDateFromLocale(util.F(new Date(), 'yyyy-MM-dd 00:00:00'));
+		var request = window.axios.get(chartApi, {
+			params: {
+				ids: mpointIds,
+				beginDate: beginDate,
+				cycle: "day",
+				ring: 0,
+				year: 0
+			}
+		});
+		request.then(function (result) {
+			finishRequestNum++;
+			var res = result.data;
+			if (!res.items) {
+				return
+			}
+			if (res.items.length == 0) {
+				res = {
+					"items": [{
+						"mpointName": "",
+						"data": []
+					}, {
+						"mpointName": "",
+						"data": []
+					}]
+				};
+			}
+
+			res.items.forEach(function (ele, index) {
+				if (!ele.data) {
+					return
+				}
+				var currentCurvesInfo = curvesMpointObj[ele.mpointId];
+				var currentCurvesIndex = currentCurvesInfo.currentCurvesIndex;
+				var yAxisNum = options[currentCurvesIndex].yAxis.length;
+				if (currentCurvesInfo) {
+					currentCurvesInfo.data = ele;
+				}
+				if (ele.data.length == 0) {
+					// 当该条曲线没有数据时，给定默认最大最小值
+					if (yAxisNum == 1) {
+						options[currentCurvesIndex].yAxis[0].min = 0;
+						options[currentCurvesIndex].yAxis[0].max = 1;
+					} else {
+						options[currentCurvesIndex].yAxis[currentCurvesInfo.index].min = 0;
+						options[currentCurvesIndex].yAxis[currentCurvesInfo.index].max = 1;
+					}
+				} else {
+					// 当该条曲线有数据且有两条y轴时
+					var currentMin = Math.min.apply(Math, ele.data.map(function (o) {
+						return o.dataValue;
+					}));
+					var currentMax = Math.max.apply(Math, ele.data.map(function (o) {
+						return o.dataValue;
+					}));
+					if (yAxisNum == 1) {
+						if (currentMin < options[currentCurvesIndex].yAxis[0].min) {
+							options[currentCurvesIndex].yAxis[0].min = currentMin;
+						}
+						if (currentMax > options[currentCurvesIndex].yAxis[0].max) {
+							options[currentCurvesIndex].yAxis[0].max = currentMax;
+						}
+					} else {
+						if (currentMin < options[currentCurvesIndex].yAxis[currentCurvesInfo.index].min) {
+							options[currentCurvesIndex].yAxis[currentCurvesInfo.index].min = currentMin;
+						}
+						if (currentMax > options[currentCurvesIndex].yAxis[currentCurvesInfo.index].max) {
+							options[currentCurvesIndex].yAxis[currentCurvesInfo.index].max = currentMax;
+						}
+					}
+				}
+				options[currentCurvesIndex].series[currentCurvesInfo.index].name = ele.mpointName;
+				options[currentCurvesIndex].series[currentCurvesInfo.index].data = util.getXYItem(ele.data);
+				options[currentCurvesIndex].xAxis[0].min = minDate
+				options[currentCurvesIndex].xAxis[0].max = maxDate
+				myChart[currentCurvesIndex].setOption(options[currentCurvesIndex]);
+			});
+			// 不必考虑idArr.length为0，一旦为0，图纸上也不会有曲线测点
+			if (finishRequestNum > 1) {
+				connect(true)
+			}
+		}).catch(function (err) {
+			messageTip(err)
+		});
+	}
+	document.body.onload = load;
+</script>
+
+</html>

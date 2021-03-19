@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<title>视频监控</title>
+<script src="libs/jquery-3.3.1.min.js"></script>
+<script src="libs/hls.light.min.js"></script>
+<style>
+body, html, #monitor {padding: 0;margin: 0; width: 100%;height: 100%}   
+video {
+    width: 100%;
+    height: 100%;
+    display: block;
+    font-size: 0;
+    object-fit:fill;
+    background: transparent;
+}
+video:focus,
+video:active {
+    outline: none;
+}
+.vdo-item {
+    float: left;
+    margin: 5px 0 0 5px;
+}
+.vdo-title{
+    margin: 0;
+    padding: 0;
+    height: 30px;
+    line-height: 30px;
+    text-align: center;
+    color: #333;
+    font-weight: bold;
+    font-size: 12px;
+}
+</style>
+</head>
+<body>
+<div id="monitor"></div>
+<script>
+var CTX = (function() {
+    var devMode = (location.hostname == 'localhost') || (location.hostname == '127.0.0.1');
+    return devMode ? '/mango' : '';
+}());
+function HlsIns(vid, url) {
+    var video = document.getElementById(vid);
+    var hls = new Hls();
+    hls.attachMedia(video);
+    hls.on(Hls.Events.MEDIA_ATTACHED, function () {
+        hls.loadSource(url);
+    });
+    hls.on(Hls.Events.MANIFEST_PARSED, function (event, data) {
+
+    });
+    hls.on(Hls.Events.ERROR, function (event, data) {
+        console.log("Hls.Events.ERROR:")
+        if (data.fatal) {
+        switch(data.type) {
+            case Hls.ErrorTypes.NETWORK_ERROR:
+                hls.startLoad();
+                break;
+            case Hls.ErrorTypes.MEDIA_ERROR:
+                hls.recoverMediaError();
+                break;
+            default:
+                hls.destroy();
+                break;
+            }
+        }
+    });
+    
+    return hls;
+}
+function urlParams() {
+    var s = location.search,
+        a = [],
+        r = {};
+    if(s) {
+        s = s.substr(1);
+        a = s.split('&');
+        for(var i=0,len=a.length;i<len;i++) {
+            var p = a[i],
+                ca = p.split('=');
+            if(ca.length > 2) {
+                var _i = p.indexOf('=');
+                r[ca[0]] = p.substr(_i+1);
+            } else {
+                r[ca[0]] = ca[1]
+            }
+            
+        }
+    }
+    return r;
+}
+function gusid (len, radix) {
+    var chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'.split('');
+    var uuid = [], i;
+    radix = radix || chars.length;
+    
+    if (len) {
+        for (i = 0; i < len; i++) uuid[i] = chars[0 | Math.random()*radix];
+    } else {
+        var r;
+        uuid[8] = uuid[13] = uuid[18] = uuid[23] = '-';
+        uuid[14] = '4';
+        for (i = 0; i < 36; i++) {
+        if (!uuid[i]) {
+            r = 0 | Math.random()*16;
+            uuid[i] = chars[(i == 19) ? (r & 0x3) | 0x8 : r];
+        }
+        }
+    }
+    
+    return uuid.join('');
+}
+
+function createVideo(id) {
+    var item = document.createElement('div');
+    var vdo = document.createElement('video');
+    vdo.id = id;
+    vdo.autoplay = 'autoplay';
+    vdo.muted = 'muted';
+    item.className = 'vdo-cc';
+    item.appendChild(vdo);
+    return item;
+}
+function createTitle(data) {
+    var title = document.createElement('p'), text = document.createTextNode(data.name);
+    title.appendChild(text);
+    title.className = 'vdo-title';
+    return title;
+}
+function initHLS(data) {
+    var id = 'm'+gusid(8, 16);
+    var video = createVideo(id),
+        title = createTitle(data);
+    
+    var item = document.createElement('div');
+    item.appendChild(video);
+    item.appendChild(title);
+    item.className = "vdo-item";
+    document.querySelector('#monitor').appendChild(item);
+
+    HlsIns(id, data.url)
+}
+function flexRender(count) {
+    var sh = document.documentElement.clientHeight, sw = document.documentElement.clientWidth;
+    var h = '100%', w = '100%';
+    if(count > 1 && count < 5) {
+        h = (sh-20)/2;
+        w = (sw-15)/2;
+    }else if(count >= 5 && count <= 6 ) {
+        h = (sh-20)/2;
+        w = (sw-20)/3;
+    } else {
+        h = sh - 10;
+        w = sw - 10;
+    }
+    var items = document.querySelectorAll('.vdo-item');
+    var vdos = document.querySelectorAll('.vdo-cc');
+    items.forEach(function(_item){
+        _item.style.width = w+'px';
+        _item.style.height = h+'px';
+    })
+    vdos.forEach(function(_item){
+        _item.style.height = h - 30 +'px';
+    })
+}
+;(function(){
+    var params = urlParams();
+    var ids = params.ids;
+
+    var api = CTX+'/loong/api/videos/voice-ids/?ids='
+    if(ids) {
+        $.ajax(api+ids, {
+            success: function(res) {
+                if(res && res.length) {
+                    var count = res.length;
+                    if(res.length > 6) res.length = 6;
+                    for(var i=0;i<count;i++) {
+                        initHLS(res[i]);
+                    }
+                    flexRender(count);
+                }
+            }
+        })
+    }
+}())
+
+</script>
+</body>
+</html>

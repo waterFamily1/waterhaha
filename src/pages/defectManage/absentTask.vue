@@ -220,12 +220,12 @@ export default {
         },
         declareHandle() {
             this.$router.push({
-                path:'defect/declare'
+                path:'/defect/declare'
             })
         },
         checkHandle(row) {
             this.$router.push({
-                path:'defect/detail',
+                path:'/defect/detail',
                 query:{
                     id:row.id
                 }

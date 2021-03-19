@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title></title>
+    <style>
+    body, html {padding: 0;margin: 0; width: 100%;height: 100%}
+    </style>
+</head>
+<body>
+    <iframe src="" frameborder="0" id="main" width=100% height=100%></iframe>
+
+    <script>
+        function urlParams() {
+            var s = location.search,
+                a = [],
+                r = {};
+            if(s) {
+                s = s.substr(1);
+                a = s.split('&');
+                for(var i=0,len=a.length;i<len;i++) {
+                    var p = a[i],
+                        ca = p.split('=');
+                    if(ca.length > 2) {
+                        var _i = p.indexOf('=');
+                        r[ca[0]] = p.substr(_i+1);
+                    } else {
+                        r[ca[0]] = ca[1]
+                    }
+                    
+                }
+            }
+            return r;
+        }
+        var params = urlParams();
+        var ifr = document.querySelector('#main');
+        switch(params.type) {
+
+            case 'process' :
+                var _proceUrl = params.url;
+                if(!/^\//.test(_proceUrl)) _proceUrl = '/'+_proceUrl;
+                ifr.src = _proceUrl
+                break;
+            case 'video' :
+                ifr.src = 'video.html?ids='+params.ids
+                break;
+            case 'report' :
+                ifr.src = 'report.html?id='+params.id
+            default:
+                break;
+        
+        }
+       
+        
+    </script>
+</body>
+</html>

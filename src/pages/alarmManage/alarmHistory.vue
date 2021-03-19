@@ -11,7 +11,7 @@
                         </div>
                         <div class="form-item">
                              <label style="display:inline-block;width:120px;text-align:right">区域位置：</label> 
-                             <TreeSelect size="small" v-model="historyList.area" multiple :data="treeData" v-width="200" />
+                             <TreeSelect v-model="historyList.area" multiple :data="treeData" v-width="200" />
                         </div>
                         <div class="form-search-btn">
                             <a href="javascript:;" @click="higherSearch()">
@@ -63,11 +63,6 @@
                                         <div class="tab-swiper">
                                             <span v-for="(tab,index) in tabs" :key="index" @click="toggle(index)" :class="{active:active==index}" style="padding-left:0">{{tab}}</span>
                                         </div>
-                                        <!-- <TagSelect v-model="happenTime" @on-change="changeTime">
-                                            <TagSelectOption name="hour">24小时</TagSelectOption>
-                                            <TagSelectOption name="week">一周</TagSelectOption>
-                                            <TagSelectOption name="month">一月</TagSelectOption>
-                                        </TagSelect> -->
                                         <DatePicker class="item-picker" format="yyyy-MM-dd" @on-change="changeStart" :options="startDate" type="date" v-model="startTime"  placement="bottom-end" placeholder="开始日期" style="width: 200px"></DatePicker> -
                                         <DatePicker class="item-picker" format="yyyy-MM-dd" @on-change="changeEnd" :options="endDate" type="date" v-model="endTime"  placement="bottom-end" placeholder="结束日期" style="width: 200px"></DatePicker>
                                     </div>
@@ -168,6 +163,8 @@
 import { getTree,getList,getDetail,confirmAlarm} from '@/api/alarm/history'
 import createTree from '@/libs/public-util'
 import {formatTime} from '@/libs/public'
+import util from '@/libs/public_js'
+
 export default {
     name: 'alarmHistory',
     data() {
@@ -195,7 +192,8 @@ export default {
                 {
                     title: '等级',
                     key: 'alarmLevel',
-                     render: (h, params) => {
+                    width: 65,
+                    render: (h, params) => {
                         let a = params.row.alarmLevel
                         const color= a==1?'#F5423F':(a==2?'#F9A10F':'#739AFB')
                         return h('span', {
@@ -203,7 +201,6 @@ export default {
                                 color:color
                             }
                         }, a+'级');
-                        
                     }
                 },
                 {
@@ -218,6 +215,7 @@ export default {
                 {
                     title: '确认状态',
                     key: 'alarmStatus',
+                    width: 100,
                     render: (h, params) => {
                         let that = this
                         const text = params.row.alarmStatus == 'Unremove'?'未解除':'已解除'
@@ -232,19 +230,17 @@ export default {
                 {
                     title: '发生时间',
                     key: 'alarmTriggerTime',
-                     render: (h, params) => {
-                        let that = this
-                        const text = params.row.alarmTriggerTime
-                        return h('span', {}, formatTime(text, 'HH:mm:ss yyyy-MM-dd'));
+                    width: 100,
+                    render: (h, params) => {
+                        return util.tableDatetime(h, params.row.alarmTriggerTime)
                     }
                 },
                 {
                     title: '确认时间',
                     key: 'alarmReleaseTime',
-                     render: (h, params) => {
-                        let that = this
-                        const text = params.row.alarmReleaseTime
-                        return h('span', {}, formatTime(text, 'HH:mm:ss yyyy-MM-dd'));
+                    width: 100,
+                    render: (h, params) => {
+                        return util.tableDatetime(h, params.row.alarmReleaseTime)
                     }
                 },
                 {
@@ -258,6 +254,7 @@ export default {
                 {
                     title: '订阅',
                     key: 'subscribeAlarm',
+                    width: 65,
                     render: (h, params) => {
                         let that = this
                         const text = params.row.subscribeAlarm == 1?'是':'否'
@@ -267,7 +264,7 @@ export default {
                 {
                     title: '操作',
                     slot: 'action',
-                    width: 150,
+                    width: 130,
                     align: 'center'
                 }
             ],
@@ -312,9 +309,9 @@ export default {
                 ids:[this.id],
                 remarks:this.formInline.remarks
             }
-            console.log(data)
+            // console.log(data)
             confirmAlarm(data).then(res=>{
-                console.log(res)
+                // console.log(res)
                 if(res.data.count){
                     this.hisList()
                 }
@@ -329,13 +326,11 @@ export default {
         sureAlarm(row){
             this.modal1 = true
             this.id = row.id
-           
         },
         checkItem(row){
-            console.log(row)
-            
+            // console.log(row)
             getDetail(row.id).then(res=>{
-                console.log(res)
+                // console.log(res)
                 this.record = res.data.record
                 //    let relationList:["=",'>',"<","≠","≥","≤","5分钟无数据"],
                 let temp = res.data.record
@@ -359,8 +354,8 @@ export default {
         changeStart(e){
             this.start = e
             this.active = '6'
-                this.start = ''
-                this.end = ''
+            this.start = ''
+            this.end = ''
         },
         toggle(i){
             this.active=i;
@@ -395,14 +390,14 @@ export default {
         },
         getBeforeDate(days){
             var now=new Date().getTime();
-                var ago=now-86400000*days;//一天的毫秒数为86400000
-                var agoData= new Date(ago);
-                var year = agoData.getFullYear();
-                var mon = agoData.getMonth() + 1;
-                var day = agoData.getDate();
-                mon=mon<10? '0'+mon:mon;
-                day=day<10? '0'+day:day;
-                var date=year+'-'+mon+'-'+day;
+            var ago=now-86400000*days;//一天的毫秒数为86400000
+            var agoData= new Date(ago);
+            var year = agoData.getFullYear();
+            var mon = agoData.getMonth() + 1;
+            var day = agoData.getDate();
+            mon=mon<10? '0'+mon:mon;
+            day=day<10? '0'+day:day;
+            var date=year+'-'+mon+'-'+day;
             return date;
         },
         reset(){
@@ -416,6 +411,9 @@ export default {
            this.active = '6'
         },
         hisList(){
+            // if(this.$route.query.id) {
+            //     this.historyList.area.push(this.$route.query.id)
+            // }
             let siteId = this.historyList.area.length!=0?this.historyList.area.join(','):''
             let alarmStatus = this.confirmState.length!=0?this.confirmState.join(','):''
             let methods = this.confirmWay.length!=0?this.confirmWay.join(','):''
@@ -425,7 +423,7 @@ export default {
            
             // siteId,queryName,begin,end,alarmStatus,methods,level,page,siteName
             let arr = []
-            console.log(this.historyList.area)
+            // console.log(this.historyList.area)
             this.historyList.area.map(ele=>{
                 this.baseData.map(item=>{
                    if(item.id == ele){
@@ -435,7 +433,7 @@ export default {
             })
             let siteName = this.historyList.area.length!=0?arr.join(','):''
             getList(siteId,this.historyList.name,begin,end,alarmStatus,methods,level,this.page,siteName).then(res=>{
-                console.log(res)
+                // console.log(res)
                 if(res.data.items){
                     this.tableData = res.data.items
                     this.tableTotal = res.data.total
@@ -447,7 +445,7 @@ export default {
         },
         getRegional() {
             getTree().then(res => {
-                console.log(res)
+                // console.log(res)
                 let treeItem = []
                 let trees = res.data
                 for(let i = 0; i < trees.length; i ++) {
@@ -456,16 +454,19 @@ export default {
                     trees[i].expand = true
                     treeItem.push(trees[i])
                 }
-                console.log(treeItem)
+                // console.log(treeItem)
                 this.baseData = treeItem
                 this.treeData = createTree(treeItem,0)
+                if(this.$route.query.id) {
+                    this.historyList.area.push(Number(this.$route.query.id))
+                }
             }).catch(err => {
                 // 异常情况
             })
         },
         higherSearch() {
             this.searchShow = !this.searchShow
-        },
+        }
     }
 }
 </script>

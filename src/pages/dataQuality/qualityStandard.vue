@@ -2,9 +2,9 @@
     <div class="quality-wrap" :style="{height: height+'px'}">
         <div class="log-content">
             <div class="c-table-top-btns">
-                <button type="button" @click="edit()" v-if="!isEdit">编辑</button>
-                <button type="button" @click="save()" v-else>保存</button>
-                <button type="button" @click="recoverDefault()">默认恢复</button>
+                <Button @click="edit()" v-if="!isEdit">编辑</Button>
+                <Button @click="save()" v-else>保存</Button>
+                <Button @click="recoverDefault()">默认恢复</Button>
             </div>
             <div class="table-wrapper">
                 <Table stripe :columns="tableList" :data="tableData">

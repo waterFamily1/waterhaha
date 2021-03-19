@@ -1,9 +1,9 @@
 <template>
     <div class="user-box" :style="{height: height+'px'}">
         <div class="search-header">
-             <h3>用户设置</h3>
+            <h3>用户设置</h3>
             <div class="c-adv-search-btn">
-                <Button @click="save()">保存</Button>
+                <Button @click="save('formValidate')">保存</Button>
             </div>
         </div> 
         <div class="c-top-border-gray">
@@ -11,10 +11,10 @@
                 <div class="title">基本信息</div>
                 <div style="display:inline-block;width:200px">
                     <div class="profile_icon">
-                        <img :src="formValidate.img" alt="">
+                        <img :src="formValidate.img" />
                     </div>
                     <div class="profile_btns">
-                        <Button type="primary" style="background:#576374;font-size:12px;color:#fff;height:26px;line-height:26px;border-color:#576374;margin-right:5px">修改密码</Button>
+                        <Button type="primary" style="background:#576374;font-size:12px;color:#fff;height:26px;line-height:26px;border-color:#576374;margin-right:5px" @click="alertMsg">修改密码</Button>
                         <Upload 
                             action=""
                             :before-upload="handleUploadicon"
@@ -60,7 +60,7 @@
                     </Row>
                 </div>
                 <div class="title" style="margin-top:23px">系统设置</div>
-                <div class="">
+                <div>
                     <Row>
                         <Col span="12">
                             <FormItem label="系统语言:" prop="language">
@@ -68,37 +68,90 @@
                                     <Option v-for="item in langList" :value="item.value" :key="item.value">{{ item.label }}</Option>
                                 </Select>
                             </FormItem>
+                            <FormItem label="画面触屏:">
+                                <Switch size="large" v-model="touch">
+                                    <span slot="open">开启</span>
+                                    <span slot="close">关闭</span>
+                                </Switch>
+                                <Tooltip content="开启后只可以触屏使用大屏功能" placement="right">
+                                    <Icon type="md-help-circle" style="font-size: 20px;color: rgb(173, 173, 173);margin-left: 5px"/>
+                                </Tooltip>
+                            </FormItem>
                         </Col>
                         <Col span="12">
-                            <FormItem label="消息提醒方式:" prop="type">
+                            <FormItem label="消息提醒方式:" porp="type">
                                  <Select v-model="formValidate.type" style="width:200px">
                                     <Option v-for="item in methodList" :value="item.value" :key="item.value">{{ item.label }}</Option>
                                 </Select>
+                            </FormItem>
+                            <FormItem label="开启音箱控制:">
+                                <Switch size="large" v-model="remind">
+                                    <span slot="open">开启</span>
+                                    <span slot="close">关闭</span>
+                                </Switch>
                             </FormItem>
                         </Col>
                     </Row>
                 </div>
             </Form>
         </div>
+        <Modal v-model="editPassword" title="修改密码" width="350">
+            <Form ref="passwordForm" class="passwordForm" :model="password" :rules="ruleValidate2">
+                <FormItem>
+                    <span>手机号：</span>
+                    {{ formValidate.phone }}
+                </FormItem>
+                <FormItem prop="verifycationCode">
+                    <Input v-model="password.verifycationCode" placeholder="请输入验证码" style="width:200px" type="text"></Input>&nbsp;&nbsp;
+                    <Button type='primary' style="width:100px" @click="sendCode" v-show="time==0">获取验证码</Button>
+                    <span v-show="time>0">{{time}}秒后重新获取</span>
+                </FormItem>
+                <FormItem prop="newPassword" class="level-item">
+                    <Input 
+                        type="text" 
+                        v-model="password.newPassword" 
+                        placeholder="请输入新密码" 
+                        style="width:310px"
+                        @on-change="codeChange"></Input>
+                    <div class="level-box">
+                        <span :class="{'weak':level == 0}">弱</span>
+                        <span :class="{'qualified':level == 1}">合格</span>
+                        <span :class="{'strong':level == 2}">强</span>
+                    </div>
+                </FormItem>
+                <FormItem prop="repeatPassword">
+                    <Input type="text" v-model="password.repeatPassword" placeholder="请确认新密码" style="width:310px"></Input>
+                </FormItem>
+            </Form>
+            <!-- 页脚 -->
+            <div slot="footer">
+                <div class="c-modal-footer-btns">
+                    <Button type="primary" long @click="savePassword('passwordForm')">确定</Button>
+                </div>
+            </div>
+        </Modal>
     </div>
 </template>
 <script>
-import { uploadFun,userSetting,getUserCurrent } from '@api/header/userSet';
+import { uploadFun, userSetting, getUserCurrent, codeMethod, pswMethod } from '@api/header/userSet'
+import { verifyCodeRule } from '@/api/account'
 export default {
     name: 'userSet',
     data(){
         return {
             height:'',
-            formValidate:{
+            formValidate: {
                 name:'',
                 tissue:'',
                 phone:'',
                 email:'',
                 terminal:'',
-                language:'zh-cn',
-                type:'WeChat',
+                language: 'zh-cn',
+                type: 'WeChat',
                 img:''
             },
+            touch: true,
+            remind: true,
             ruleValidate:{
                 phone: [
                     { required: true, message: '请输入手机号', trigger: 'blur' },
@@ -125,14 +178,61 @@ export default {
                 ],
             },
             langList:[
-                {label:'中文',value:"zh-cn"},
-                {label:'English',value:"en-us"}
+                {label: '中文',value: 'zh-cn'},
+                {label: 'English',value: 'en-us'}
             ],
             methodList:[
-                {label:'微信',value:"WeChat"},
-                {label:'短信',value:"SMS"}
+                {label: '微信',value: 'WeChat'},
+                {label: '短信',value: 'SMS'}
             ],
-            userObj:{},
+            userObj: {},
+            editPassword: false,
+            password:{
+                verifycationCode: '',
+                verifycationCodeId: '',
+                newPassword: '',
+                tel: ''
+            },
+            ruleValidate2: {
+                verifycationCode: [{ 
+                    validator:(rule,value,callback)=> {
+                        if(!value) 
+                            callback(new Error('请输入验证码'));
+                        else
+                            callback();
+                    },trigger: 'blur'
+                }],
+                newPassword: [
+                    { 
+                        required: true, message: '6-20个字符', trigger: 'blur'
+                    },
+                    { 
+                        min: 6, max: 20, message: '至少包含大小写字母+数字', trigger: 'blue' 
+                    }, 
+                    {
+                        validator(rule, value, callback, source, options) {
+                            let errors = []
+                            if(!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[^]{8,16}$/.test(value)) {
+                                callback('至少包含大小写字母+数字')
+                            }
+                            callback(errors)
+                        }
+                    }     
+                ],
+                repeatPassword: [
+                    { trigger: 'blur',validator:(rule,value,callback)=> {
+                        
+                        if(value == this.password.newPassword) {
+                            callback();
+                        } else {
+                            callback(new Error('确认密码和新密码不一致'));
+                        }
+                    }}
+                ]
+            },
+            level: '',
+            timer: null,//验证码定时器
+            time: 0,//验证码计时
         }
     },
     mounted() {
@@ -142,7 +242,7 @@ export default {
     methods:{
         getUserinfo(){
             getUserCurrent().then(async res => {
-                console.log(res)
+                // console.log(res)
                 let userinfo = res.data
                 this.userObj = userinfo
                 this.formValidate={
@@ -170,28 +270,86 @@ export default {
         uploadError(file) { 
             //上传失败
             this.$Notice.error({
-                title: '上传失败，请重新上传。',
-                desc: nodesc ? '' : 'Here is the notification description. Here is the notification description. '
+                title: '上传失败，请重新上传。'
             });
         },
         save(name){
-            let data = {
-                deviceNo: this.formValidate.terminal,
-                email: this.formValidate.email,
-                id: this.userObj.id,
-                imageUrl: this.formValidate.img,
-                langKey: this.formValidate.language,
-                msgMode: this.formValidate.type,
-                name: this.formValidate.name,
-                orgId: this.userObj.orgId,
-                orgName: this.userObj.orgName,
-                tel: this.formValidate.phone,
-                version: this.userObj.version,
+            this.$refs[name].validate((valid) => {
+                if(valid) {
+                    let data = {
+                        deviceNo: this.formValidate.terminal,
+                        email: this.formValidate.email,
+                        id: Number(this.userObj.id),
+                        imageUrl: this.formValidate.img,
+                        langKey: this.formValidate.language,
+                        msgMode: this.formValidate.type,
+                        name: this.formValidate.name,
+                        orgId: Number(this.userObj.orgId),
+                        orgName: this.userObj.orgName,
+                        tel: this.formValidate.phone,
+                        version: Number(this.userObj.version),
+                    }
+                    userSetting(data).then(res=>{
+                        if(res.data.count){
+                            this.$Message.success('用户设置成功');
+                            this.getUserinfo()
+                        }
+                    })
+                }
+            })
+        },
+        alertMsg() {
+            this.editPassword = true
+        },
+        sendCode() {
+            codeMethod({
+                tel: this.formValidate.phone
+            }).then(res=> {
+                this.time = 60
+                this.timer = setInterval(()=>{
+                    //倒计时
+                    if(this.time <= 0) {
+                        this.time = 0
+                        clearInterval(this.timer)
+                    } else {
+                        this.time -= 1
+                    }
+                },1000)
+            }).catch(err=> {
+
+            })
+            return false
+        },  
+        // 验证密码强弱
+        codeChange(e) {
+            let code = this.password.newPassword
+            this.level = 0
+            if(code.length >= 6) {
+                verifyCodeRule(code).then(res=>{
+                    // console.log(JSON.stringify(res))
+                    this.level = res.data.level
+                })
+                .catch(() => {
+                    // this.submitLoading = false;
+                })
+            } else {
+                this.level = 0
             }
-            userSetting(data).then(res=>{
-                if(res.data.count){
-                    this.$Message.success('用户设置成功');
-                    this.getUserinfo()
+        },
+        savePassword(name) {
+            this.$refs[name].validate((valid) => {
+                if(valid) {
+                    pswMethod({
+                        newPassword: this.password.newPassword,
+                        tel: this.formValidate.phone,
+                        verifyCode: this.password.verifycationCode
+                    }).then(res=> {
+                        if(res.data.count) {
+                            this.$Notice.success({
+                                title: '修改密码成功'
+                            });
+                        }
+                    })
                 }
             })
         }
@@ -200,13 +358,16 @@ export default {
 </script>
 <style lang="less" scoped>
 .user-box{
-    margin: 5px;
+    border: 5px solid #f0f0f0;
     background: #fff;
     .search-header{
         background: #fff;
         padding: 5px;
-        h3{
+        h3 {
             display: inline-block;
+            height: 30px;
+            line-height: 30px;
+            text-indent: 10px;
         }
         .c-adv-search-btn{
             float: right;
@@ -220,14 +381,10 @@ export default {
                 border-radius: 3px;
                 margin: 0 5px;
             }
-            .reset{
-                background: #495566;
-            }
         }
     }
     .c-top-border-gray{
         border-top: 5px solid #f0f0f0;
-        margin-top: 5px;
         padding: 10px;
         .title{
             background-color: #f4f4f4;
@@ -259,5 +416,39 @@ export default {
 /deep/.ivu-form-item{
     margin-bottom: 0;
     margin-top: 24px;
+}
+.passwordForm {
+    /deep/.ivu-form-item {
+        margin: 0 0 26px 0;
+    }
+}
+.level-item {
+    position: relative;
+    .level-box {
+        position: absolute;
+        bottom: -22px;
+        right: 0;
+        font-size: 12px;
+        line-height: 14px;
+        span {
+            display: inline-block;
+            background: rgb(234, 234, 234);
+            color: #999;
+            padding: 2px 15px;
+            margin-left: 3px;
+        }
+        .weak {
+            background: rgb(227, 31, 73);
+            color: #fff;
+        }
+        .qualified {
+            background: #57a3f3;
+            color: #fff;
+        }
+        .strong {
+            background: rgb(21, 202, 85);
+            color: #fff;
+        }
+    }
 }
 </style>

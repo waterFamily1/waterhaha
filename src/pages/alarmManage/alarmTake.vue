@@ -422,7 +422,7 @@ export default {
         .c-table-top-btns {
             height: 36px;
             border-bottom: 1px solid #EEE;
-            .ivu-btm {
+            .ivu-btn {
                 min-width: 50px;
                 background-color: #576374;
                 border: none;

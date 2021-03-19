@@ -20,6 +20,15 @@ export default {
                 closable: false
             },
             component: () => import('@/pages/header/newsCenter')
+        }, {
+            path: '/newsDetail',
+            name: `${pre}newsCenter`,
+            meta: {
+                ...meta,
+                title: '消息详情',
+                closable: false
+            },
+            component: () => import('@/pages/header/newsDetail')
         }
     ]
 }

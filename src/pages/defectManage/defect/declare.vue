@@ -213,7 +213,7 @@ export default {
         },
         userList(id){
           getUsers(id).then(res=>{
-              console.log(res)
+            //   console.log(res)
               if(res.data){
                   this.handlerList = res.data
               }
@@ -221,7 +221,7 @@ export default {
         },
         getOrganizations(){
             getOrg().then(res=>{
-                console.log(res)
+                // console.log(res)
                 let treeItem = []
                 let trees = res.data
                 for(let i = 0; i < trees.length; i ++) {
@@ -253,11 +253,11 @@ export default {
             })
         },
         goBack() {
-            this.$router.go(-1)
+            this.$router.back()
         },
         saveHandle(name) {
             this.$refs[name].validate((valid) => {
-                console.log(valid)
+                // console.log(valid)
                 if (valid) {
                     let data ={
                         equId: "",
@@ -286,11 +286,11 @@ export default {
             // console.log(file)
         },
         handleUploadicon(file) {
-            console.log(file)
+            // console.log(file)
             let formData = new FormData()
             formData.append('file', file)
             uploadImg(formData).then(res=> {
-                console.log(res)
+                // console.log(res)
                 this.imgPath = res.data.fullPath
                 this.thumbImg = res.data.thumbFullPath
             }).catch(err => {

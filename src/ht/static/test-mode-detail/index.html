@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title></title>
+  <script type="text/javascript" charset="utf-8" src="../share/jslib/jquery-3.3.1.min.js"></script>
+  <script type="text/javascript" charset="utf-8" src="./layui/layui.js"></script>
+  <link rel="stylesheet" type="text/css" href="./layui/css/layui.css" />
+  <style>
+      body{
+        background-color:#fff;
+        padding:20px 0;
+      }
+      .label{
+        color:#FF8D00;
+        font-size:14px;
+        font-weight: 400;
+      }
+      .content{
+        color:#4A4A4A;
+        font-size:14px;
+        font-weight: 600;
+      }
+      .layui-col-xs3 {
+        text-align: center;
+      }
+      .alarm-list-wrap,.mpoint-list-wrap{
+        width: 100%;
+        background-color: #f1f2f3;
+        border-radius: 0 10px 10px 10px;
+        overflow: hidden;
+        padding: 0 5px 10px;
+      }
+      .layui-table {
+        table-layout: fixed;
+        margin:0;
+        background-color:#fff;
+      }
+      .layui-row{
+        padding:0 1%;
+        word-wrap: break-word;
+      }
+      .layui-table td, .layui-table th{
+        text-align: center;
+      }
+      .layui-table td{
+        color:#9B9B9B;
+        padding:5px;
+        line-height:14px;
+        font-size: 12px;
+        transform:scale(0.833);
+        -ms-transform:scale(0.833);
+        -webkit-transform:scale(0.833);
+        /* word-wrap : break-word;
+        word-break:keep-all; */
+      }
+      .layui-table th{
+        color:#3C3C3C;
+        font-size:12px;
+        background-color: #f1f3f4;
+        padding:12px 5px;
+      }
+      .layui-table tbody tr:hover,
+      .layui-table thead tr,
+      .layui-table-click,
+      .layui-table-header,
+      .layui-table-hover,
+      .layui-table-mend,
+      .layui-table-patch,
+      .layui-table-tool,
+      .layui-table-total,
+      .layui-table-total tr,
+      .layui-table[lay-even] tr:nth-child(even) {
+          background-color: transparent;
+      }
+      .layui-table[lay-even] tr:nth-child(even){
+        background-color: #f1f3f4;
+      }
+      h2{
+        display: inline-block;
+        height: 36px;
+        line-height: 36px;
+        font-size: 16px;
+        font-weight: 600;
+        color: #3C3C3C;
+        border-radius: 12px 12px 0 0;
+        background-color: #f1f2f3;
+        padding: 0 15px;
+        margin-top: 20px;
+        margin-bottom: -2px;
+      }
+      .span-datype{
+          display: block;  
+          width: 20px;
+          height: 20px;
+          line-height: 20px;
+          color: #fff;
+          text-align: center;
+          font-size: 12px;
+          border-radius: 10px;
+          margin: 0 auto;
+      }
+      .span-datype-staus{background: #7ED321;}
+      .span-datype-digtal{background: #4A90E2;}
+      </style>
+</head>
+<body>
+    <div id="detailInfo">
+        <div class="layui-row">
+            <div class="layui-col-xs3">
+                <span class="label">测试日期</span>
+                <span class="content"></span>
+            </div>
+            <div class="layui-col-xs3">
+              <span class="label">测试开始</span>
+              <span class="content"></span>
+            </div>
+            <div class="layui-col-xs3">
+              <span class="label">测试结束</span>
+              <span class="content"></span>
+            </div>
+            <div class="layui-col-xs3">
+                <span class="label">测试时长</span>
+                <span class="content"> </span>
+              </div>
+          </div>
+    </div>
+    <div class="layui-row">
+        <h2>报警列表</h2>
+        <div class="layui-col-xs12 alarm-list-wrap">
+            <table class="layui-table" lay-even="" lay-skin="nob">
+                <colgroup>
+                  <col width="10%">
+                  <col width="10%">
+                  <col width="10%">
+                  <col width="10%">
+                  <col width="10%">
+                  <col width="70px">
+                  <col width="70px">
+                  <col width="10%">
+                  <col width="10%">
+                </colgroup>
+                <thead>
+                  <tr>
+                      <th>设备编号</th>
+                      <th>设备名称</th>
+                      <th>报警类型</th>
+                      <th>报警名称</th>
+                      <th>区域位置</th>
+                      <th style="text-align: left">报警时间</th>
+                      <th style="text-align: left">解除时间</th>
+                      <th>报警状态</th>
+                      <th>解除操作</th>
+                  </tr> 
+                </thead>
+                <tbody id="alarmList">
+                    <tr>
+                        <td colspan="9">暂无数据</td>  
+                      </tr>
+                </tbody>
+            </table> 
+        </div>
+    </div> 
+    <div class="layui-row">
+        <h2>测点列表</h2>
+        <div class="layui-col-xs12 mpoint-list-wrap">
+            <table class="layui-table" lay-even="" lay-skin="nob">
+                <colgroup>
+                  <col width="10%">
+                  <col width="10%">
+                  <col width="10%">
+                  <col width="10%">
+                  <col width="10%">
+                  <col width="10%">
+                  <col width="10%">
+                  <col width="10%">
+                  <col width="10%">
+                  <col width="10%">
+                </colgroup>
+                <thead>
+                  <tr>
+                      <th>测点编号</th>
+                      <th>区域位置</th>
+                      <th>测点名称</th>
+                      <th>当前值</th>
+                      <th>单位</th>
+                      <th>业务时间</th>
+                      <th>信号类型</th>
+                      <th>数据来源</th>
+                      <th>数据分类</th>
+                      <th>所属租户</th>
+                  </tr> 
+                </thead>
+                <tbody  id="mpointList">
+                    <tr>
+                        <td colspan="10">暂无数据</td>  
+                      </tr>
+                </tbody>
+            </table> 
+        </div>
+    </div> 
+    <script id="detailInfoTpl" type="text/html">
+      <div class="layui-row">
+        <div class="layui-col-xs3">
+            <span class="label">测试日期</span>
+            <span class="content">{{d.createDate}}</span>
+        </div>
+        <div class="layui-col-xs3">
+          <span class="label">测试开始</span>
+          <span class="content">{{d.newStartTime}}</span>
+        </div>
+        <div class="layui-col-xs3">
+          <span class="label">测试结束</span>
+          <span class="content">{{d.newEndTime}}</span>
+        </div>
+        <div class="layui-col-xs3">
+            <span class="label">测试时长</span>
+            <span class="content"> {{d.duration}}</span>
+        </div>
+      </div>
+  </script>
+    <script id="alarmListTpl" type="text/html">
+      {{#  
+        var fn = function(date,format){
+          return '<div style="text-align:left">'+util.transDateFromServer(date, format)+'</div>';
+        }; 
+      }}
+      {{#  layui.each(d.items, function(index, item){ }}
+      <tr>
+          <td>{{item.equNo?item.equNo:''}}</td>
+          <td>{{item.equipmentName?item.equipmentName:''}}</td>
+          <td>
+              {{# var color="#9B9B9B";
+                 if(item.alarmType=='故障'){ 
+                   color="#FF8D00"
+                 }else if(item.alarmType=='火警'){
+                   color="#FF3347";
+                 }else if(item.alarmType=='屏蔽'){
+                   color="#99C9FB"
+                 }
+              }}
+              <span style="color:{{color}}">{{item.alarmType}}</span>
+          </td>
+          <td>{{item.alarmName}}</td>
+          <td>{{item.siteName}}</td>
+          <td>{{ fn(item.alarmTriggerTime,'hh:mm:ss')}}{{ fn(item.alarmTriggerTime,'yyyy-MM-dd')}}</td>
+          <td>{{ fn(item.alarmReleaseTime,'hh:mm:ss')}}{{ fn(item.alarmReleaseTime,'yyyy-MM-dd')}}</td>
+          <td>
+              {{#  if(item.alarmStatus=='Remove'){ }}
+              解除
+              {{#  } else { }}
+              未解除
+              {{#  } }}
+          </td>
+          <td>{{item.alarmReleaseType}}</td>
+        </tr>
+        {{#  }); }}
+         
+        {{#  if(d.items.length === 0){ }}
+        <tr>
+          <td colspan="9">暂无数据</td>  
+        </tr>
+        {{#  } }} 
+    </script>
+    <script id="mpointListTpl" type="text/html">
+      {{#  
+        var fn = function(date,format){
+          return '<div style="text-align:left">'+util.transDateFromServer(date, format)+'</div>';
+        }; 
+      }}
+      {{#  layui.each(d.items, function(index, item){ }}
+      <tr>
+          <td>{{item.mpointId?item.mpointId:''}}</td>
+          <td>{{item.siteName?item.siteName:''}}</td>
+          <td>{{item.mpointName?item.mpointName:''}}</td>
+          <td>{{item.value?item.value:''}}</td>
+          <td>{{item.unit?item.unit:''}}</td>
+          <td>{{ fn(item.datadt,'hh:mm:ss')}}{{ fn(item.datadt,'yyyy-MM-dd')}}</td>
+          <td> 
+              {{#  var className = "span-datype span-datype-staus",
+                      title = "数值信号",
+                      value = "A";
+                      if (item.datype == 'State') {
+                        className = "span-datype span-datype-digtal";
+                        title = "状态信号";
+                        value = "D";
+                      } }}
+              
+              <span title="{{title}}" class="{{className}}">{{value}}</span>
+          </td>
+          <td>
+              {{#if (item.datasource === 'AUTO') {
+                item.datasource = '自动采集';
+              } else if (item.datasource === 'INPUT') {
+                item.datasource = '人工录入';
+              } else {
+                item.datasource = '数据计算';
+              }
+              }}
+              {{item.datasource}}</td>
+          <td>{{item.categoryName?item.categoryName:''}}</td>
+          <td>{{item.tenantName?item.tenantName:''}}</td>
+        </tr>
+        {{#  }); }}
+         
+        {{#  if(d.items.length === 0){ }}
+        <tr>
+          <td colspan="10">暂无数据</td>  
+        </tr>
+        {{#  } }} 
+    </script>
+    
+    <script>
+    var laytpl =null;
+    var util = {   
+      // 获取URL参数
+		  getParam:function(name) {
+        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+        var r = window.location.search.substr(1).match(reg);
+        if (r != null) return decodeURIComponent(r[2]);
+        return null;
+      },
+      transDateFromServer:function(serverDate, pattern) {
+        if (!serverDate) return '';
+        if (typeof serverDate == "string" && /[TZ]/.test(serverDate) == false) {
+          serverDate = serverDate.replace(/-/g, '/');
+        }
+        return util.F(serverDate, pattern || "yyyy-MM-dd hh:mm");
+      },
+      F: function (d, pattern) {
+        return util.formatDateTime(d, pattern);
+      },
+      formatDateTime: function (d, pattern) {
+        if (!d) return "";
+        if (typeof d != "object") d = new Date(d);
+        pattern = pattern || 'yyyy-MM-dd';
+        var y = d.getFullYear().toString(),
+          o = {
+            M: d.getMonth() + 1,
+            d: d.getDate(),
+            h: d.getHours(),
+            m: d.getMinutes(),
+            s: d.getSeconds()
+          };
+        pattern = pattern.replace(/(y+)/ig, function (a, b) {
+          return y.substr(4 - Math.min(4, b.length));
+        });
+        for (var i in o) {
+          pattern = pattern.replace(new RegExp('(' + i + '+)', 'g'), function (a, b) {
+            return (o[i] < 10 && b.length > 1) ? '0' + o[i] : o[i];
+          });
+        }
+        return pattern;
+      }
+    }
+    function getAlarmListData(res,callback){
+      var alarmUrl = "/loong/api/alarm-record/test-model/records";
+      // 报警列表
+        var searchParamsByAlarm = {
+          equIds: '',
+          beginDate: '',
+          endDate: '',
+          currentPage: 1,
+          pageSize: 20
+        };
+        searchParamsByAlarm=$.extend({}, searchParamsByAlarm, {
+          equIds:res.equIds||'',
+          beginDate:res.startTime,
+          endDate:res.endTime
+        })
+       
+      $.getJSON(alarmUrl, searchParamsByAlarm, function (res) {
+        callback&&callback(res)
+      })
+    }
+    function getMpointListData(res,callback){
+      var mpointUrl = "/loong/api/mpoint/test-model/mpoints";
+      // 测点列表
+      var searchParamsByPoint = {
+          equIds: '',
+          beginDate: '',
+          endDate: '',
+          currentPage: 1,
+          pageSize: 20
+      };
+      searchParamsByPoint = $.extend({}, searchParamsByPoint, {
+          equIds:res.equIds||'',
+          beginDate:res.startTime,
+          endDate:res.endTime
+      });
+      $.getJSON(mpointUrl, searchParamsByPoint, function (res) {
+        callback&&callback(res)
+      })
+    }
+    layui.use('laytpl', function () {
+      laytpl = layui.laytpl;
+      var _url = "/equipment/api/testpattern/get-testpattern-detail?id="+util.getParam('id');
+      $.getJSON(_url, {}, function (res) {
+        res.startTime = util.transDateFromServer(res.startTime,"yyyy-MM-dd hh:mm:ss");
+        res.endTime = util.transDateFromServer(res.endTime,"yyyy-MM-dd hh:mm:ss");
+        res.newStartTime = res.startTime.split(" ")[1];
+        res.newEndTime = res.endTime.split(" ")[1];
+        res.createDate = util.transDateFromServer(res.createDate, "yyyy/MM/dd hh:mm:ss").split(" ")[0];
+          
+        var detailInfoTpl = document.getElementById("detailInfoTpl").innerHTML
+          , detailInfoView = document.getElementById('detailInfo');
+        var alarmListTpl = document.getElementById("alarmListTpl").innerHTML
+          , alarmListView = document.getElementById('alarmList');
+        var mpointListTpl = document.getElementById("mpointListTpl").innerHTML
+          , mpointListView = document.getElementById('mpointList');
+        laytpl(detailInfoTpl).render(res, function (html) {
+          detailInfoView.innerHTML = html;
+        });
+        getAlarmListData(res,function(data){
+          laytpl(alarmListTpl).render(data, function (html) {
+            alarmListView.innerHTML = html;
+          });
+        })
+        getMpointListData(res,function(data){
+          laytpl(mpointListTpl).render(data, function (html) {
+            mpointListView.innerHTML = html;
+          });
+        })
+      })
+    })
+  </script>
+</body>
+
+</html>

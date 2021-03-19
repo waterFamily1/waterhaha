@@ -265,7 +265,7 @@ export default {
                     state: 2
             }
             hangUp(data).then(res=>{
-                console.log(res)
+                // console.log(res)
                 if(res.data.count){
                    this.$Message.success('处理成功!');
                     this.$router.go(-1)
@@ -279,7 +279,7 @@ export default {
                 state: 3
             }
             hangUp(data).then(res=>{
-                console.log(res)
+                // console.log(res)
                 if(res.data.count){
                    this.$Message.success('处理成功!');
                     this.$router.go(-1)
@@ -292,7 +292,7 @@ export default {
                 processingPersonId: this.personId
             }
           assign(data).then(res=>{
-              console.log(res)
+            //   console.log(res)
               if(res.data.count){
                    this.$Message.success('指派人员成功!');
                     this.$router.go(-1)
@@ -300,7 +300,7 @@ export default {
           })
         },
         changeItem(name){
-          console.log(name)
+        //   console.log(name)
           if(name=='hang'){
               this.hangModal = true
           }else{
@@ -313,7 +313,7 @@ export default {
         },
         getOrganizations(){
             getOrg().then(res=>{
-                console.log(res)
+                // console.log(res)
                 let treeItem = []
                 let trees = res.data
                 for(let i = 0; i < trees.length; i ++) {
@@ -326,14 +326,14 @@ export default {
         },
         userList(id){
           getUsers(id).then(res=>{
-              console.log(res)
+            //   console.log(res)
               if(res.data){
                   this.handlerList = res.data
               }
           })
         },
         clickLine(index){
-            console.log(index)
+            // console.log(index)
             this.faultContrailVos.map((ele,idx)=>{
                 if(index == idx){
                     ele.show = true
@@ -365,7 +365,7 @@ export default {
         },
         defectDetail(){
             getDetail(this.id).then(res=>{
-                console.log(res)
+                // console.log(res)
                 if(res.data){
                     res.data.faultContrailVos.map(ele=>{
                         ele.timeDate = formatTime(ele.time, 'yyyy-MM-dd HH:mm ')

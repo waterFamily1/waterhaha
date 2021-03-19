@@ -49,7 +49,7 @@ router.beforeEach(async (to, from, next) => {
                 const data = await getRouter()
                 var menu = data.data;
                 menuSider.length = 0;
-
+                // let header = []
                 for(var i = 0; i < menu.length; i ++) {
                     if(menu[i].name == '实时监管') {
                         menu[i].path = '/process-view'

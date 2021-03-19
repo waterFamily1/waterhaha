@@ -14,10 +14,10 @@ var actual_color = '#7ed321',
 	plan_color_valid = '#3a6bdb',
 	plan_color_invalid = '#9b9b9b';
 
-var dispatch_normal = require('../images/dispatch/process.png'),
-	dispatch_error = require('../images/dispatch/process_red.png'),
-	dispatch_onduty = require('../images/dispatch/staff.png'),
-	dispatch_offduty = require('../images/dispatch/staff_green.png');
+var dispatch_normal = require('../images/map9.png'),
+	dispatch_error = require('../images/map8.png'),
+	dispatch_onduty = require('../images/map11.png'),
+	dispatch_offduty = require('../images/map10.png');
 
 import Vue from 'vue'
 import util from '@/libs/public_js'
@@ -35,7 +35,7 @@ export default {
 	create: function(callback) {
 		if (typeof BMap == 'undefined') {
 			var script = document.createElement("script");  
-			script.src = "https://api.map.baidu.com/api?v=2.0&ak=0lPULNZ5PmrFVg76kFuRjezF&callback=MG__MAP__CALLBACK";
+			script.src = "https://api.map.baidu.com/api?v=2.0&ak=5bskxOMT41wqVZxZzXme3jV57lfyHUz9&callback=MG__MAP__CALLBACK";
 			document.body.appendChild(script); 
 			window.MG__MAP__CALLBACK = function() {
 				callback && callback();
@@ -136,7 +136,6 @@ export default {
 			marker.addEventListener("click", function(){      
 				map.openInfoWindow(infoWindow, P); 
 			});
-
 		})
 
 		
@@ -159,16 +158,13 @@ export default {
 						strokeWeight: 4
 					}
 				);  
-
 			
 				map.addOverlay(polyline);
 
 				if(i != len) {
 					linesData = [linesData[1], LP];
 				}
-
 			}
-			
 		}
 	},
 	drawPatrol: function(map, data, pointField) {
@@ -196,10 +192,10 @@ export default {
 			map.addOverlay(marker);
 
 			var label = new BMap.Label(po.patrolPointName,  {
-					position : P,  
-					offset   : new BMap.Size(10, -15)    
-				}); 
-				label.setStyle({borderColor: '#0093ff', color: '#0093ff'})
+				position : P,  
+				offset   : new BMap.Size(10, -15)    
+			}); 
+			label.setStyle({borderColor: '#0093ff', color: '#0093ff'})
 			map.addOverlay(label);   
 
 			var errorHtml = "", errorStep, errorStepHtml = "" ;
@@ -224,7 +220,6 @@ export default {
 			marker.addEventListener("click", function(){      
 				map.openInfoWindow(infoWindow, P); 
 			});
-
 		})
 
 		
@@ -282,9 +277,7 @@ export default {
 				if(i != len) {
 					linesData = [linesData[1], LP];
 				}
-
 			}
-			
 		}
 	},
 	
@@ -305,7 +298,6 @@ export default {
 			});
 			local.search(myValue);
 		});
-		
 	},
 	getBDPoints: function(data) {
 		if(!data) return [];
@@ -357,8 +349,8 @@ export default {
 			if(item.longitude && item.latitude) {
 				var icon = item.handleStatus ? dispatch_normal : dispatch_error;
 				var P = new BMap.Point(item.longitude , item.latitude);
-				var marker = new BMap.Marker(P, {icon: new BMap.Icon(icon, new BMap.Size(22, 22))});  
-				var label = new BMap.Label(item.name, {offset:new BMap.Size(25, 0)});
+				var marker = new BMap.Marker(P, {icon: new BMap.Icon(icon, new BMap.Size(36, 30))});  
+				var label = new BMap.Label(item.name, {offset:new BMap.Size(-52, -26)});
 				label.setStyle({backgroundColor: '#FFFFFF', borderColor:'#FFFFFF', color: '#4A4A4A', borderRadius:'2px', boxShadow:'2px 2px 4px 0px rgba(0,0,0,0.13)',padding: '3px 10px',cursor:'pointer'});
 				marker.setLabel(label);
 				map.addOverlay(marker); 
@@ -368,30 +360,34 @@ export default {
 				marker.addEventListener("click", function(){
 					onMarkerClick && onMarkerClick(this, P, item);
 				});
-
 				points.push(P);
 			}
 		})
 		return points;
 	},
 	hitStaff: function(map, data, onMarkerClick) {
+		// console.log(map)
+		// console.log(data)
+		// console.log(onMarkerClick)
 		var points = [];
 		data.forEach((item)=>{
+			// console.log(item)
 			if(item.longitude && item.latitude) {
-				var icon = (item.haveTask==1) ? dispatch_onduty : dispatch_offduty;
-				var P = new BMap.Point(item.longitude , item.latitude);
-				var marker = new BMap.Marker(P, {icon: new BMap.Icon(icon, new BMap.Size(22, 22))});  
-				var label = new BMap.Label(item.userName, {offset:new BMap.Size(25, 0)});
-				label.setStyle({backgroundColor: '#FFFFFF', borderColor:'#FFFFFF', color: '#4A4A4A', borderRadius:'2px', boxShadow:'2px 2px 4px 0px rgba(0,0,0,0.13)',padding: '3px 10px'});
-				marker.setLabel(label);
-				map.addOverlay(marker); 
+				var icon = (item.haveTask==1) ? dispatch_onduty : dispatch_offduty
+				var P = new BMap.Point(item.longitude , item.latitude)
+				var marker = new BMap.Marker(P, {icon: new BMap.Icon(icon, new BMap.Size(36, 30))})
+				var label = new BMap.Label(item.userName, {offset:new BMap.Size(-52, -26)})
+				label.setStyle({backgroundColor: '#FFFFFF', borderColor:'#FFFFFF', color: '#4A4A4A', borderRadius:'2px', boxShadow:'2px 2px 4px 0px rgba(0,0,0,0.13)',padding: '3px 10px'})
+				marker.setLabel(label)
+				map.addOverlay(marker)
 				marker.addEventListener("click", function(){
-					onMarkerClick && onMarkerClick(this, P, item);
-				});
-
-				points.push(P);
+					console.log('click')
+					onMarkerClick && onMarkerClick(this, P, item)
+				})
+				points.push(P)
 			}
 		})
 		return points;
+		console.log(points)
 	}
 }

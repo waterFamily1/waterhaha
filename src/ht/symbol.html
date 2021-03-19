@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>图标预览</title>
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" href="custom/images/favicon.ico" />
+    <link rel="stylesheet" href="custom/css/common.css">
+</head>
+
+<body>
+    <div class="loading-mask"></div>
+</body>
+<script>
+    document.querySelector(".loading-mask").style.display = 'block';
+</script>
+<script src='custom/configs/htconfig.js'></script>
+<script src='client/license/ywckSbRPEf7k.js'></script>
+<script src='client/libs/core/ht.js'></script>
+<script src='client/license/product_generated.js'></script>
+<script src='client/libs/core/ht-ui.js'></script>
+<script src='client/libs/plugin/ht-vector.js'></script>
+<script src='client/libs/plugin/ht-animation.js'></script>
+<script src="client/promise.js"></script>
+<script src="client/axios.js"></script>
+<script src="client/ramda.js"></script>
+<script src="custom/js/common.js"></script>
+<script>
+    window.onresize = throttle(function () {
+        window.__gvSymbol__ && window.__gvSymbol__.fitContent();
+    }, 200);
+
+    function init() {
+        dataModel = new ht.DataModel();
+        graphView = new ht.graph.GraphView(dataModel);
+        graphView.addToDOM();
+        graphView.dm().enableAnimation();
+        // 保存gv到全局，并且防止被删除
+        Object.defineProperties(window, {
+            __gvSymbol__: {
+                value: graphView,
+                configurable: false
+            }
+        });
+        var url = getParam('tag') || 'previews/symbol.json';
+        if (/^\//.test(url)) {
+            url = url.slice(1);
+        }
+        ht.Default.xhrLoad(url, function (text) {
+            var json = ht.Default.parse(text);
+            if (json.title) document.title = json.title;
+            dataModel.setBackground(json.background);
+            node = new ht.Node();
+            node.setImage(json);
+            node.setPosition(graphView.getWidth() / 2, graphView.getHeight() / 2);
+            dataModel.add(node);
+            hideLoading();
+            graphView.fitContent();
+            graphView.mi(function (e) {
+                // 增加交互事件监听器
+                if (e.kind === 'clickData' || e.kind === 'doubleClickData') {
+                    if (typeof e.data.a("click.func") == "function") {
+                        e.data.a("click.func")(e.data);
+                    }
+                }
+            });
+            dataModel.each(function (data) {
+                // 调用图纸中的动画函数
+                if (typeof data.a("animate.func") == "function") {
+                    data.a("animate.func")(data);
+                }
+            });
+        });
+    }
+    document.body.onload = load;
+</script>
+
+</html>
