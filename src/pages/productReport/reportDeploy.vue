@@ -264,23 +264,7 @@ export default {
                     key: 'mpointName'
                 }
             ],
-            modelData: [
-                {
-                    name: '吴镕譞0',
-                    department: '技术部0',
-                    tissue: '易烊千玺老婆团'
-                },
-                {
-                    name: '吴镕譞1',
-                    department: '技术部1',
-                    tissue: '易烊千玺老婆团'
-                },
-                {
-                    name: '吴镕譞2',
-                    department: '技术部2',
-                    tissue: '易烊千玺老婆团'
-                }
-            ],
+            modelData: [],
             selectedData: [],
             catEdit:false,
             keyword:'',
@@ -291,7 +275,8 @@ export default {
             total:0,
             parentId:'',
             curMpoints:[],
-            newFun:false
+            newFun:false,
+            siteId:''
         }
     },
     mounted() {
@@ -334,7 +319,7 @@ export default {
                     trees[i].value = trees[i].id
                     treeItem.push(trees[i])
                 }
-                this.baseData = treeItem
+                
                 this.areaData= createTree(treeItem, 0)
             }).catch(err => {
                 // 异常情况
@@ -343,13 +328,14 @@ export default {
         getOrg(){
             getTree().then(res=>{
                 console.log(res)
-                 let trees = res.data
+                let trees = res.data
                 let tree=[]
                 for(let i = 0; i < trees.length; i ++) {
                     trees[i].title = trees[i].name
                     trees[i].expand = true
                     tree.push(trees[i])
                 }
+                this.baseData = tree
                 this.treeData=this.drawTree(tree)
             })
         },
@@ -441,7 +427,7 @@ export default {
                         on: {
                             click: (e) => { 
                                 e.stopPropagation() 
-                                this.createTemp(data)
+                                this.createTemp(node,data)
                             }
                         }
                     },'新增模板'),
@@ -512,10 +498,13 @@ export default {
             // console.log(data)
         
         },
-        createTemp(){
+        createTemp(node,data){
+            console.log(data)
+            this.siteId = data.id
             this.template = true
             this.catalog = false
-            this.newFun = true
+            this.newFun = false
+            //  this.modify= false
             this.curMpoints = []
             this.data = []
             this.formValidate= {
@@ -549,7 +538,6 @@ export default {
                    
                 },
                 onCancel: () => {
-                    this.$Message.info('Clicked cancel');
                 }
             });
             
@@ -562,42 +550,50 @@ export default {
                 if(typeof item.mpointname == 'string') return
                 item.mpointname = item.mpointname[0]
             })
-
+           
             this.$refs[name].validate((valid) => {
                 if (valid) {
                     if(this.newFun){
-                        let data = {
-                            rname: this.formValidate.name,
-                            siteid: this.curSiteId,
-                            temptype: this.formValidate.type,
-                            mpoints:this.curMpoints
-                        }
-                        newTempSave(data).then(res=>{
-                           console.log(res)
-                           if(res.data.id){
-                                this.getOrg()
-                           }
+                        let siteid 
+                        this.baseData.map(ele=>{
+                            if(this.parentId == ele.id){
+                                console.log(ele.parentId)
+                                siteid = ele.parentId
+                            }
                         })
-                    }else{
                         let data = {
-                            folderid: null,
-                            id: "1",
                             rname: this.formValidate.name,
-                            siteid: Number(this.parentId),
+                            siteid: Number(siteid),
                             temptype: this.formValidate.type,
                             remark:null,
                             rpath:null,
                             rtype:'Normal',
-                            mpoints:this.curMpoints
+                            mpoints:this.curMpoints,
+                            folderid: this.parentId.split("_")[1],
+                             id: this.curSiteId.split("_")[1]
                         }
+                        console.log(data)
                         tempSave(data).then(res=>{
                             if(res.data.count){
                                 this.$Message.success('保存成功');
                                 this.getOrg()
-                                
-                                
                             }
                         })
+                    }else{
+                        console.log("新建")
+                        let data = {
+                            folderid: this.siteId,
+                            mpoints: this.curMpoints,
+                            rname: this.formValidate.name,
+                            temptype:this.formValidate.type
+                        } 
+                        newTempSave(data).then(res=>{
+                            console.log(res)
+                            if(res.data.id){
+                                this.getOrg()
+                            }
+                        }) 
+                        
                     }
                     
                 } else {
@@ -653,10 +649,13 @@ export default {
             if(node[0].id.includes('folder')){
                 this.template = false
                 this.catalog = true
+                this.newFun = true
                 this.formValidate.logName = node[0].name
             }else if(node[0].id.includes('template')){
                 this.template = true
                 this.catalog = false
+                this.newFun = true
+                // this.modify= true
                 this.getTemplateDetail()
             }
         },
