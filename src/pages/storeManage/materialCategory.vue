@@ -198,6 +198,7 @@ export default {
                         style: {
                             marginRight: '4px',
                             fontSize:'12px',
+                            height: '18px',
                             display: data.is_show ? 'inline-block' : 'none'
                         },
                         on: {
@@ -211,6 +212,7 @@ export default {
                         style: {
                             marginRight: '4px',
                             fontSize:'12px',
+                            height: '18px',
                             display: data.is_show ? 'inline-block' : 'none'
                         },
                         on: {
@@ -223,6 +225,7 @@ export default {
                         }),
                         style: {
                             fontSize:'12px',
+                            height: '18px',
                             display: data.is_show ? 'inline-block' : 'none'
                         },
                         on: {

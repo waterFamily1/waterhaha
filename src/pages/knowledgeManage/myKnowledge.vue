@@ -9,7 +9,7 @@
                    </div>
                 </div>
                 <div class="c-top-border-gray">
-                    <Table stripe :columns="downloadList" size="small" :data="downData">
+                    <Table stripe :columns="downloadList" :data="downData">
                         <template slot-scope="{ row }" slot="name">
                             <strong>{{ row.name }}</strong>
                         </template>

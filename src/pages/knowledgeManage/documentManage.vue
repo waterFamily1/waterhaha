@@ -834,7 +834,8 @@ export default {
                         style: {
                             marginRight: '4px',
                             display:data.is_show ? 'inline-block' : 'none',
-                             fontSize:'12px'
+                            fontSize:'12px',
+                            height: '18px'
                         },
                         on: {
                             click: (e) => { 
@@ -851,7 +852,8 @@ export default {
                         style: {
                             marginRight: '4px',
                             display: data.is_show ? 'inline-block' : 'none',
-                             fontSize:'12px'
+                             fontSize:'12px',
+                             height: '18px'
                         },
                         on: {
                             click: (e) => { 
@@ -868,7 +870,8 @@ export default {
                         }),
                         style: {
                             display:data.is_show ? 'inline-block' : 'none' ,
-                             fontSize:'12px'
+                            fontSize:'12px',
+                            height: '18px'
                         },
                         on: {
                             click: (e) => { 

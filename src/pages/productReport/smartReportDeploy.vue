@@ -170,7 +170,8 @@ export default {
                         style: {
                             marginRight: '4px',
                             display: (data.id.indexOf('_')!=-1)?'none':(data.is_show ? 'inline-block' : 'none'),
-                            fontSize:'12px'
+                            fontSize:'12px',
+                            height: '17px'
                         },
                         on: {
                             click: (e) => { 
@@ -187,7 +188,8 @@ export default {
                         style: {
                             marginRight: '4px',
                             display: ((data.type == 1)||(data.id.indexOf('template')!=-1))?'none':(data.is_show ? 'inline-block' : 'none'),
-                            fontSize:'12px'
+                            fontSize:'12px',
+                            height: '17px'
                         },
                         on: {
                             click: (e) => { 
@@ -204,7 +206,8 @@ export default {
                         style: {
                             marginRight: '4px',
                             display: (data.id.indexOf('_')==-1)?'none':(data.is_show ? 'inline-block' : 'none'),
-                            fontSize:'12px'
+                            fontSize:'12px',
+                            height: '17px'
                         },
                         on: {
                             click: (e) => {
