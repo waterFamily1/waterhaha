@@ -8,7 +8,7 @@
                 </div>
                 <div class="form-item">
                     <label>区域位置：</label> 
-                    <TreeSelect v-model="areaLocation" multiple  :data="areaData" v-width="200" />
+                    <TreeSelect v-model="areaLocation" multiple  :max-tag-count="2" :data="areaData" v-width="300" />
                 </div>
                 <div class="form-search-btn">
                     <a href="javascript:;" @click="higherSearch()">

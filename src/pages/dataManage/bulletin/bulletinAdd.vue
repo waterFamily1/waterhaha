@@ -13,17 +13,17 @@
                     <Row>
                         <Col span="12">
                             <FormItem label="区域位置：" prop="location">
-                                 <TreeSelect v-model="formInline.location" size="small" :data="areaData" v-width="250" /> 
+                                 <TreeSelect v-model="formInline.location" :data="areaData" v-width="250" /> 
                             </FormItem>
                         </Col>
                         <Col span="12">
                             <FormItem label="简报名称：" prop="name">
-                                <Input v-model="formInline.name" placeholder="简报名称" size="small"  style="width:250px"></Input>
+                                <Input v-model="formInline.name" placeholder="简报名称" style="width:250px"></Input>
                             </FormItem>
                         </Col>
                     </Row>
                     <FormItem label="录入周期：" prop="duration">
-                        <Select v-model="formInline.duration" placeholder="请选择"  style="width:250px" size="small">
+                        <Select v-model="formInline.duration" placeholder="请选择"  style="width:250px">
                              <Option v-for="item in dateList" :value="item.id" :key="item.id">{{ item.label }}</Option>
                         </Select>
                      </FormItem>
@@ -34,7 +34,7 @@
                    <Button type="info" size="small"  @click="add()">新增</Button>
                    <Button type="info" size="small" @click="channel()">导入</Button>
                </div>
-                <Table stripe :columns="columns1"  v-if="!ischannel" :data="selectedData" size="small">
+                <Table stripe :columns="columns1"  v-if="!ischannel" :data="selectedData">
                     <template slot-scope="{ row }" slot="name">
                         <strong>{{ row.name }}</strong>
                     </template>

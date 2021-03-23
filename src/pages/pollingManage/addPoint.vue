@@ -19,7 +19,7 @@
                     </Col>
                     <Col span="12">
                        <FormItem label="区域位置："  prop="location">
-                           <TreeSelect v-model="formItem.location"  :data="processList"  v-width="200" size="small"  />
+                           <TreeSelect v-model="formItem.location"  :data="processList"  v-width="200" />
                         </FormItem>
                     </Col>
                 </Row>

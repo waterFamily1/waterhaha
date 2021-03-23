@@ -19,6 +19,10 @@ export default {
             path: `/mpoint`,
             title: '测点管理'
         }, {
+            path: `/mpointImport`,
+            title: '导入',
+            auth: ['hidden']
+        }, {
             path: `/mpoint/data-import`,
             title: '测点数据导入'
         }, {

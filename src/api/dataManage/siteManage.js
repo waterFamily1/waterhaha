@@ -233,3 +233,12 @@ export function editMethod(data) {
         method: 'get'
     })
 }
+
+//导入
+export function importMethod(data) {
+    return request({
+        url: '/loong/api/mpoints/import-save',
+        method: 'post',
+        data
+    })
+}

@@ -56,7 +56,7 @@
                             </FormItem>
                         </Col>
                         <Col span="12">
-                            <FormItem label="设备类型：">
+                            <FormItem label="设备类型：" prop="typeId">
                                 <span style="margin-right: 10px;">{{ equipment.typeName }}</span>
                                 <a class="c-btn-text" href="javascript:;" @click="chooseType">{{equipment.typeId?'[更改]':'[选择]'}}</a>
                             </FormItem>
@@ -170,7 +170,7 @@
                 </div>
             </div>
             <div slot="footer" v-show="equTypeFooter">
-                <Button>取消</Button>
+                <Button @click="typeModal = false">取消</Button>
                 <Button type="primary" @click="typeOk">确定</Button>
             </div>
         </Modal>
@@ -242,6 +242,7 @@ export default {
                 state: '',
                 orgName: '',
                 typeName: '',
+                typeId: '',
                 processId: '',
                 abc: '',
                 duty: []
@@ -263,6 +264,9 @@ export default {
                     { required: true, trigger: 'blur', type: 'number' }
                 ],
                 abc: [
+                    { required: true, trigger: 'blur' }
+                ],
+                typeId: [
                     { required: true, trigger: 'blur' }
                 ]
             },
@@ -550,7 +554,8 @@ export default {
         typeOk() {
             this.equipment.typeName = this.type.name
             this.equipment.typeId = this.type.busId
-            this.selectEquType = false;
+            this.selectEquType = false
+            this.typeModal = false
         },
         exceededSize() {
             this.$Notice.warning({title: '最大上传图片大小为2M'})
@@ -630,7 +635,7 @@ export default {
             this.equipment.processId = Number(data)
         },
         saveHandle() {
-            console.log(this.equipment)
+            // console.log(this.equipment)
             this.btnLoadding = true
             let _valid = false
             
@@ -654,7 +659,7 @@ export default {
                 equipment: this.equipment
             }
             addEquMethod(data).then(res=> {
-                if (res.id) {
+                if (res) {
                     this.$Notice.success({
                         title: "添加成功",
                         desc: "添加设备成功！",

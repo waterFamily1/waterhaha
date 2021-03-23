@@ -127,7 +127,7 @@
 </script>
 <style scoped lang="less">
 .logo {
-    width: 180px;
+    width: 200px;
     height: 62px;
     background-size: 100% 100%;
     cursor: pointer;

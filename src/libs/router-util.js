@@ -205,6 +205,10 @@ let dataManage = [
         path: `/customFormEdit`,
         title: '编辑自定义型计算任务',
         auth: ['hidden']
+    }, {
+        path: `/mpointImport`,
+        title: '导入',
+        auth: ['hidden']
     }
 ]
 

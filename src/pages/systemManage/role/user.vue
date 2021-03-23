@@ -33,7 +33,7 @@
                         </div>
                         <div class="search-item">
                             <label>结构组织：</label>
-                             <TreeSelect v-model="orgId" :data="data4" :multiple="true" v-width="180" />
+                             <TreeSelect v-model="orgId" :data="data4" :max-tag-count="1" :multiple="true" v-width="180" />
                         </div>
                         <div class="search-btn">
                             <Button size="small">搜索</Button>

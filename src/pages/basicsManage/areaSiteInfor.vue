@@ -176,6 +176,7 @@ export default {
                                         marginRight: '2px',
                                         fontSize: '12px',
                                         zIndex: '999',
+                                        height: '18px',
                                         display: data.is_show ? 'inline-block' : 'none'
                                     },
                                     on: {
@@ -319,6 +320,7 @@ export default {
                             marginRight: '2px',
                             fontSize: '12px',
                             zIndex: '999',
+                            height: '18px',
                             display: data.is_show ? 'inline-block' : 'none'
                         },
                         on: {
@@ -334,6 +336,7 @@ export default {
                             marginRight: '2px',
                             fontSize: '12px',
                             zIndex: '999',
+                            height: '18px',
                             display: data.is_show ? 'inline-block' : 'none'
                         },
                         on: {
@@ -348,6 +351,7 @@ export default {
                         style: {
                             fontSize: '12px',
                             zIndex: '999',
+                            height: '18px',
                             display: data.is_show ? 'inline-block' : 'none'
                         },
                         on: {

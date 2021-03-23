@@ -24,3 +24,12 @@ export function saveMethod2(data) {
         data
     })
 }
+
+//巡检点导入
+export function saveMethod3(data) {
+    return request({
+        url: '/patrol/api/excel/import',
+        method: 'post',
+        data
+    })
+}

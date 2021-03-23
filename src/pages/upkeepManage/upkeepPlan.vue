@@ -61,7 +61,7 @@
             ok-text="生成保养项目">
             <Form :model="addForm" :label-width="100">
                 <FormItem label="区域位置： ">
-                    <TreeSelect v-model="addForm.value" multiple :data="treeData" v-width="240"  />
+                    <TreeSelect v-model="addForm.value" multiple :data="treeData" :max-tag-count="2" v-width="240"  />
                     
                 </FormItem>
                 <FormItem label="设备类型： " >
@@ -70,6 +70,7 @@
                         multiple 
                         :data="genreList" 
                         v-width="240" 
+                        :max-tag-count="2"
                     />
                 </FormItem>
             </Form>

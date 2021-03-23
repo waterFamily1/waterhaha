@@ -111,6 +111,7 @@
                             multiple 
                             :data="orgList" 
                             v-width="150" 
+                            :max-tag-count="1"
                         />
                     </div>
                     <div class="body-header-item body-header-btn">

@@ -65,7 +65,7 @@
             :footer-hide="true">
             <div>选择相应的执行人员进行分派：</div>
             <div style="margin-top:20px">
-                <TreeSelect v-model="orgId" placeholder="请选择组织"  :data="orgData" v-width="300" @on-change="changeOrg" />              
+                <TreeSelect v-model="orgId" placeholder="请选择组织" :data="orgData" v-width="300" @on-change="changeOrg" />              
             </div>
             <div style="margin-top:20px">
                 <Select v-model="personId" style="width:300px" placeholder="请选择人员">

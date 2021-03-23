@@ -88,6 +88,15 @@ export default {
             },
             component: () => import('@/pages/dataManage/SiteManage')
         }, {
+            path: '/mpointImport',
+            name: `${pre}mpoint-mport`,
+            meta: {
+                ...meta,
+                title: '导入',
+                closable: false
+            },
+            component: () => import('@/pages/dataManage/import/import')
+        }, {
             path: '/analyze/addAutomatic',
             name: `${pre}analyze-addAutomatic`,
             meta: {

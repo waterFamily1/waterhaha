@@ -115,7 +115,7 @@
                     </div>
                     <div class="key-item">
                         <label>区域位置：</label>
-                        <TreeSelect v-model="tissue" multiple :data="treeData" v-width="150" />
+                        <TreeSelect v-model="tissue" :max-tag-count="1" multiple :data="treeData" v-width="150" />
                     </div>
                     <div class="search-btn">
                         <Button size="small">搜索</Button>

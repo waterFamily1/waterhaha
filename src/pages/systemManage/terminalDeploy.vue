@@ -13,6 +13,7 @@
                     @on-change="treeChange"
                     :multiple="true"
                     v-width="200" 
+                    :max-tag-count="2" 
                 />
             </div>
             <div class="c-adv-search-btn">

@@ -105,7 +105,7 @@ export default {
                 closable: false
             },
             component: () => import('@/pages/pollingManage/pollingManage')
-        },{
+        }, {
             path: '/addPoint',
             name: `${pre}addPoint`,
             meta: {

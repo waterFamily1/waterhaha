@@ -33,10 +33,9 @@ export function deleteMethod(data) {
 }
 
 //import
-export function saveMethod() {
+export function saveMethod(data) {
     return request({
-        url: '',
-        method: 'post',
-        data
+        url: '/equipment/api/excel-data-save?excelDataCacheKey='+data,
+        method: 'get'
     })
 }

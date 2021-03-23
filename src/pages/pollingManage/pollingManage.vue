@@ -4,11 +4,11 @@
             <div class="search-main">
                 <div class="form-item">
                     <label>关键词：</label>
-                    <Input v-model="keyword" placeholder="巡检点名称" style="width: 200px" size="small" />
+                    <Input v-model="keyword" placeholder="巡检点名称" style="width: 200px"/>
                 </div>
                 <div class="form-item">
                     <label>所属组织：</label> 
-                     <TreeSelect v-model="areaSite" multiple :data="processList"  v-width="200" size="small"  />
+                     <TreeSelect v-model="areaSite" :max-tag-count="2" multiple :data="processList" v-width="300" />
                 </div>
                 
                   <div class="form-search-btn">

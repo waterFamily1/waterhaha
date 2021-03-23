@@ -12,6 +12,7 @@
                     :data="data4"
                     :multiple="true"
                     v-width="350" 
+                    :max-tag-count="2" 
                 />
             </div>
             <div class="c-adv-search-btn">

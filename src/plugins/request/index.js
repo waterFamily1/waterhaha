@@ -3,7 +3,7 @@ import store from '@/store';
 import axios from 'axios';
 import util from '@/libs/util';
 import Setting from '@/setting';
-// import ERROR_CN from "@/plugins/requset/zh_cn";
+import ERROR_CN from '@/libs/error/zh_cn'
 
 import { Message, Notice } from 'view-design';
 
@@ -135,7 +135,47 @@ service.interceptors.response.use(
         //       VUEINS.$Message.error("无权限操作");
         //     }
         //   }
-          return Promise.reject(error);
+        if (error) {
+            const errorKey = error.response.data.errorKey,
+                title = error.response.data.title; // 巡检错误提示
+            if (errorKey) {
+                (ERROR_CN[errorKey] || title) &&
+                VUEINS.$Message.error(ERROR_CN[errorKey] || title);
+            }
+            if (error.response.status == 401) {
+              //if(sessionStorage.getItem('__MANGO_U_'))
+                if (error.response.headers["x-error"] == "uaa_auth_sessionExpired") {
+                    VUEINS.$Modal.confirm({
+                        title: "提示",
+                        content: "<p>登录超时,请重新登录.</p>",
+                        okText: "重新登录",
+                        cancelText: "",
+                        onOk: () => {
+                            location.href = "/login.html";
+                        }
+                    });
+                } else if (
+                    error.response.headers["x-error"] == "uaa_auth_tokenExpired"
+                ) {
+                    VUEINS.$Modal.confirm({
+                        title: "提示",
+                        content: "<p>您的角色权限被修改,请重新登录.</p>",
+                        okText: "重新登录",
+                        cancelText: "",
+                        onOk: () => {
+                            location.href = "/login.html";
+                        }
+                    });
+                } else {
+                    location.href = "/login.html";
+                }
+            }
+            if (error.response.status == 403) {
+                VUEINS.$Message.error("无权限操作");
+            }
+        }
+        return Promise.reject(error);
+        //   return Promise.reject(error);
     }
 );
 

@@ -14,6 +14,7 @@
                         @on-change="treeChange"
                         v-width="200" 
                         multiple
+                        :max-tag-count="2" 
                     />
                 </div>
                 <div class="form-search-btn">

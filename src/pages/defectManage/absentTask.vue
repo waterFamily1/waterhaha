@@ -8,7 +8,7 @@
                 </div>
                 <div class="form-item">
                     <label>所属组织：</label>
-                    <TreeSelect v-model="searchList.organize" multiple :data="orgData" v-width="200" />
+                    <TreeSelect v-model="searchList.organize" :max-tag-count="2"  multiple :data="orgData" v-width="300" />
                 </div>
                 <div class="form-search-btn">
                     <a href="javascript:;" @click="higherSearch()">
