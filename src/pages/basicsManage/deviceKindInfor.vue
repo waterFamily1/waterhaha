@@ -81,6 +81,7 @@
 <script>
 import { getOrg ,getEqu , saveEqu, deleteEqu,createEqu,searchEqu,uploadImg} from '@api/basic/equ';
 import createTree from '@/libs/public-util'
+import { typeTreeMethod1 } from '@/libs/public'
 export default {
     name: 'tissueInfor',
     data () {
@@ -138,7 +139,7 @@ export default {
                 let trees = res.data
                 for(let i = 0; i < trees.length; i ++) {
                     trees[i].title = trees[i].name
-                    // trees[i].expand = true
+                    trees[i].expand = true
                     treeItem.push(trees[i])
                 }
                 this.orgBaseData=treeItem
@@ -170,16 +171,18 @@ export default {
                         this.listshow = false
                         let treeItem = []
                         let trees = res.data.items
-                        
                         for(let i = 0; i < trees.length; i ++) {
                             trees[i].title = trees[i].name
-                            treeItem.push(trees[i])
                             if(trees[i].id == this.searchList[index].id){
                                 trees[i].selected = true
                             }
+                            trees[i].expand =true
+                             treeItem.push(trees[i])
                         }
+                       
                         this.equBaseData=treeItem
-                        this.equList=this.drawTree(treeItem)
+                        // this.equList=this.drawTree(treeItem)
+                        this.equList = typeTreeMethod1(treeItem, 0)
                     }
                 })
             this.orgBaseData.forEach(element => {
@@ -189,7 +192,7 @@ export default {
                 }
             });
         //     console.log(JSON.stringify(this.baseData))
-           this.checkParent(this.currentEqu.orgId,this.orgBaseData)
+        //    this.checkParent(this.currentEqu.orgId,this.orgBaseData)
         //    console.log(this.baseData)
         },
         checkParent(id,arr){
@@ -360,7 +363,8 @@ export default {
                         treeItem.push(trees[i])
                     }
                     this.equBaseData=treeItem
-                    this.equList=this.drawTree(treeItem)
+                    // this.equList=this.drawTree(treeItem)
+                    this.equList = typeTreeMethod1(treeItem, 0)
                 }
                 
             })
@@ -432,10 +436,11 @@ export default {
             });
             
         },
-        newFun() {
+        newFun(oot, node, data) {
+            console.log(data)
             let self = this
             self.appear = false
-            this.currentEqu={}
+            this.currentOrg= data
             this.imgPath=""
         },
         cancel() {
@@ -446,6 +451,8 @@ export default {
             this.showUpload = false
         },
         edit(data){
+            console.log(data)
+            this.currentEqu = data
            this.appear= false
            this.tissueList.devicename = this.currentEqu.name
            this.tissueList.remark = this.currentEqu.remarks
@@ -454,7 +461,7 @@ export default {
         create(data){
             this.equNew = true
             this.appear= false
-            this.isChooseequ = false
+            this.isChooeequ = false
             this.currentEqu={}
             this.imgPath=""
             this.tissueList.devicename = ''
@@ -464,6 +471,7 @@ export default {
              this.$refs[name].validate((valid) => {
                 if (valid) {
                     if(this.isChooseequ){
+                        console.log("bianji")
                        this.saveEqu()
                        this.showUpload = false
                     } else {
@@ -473,11 +481,29 @@ export default {
             })
         },
         saveEqu(){
-            this.currentEqu.name= this.tissueList.devicename 
-            this.currentEqu.title= this.tissueList.devicename 
-            this.currentEqu.remarks = this.tissueList.remark
-            this.currentEqu.imageUrl = this.imgPath
-            saveEqu(this.currentEqu).then(res=>{
+            // this.currentEqu.name= this.tissueList.devicename 
+            // this.currentEqu.title= this.tissueList.devicename 
+            // this.currentEqu.remarks = this.tissueList.remark
+            // this.currentEqu.imageUrl = this.imgPath
+            console.log(this.currentEqu)
+            let data = {
+                children: [],
+                equCount: null,
+                id: this.currentEqu.id,
+                imageUrl: this.imgPath,
+                name: this.tissueList.devicename ,
+                nodeKey: this.currentEqu.nodeKey,
+                orgId: this.currentEqu.orgId,
+                parentId: this.currentEqu.parentId,
+                remarks: this.tissueList.remark,
+                seqOrder: null,
+                state: this.currentEqu.state,
+                tenantId: this.currentEqu.tenantId,
+                title: this.tissueList.devicename ,
+                type: null,
+                version: this.currentEqu.version
+            }
+            saveEqu(data).then(res=>{
                 if(res.data.id){
                     this.$Message.success('编辑成功');
                     this.getCurrentequ(this.currentOrg.id)
