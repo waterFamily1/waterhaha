@@ -248,7 +248,8 @@ import createTree from '@/libs/public-util'
             modelKey:'',
             filterId:'',
             baseData:[],
-            mpointList:[]
+            mpointList:[],
+            page:1
         }
       },
       mounted() {
@@ -345,6 +346,7 @@ import createTree from '@/libs/public-util'
              })
         },
         getModalData(){
+            console.log(this.page)
             if(this.selectedData.length!=0){
                 let arr = []
                 this.selectedData.forEach(ele=>{
@@ -352,7 +354,7 @@ import createTree from '@/libs/public-util'
                 })
                 this.filterId = arr.join(",")
             }
-            dialog(this.filterId,this.modelKey,this.formInline.location).then(res=>{
+            dialog(this.filterId,this.modelKey,this.formInline.location,this.page).then(res=>{
                 console.log(res)
                 this.modelData = res.data.items
                 this.modelTotal = res.data.total
