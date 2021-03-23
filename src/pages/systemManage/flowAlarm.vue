@@ -193,14 +193,14 @@ export default {
             this.getList()
         },
         typeChange(checkedNames, name) {
-            if(name == '' || name == undefined || name == null) {
-                this.typeValue = []
-            }
+            // if(name == '' || name == undefined || name == null) {
+            //     this.typeValue = []
+            // }
         },
         takeChange(checkedNames, name) {
-            if(name == '' || name == undefined || name == null) {
-                this.takeValue = []
-            }
+            // if(name == '' || name == undefined || name == null) {
+            //     this.takeValue = []
+            // }
         },
         handleSelectRow(selection) {
             let arr = selection

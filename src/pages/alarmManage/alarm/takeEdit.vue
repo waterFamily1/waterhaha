@@ -57,12 +57,12 @@
                 <div class="c-form-row-2col" style="padding-top: 20px;">
                     <div class="c-form-item">
                         <FormItem label="所属组织：">
-                            <TreeSelect v-model="formValidate.organize"   @on-change="chooseSite"  :data="organizeList" v-width="300" size="small" />
+                            <TreeSelect v-model="formValidate.organize" @on-change="chooseSite" :data="organizeList" v-width="300" />
                         </FormItem>
                     </div>
                     <div class="c-form-item">
                         <FormItem label="用户：">
-                            <Select v-model="formValidate.user" multiple placeholder="请选择用户" @on-select="selectUser" style="width:300px" size="small">
+                            <Select v-model="formValidate.user" multiple placeholder="请选择用户" @on-select="selectUser" style="width:300px">
                                <Option v-for="item in userList" :value="item.id" :key="item.id">{{ item.name }}</Option>
                             </Select>
                         </FormItem>
@@ -100,7 +100,7 @@
                         <label>关键字：</label>
                         <Input v-model="modalName" placeholder="编号/报警名称" style="width: 150px" size="small" />
                         <label style="margin-left: 5px">区域位置：</label>
-                        <TreeSelect v-model="modalArea" multiple   :data="modalAreaData" v-width="150" size="small" />
+                        <TreeSelect v-model="modalArea" multiple :max-tag-count="1" :data="modalAreaData" v-width="150" size="small" />
                         <Button @click="searchHandle()">搜索</Button>
                         <Button class="reset" @click="resetHandle()">重置</Button>
                     </div>

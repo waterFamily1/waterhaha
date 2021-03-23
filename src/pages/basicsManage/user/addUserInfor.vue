@@ -13,11 +13,12 @@
                     <Input v-model="formInline.name" placeholder="请输入用户姓名"  style="width:350px"></Input>
                 </FormItem>
                 <FormItem label="所属组织：" prop="orgId" >
-                     <TreeSelect 
-                    v-model="formInline.orgId" 
-                    :data="data4"
-                    v-width="350" 
-                />
+                    <TreeSelect 
+                        v-model="formInline.orgId" 
+                        :data="data4"
+                        v-width="350" 
+                        :max-tag-count="2" 
+                    />
                 </FormItem>
                 <FormItem label="手机号：" prop="tel">
                     <Input v-model="formInline.tel" placeholder="请输入手机号"  style="width:350px"></Input>

@@ -10,7 +10,7 @@
                         </div>
                         <div class="form-item">
                              <label style="display:inline-block;width:120px;text-align:right">区域位置：</label> 
-                             <TreeSelect size="small" v-model="area" multiple :data="treeData" v-width="200" />
+                             <TreeSelect size="small" v-model="area" multiple TreeSelect :data="treeData" v-width="300" />
                         </div>
                         <div class="form-search-btn">
                             <a href="javascript:;" @click="higherSearch()">

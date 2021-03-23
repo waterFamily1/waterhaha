@@ -10,8 +10,8 @@
                             </FormItem>
                         </div>
                         <div class="form-item">
-                             <label style="display:inline-block;width:120px;text-align:right">区域位置：</label> 
-                             <TreeSelect v-model="historyList.area" multiple :data="treeData" v-width="200" />
+                            <label style="display:inline-block;width:120px;text-align:right">区域位置：</label> 
+                            <TreeSelect v-model="historyList.area" multiple :data="treeData" :max-tag-count="2" v-width="400" />
                         </div>
                         <div class="form-search-btn">
                             <a href="javascript:;" @click="higherSearch()">

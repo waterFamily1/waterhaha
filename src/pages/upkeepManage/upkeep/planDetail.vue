@@ -4,7 +4,7 @@
             <h3>保养计划详情</h3> 
             <div class="c-btns-right">
                 <Button type="primary" @click="saveHandle()">保存</Button>
-                <Button type="primary" class="c-btn-back" @click="goBack()">取消</Button>
+                <Button type="primary" class="c-btn-back" @click="cancleHandle()">取消</Button>
             </div>
         </div>
         <div class="c-top-border-gray">
@@ -72,15 +72,15 @@
             <div :class="{searchTrans:searchShow, searchPack:!searchShow}" style="margin-top:20px">
                 <div class="c-form-item">
                     <label>区域位置：</label>
-                     <TreeSelect v-model="area" multiple :data="treeData" v-width="240"  />
+                     <TreeSelect v-model="area" multiple :max-tag-count="1" :data="treeData" v-width="240"  />
                 </div>
                 <div class="c-form-item">
                     <label>设备类型：</label>
-                     <TreeSelect v-model="equ" multiple :data="genreList" v-width="240"  />
+                     <TreeSelect v-model="equ" multiple :data="genreList" :max-tag-count="1" v-width="240"  />
                 </div>
                  <div class="c-form-item">
                     <label>保养内容：</label>
-                     <TreeSelect v-model="mainCon" multiple :data="genreList"  v-width="240"  />
+                     <TreeSelect v-model="mainCon" multiple :data="genreList" :max-tag-count="1" v-width="240"  />
                 </div>
             </div>
             <div >
@@ -223,7 +223,6 @@ export default {
                     width: 100,
                     render: (h, params) => {
                         let text = params.row.isRepiar=='true' ?'是':'否'
-                        console.log(text)
                         return h('span', {} ,text );
                     }  
                 }, 
@@ -348,7 +347,7 @@ export default {
           this.tableData.splice(0,0)
         },
         toggle(){
-            console.log(this.selectedData)
+            // console.log(this.selectedData)
             if(this.selectedData.length==0){
                 this.$Message.warning('请选择保养项');
                 return
@@ -358,12 +357,10 @@ export default {
                     if(item.id == ele.id){
                         ele.isRepiar = 'false'
                     }
-                    
                 })
             })
             this.tableData.splice(0,0)
         },
-       
         defineDuration(name){
              this.tableData.map(ele=>{
               ele.maintainPeriod = name
@@ -373,7 +370,7 @@ export default {
             
         },
         check(id){
-            console.log(id)
+            // console.log(id)
             this.$router.push({
                 path: '/upkeep/planAllot',
                 query:{
@@ -382,7 +379,7 @@ export default {
             })
         },
         saveHandle(){
-            console.log(this.area)
+            // console.log(this.area)
             this.tableData.map(ele=>{
                 ele.guid = ""
             })
@@ -400,7 +397,7 @@ export default {
                     startDate: this.$moment(this.start).utc().format(),
                 }
             }]
-             console.log(data)
+            //  console.log(data)
             // nums
             addPlan(data).then(res=>{
                 if(res.data.nums){
@@ -462,7 +459,7 @@ export default {
         },
         getTableList(){
             maintainList(this.equipmentTypeId,this.areaId).then(res=>{
-                console.log(res)
+                // console.log(res)
                 if(res.data.items){
                     this.tableData = res.data.items
                     this.total = res.data.total
@@ -475,17 +472,17 @@ export default {
         },
         getList(){
             editDetail(this.id,this.equipmentTypeId,this.areaId).then(res=>{
-                console.log(res)
+                // console.log(res)
                 if(res.data.items){
                     this.tableData = res.data.items
                     this.total = res.data.total
                     this.tableData.map(ele=>{
-                            ele.isRepiar = 'true'
+                        ele.isRepiar = 'true'
                     })
                 }
             })
         },
-        goBack() {
+        cancleHandle() {
             this.$Modal.confirm({
                 title: '是否确认取消编辑？',
                 onOk: () => {

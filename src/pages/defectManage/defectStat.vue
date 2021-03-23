@@ -30,11 +30,11 @@
                     <div class="form-item">
                         <div>
                             <label>区域位置：</label>
-                            <TreeSelect v-model="searchList.area" multiple :data="areaData" v-width="200" />
+                            <TreeSelect v-model="searchList.area" :max-tag-count="2"  multiple :data="areaData" v-width="300" />
                         </div>
                         <div>
                             <label>所属组织：</label>
-                            <TreeSelect v-model="searchList.organize" multiple :data="orgData" v-width="200" />
+                            <TreeSelect v-model="searchList.organize" :max-tag-count="2"  multiple :data="orgData" v-width="300" />
                         </div>
                     </div>
                     <div class="form-item">

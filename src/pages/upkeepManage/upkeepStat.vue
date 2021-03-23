@@ -9,11 +9,11 @@
                 </div>
                   <div class="form-item">
                     <label>所属组织：</label>
-                     <TreeSelect v-model="area" multiple :data="treeData" v-width="150" @on-change="changeArea"  />
+                     <TreeSelect v-model="area" multiple :data="treeData" :max-tag-count="1" v-width="200" @on-change="changeArea"  />
                 </div>
                 <div class="form-item">
                     <label>执行人员：</label>
-                    <Select v-model="personId" style="width:150px" placeholder="请选择人员" size="small">
+                    <Select v-model="personId" style="width:150px" placeholder="请选择人员">
                         <Option v-for="item in handlerList" :value="item.value" :key="item.value">{{ item.label }}</Option>
                     </Select>
                 </div>

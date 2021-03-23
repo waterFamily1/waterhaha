@@ -32,7 +32,7 @@
                 <Row>
                     <Col span="12">
                         <label for="">区域位置：</label>
-                        <TreeSelect v-model="area" multiple :data="treeData" v-width="200" />
+                        <TreeSelect v-model="area" multiple :data="treeData" :max-tag-count="1" v-width="200" />
                     </Col>
                     <Col span="12">
                         <label for="">保养内容：</label>
@@ -51,7 +51,7 @@
                     </Col>
                     <Col span="12">
                         <label for="">设备类型：</label>
-                        <TreeSelect v-model="equ" multiple :data="genreList" v-width="200" />
+                        <TreeSelect v-model="equ" multiple :data="genreList" :max-tag-count="1" v-width="200" />
                     </Col>
                 </Row>
                 <Row>

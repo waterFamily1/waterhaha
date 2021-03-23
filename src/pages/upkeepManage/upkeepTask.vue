@@ -8,7 +8,7 @@
                 </div>
                  <div class="form-item">
                     <label>所属组织：</label>
-                     <TreeSelect v-model="area" multiple :data="treeData" v-width="150"  />
+                     <TreeSelect v-model="area" multiple :data="treeData" :max-tag-count="1" v-width="200"  />
                 </div>
                 <div class="form-item">
                     <label>起止日期：</label>

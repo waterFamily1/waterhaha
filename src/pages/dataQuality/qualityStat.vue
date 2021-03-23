@@ -4,11 +4,11 @@
             <div class="search-main">
                 <div class="form-item">
                     <label>区域位置：</label>
-                    <TreeSelect v-model="areaLocation" size="small" multiple  :data="areaData" v-width="200" />
+                    <TreeSelect v-model="areaLocation" :max-tag-count="2" multiple :data="areaData" v-width="200" />
                 </div>
                 <div class="date-step">
                     <label>起始时间：</label>
-                    <DatePicker size="small"  type="date" v-model="endTime" 
+                    <DatePicker type="date" v-model="endTime" 
                           :readonly="false"
                         format="yyyy-MM-dd  HH:mm:ss" style="width:200px"  @on-change="getTime">
                     </DatePicker>

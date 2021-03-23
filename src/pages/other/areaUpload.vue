@@ -72,7 +72,7 @@
 </template>
 <script>
 import config from './config'
-import { saveMethod, saveMethod1, saveMethod2 } from '@/api/other/import'
+import { saveMethod, saveMethod1, saveMethod2, saveMethod3 } from '@/api/other/import'
 
 function render(h, data) {
 	const errorPrefix = 'Error:';
@@ -175,6 +175,19 @@ export default {
                 {title: '备注', key: 'remarks', ellipsis: true, render: render},
                 {title: '其他错误', key: 'otherError', ellipsis: true, render: render}
             ]
+        } else if(this.uploadName == '巡检点导入') {
+            this.importHref = '/patrol/api/excel/template?type=point'
+            this.Action = '/patrol/api/excel/validate?type=point'
+            this.columns = [
+                {title: '行号', key: 'index', render: render},
+                {title: '区域位置	', key: 'processName', ellipsis: true, render: render},
+                {title: '名称 ', key: 'pointName', ellipsis: true, render: render},
+                {title: '描述', key: 'description', ellipsis: true, render: render},
+                {title: '步骤名称', key: 'stepName', ellipsis: true, render: render},
+                {title: '结果类型', key: 'resultType', ellipsis: true, render: render},
+                {title: '绑定测点', key: 'mpointName', ellipsis: true, render: render},
+                {title: '其他错误', key: 'otherError', ellipsis: true, render: render}
+            ]
         }
     },
     mounted() {
@@ -253,6 +266,23 @@ export default {
                 })
             } else if(this.uploadName == '区域位置导入') {
                 saveMethod({
+                    excelDataCacheKey: this.excelDataCachekey
+                }).then(res=> {
+                    this.submitLoading = false
+                    if(res){
+                        this.$Notice.success({
+                            title: '成功！',
+                            desc: '数据保存成功',
+                            duration: 3
+                        })
+                        this.activeProcess = 3
+                        
+                    }
+                }).catch(err=> {
+                    this.submitLoading = false
+                })
+            } else if(this.uploadName == '巡检点导入') {
+                saveMethod3({
                     excelDataCacheKey: this.excelDataCachekey
                 }).then(res=> {
                     this.submitLoading = false

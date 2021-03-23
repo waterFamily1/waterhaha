@@ -98,6 +98,7 @@
                                     :data="equTreeData" 
                                     v-width="200" 
                                     multiple
+                                    :max-tag-count="2" 
                                 />
                             </FormItem>
                         </Col>

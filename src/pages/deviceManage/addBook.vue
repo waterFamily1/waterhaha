@@ -4,7 +4,7 @@
             <h3>设备详情</h3>
             <div class="c-btns-right">
                 <Button><span>保存</span></Button>
-                <Button class="cancel"><span>取消</span></Button>
+                <Button class="cancel" @click="goBack()"><span>取消</span></Button>
             </div>
         </div>
         <div class="c-top-border-gray">

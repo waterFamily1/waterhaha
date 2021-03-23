@@ -140,16 +140,17 @@ export default {
                     { required: true, message: '请选择测点', trigger: 'change' }
                 ]
             },
+            location: '',
+            sightName: '',
+            mpointIdS: '',
             typeList: [
                 {
                     label: '数据KPI',
                     value: '1'
-                },
-                {
+                }, {
                     label: '设备KPI',
                     value: '2'
-                },
-                {
+                }, {
                     label: '关键指标',
                     value: '3'
                 }
@@ -160,12 +161,10 @@ export default {
                 {
                     title: '区域位置',
                     key: 'siteName'
-                },
-                {
+                }, {
                     title: '测点名称',
                     key: 'mpointName'
-                },
-                {
+                }, {
                     title: '操作',
                     slot: 'action',
                     width: 150,
@@ -211,6 +210,7 @@ export default {
             if(this.type == true) {
                 let ids = this.ids
                 detailMethod(ids).then(res=> {
+                    console.log(res)
                     this.indexName = res.data.indexName
                     this.processName = res.data.processName
                     this.mpointName = res.data.mpointName
@@ -219,14 +219,18 @@ export default {
                     this.mpointId = res.data.mpointId
                     this.formItem.name = this.indexName
                     this.formItem.sightName = this.mpointName
-                    this.id = res.data.idea-box
-                    if(res.data.indexType == '1') {
+                    this.id = res.data.id
+                    if(res.data.indexType == 1) {
                         this.indexType = '数据KPI'
-                    } else if(res.data.indexType == '2') {
+                    } else if(res.data.indexType == 2) {
                         this.indexType = '设备KPI'
-                    } else if(res.data.indexType == '3') {
+                    } else if(res.data.indexType == 3) {
                         this.indexType = '关键指标'
                     }
+
+                    this.location = res.data.processId
+                    this.sightName = this.mpointName
+                    this.mpointIdS = res.data.mpointId
                 }).catch(err=> {
 
                 })
@@ -295,7 +299,7 @@ export default {
                         })
                     } else if(this.cancle == '1') {
                         saveMethod({
-                            id: this.id,
+                            id: Number(this.id),
                             indexName: this.formItem.name,
                             indexType: this.formItem.type,
                             mpointId: this.mpointId,
@@ -304,7 +308,6 @@ export default {
                             processName: this.processName,
                             userId: ''
                         }).then(res=> {
-                            // console.log(res)
                             if(res.data.count == 1) {
                                 this.$router.push({
                                     path:'/indicator'
@@ -319,9 +322,12 @@ export default {
         },
         cancelHandle(name) {
             if(this.cancle == '1' && this.type == false) {
-                this.$refs[name].resetFields();
+                this.$refs[name].resetFields()
                 this.type = true
             } else {
+                this.formItem.location = this.location
+                this.formItem.sightName = this.sightName
+                this.mpointId = this.mpointIdS
                 this.$router.go(-1)
             }
         },

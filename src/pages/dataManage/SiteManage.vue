@@ -717,7 +717,7 @@ export default {
         importMpoint() {
             //导入
             this.$router.push({
-                path: '/other/areaUpload'
+                path: '/mpointImport'
             })
         },
         routerToChart() {
